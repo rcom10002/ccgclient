@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:layout>absolute</mx:layout>
+	<mx:currentState>LIST</mx:currentState>
+	<mx:width>100%</mx:width>
+	<mx:height>100%</mx:height>
+	<mx:Script>
+		<![CDATA[
+			import mx.states.State;
+			import mx.events.FlexEvent;
+			import mx.events.StateChangeEvent;
+			import flash.debugger.enterDebugger;
+			import mx.core.Application;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.controls.Button;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+
+			private var layoutCanvas:DisplayObject = null;
+			
+            public function popUp(closeHandler:Function = null):void {
+                // 事件绑定
+                if (closeHandler != null) {
+                	ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+                }
+            	ListenerBinder.bind(this, CloseEvent.CLOSE, this.closeHandler);
+            	ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, this.currentStateChangeHandler);
+            	// 设置容器
+                if (this.layoutCanvas == null) {
+                	this.layoutCanvas = DisplayObject(Application.application);
+                }
+                // 弹出窗口
+                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
+                PopUpManager.centerPopUp(this);
+                this.isPopUp = false;
+            }
+
+            public function set currentLayoutCanvas(obj:DisplayObject):void {
+            	this.layoutCanvas = obj;
+            }
+
+            protected function closeHandler(event:CloseEvent):void {
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+
+			protected function currentStateChangeHandler(event:StateChangeEvent):void {
+				if (event.newState == "LIST") {
+					this.percentWidth = 100;
+					this.percentHeight = 100;
+				}
+				if (event.newState == "EDIT") {
+					this.percentWidth = 0;
+					this.percentHeight = 0;
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:creationComplete>
+		<![CDATA[
+        	ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGING, this.currentStateChangeHandler);
+		]]>
+	</mx:creationComplete>
+    <mx:HTTPService id="infoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST">
+<!--
+        <mx:request>
+        	<PLAYER_PROFILE_ID>{playerProfileId.text}</PLAYER_PROFILE_ID>
+        	<PLAYER_PROFILE_GROUP>{playerProfileGroup.text}</PLAYER_PROFILE_GROUP>
+        	<PLAYER_PROFILE_PASSWORD>{playerProfilePassword.text}</PLAYER_PROFILE_PASSWORD>
+        	<PLAYER_PROFILE_LIMIT>{playerProfileLimit.text}</PLAYER_PROFILE_LIMIT>
+        	<PLAYER_PROFILE_ROLE>{playerProfileRole.text}</PLAYER_PROFILE_ROLE>
+        </mx:request>
+-->
+    </mx:HTTPService>
+</mx:TitleWindow>

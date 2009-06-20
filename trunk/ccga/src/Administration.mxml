@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+                layout="absolute"
+                xmlns:service="info.knightrcom.service.*" currentState="MAIN">
+    <mx:Script>
+    	<![CDATA[
+    		import mx.events.ListEvent;
+    		import info.knightrcom.UIManager;
+    		import mx.events.ItemClickEvent;
+    		import info.knightrcom.util.ListenerBinder;
+    	]]>
+    </mx:Script>
+    <mx:Style source="css/ccgaskin-ext.css"/>
+    <mx:Style source="style/style.css"/>
+    <mx:applicationComplete>
+    	<![CDATA[
+    		UIManager.adminApp = this;
+    		ListenerBinder.bind(menuTree, ListEvent.ITEM_CLICK, UIManager.itemClickHandler);
+    	]]>
+    </mx:applicationComplete>
+    <mx:states>
+        <mx:State name="LOGIN">
+            <mx:AddChild position="lastChild">
+                <mx:Panel id="loginLayout"
+                          layout="absolute"
+                          height="138"
+                          width="240"
+                          right="10"
+                          bottom="10"
+                          title="用户登录">
+                    <mx:Label x="10"
+                              y="10"
+                              text="用户ID"/>
+                    <mx:Label x="10"
+                              y="36"
+                              text="密码"
+                              fontFamily="simsun"/>
+                    <mx:TextInput x="53"
+                                  y="8"
+                                  id="txtUsername"
+                                  text="user1"/>
+                    <mx:TextInput x="53"
+                                  y="34"
+                                  id="txtPassword"
+                                  text="user1"/>
+                    <mx:Button x="38"
+                               y="66"
+                               id="btnConnect"
+                               label="连接"/>
+                    <mx:Button x="98"
+                               y="66"
+                               id="btnSubmit"
+                               label="登录"/>
+                    <mx:Button x="158"
+                               y="66"
+                               id="btnReset"
+                               label="重置"/>
+                </mx:Panel>
+            </mx:AddChild>
+        </mx:State>
+        <mx:State name="MAIN">
+            <mx:AddChild position="lastChild">
+                <mx:HDividedBox top="41"
+                                bottom="10"
+                                left="10"
+                                right="10">
+                    <mx:HBox height="100%" width="200" minWidth="100" maxWidth="300">
+                        <mx:Tree id="menuTree" 
+                                 dataProvider="{xmlDP}"
+                                 labelField="@label"
+                                 showRoot="false"
+                                 wordWrap="false"
+                                 variableRowHeight="true"
+                                 height="100%" width="100%"
+                                 horizontalScrollPolicy="{mx.core.ScrollPolicy.ON}"
+                                 verticalScrollPolicy="{mx.core.ScrollPolicy.ON}"/>
+                    </mx:HBox>
+                    <mx:HBox id="functionWindowArea" height="100%" horizontalAlign="center" verticalAlign="middle">
+                    </mx:HBox>
+                </mx:HDividedBox>
+            </mx:AddChild>
+        </mx:State>
+        <mx:State name="GROUP_USER_EDIT" basedOn="MAIN">
+            <mx:AddChild relativeTo="{functionWindowArea}" position="lastChild">
+                <service:GroupUserWindow>
+                </service:GroupUserWindow>
+            </mx:AddChild>
+        </mx:State>
+        <mx:State name="SOLO_USER_EDIT" basedOn="MAIN">
+            <mx:AddChild relativeTo="{functionWindowArea}" position="lastChild">
+                <service:PlayerProfileWindow>
+                </service:PlayerProfileWindow>
+            </mx:AddChild>
+        </mx:State>
+    </mx:states>
+    <mx:ApplicationControlBar left="0"
+                              right="0"
+                              top="0" id="applicationControlBar" horizontalAlign="center">
+		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.4)"/>
+    </mx:ApplicationControlBar>
+    <mx:XML id="xmlDP">
+        <root label="nodegraphs">
+            <node label="用户管理">
+                <node label="组用户管理"/>
+                <node label="普通用户管理"/>
+                <node label="用户关系管理"/>
+            </node>
+            <node label="游戏管理">
+                <node label="扑克游戏">
+	                <node label="大连红五"/>
+	                <node label="斗地主"/>
+	            </node>
+                <node label="麻将游戏">
+                	<node label="穷胡"/>
+                	<node label="推到胡"/>
+	            </node>
+            </node>
+            <node label="系统参数管理">
+                <node label="服务器参数"/>
+                <node label="游戏参数"/>
+            </node>
+            <node label="游戏服务器管理">
+                <node label="操作管理">
+                	<node label="启动游戏服务器"/>
+                	<node label="关闭游戏服务器"/>
+                	<node label="重新启动游戏服务器"/>
+                	<node label="关于游戏Web服务器"/>
+	            </node>
+                <node label="运行状态查看"/>
+            </node>
+            <node label="帮助">
+	            <node label="管理员帮助手册"/>
+	            <node label="关于管理平台"/>
+            </node>
+        </root>
+    </mx:XML>
+</mx:Application>

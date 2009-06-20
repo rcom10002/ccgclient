@@ -1,0 +1,5 @@
+/* 字体设置 */
+Application, Validator.errorTip {
+	font-size: 12px;
+	font-family: Simsun;
+}
