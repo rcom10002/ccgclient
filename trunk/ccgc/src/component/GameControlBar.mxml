@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml"
+                          width="100%">
+    <mx:HBox horizontalAlign="left">
+        <mx:Button id="btnGameJoin"
+                   label="加入游戏"/>
+    </mx:HBox>
+    <mx:HBox horizontalAlign="center"
+             width="100%">
+        <mx:Label id="lblSystemInfo"
+                  text="百家乐游戏平台(0.6 Beta)"/>
+    </mx:HBox>
+    <mx:HBox horizontalAlign="right">
+        <mx:Button id="btnSystemInfo"
+                   label="系统信息"/>
+        <mx:Button id="btnPlayerInfo"
+                   label="玩家信息"/>
+        <mx:Button id="btnOption"
+                   label="选项"/>
+        <mx:Button id="btnLogout"
+                   label="注销"/>
+        <mx:Button id="btnHelp"
+                   label="帮助"/>
+    </mx:HBox>
+    <!--
+         <mx:HBox width="100%">
+         <mx:MenuBar id="myMenuBar"
+         labelField="@label">
+         <mx:XMLList>
+         <menuitem label="MenuItem A">
+         <menuitem label="SubMenuItem A-1"
+         enabled="False"/>
+         <menuitem label="SubMenuItem A-2"/>
+         </menuitem>
+         <menuitem label="MenuItem B"
+         type="check"
+         selected="true"/>
+         <menuitem label="MenuItem C"
+         type="check"
+         selected="false"/>
+         <menuitem label="MenuItem D">
+         <menuitem label="SubMenuItem D-1"
+         type="radio"
+         groupName="one"/>
+         <menuitem label="SubMenuItem D-2"
+         type="radio"
+         groupName="one"
+         selected="true"/>
+         <menuitem label="SubMenuItem D-3"
+         type="radio"
+         groupName="one"/>
+         </menuitem>
+         </mx:XMLList>
+         </mx:MenuBar>
+         </mx:HBox>
+    -->
+</mx:ApplicationControlBar>

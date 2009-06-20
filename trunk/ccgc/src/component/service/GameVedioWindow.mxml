@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				layout="absolute"
+                width="{Application.application.screen.width}"
+                height="{Application.application.screen.height}"
+				showCloseButton="true">
+	<mx:Script>
+		<![CDATA[
+			import info.knightrcom.service.LocalSystemInfoService;
+			import info.knightrcom.state.red5game.Red5Game;
+			import mx.controls.Alert;
+			import mx.containers.Box;
+			import info.knightrcom.state.red5game.Red5GameSetting;
+			import component.PokerButton;
+			import mx.rpc.events.ResultEvent;
+			import mx.core.Application;
+			import mx.events.ResizeEvent;
+			import info.knightrcom.util.HttpServiceProxy;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+			import info.knightrcom.util.ListenerBinder;
+
+			private static const DEFAULT_DELAY:int = 5000;
+
+			private var layoutCanvas:DisplayObject = null;
+
+			private var gamePlayers:String;
+
+			private var gameRecord:String;
+
+			private var cardsCandidatedArray:Array;
+
+			private var cardsDealedArray:Array;
+
+			private var settingTimer:Timer;
+
+			private var playingTimer:Timer
+
+            public function popUp(closeHandler:Function = null):void {
+                if (closeHandler != null) {
+                	this.addEventListener(CloseEvent.CLOSE, closeHandler);
+                }
+                if (this.layoutCanvas == null) {
+                	this.layoutCanvas = DisplayObject(this.parentApplication);
+                }
+                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
+                PopUpManager.centerPopUp(this);
+                this.isPopUp = false;
+            }
+            
+            public function set currentLayoutCanvas(obj:DisplayObject):void {
+            	this.layoutCanvas = obj;
+            }
+            
+            private function closeHandler(event:CloseEvent):void {
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+            
+            private function btnExecuteClickHandler(event:MouseEvent):void {
+				if (btnExecute.label == "暂停") {
+					btnExecute.label = "继续";
+					if (playingTimer.running) {
+						playingTimer.stop();
+					}
+					return;
+				} else if (btnExecute.label == "继续") {
+					btnExecute.label = "暂停";
+					playingTimer.start();
+					return;
+				} else if (btnExecute.label == "播放") {
+            		btnExecute.label = "暂停";
+    			} else {
+    				throw Error("按钮状态错误！");
+    			}
+            	// 录像机初始化
+            	if (settingTimer != null && settingTimer.running) {
+            		settingTimer.stop();
+            		throw Error("Timer组件错误！");
+            	}
+            	if (playingTimer != null && playingTimer.running) {
+            		playingTimer.stop();
+            		throw Error("Timer组件错误！");
+            	}
+            	// 清空历史录像信息
+            	lblGameSetting.text = "";
+            	// 清除历史录像播放信息
+            	var eachBox:Box = null;
+            	for each (eachBox in cardsCandidatedArray) {
+            		eachBox.removeAllChildren();
+            	}
+            	for each (eachBox in cardsDealedArray) {
+            		eachBox.removeAllChildren();
+            	}
+            	// 游戏玩家
+            	// 1~user4~2~user3~3~user2~4~user1~
+            	HttpServiceProxy.send(LocalSystemInfoService.GAME_INFO,
+            			{GAME_ID : gameId.text}, null, function (event:ResultEvent):void {
+            				var e4xResult:XML = new XML(event.result);
+            				var gameType:String = e4xResult.entity.gameType.text();
+            				gamePlayers = e4xResult.entity.players.text();
+            				gameRecord = e4xResult.entity.record.text();
+            				lblGameSetting.text = Red5GameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
+							// 确定游戏名称
+							if (gameType == "Red5Game") {
+								var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
+								gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
+								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){4}).*/, "$1"), ";");
+								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
+								var part3:String = removeBothSides(gameRecord, ";");
+								btnExecute.enabled = false;
+								playRed5Game(part1, part2, part3);
+							} else {
+								throw Error("未知游戏类型！无法播放游戏历史录像！");
+							}
+            				settingWindow.visible = false;
+            			});
+            }
+
+			private function btnTerminateClickHandler(event:MouseEvent):void {
+				if (settingTimer != null) {
+					settingTimer.reset();
+				}
+				if (settingTimer != null) {
+					playingTimer.reset();
+				}
+				lblGameSetting.text = "";
+				btnExecute.label = "播放";
+				btnExecute.enabled = true;
+			}
+
+			private function playRed5Game(part1:String, part2:String, part3:String):void {
+            	// 完整的记录
+            	// 4V2,3V2,2V2,1V2,2V5~0=5,1=5,2=5,3=5;1V5,0VY,4V5,0VY,3V5~0=5,1=5,2=5,3=5;1V5,1V2,3V5,0VX,3V2~0=5,1=5,2=5,3=5;4V2,4V5,2V5,0VX,2V2~0=5,1=5,2=5,3=5;2~1~3;2~1~4;2~1~1;1~2~2;1~1V2,2V2,3V2,4V2~2;1~1V2,2V2,3V2,4V2~3~pass;1~1V2,2V2,3V2,4V2~4~pass;1~1V2,2V2,3V2,4V2~1~pass;1~2V5~2;
+            	// 记录第一部分：游戏初始时各个玩家手中的牌以及牌数
+            	// 4V2,3V2,2V2,1V2,2V5~0=5,1=5,2=5,3=5;1V5,0VY,4V5,0VY,3V5~0=5,1=5,2=5,3=5;1V5,1V2,3V5,0VX,3V2~0=5,1=5,2=5,3=5;4V2,4V5,2V5,0VX,2V2~0=5,1=5,2=5,3=5;
+            	// 记录第二部分：游戏设置情况
+            	// 2~1~3;2~1~4;2~1~1;1~2~2;
+            	// 记录第三部分：游戏进行中所有的出牌记录
+            	// 1~1V2,2V2,3V2,4V2~2;1~1V2,2V2,3V2,4V2~3~pass;1~1V2,2V2,3V2,4V2~4~pass;1~1V2,2V2,3V2,4V2~1~pass;1~2V5~2;
+				// 开始发牌
+				var initPokers:Array = part1.split(/;/);
+				for (var eachPokersIndex:String in initPokers) {
+					// eachPokers样式：4V2,3V2,2V2,1V2,2V5
+					// 为每位玩家进行发牌，并对已发的牌进行排序
+					var pokers:Array = Red5Game.sortPokers(initPokers[eachPokersIndex].toString().replace(/~.*/, "").split(","));
+					for each (var eachPokerName:String in pokers) {
+		                var poker:PokerButton = new PokerButton();
+		                poker.source = "image/poker/" + eachPokerName + ".png";
+		                poker.allowSelect = false;
+		                cardsCandidatedArray[eachPokersIndex].addChild(poker);
+					}
+				}
+				// 录像播放
+				// 进行游戏设置
+				var itrIndex:int = 0;
+				var initSetting:Array = part2.split(";");
+				var playerIndex:int = -1;
+				settingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
+				settingTimer.addEventListener(TimerEvent.TIMER, function ():void {
+					if (itrIndex == initSetting.length) {
+						// 当设置过程结束时，终止游戏设置过程的演示，并开始游戏过程的回放
+						settingTimer.stop();
+						itrIndex = 0;
+						playerIndex = -1;
+						initPokers = part3.split(";");
+						for each (var eachBox:Box in cardsDealedArray) {
+							eachBox.removeAllChildren();
+						}
+						btnExecute.enabled = true;
+						playingTimer.start();
+						return;
+					}
+					// 取得当前玩家出牌内容
+					var currentTurn:Array = initSetting[itrIndex++].split("~");
+					// 设置当前玩家编号、当前牌序、当前玩家下家编号
+					var currentNumber:int = int(currentTurn[0]);
+					var currentSetting:int = int(currentTurn[1]);
+					var nextNumber:int = int(currentTurn[2]);
+					// 取得当前玩家索引号
+					if (playerIndex < 0) {
+						playerIndex = currentNumber - 1;
+					} else {
+						playerIndex++;
+						if (playerIndex == cardsDealedArray.length) {
+							playerIndex = 0;
+						}
+					}
+					// 显示设置内容
+					var content:Label = new Label();
+					content.text = Red5GameSetting.getDisplayName(currentSetting);
+					Box(cardsDealedArray[playerIndex]).addChild(content);
+				});
+				// 游戏过程回放
+				playingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
+				playingTimer.addEventListener(TimerEvent.TIMER, function ():void {
+					if (itrIndex == initPokers.length) {
+						playingTimer.stop();
+						Alert.show("录像回放完毕！");
+						btnExecute.label = "播放";
+						return;
+					}
+					// 取得当前玩家出牌内容
+					var currentTurn:Array = initPokers[itrIndex++].split("~");
+					// 设置当前玩家编号、当前牌序、当前玩家下家编号
+					var currentNumber:int = int(currentTurn[0]);
+					var currentBouts:String = String(currentTurn[1]) + ",";
+					var nextNumber:int = int(currentTurn[2]);
+					// 取得当前玩家索引号
+					if (playerIndex < 0) {
+						playerIndex = currentNumber - 1;
+					} else {
+						playerIndex++;
+						if (playerIndex == cardsDealedArray.length) {
+							playerIndex = 0;
+						}
+					}
+					var currentCardsCandidated:Box = cardsCandidatedArray[playerIndex];
+					if (currentCardsCandidated.getChildren().length == 0) {
+						// 当前玩家已经胜出，没有历史记录，不做任何处理
+						itrIndex--;
+						return;
+					}
+					// 移除所有已经出牌或pass的内容
+					Box(cardsDealedArray[playerIndex]).removeAllChildren();
+					if (currentTurn.length == 4 && currentTurn[3].toString().indexOf("pass") > -1) {
+						// 当前玩家不出牌，现实pass字样
+						var passLabel:Label = new Label();
+						passLabel.text = "不要";
+						Box(cardsDealedArray[playerIndex]).addChild(passLabel);
+							if (currentNumber == nextNumber) {
+								setTimeout(function ():void {
+									for each (var eachBox:Box in cardsDealedArray) {
+										eachBox.removeAllChildren();
+									}
+								}, 500);
+							}
+						return;
+					}
+					// 开始出牌
+					var cardsToDealArray:Array = new Array();
+					for each (var poker:PokerButton in currentCardsCandidated.getChildren()) {
+						if (currentBouts.indexOf(poker.value) > -1) {
+							currentBouts = currentBouts.replace(new RegExp("^(.*?)" + poker.value), "$1");
+							cardsToDealArray.push(poker);
+						}
+					}
+					for each (poker in cardsToDealArray) {
+						Box(cardsCandidatedArray[playerIndex]).removeChild(poker);
+						Box(cardsDealedArray[playerIndex]).addChild(poker);
+					}
+				});
+				// 游戏录像开始
+				settingTimer.start();
+			}
+
+			private function removeBothSides(target:String, tokenChar:String):String {
+				return target.replace(/^;|;$/, "");
+			}
+		]]>
+	</mx:Script>
+	<mx:creationComplete>
+		<![CDATA[
+			// 数据初始化
+			cardsCandidatedArray = new Array(cardsCandidatedDown, cardsCandidatedRight, cardsCandidatedUp, cardsCandidatedLeft);
+			cardsDealedArray = new Array(cardsDealedDown, cardsDealedRight, cardsDealedUp, cardsDealedLeft);
+			// 事件监听初始化
+			ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+			ListenerBinder.bind(btnSetting, MouseEvent.CLICK, function():void {
+				settingWindow.visible = !settingWindow.visible;
+			});
+			ListenerBinder.bind(settingWindow, CloseEvent.CLOSE, function():void {
+				settingWindow.visible = false; 
+			});
+			ListenerBinder.bind(btnExecute, MouseEvent.CLICK, btnExecuteClickHandler);
+			ListenerBinder.bind(btnTerminate, MouseEvent.CLICK, btnTerminateClickHandler);
+		]]>
+	</mx:creationComplete>
+	<mx:HBox id="cardsCandidatedUp"
+	         height="100"
+	         horizontalGap="-55"
+	         horizontalAlign="center"
+	         verticalAlign="bottom"
+	         top="10"
+	         left="125"
+	         right="125">
+	</mx:HBox>
+	<mx:VBox id="cardsCandidatedRight"
+	         width="100"
+	         top="108"
+	         bottom="92"
+	         right="10"
+	         horizontalAlign="left"
+	         verticalAlign="middle"
+	         verticalGap="-78">
+	</mx:VBox>
+	<mx:HBox id="cardsCandidatedDown"
+	         height="100"
+	         horizontalGap="-55"
+	         horizontalAlign="center"
+	         left="125"
+	         right="125"
+	         bottom="18"
+	         verticalAlign="top">
+	</mx:HBox>
+	<mx:VBox id="cardsCandidatedLeft"
+	         width="100"
+	         top="108"
+	         bottom="92"
+	         left="10"
+	         horizontalAlign="right"
+	         verticalAlign="middle"
+	         verticalGap="-78">
+	</mx:VBox>
+	<mx:HBox id="cardsDealedUp"
+	         height="100"
+	         horizontalGap="-55"
+	         horizontalAlign="center"
+	         verticalAlign="bottom"
+	         left="190"
+	         right="190" verticalCenter="-112">
+	</mx:HBox>
+	<mx:HBox id="cardsDealedDown"
+	         height="100"
+	         horizontalGap="-55"
+	         horizontalAlign="center"
+	         verticalAlign="top" left="190" right="190" verticalCenter="104">
+	</mx:HBox>
+	<mx:HBox id="cardsDealedLeft"
+	         width="240"
+	         horizontalAlign="right"
+	         verticalAlign="middle"
+	         verticalGap="-78" height="100" verticalCenter="-4" left="125" horizontalGap="-55">
+	</mx:HBox>
+	<mx:HBox id="cardsDealedRight"
+	         width="240"
+	         horizontalAlign="left"
+	         verticalAlign="middle"
+	         verticalGap="-78" height="100" right="125" verticalCenter="-4" horizontalGap="-55">
+	</mx:HBox>
+	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0" showCloseButton="true" visible="false">
+		<mx:Form x="10" y="10">
+			<mx:FormItem label="游戏ID" required="true">
+				<mx:TextInput id="gameId" text="8dc0e2b1-7371-4cb4-82c7-c365d0f03914"/>
+			</mx:FormItem>
+			<mx:FormItem label="播放速度">
+				<mx:HSlider id="gameSpeed" minimum="1" maximum="5" snapInterval="1" value="3" showDataTip="false" />
+			</mx:FormItem>
+		</mx:Form>
+	</mx:TitleWindow>
+	<mx:Button id="btnSetting" x="10" y="10" label="设置"/>
+	<mx:Button x="10" y="40" label="播放" id="btnExecute"/>
+	<mx:Button label="停止" y="70" x="10" id="btnTerminate"/>
+	<mx:Label id="lblGameSetting" right="10" top="12"/>
+</mx:TitleWindow>

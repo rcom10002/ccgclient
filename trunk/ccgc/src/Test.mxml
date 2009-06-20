@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- http://blog.flexexamples.com/2007/08/07/creating-full-screen-flex-applications/ -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" applicationComplete="init(event)">
+
+    <mx:Script>
+        <![CDATA[
+        	import mx.controls.Alert;
+            import flash.display.StageDisplayState;
+
+            private function init(evt:Event):void {
+                /* Set up full screen handler. */
+                Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+                dispState = Application.application.stage.displayState;
+            }
+
+            private function fullScreenHandler(evt:FullScreenEvent):void {
+                dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+                if (evt.fullScreen) {
+                    /* Do something specific here if we switched to full screen mode. */
+                } else {
+                    /* Do something specific here if we switched to normal mode. */
+                }
+            }
+
+            private function toggleFullScreen():void {
+                try {
+                    switch (Application.application.stage.displayState) {
+                        case StageDisplayState.FULL_SCREEN:
+                            /* If already in full screen mode, switch to normal mode. */
+                            // Application.application.stage.displayState = StageDisplayState.NORMAL;
+                            this.stage.displayState = StageDisplayState.NORMAL;
+                            break;
+                        default:
+                            /* If not in full screen mode, switch to full screen mode. */
+                            // Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
+                            this.stage.displayState = StageDisplayState.FULL_SCREEN;
+                            break;
+                    }
+                } catch (err:SecurityError) {
+                    // ignore
+                    Alert.show("Error occurs!\n" + err.message);
+                }
+            }
+        ]]>
+    </mx:Script>
+
+    <mx:String id="dispState" />
+
+    <mx:Label text="width={Application.application.width}" />
+    <mx:Label text="height={Application.application.height}" />
+    <mx:Label text="displayState={dispState}" />
+
+    <mx:Button label="Toggle fullscreen" click="toggleFullScreen()" />
+
+</mx:Application>
