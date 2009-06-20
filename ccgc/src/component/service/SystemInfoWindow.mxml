@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+                layout="absolute"
+                width="{Application.application.screen.width}"
+                height="{Application.application.screen.height}"
+                title="系统信息" xmlns:service="component.service.*" showCloseButton="true">
+    <mx:Script>
+    	<![CDATA[
+    		import info.knightrcom.state.BaseStateManager;
+    		import mx.validators.Validator;
+    		import info.knightrcom.service.LocalSystemInfoService;
+    		import mx.controls.Alert;
+    		import info.knightrcom.util.HttpServiceProxy;
+    		import mx.core.Application;
+    		import mx.formatters.DateFormatter;
+    		import mx.controls.Button;
+    		import info.knightrcom.util.ListenerBinder;
+    		import mx.managers.PopUpManager;
+    		import mx.events.CloseEvent;
+
+			private var layoutCanvas:DisplayObject = null;
+
+            public function popUp(closeHandler:Function = null):void {
+                if (closeHandler != null) {
+                	this.addEventListener(CloseEvent.CLOSE, closeHandler);
+                }
+                if (this.layoutCanvas == null) {
+                	this.layoutCanvas = DisplayObject(this.parentApplication);
+                }
+                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
+                PopUpManager.centerPopUp(this);
+            }
+            
+            public function set currentLayoutCanvas(obj:DisplayObject):void {
+            	this.layoutCanvas = obj;
+            }
+            
+            private function closeHandler(event:CloseEvent):void {
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+            
+            private function gameVedioClickHandler(event:MouseEvent):void {
+            	var gameVedioWindow:GameVedioWindow = new GameVedioWindow();
+            	gameVedioWindow.currentLayoutCanvas = this.layoutCanvas;
+            	gameVedioWindow.popUp();
+            }
+            
+            private function btnFeedbackClickHandler(event:MouseEvent):void {
+            	feedbackWindow.visible = true;
+				PopUpManager.removePopUp(feedbackWindow);
+            	PopUpManager.addPopUp(feedbackWindow, this, true);
+            	PopUpManager.centerPopUp(feedbackWindow);
+            }
+
+            private function defaultSearch():void {
+            	HttpServiceProxy.send(LocalSystemInfoService.FEEDBACK_HISTORY, 
+            			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId},
+            			feedbackHistoryInfoService);
+            }
+
+            private function btnSubmitFeeckbackClickHandler(event:MouseEvent):void {
+                if (Validator.validateAll(this.gameFeedbackValidators).length > 0) {
+                	return;
+                }
+            	HttpServiceProxy.send(LocalSystemInfoService.SUBMIT_CHEAT,
+            			{GAME_ID : feedbackGameId.text,
+            			 CHEAT_DESC : feedbackDesc.text,
+            			 CREATE_BY : BaseStateManager.currentProfileId},
+            			null,
+		            	function ():void {
+		            		Alert.show("提交完毕！");
+		            		feedbackWindow.visible = false;
+		            	});
+            }
+        ]]>
+    </mx:Script>
+    <mx:creationComplete>
+    	<![CDATA[
+            ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+        	ListenerBinder.bind(btnGameVedio, MouseEvent.CLICK, gameVedioClickHandler);
+        	ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackClickHandler);
+        	ListenerBinder.bind(btnSubmitFeeckback, MouseEvent.CLICK, btnSubmitFeeckbackClickHandler);
+        	ListenerBinder.bind(feedbackWindow, CloseEvent.CLOSE, function ():void {
+            	for each (var thisFormItem:FormItem in Form(editor).getChildren()) {
+            		var control:Object = thisFormItem.getChildAt(0);
+            		if (control is TextInput) {
+            			TextInput(control).text = "";
+            		} else if (control is TextArea) {
+            			TextArea(control).text = "";
+            		} else {
+            			throw Error("无法为当前控件进行初始化");
+            		}
+            	}
+        		feedbackWindow.visible = false;
+        	});
+    	]]>
+    </mx:creationComplete>
+	<!-- 外部查询条件 -->
+    <mx:HBox horizontalGap="4" top="10" left="10" right="10" id="hbox1">
+        <mx:Button id="btnGameVedio" label="游戏录像"/>
+        <mx:Button id="btnFeedback" label="作弊举报"/>
+        <mx:Button id="btnRefresh" label="刷新信息"/>
+    </mx:HBox>
+	<!-- 查询结果 -->
+    <mx:DataGrid id="datagrid1" left="10" right="10" top="40" bottom="10">
+        <mx:columns>
+            <mx:DataGridColumn headerText="编号" dataField=""/>
+            <mx:DataGridColumn headerText="房间名称" dataField=""/>
+            <mx:DataGridColumn headerText="游戏进行中人数" dataField=""/>
+            <mx:DataGridColumn headerText="等待队列中人数" dataField=""/>
+            <mx:DataGridColumn headerText="房间内闲散人数" dataField=""/>
+            <mx:DataGridColumn headerText="房间内总计人数" dataField=""/>
+        </mx:columns>
+    </mx:DataGrid>
+	<!-- 查询导航 -->
+<!--
+    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
+		<mx:Label id="lblCondition" text="当前查询条件"/>
+        <mx:Label id="lblPage" text="9/12"/>
+        <mx:LinkBar>
+		    <mx:Array>
+				<mx:Object label="前页" />
+				<mx:Object label="后页" />
+			</mx:Array>
+        </mx:LinkBar>
+    </mx:ControlBar>
+-->
+	<!-- 查询组件 -->
+    <mx:HTTPService id="feedbackHistoryInfoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST"/>
+    <!-- 作弊举报 -->
+    <mx:TitleWindow layout="absolute" horizontalCenter="0" verticalCenter="0" title="作弊举报" id="feedbackWindow" showCloseButton="true" height="420">
+    	<mx:visible>false</mx:visible>
+        <mx:Form id="editor" left="10" right="10" top="10" bottom="265" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
+            <mx:FormItem label="游戏ID" required="true" width="100%">
+                <mx:TextInput id="feedbackGameId" width="100%"/>
+            </mx:FormItem>
+            <mx:FormItem label="作弊描述" required="true" width="100%">
+                <mx:TextArea id="feedbackDesc" width="100%" height="100"/>
+            </mx:FormItem>
+        </mx:Form>
+        <mx:Button id="btnSubmitFeeckback" label="提交举报" bottom="220" horizontalCenter="171"/>
+        <mx:HRule left="10" right="10" y="173" width="413" height="2"/>
+        <mx:Label x="10" y="180" text="历史举报记录"/>
+        <mx:DataGrid minWidth="400" left="10" right="10" top="200" bottom="10">
+    		<mx:dataProvider>{feedbackHistoryInfoService.lastResult.entityList.GameFeedback}</mx:dataProvider>
+            <mx:columns>
+                <mx:DataGridColumn headerText="游戏ID" dataField="gameId"/>
+                <mx:DataGridColumn headerText="游戏类别" dataField="gameType"/>
+                <mx:DataGridColumn headerText="举报时间" dataField="createTime"/>
+                <mx:DataGridColumn headerText="当前状态" dataField="status"/>
+            </mx:columns>
+        </mx:DataGrid>
+    </mx:TitleWindow>
+    <!-- 验证器 -->
+    <mx:Array id="gameFeedbackValidators">
+        <mx:StringValidator source="{feedbackGameId}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="游戏ID不能为空！"/>
+        <mx:StringValidator source="{feedbackDesc}"
+                            required="true"
+                            property="text"
+                            minLength="20"
+                            maxLength="100"
+                            requiredFieldError="请认真填写举报内容，字数必须在20-100之间。"/>
+    </mx:Array>
+</mx:TitleWindow>

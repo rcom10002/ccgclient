@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+                layout="absolute"
+                width="{Application.application.screen.width}"
+                height="{Application.application.screen.height}"
+                title="玩家信息"
+                xmlns:service="component.service.*"
+                showCloseButton="true">
+    <mx:Script>
+    	<![CDATA[
+    		import info.knightrcom.service.LocalPlayerInfoService;
+    		import mx.events.ItemClickEvent;
+    		import mx.core.Application;
+    		import info.knightrcom.util.HttpServiceProxy;
+    		import mx.core.ScrollPolicy;
+    		import mx.rpc.events.FaultEvent;
+    		import mx.rpc.events.ResultEvent;
+    		import info.knightrcom.util.DatagridUtility;
+    		import mx.formatters.DateFormatter;
+    		import mx.controls.Button;
+    		import info.knightrcom.util.ListenerBinder;
+    		import mx.managers.PopUpManager;
+    		import mx.events.CloseEvent;
+
+			public static var CURRENT_PROFILE_ID:String;
+
+			private var layoutCanvas:DisplayObject = null;
+
+            public function popUp(closeHandler:Function = null):void {
+                if (closeHandler != null) {
+                	this.addEventListener(CloseEvent.CLOSE, closeHandler);
+                }
+                if (this.layoutCanvas == null) {
+                	this.layoutCanvas = DisplayObject(this.parentApplication);
+                }
+                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
+                PopUpManager.centerPopUp(this);
+                this.isPopUp = false;
+            }
+            
+            public function set currentLayoutCanvas(obj:DisplayObject):void {
+            	this.layoutCanvas = obj;
+            }
+            
+            private function closeHandler(event:CloseEvent):void {
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+            
+            private function defaultSearch():void {
+    			var dateFormatter:DateFormatter = new DateFormatter();
+    			dateFormatter.formatString = "YYYYMMDD";
+            	HttpServiceProxy.send(LocalPlayerInfoService.SCORE_INFO, 
+            			{CURRENT_PROFILE_ID: CURRENT_PROFILE_ID, 
+            			 FROM_DATE: dateFormatter.format(dateFrom.selectedDate),
+            			 TO_DATE: dateFormatter.format(dateTo.selectedDate),
+            			 SHOW_CONDITION: sc.selectedValue,
+            			 CURRENT_PAGE: CURRENT_PAGE}, infoService);
+            }
+        ]]>
+    </mx:Script>
+    <mx:creationComplete>
+    	<![CDATA[
+			// 事件绑定
+    		ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
+    			CURRENT_PAGE = 1;
+    			defaultSearch();
+    		});
+            ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+            ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
+            	if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+            		return;
+            	}
+            	if (event.index == 0) {
+            		CURRENT_PAGE--;
+            	} else if (event.index == 1) {
+            		CURRENT_PAGE++;
+            	}
+            	defaultSearch();
+            });
+    	]]>
+    </mx:creationComplete>
+	<!-- 查询组件 -->
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+    <mx:HTTPService id="infoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST"/>
+	<!-- 查询条件 -->
+    <mx:HBox horizontalGap="4" top="10" left="10" right="10">
+        <mx:Label text="从："/>
+        <mx:DateField id="dateFrom">
+        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+        </mx:DateField>
+        <mx:Label text="至："/>
+        <mx:DateField id="dateTo">
+        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+        </mx:DateField>
+	    <mx:Label text="显示：" />
+	    <mx:RadioButtonGroup id="sc" />
+	    <mx:RadioButton id="radioShowAll" label="全部" value="999" groupName="sc" selected="true"/>
+	    <mx:RadioButton id="radioShowWin" label="获胜" value="1" groupName="sc"/>
+	    <mx:RadioButton id="radioShowLose" label="失败" value="-1" groupName="sc"/>
+	    <mx:RadioButton id="radioShowDraw" label="平局" value="0" groupName="sc"/>
+        <mx:Button id="btnSearch" label="查询"/>
+    </mx:HBox>
+	<!-- 查询结果 -->
+    <mx:DataGrid id="datagrid1" left="10" right="10" top="40" bottom="10" horizontalScrollPolicy="{ScrollPolicy.ON}">
+    	<mx:dataProvider>{infoService.lastResult.entityList.TodayInfo}</mx:dataProvider>
+        <mx:columns>
+            <mx:DataGridColumn width="50" resizable="false" headerText="编号"/>
+            <mx:DataGridColumn width="75" resizable="false" headerText="游戏类别"/>
+            <mx:DataGridColumn width="75" resizable="false" headerText="胜败情况" dataField="winandlose"/>
+            <mx:DataGridColumn width="75" resizable="false" headerText="玩家得分" dataField="score" sortCompareFunction="DatagridUtility.commonCompare('score')" />
+            <mx:DataGridColumn width="75" resizable="false" headerText="系统得分" dataField="systemScore" sortCompareFunction="DatagridUtility.commonCompare('systemScore')"/>
+            <mx:DataGridColumn width="230" resizable="false" headerText="游戏ID" dataField="gameId"/>
+            <mx:DataGridColumn width="170" resizable="false" headerText="游戏时间" dataField="createTime"/>
+        </mx:columns>
+    </mx:DataGrid>
+	<!-- 查询导航 -->
+    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
+        <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
+        <mx:LinkBar id="pageRoller">
+		    <mx:Array>
+				<mx:Object label="前页"/>
+				<mx:Object label="后页"/>
+			</mx:Array>
+        </mx:LinkBar>
+    </mx:ControlBar>
+</mx:TitleWindow>
