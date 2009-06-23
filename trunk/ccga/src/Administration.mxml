@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
                 layout="absolute"
-                xmlns:service="info.knightrcom.service.*" currentState="MAIN">
+                xmlns:service="info.knightrcom.service.*" currentState="LOGIN">
     <mx:Script>
     	<![CDATA[
+    		import mx.states.State;
     		import mx.events.ListEvent;
+    		import flash.events.MouseEvent;
     		import info.knightrcom.UIManager;
     		import mx.events.ItemClickEvent;
     		import info.knightrcom.util.ListenerBinder;
@@ -14,8 +16,15 @@
     <mx:Style source="style/style.css"/>
     <mx:applicationComplete>
     	<![CDATA[
+    		for each (var currentState:State in this.states) {
+    			trace(currentState.name);
+    			this.currentState = currentState.name;
+    		}
+    		this.currentState = "LOGIN";
     		UIManager.adminApp = this;
     		ListenerBinder.bind(menuTree, ListEvent.ITEM_CLICK, UIManager.itemClickHandler);
+    		ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, UIManager.btnSubmitClickHandler);
+    		ListenerBinder.bind(btnReset, MouseEvent.CLICK, UIManager.btnResetClickHandler);
     	]]>
     </mx:applicationComplete>
     <mx:states>
