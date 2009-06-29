@@ -374,6 +374,101 @@
                                 visible="false"/>
             </mx:AddChild>
         </mx:State>
+        <mx:State id="pushdownWinGameState"
+                  name="PUSHDOWNGAME">
+            <mx:AddChild position="lastChild">
+                <!-- 上侧区域 -->
+                <mx:HBox id="pdwMahjongsCandidatedUp"
+                         height="150"
+                         horizontalGap="-55"
+                         horizontalAlign="center"
+                         verticalAlign="bottom"
+                         top="0"
+                         left="50"
+                         right="200">
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <!-- 右侧区域 -->
+                <mx:VBox id="pdwMahjongsCandidatedRight"
+                         width="200"
+                         top="50"
+                         bottom="150"
+                         right="0"
+                         horizontalAlign="left"
+                         verticalAlign="middle"
+                         verticalGap="-78">
+                </mx:VBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <!-- 下侧区域 -->
+                <mx:HBox id="pdwMahjongsCandidatedDown"
+                         height="150"
+                         horizontalGap="-55"
+                         horizontalAlign="center"
+                         left="200"
+                         right="50"
+                         bottom="0"
+                         verticalAlign="top">
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <!-- 左侧区域 -->
+                <mx:VBox id="pdwMahjongsCandidatedLeft"
+                         width="200"
+                         top="150"
+                         bottom="50"
+                         left="0"
+                         horizontalAlign="right"
+                         verticalAlign="middle"
+                         verticalGap="-78">
+                </mx:VBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:Canvas left="208"
+                           right="208"
+                           top="158"
+                           bottom="187">
+                    <!-- 牌桌区域 -->
+                    <mx:Tile id="pdwMahjongsDealed"
+                             width="0"
+                             height="0"
+                             top="0"
+                             left="0"
+                             horizontalGap="2"
+                             verticalGap="2"
+                             verticalAlign="middle">
+                    </mx:Tile>
+                </mx:Canvas>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <!-- 操作区域 -->
+                <mx:HBox horizontalAlign="center"
+                         left="200"
+                         right="200"
+                         bottom="149"
+                         height="30">
+                    <mx:ButtonBar id="btnBarPdwMahjongs"
+                                  borderStyle="solid"
+                                  horizontalGap="5"
+                                  width="300">
+                        <mx:dataProvider>
+                            <mx:String>吃</mx:String>
+                            <mx:String>碰</mx:String>
+                            <mx:String>杠</mx:String>
+                            <mx:String>胡</mx:String>
+                            <mx:String>摸牌</mx:String>
+                        </mx:dataProvider>
+                    </mx:ButtonBar>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:ProgressBar x="10"
+                                y="10"
+                                id="timerTipPdwMahjongs"
+                                visible="false"/>
+            </mx:AddChild>
+        </mx:State>
     </mx:states>
     <!-- 验证器 -->
     <mx:Array id="loginValidators">
