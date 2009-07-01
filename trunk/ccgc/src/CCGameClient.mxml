@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
                 layout="absolute"
+                minWidth="800"
+                minHeight="600"
                 xmlns:cmpext="component.*"
                 xmlns:f3sweb="component.*"
                 xmlns:service="component.service.*">
@@ -14,6 +16,7 @@
 	        import info.knightrcom.state.LoginStateManager;
 	        import info.knightrcom.state.Red5GameStateManager;
 	        import info.knightrcom.state.FightLandlordGameStateManager;
+	        import info.knightrcom.state.PushdownWinGameStateManager;
 	        import mx.controls.Alert;
 	        import info.knightrcom.GameSocketProxy;
 	        this.addEventListener(ErrorEvent.ERROR, function(errorEvent:ErrorEvent):void {
@@ -25,6 +28,7 @@
 	        var lobbyStateManager:LobbyStateManager = new LobbyStateManager(socketProxy, this, lobbyState);
 	        var red5GameStateManager:Red5GameStateManager = new Red5GameStateManager(socketProxy, this, red5GameState);
 	        var fightLandlordGameStateManager:FightLandlordGameStateManager = new FightLandlordGameStateManager(socketProxy, this, fightLandlordGameState);
+	        var pushdownWinGameStateManager:PushdownWinGameStateManager = new PushdownWinGameStateManager(socketProxy, this, pushdownWinGameState);
 	        baseStateManager.init();
 	        // this.setChildIndex(this.systemMessage, this.numChildren - 1);
 	        // 全屏效果
@@ -378,7 +382,7 @@
                   name="PUSHDOWNGAME">
             <mx:AddChild position="lastChild">
                 <!-- 上侧区域 -->
-                <mx:HBox id="pdwMahjongsCandidatedUp"
+                <mx:HBox id="mahjongsCandidatedUp"
                          height="150"
                          horizontalGap="-55"
                          horizontalAlign="center"
@@ -390,7 +394,7 @@
             </mx:AddChild>
             <mx:AddChild position="lastChild">
                 <!-- 右侧区域 -->
-                <mx:VBox id="pdwMahjongsCandidatedRight"
+                <mx:VBox id="mahjongsCandidatedRight"
                          width="200"
                          top="50"
                          bottom="150"
@@ -402,7 +406,7 @@
             </mx:AddChild>
             <mx:AddChild position="lastChild">
                 <!-- 下侧区域 -->
-                <mx:HBox id="pdwMahjongsCandidatedDown"
+                <mx:HBox id="mahjongsCandidatedDown"
                          height="150"
                          horizontalGap="-55"
                          horizontalAlign="center"
@@ -414,7 +418,7 @@
             </mx:AddChild>
             <mx:AddChild position="lastChild">
                 <!-- 左侧区域 -->
-                <mx:VBox id="pdwMahjongsCandidatedLeft"
+                <mx:VBox id="mahjongsCandidatedLeft"
                          width="200"
                          top="150"
                          bottom="50"
@@ -430,7 +434,7 @@
                            top="158"
                            bottom="187">
                     <!-- 牌桌区域 -->
-                    <mx:Tile id="pdwMahjongsDealed"
+                    <mx:Tile id="mahjongsDealed"
                              width="0"
                              height="0"
                              top="0"
@@ -457,6 +461,7 @@
                             <mx:String>碰</mx:String>
                             <mx:String>杠</mx:String>
                             <mx:String>胡</mx:String>
+                            <mx:String>放弃</mx:String>
                             <mx:String>摸牌</mx:String>
                         </mx:dataProvider>
                     </mx:ButtonBar>
