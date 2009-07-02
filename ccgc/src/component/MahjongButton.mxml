@@ -26,9 +26,9 @@
 				}
 				this.selected = selectedFlag;
 				if (this.selected) {
-					this.setStyle("", "");
+					this.y -= 10;
 				} else {
-					this.setStyle("", "");
+					this.y += 10;
 				}
 			}
 		]]>
