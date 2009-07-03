@@ -187,7 +187,6 @@ package info.knightrcom.state {
                 ListenerBinder.bind(gameClient.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
                 ListenerBinder.bind(gameClient.btnBarPokers, FlexEvent.SHOW, show);
                 ListenerBinder.bind(gameClient.btnBarPokers, FlexEvent.HIDE, hide);
-                ListenerBinder.bind(gameClient.btnDebug, MouseEvent.CLICK, debug);
                 setInitialized(true);
             }
             // 按照当前玩家序号，进行画面座次安排
@@ -824,11 +823,5 @@ package info.knightrcom.state {
                 cardsCandidated.removeAllChildren();
             }
         }
-
-        private function debug(event:MouseEvent):void {
-            var debugContent:Array = new Array("currentNumber: " + currentNumber, "currentNextNumber: " + currentNextNumber, "localNumber: " + localNumber, "localNextNumber: " + localNextNumber, "gameSetting: +" + gameSetting, "gameFinalSettingPlayerNumber: " + gameFinalSettingPlayerNumber, "currentBoutCards: " + currentBoutCards, "isWinnerFollowed: " + isWinnerFollowed);
-            gameClient.debugLCD.visible != gameClient.debugLCD.visible;
-        }
-
     }
 }
