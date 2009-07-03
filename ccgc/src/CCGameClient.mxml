@@ -129,7 +129,7 @@
             <mx:AddChild position="lastChild">
                 <!-- 上侧区域 -->
                 <mx:HBox id="cardsCandidatedUp"
-                         height="150"
+                         height="120"
                          horizontalGap="-55"
                          horizontalAlign="center"
                          verticalAlign="bottom"
@@ -141,7 +141,7 @@
             <mx:AddChild position="lastChild">
                 <!-- 右侧区域 -->
                 <mx:VBox id="cardsCandidatedRight"
-                         width="200"
+                         width="120"
                          top="50"
                          bottom="150"
                          right="0"
@@ -153,7 +153,7 @@
             <mx:AddChild position="lastChild">
                 <!-- 下侧区域 -->
                 <mx:HBox id="cardsCandidatedDown"
-                         height="150"
+                         height="120"
                          horizontalGap="-55"
                          horizontalAlign="center"
                          left="200"
@@ -165,7 +165,7 @@
             <mx:AddChild position="lastChild">
                 <!-- 左侧区域 -->
                 <mx:VBox id="cardsCandidatedLeft"
-                         width="200"
+                         width="120"
                          top="150"
                          bottom="50"
                          left="0"
@@ -175,46 +175,40 @@
                 </mx:VBox>
             </mx:AddChild>
             <mx:AddChild position="lastChild">
-                <mx:Canvas left="208"
-                           right="208"
-                           top="158"
-                           bottom="187">
+                <mx:Canvas left="128"
+                           right="128"
+                           top="128"
+                           bottom="157">
                     <!-- 牌桌区域 -->
                     <mx:Tile id="cardsDealedUp"
-                             width="190"
-                             height="125"
+                             height="100"
                              top="0"
-                             left="0"
+                             left="160"
                              horizontalGap="-55"
                              verticalGap="-78"
-                             verticalAlign="middle">
+                             verticalAlign="middle" right="160">
                     </mx:Tile>
                     <mx:Tile id="cardsDealedRight"
-                             width="190"
-                             height="125"
                              right="0"
-                             top="0"
+                             top="117"
                              horizontalGap="-55"
                              verticalGap="-78"
-                             verticalAlign="middle">
+                             verticalAlign="middle" bottom="114" width="240">
                     </mx:Tile>
                     <mx:Tile id="cardsDealedDown"
-                             width="190"
-                             height="125"
-                             right="0"
+                             height="100"
+                             right="160"
                              bottom="0"
                              horizontalGap="-55"
                              verticalGap="-78"
-                             verticalAlign="middle">
+                             verticalAlign="middle" left="160">
                     </mx:Tile>
                     <mx:Tile id="cardsDealedLeft"
-                             width="190"
-                             height="125"
-                             bottom="0"
+                             bottom="114"
                              left="0"
                              horizontalGap="-55"
                              verticalGap="-78"
-                             verticalAlign="middle">
+                             verticalAlign="middle" top="117" width="240">
                     </mx:Tile>
                 </mx:Canvas>
             </mx:AddChild>
@@ -223,7 +217,7 @@
                 <mx:HBox horizontalAlign="center"
                          left="200"
                          right="200"
-                         bottom="149"
+                         bottom="119"
                          height="30">
                     <mx:ButtonBar id="btnBarPokers"
                                   borderStyle="solid"
@@ -236,8 +230,6 @@
                             <mx:String>出牌</mx:String>
                         </mx:dataProvider>
                     </mx:ButtonBar>
-                    <mx:Button label="debug"
-                               id="btnDebug"/>
                 </mx:HBox>
             </mx:AddChild>
             <mx:AddChild position="lastChild">
@@ -383,20 +375,20 @@
             <mx:AddChild position="lastChild">
                 <!-- 上侧区域 -->
                 <mx:HBox id="mahjongsCandidatedUp"
-                         height="150"
+                         height="80"
                          horizontalGap="-55"
                          horizontalAlign="center"
                          verticalAlign="bottom"
                          top="0"
-                         left="50"
+                         left="200"
                          right="200">
                 </mx:HBox>
             </mx:AddChild>
             <mx:AddChild position="lastChild">
                 <!-- 右侧区域 -->
                 <mx:VBox id="mahjongsCandidatedRight"
-                         width="200"
-                         top="50"
+                         width="80"
+                         top="150"
                          bottom="150"
                          right="0"
                          horizontalAlign="left"
@@ -407,11 +399,11 @@
             <mx:AddChild position="lastChild">
                 <!-- 下侧区域 -->
                 <mx:HBox id="mahjongsCandidatedDown"
-                         height="150"
+                         height="80"
                          horizontalGap="-55"
                          horizontalAlign="center"
                          left="200"
-                         right="50"
+                         right="200"
                          bottom="0"
                          verticalAlign="top">
                 </mx:HBox>
@@ -419,9 +411,9 @@
             <mx:AddChild position="lastChild">
                 <!-- 左侧区域 -->
                 <mx:VBox id="mahjongsCandidatedLeft"
-                         width="200"
+                         width="80"
                          top="150"
-                         bottom="50"
+                         bottom="149"
                          left="0"
                          horizontalAlign="right"
                          verticalAlign="middle"
@@ -429,9 +421,9 @@
                 </mx:VBox>
             </mx:AddChild>
             <mx:AddChild position="lastChild">
-                <mx:Canvas left="208"
-                           right="208"
-                           top="158"
+                <mx:Canvas left="149"
+                           right="149"
+                           top="149"
                            bottom="187">
                     <!-- 牌桌区域 -->
                     <mx:Tile id="mahjongsDealed"
@@ -472,6 +464,94 @@
                                 y="10"
                                 id="timerTipPdwMahjongs"
                                 visible="false"/>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:VBox id="mahjongsDaisLeft"
+                         width="53"
+                         top="150"
+                         bottom="196"
+                         left="88"
+                         horizontalAlign="right"
+                         verticalAlign="middle"
+                         verticalGap="-78">
+                </mx:VBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:VBox id="mahjongsDaisRight"
+                         width="53"
+                         top="196"
+                         bottom="150"
+                         right="88"
+                         horizontalAlign="left"
+                         verticalAlign="middle"
+                         verticalGap="-78">
+                </mx:VBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:HBox id="mahjongsDaisDown"
+                         height="53"
+                         horizontalGap="-55"
+                         horizontalAlign="center"
+                         left="200"
+                         right="256"
+                         bottom="88"
+                         verticalAlign="top">
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:HBox id="mahjongsDaisUp"
+                         height="53"
+                         horizontalGap="-55"
+                         horizontalAlign="center"
+                         verticalAlign="bottom"
+                         top="88"
+                         left="256"
+                         right="200">
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:VBox id="mahjongsTempLeft"
+                		 height="39"
+                         width="53"
+                         bottom="149"
+                         left="88"
+                         horizontalAlign="right"
+                         verticalAlign="middle"
+                         verticalGap="-78">
+                </mx:VBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:HBox id="mahjongsTempDown"
+                         height="53"
+                         width="48"
+                         horizontalGap="-55"
+                         horizontalAlign="center"
+                         right="200"
+                         bottom="88"
+                         verticalAlign="top">
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:HBox id="mahjongsTempUp"
+                         height="53"
+                         width="48"
+                         horizontalGap="-55"
+                         horizontalAlign="center"
+                         verticalAlign="bottom"
+                         top="88"
+                         left="200">
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+                <mx:VBox id="mahjongsTempRight"
+                		 height="39"
+                         width="53"
+                         top="149"
+                         right="88"
+                         horizontalAlign="left"
+                         verticalAlign="middle"
+                         verticalGap="-78">
+                </mx:VBox>
             </mx:AddChild>
         </mx:State>
     </mx:states>
