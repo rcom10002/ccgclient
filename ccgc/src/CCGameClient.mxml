@@ -314,22 +314,19 @@
                              verticalAlign="middle">
                     </mx:Tile>
                     <mx:Tile id="cardsDealedDown2"
-                             width="190"
                              height="125"
-                             right="0"
+                             right="100"
                              bottom="0"
                              horizontalGap="-55"
                              verticalGap="-78"
-                             verticalAlign="middle">
+                             verticalAlign="middle" left="100">
                     </mx:Tile>
                     <mx:Tile id="cardsDealedLeft2"
                              width="190"
-                             height="125"
-                             bottom="0"
                              left="0"
                              horizontalGap="-55"
                              verticalGap="-78"
-                             verticalAlign="middle">
+                             verticalAlign="middle" top="0" height="125">
                     </mx:Tile>
                 </mx:Canvas>
             </mx:AddChild>
@@ -376,7 +373,7 @@
                 <!-- 上侧区域 -->
                 <mx:HBox id="mahjongsCandidatedUp"
                          height="80"
-                         horizontalGap="-55"
+                         horizontalGap="0"
                          horizontalAlign="center"
                          verticalAlign="bottom"
                          top="0"
@@ -400,7 +397,7 @@
                 <!-- 下侧区域 -->
                 <mx:HBox id="mahjongsCandidatedDown"
                          height="80"
-                         horizontalGap="-55"
+                         horizontalGap="0"
                          horizontalAlign="center"
                          left="200"
                          right="200"
