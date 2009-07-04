@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:layout>absolute</mx:layout>
-	<mx:currentState>LIST</mx:currentState>
 	<mx:width>100%</mx:width>
 	<mx:height>100%</mx:height>
 	<mx:Script>
@@ -9,7 +8,6 @@
 			import mx.states.State;
 			import mx.events.FlexEvent;
 			import mx.events.StateChangeEvent;
-			import flash.debugger.enterDebugger;
 			import mx.core.Application;
 			import info.knightrcom.util.ListenerBinder;
 			import mx.controls.Button;
@@ -50,26 +48,33 @@
 					this.percentHeight = 100;
 				}
 				if (event.newState == "EDIT") {
-					this.percentWidth = 0;
-					this.percentHeight = 0;
+					this.percentWidth = NaN;
+					this.percentHeight = NaN;
 				}
+			}
+			
+			protected function initializeEachState(defaultStateName:String = null):void {
+			    // 为了使每个State中的组件可以通过代码访问，初始化所有的State
+			    var currentVisible:Boolean = this.visible;
+			    var currentStateName:String = this.currentState;
+			    this.visible = false;
+			    for each(var eachState:State in this.states) {
+			        this.currentState = eachState.name;
+			    }
+			    if (defaultStateName != null) {
+			        this.currentState = defaultStateName;
+			    } else {
+			        this.currentState = currentStateName;
+			    }
+			    this.visible = currentVisible;
 			}
 		]]>
 	</mx:Script>
 	<mx:creationComplete>
 		<![CDATA[
-        	ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGING, this.currentStateChangeHandler);
+        	// ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGING, this.currentStateChangeHandler);
 		]]>
 	</mx:creationComplete>
     <mx:HTTPService id="infoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST">
-<!--
-        <mx:request>
-        	<PLAYER_PROFILE_ID>{playerProfileId.text}</PLAYER_PROFILE_ID>
-        	<PLAYER_PROFILE_GROUP>{playerProfileGroup.text}</PLAYER_PROFILE_GROUP>
-        	<PLAYER_PROFILE_PASSWORD>{playerProfilePassword.text}</PLAYER_PROFILE_PASSWORD>
-        	<PLAYER_PROFILE_LIMIT>{playerProfileLimit.text}</PLAYER_PROFILE_LIMIT>
-        	<PLAYER_PROFILE_ROLE>{playerProfileRole.text}</PLAYER_PROFILE_ROLE>
-        </mx:request>
--->
     </mx:HTTPService>
 </mx:TitleWindow>
