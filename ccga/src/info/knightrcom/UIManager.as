@@ -66,10 +66,10 @@ package info.knightrcom
             var label:String = item.@label;
             switch (label) {
             	case "组用户管理":
-            		adminApp.currentState = "GROUP_USER_EDIT";
+            		adminApp.functionWindowArea.currentState = "GROUP_USER_EDIT";
             		break;
             	case "普通用户管理":
-            		adminApp.currentState = "SOLO_USER_EDIT";
+            		adminApp.functionWindowArea.currentState = "SOLO_USER_EDIT";
             		break;
             	case "启动游戏服务器":
 	            	HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER,

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
                 layout="absolute"
-                xmlns:service="info.knightrcom.service.*" currentState="LOGIN">
+                xmlns:service="info.knightrcom.service.*" currentState="LOGIN" xmlns:fwm="*">
     <mx:Script>
     	<![CDATA[
     		import mx.states.State;
@@ -47,11 +47,11 @@
                     <mx:TextInput x="53"
                                   y="8"
                                   id="txtUsername"
-                                  text="user1"/>
+                                  text="admin"/>
                     <mx:TextInput x="53"
                                   y="34"
                                   id="txtPassword"
-                                  text="user1"/>
+                                  text="000000" displayAsPassword="true"/>
                     <mx:Button x="38"
                                y="66"
                                id="btnConnect"
@@ -84,21 +84,11 @@
                                  horizontalScrollPolicy="{mx.core.ScrollPolicy.ON}"
                                  verticalScrollPolicy="{mx.core.ScrollPolicy.ON}"/>
                     </mx:HBox>
-                    <mx:HBox id="functionWindowArea" height="100%" horizontalAlign="center" verticalAlign="middle">
+                    <mx:HBox height="100%" horizontalAlign="center" verticalAlign="middle">
+                        <fwm:FunctionWindowArea id="functionWindowArea">
+                        </fwm:FunctionWindowArea>
                     </mx:HBox>
                 </mx:HDividedBox>
-            </mx:AddChild>
-        </mx:State>
-        <mx:State name="GROUP_USER_EDIT" basedOn="MAIN">
-            <mx:AddChild relativeTo="{functionWindowArea}" position="lastChild">
-                <service:GroupUserWindow>
-                </service:GroupUserWindow>
-            </mx:AddChild>
-        </mx:State>
-        <mx:State name="SOLO_USER_EDIT" basedOn="MAIN">
-            <mx:AddChild relativeTo="{functionWindowArea}" position="lastChild">
-                <service:PlayerProfileWindow>
-                </service:PlayerProfileWindow>
             </mx:AddChild>
         </mx:State>
     </mx:states>
