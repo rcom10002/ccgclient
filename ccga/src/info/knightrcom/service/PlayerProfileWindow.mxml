@@ -38,10 +38,8 @@
             }
 
 			protected function creationCompleteHandler():void {
-	            this.visible = false;
-	            this.currentState = "EDIT";
-	            this.currentState = "LIST";
-	            this.visible = true;
+			    // 状态初始化
+			    initializeEachState("LIST");
 				// 事件绑定
 				// 检索
 	    		ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
@@ -63,13 +61,13 @@
 	            // 添加
 	            ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void {
 	            	currentState = "EDIT";
-	            	this.currentOperationMethod = OperationMethod.CREATE;
+	            	currentOperationMethod = OperationMethod.CREATE;
 	            	clearEditor();
 	            });
 	            // 更新
 	            ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void {
 	            	currentState = "EDIT";
-	            	this.currentOperationMethod = OperationMethod.UPDATE;
+	            	currentOperationMethod = OperationMethod.UPDATE;
 	            	HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE,
 	            			{PROFILE_ID : datagrid.selectedItem.profileId.text()}, null, function (event:ResultEvent):void {
 	            				var e4xResult:XML = new XML(event.result);
@@ -82,16 +80,16 @@
 	            });
 	            // 删除
 	            ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void {
-	            	this.currentOperationMethod = OperationMethod.DELETE;
+	            	currentOperationMethod = OperationMethod.DELETE;
 	            	HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE,
 	            			{PROFILE_ID : datagrid.selectedItem.profileId.text()}, null, function ():void {
 			            		defaultSearch();
 			            	});
-	            	this.currentOperationMethod = OperationMethod.UNKNOWN;
+	            	currentOperationMethod = OperationMethod.UNKNOWN;
 	            });
 	            // 确定
 	            ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void {
-	            	if (this.currentOperationMethod == OperationMethod.CREATE) {
+	            	if (currentOperationMethod == OperationMethod.CREATE) {
 		            	HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE,
 		            			{USER_ID : playerUserId.text,
 		            			 PASSWORD : playerPassword.text,
@@ -100,7 +98,7 @@
 	            					var e4xResult:XML = new XML(event.result);
 		            			 	playerProfileId.text = e4xResult.entity.profileId.text();
 		            			 });
-	            	} else if (this.currentOperationMethod == OperationMethod.UPDATE) {
+	            	} else if (currentOperationMethod == OperationMethod.UPDATE) {
 		            	HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE,
 		            			{PROFILE_ID : playerProfileId.text,
 		            			 USER_ID : playerUserId.text,
@@ -108,12 +106,12 @@
 		            			 playerLimit : playerLimit.text,
 		            			 ROLE : playerRole.text});
 	            	}
-	            	this.currentOperationMethod = OperationMethod.UPDATE;
+	            	currentOperationMethod = OperationMethod.UPDATE;
 	            });
 	            // 取消
 	            ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void {
 	            	currentState = "LIST";
-	            	this.currentOperationMethod = OperationMethod.UNKNOWN;
+	            	currentOperationMethod = OperationMethod.UNKNOWN;
 	            });
 			}
 		]]>
@@ -187,8 +185,8 @@
 				<mx:DataGrid top="68" left="10" right="10" bottom="10" id="datagrid">
 					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn headerText="用户ID" dataField="profileId" visible="false"/>
-						<mx:DataGridColumn headerText="用户ID" dataField="password" visible="false"/>
+						<mx:DataGridColumn dataField="profileId" visible="false"/>
+						<mx:DataGridColumn dataField="password" visible="false"/>
 						<mx:DataGridColumn headerText="用户ID" dataField="userId"/>
 						<mx:DataGridColumn headerText="所属用户组" dataField=""/>
 						<mx:DataGridColumn headerText="用户额度" dataField=""/>
