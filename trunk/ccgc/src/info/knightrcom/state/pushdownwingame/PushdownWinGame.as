@@ -1,8 +1,8 @@
-package info.knightrcom.state.PushdownWinGame {
+package info.knightrcom.state.pushdownwingame {
 
     /**
      *
-     * 方法中所有的参数形式均为 \dV([2-9JQKAXY]|10)(,\dV([2-9JQKAXY]|10))*
+     * 方法中所有的参数形式均为 (([1-9][WBT]|EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE),)*
      * 并且是已经排好顺序
      *
      */
@@ -11,58 +11,33 @@ package info.knightrcom.state.PushdownWinGame {
         public function PushdownWinGame() {
         }
 
-        /** VV仅作为占位符使用，因5不能作为顺子的组成部分，VV不会与任何内容匹配，所以3、4也就不可能成为顺子的一部分 */
-        private static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
-        private static const RED5:String = "1V5";
-        private static const RED5_PAIR:String = "1V5,1V5";
+//        /** VV仅作为占位符使用，因5不能作为顺子的组成部分，VV不会与任何内容匹配，所以3、4也就不可能成为顺子的一部分 */
+//        private static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
+//        private static const RED5:String = "1V5";
+//        private static const RED5_PAIR:String = "1V5,1V5";
 
         /**
-         * 对服务器端洗牌后分配的尚未排序过的扑克进行排序
+         * 对服务器端洗牌后分配的尚未排序过的麻将进行排序
          *
-         * @param cards
+         * @param mahjongs
          * @return
          *
          */
-        public static function sortPokers(cards:String):Array {
-            var cardArray:Array = cards.split(",");
-            cardArray.sort(cardSorter);
-            return cardArray;
+        public static function sortMahjongs(mahjongs:String):Array {
+            var mahjongArray:Array = mahjongs.split(",");
+            mahjongArray.sort(mahjongSorter);
+            return mahjongArray;
         }
 
         /**
          *
-         * @param card1
-         * @param card2
+         * @param mahjong1
+         * @param mahjong2
          * @return
          *
          */
-        private static function cardSorter(card1:String, card2:String):int {
-            if (card1 == card2) {
-                // 值与花色都相同时
-                return 0;
-            } else if ("1V5" == card1) {
-                // 第一张牌为红五时
-                return 1;
-            } else if ("1V5" == card2) {
-                // 第二张牌为红五时
-                return -1;
-            }
-            // 实现排序功能
-            var pri1:int = prioritySequence.indexOf(card1.replace(/^[0-4]/, ""));
-            var pri2:int = prioritySequence.indexOf(card2.replace(/^[0-4]/, ""));
-            // 值比较
-            if (pri1 > pri2) {
-                return 1;
-            } else if (pri1 < pri2) {
-                return -1;
-            }
-            // 值相同时，进行花色比较
-            if (card1.charAt(0) > card2.charAt(0)) {
-                return 1;
-            } else if (card1.charAt(0) < card2.charAt(0)) {
-                return -1;
-            }
-            return 0;
+        private static function mahjongSorter(mahjong1:String, mahjong2:String):int {
+        	return -1;
         }
 
         /**
@@ -105,55 +80,7 @@ package info.knightrcom.state.PushdownWinGame {
          *
          */
         private static function isBoutRuleFollowed(currentBout:String, previousBout:String):Boolean {
-            // 牌数一致
-            if (previousBout.split(",").length != currentBout.split(",").length) {
-                return false;
-            }
-            if ((isSingleStyle(previousBout) && isSingleStyle(currentBout))) {
-                // 符合样式规则后，验证大小规则
-                if (RED5 == previousBout) {
-                    // 前张牌为红五时，不能出牌
-                    return false;
-                } else if (RED5 == currentBout) {
-                    // 前张牌为非红五时，本张牌为红五时，可出牌
-                    return true;
-                }
-                currentBout = currentBout.replace(/^[0-4]/, "");
-                previousBout = previousBout.replace(/^[0-4]/, "");
-                return prioritySequence.indexOf(currentBout) > prioritySequence.indexOf(previousBout);
-            } else if (isSeveralFoldStyle(previousBout) && isSeveralFoldStyle(currentBout)) {
-                if (RED5_PAIR == previousBout) {
-                    // 前张牌为双红五时，不能出牌
-                    return false;
-                } else if (RED5_PAIR == currentBout) {
-                    // 前张牌非双红五，本张牌为双红五时，可出牌
-                    return true;
-                } else if (currentBout.indexOf(RED5) > -1) {
-                    // 以上两种情况之外发现红五与其他牌同时使用时，不能通过验证
-                    return false;
-                }
-                // 符合样式规则后，验证大小规则
-                currentBout = currentBout.replace(/^[0-4](V[^,]+).*$/, "$1");
-                previousBout = previousBout.replace(/^[0-4](V[^,]+).*$/, "$1");
-                return prioritySequence.indexOf(currentBout) > prioritySequence.indexOf(previousBout);
-            } else if (isStraightStyle(previousBout) && isStraightStyle(currentBout)) {
-                if (currentBout.indexOf(RED5) > -1) {
-                    // 发现红五与其他牌同时使用时，不能通过验证
-                    return false;
-                }
-                // 判断倍数是否相同
-                if (getMultiple(currentBout) != getMultiple(previousBout)) {
-                    return false;
-                }
-                // 符合倍数规则后，验证顺子的大小规则，只判断首牌即可
-                currentBout = currentBout.replace(/^[0-4]([^,]+).*$/, "$1");
-                previousBout = previousBout.replace(/^[0-4]([^,]+).*$/, "$1");
-                return prioritySequence.indexOf(currentBout) > prioritySequence.indexOf(previousBout);
-                ;
-            } else {
-                // 其它所有的错误样式
-                return false;
-            }
+        	return false;
         }
 
         /**
@@ -178,15 +105,7 @@ package info.knightrcom.state.PushdownWinGame {
          *
          */
         private static function isSeveralFoldStyle(boutCards:String):Boolean {
-            if (RED5_PAIR == boutCards) {
-                // 双红五时
-                return true;
-            } else if (boutCards.indexOf(RED5) > -1) {
-                // 红五只能与红五使用，不允许与其他牌同时使用
-                return false;
-            }
-            var ptn:RegExp = /^[0-4]V([^,]+)(,[0-4]V\1)+$/;
-            return ptn.test(boutCards);
+			return false;
         }
 
         /**
@@ -226,7 +145,8 @@ package info.knightrcom.state.PushdownWinGame {
                     throw Error("顺子处理出错！");
                 }
                 // 间隔值判断，相邻的牌必须连续
-                return prioritySequence.indexOf(resultCards) > -1;
+                // return prioritySequence.indexOf(resultCards) > -1;
+                return null;
             } else {
                 // 不能整除代表牌中有的倍数有问题
                 return false;
