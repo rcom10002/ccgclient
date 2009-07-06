@@ -2,6 +2,9 @@ package info.knightrcom.util
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.utils.getQualifiedClassName;
+	
+	import info.knightrcom.event.*;
 	
 	import mx.controls.Alert;
 	
@@ -28,6 +31,10 @@ package info.knightrcom.util
 			if (target.hasEventListener(type) && debug) {
 				trace("警告：目标对象" + target + "已经含有" + type + "事件句柄");
 				// Alert.show("警告：目标对象" + target + "已经含有" + type + "事件句柄");
+			}
+			if (target is GameEvent) {
+			    getQualifiedClassName(target);
+			    target.toString();
 			}
 			target.addEventListener(type, function (event:Event):void {
 				try {
