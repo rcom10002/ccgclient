@@ -16,7 +16,7 @@ package info.knightrcom.event
 		 */
 		public function FightLandlordGameEvent(type:String, incomingData:String=null)
 		{
-			super(type, incomingData);
+			super(EVENT_TYPE + type, incomingData);
 		}
 
 	}
