@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
+	<!-- 上侧区域 -->
+	<mx:HBox id="cardsCandidatedUp"
+			 height="120"
+			 horizontalGap="-55"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="0"
+			 left="128"
+			 right="128">
+	</mx:HBox>
+	<!-- 右侧区域 -->
+	<mx:VBox id="cardsCandidatedRight"
+			 width="120"
+			 top="128"
+			 bottom="156"
+			 right="0"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="-78">
+	</mx:VBox>
+	<!-- 下侧区域 -->
+	<mx:HBox id="cardsCandidatedDown"
+			 height="120"
+			 horizontalGap="-55"
+			 horizontalAlign="center"
+			 left="128"
+			 right="128"
+			 bottom="0"
+			 verticalAlign="top">
+	</mx:HBox>
+	<!-- 左侧区域 -->
+	<mx:VBox id="cardsCandidatedLeft"
+			 width="120"
+			 top="128"
+			 bottom="156"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="-78">
+	</mx:VBox>
+	<mx:Canvas left="128" right="128" top="128" bottom="157">
+		<!-- 牌桌区域 -->
+		<mx:Tile id="cardsDealedUp"
+				 height="100"
+				 top="0"
+				 left="160"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 right="160"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+			<mx:Button label="按钮"/>
+		</mx:Tile>
+		<mx:Tile id="cardsDealedRight"
+				 right="0"
+				 top="117"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 bottom="114"
+				 width="240"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+			<mx:Button label="按钮"/>
+		</mx:Tile>
+		<mx:Tile id="cardsDealedDown"
+				 height="100"
+				 right="160"
+				 bottom="0"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 left="160"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+			<mx:Button label="按钮"/>
+		</mx:Tile>
+		<mx:Tile id="cardsDealedLeft"
+				 bottom="114"
+				 left="0"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 top="117"
+				 width="240"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+			<mx:Button label="按钮"/>
+		</mx:Tile>
+	</mx:Canvas>
+	<!-- 操作区域 -->
+	<mx:HBox horizontalAlign="center"
+			 left="200"
+			 right="200"
+			 bottom="119"
+			 height="30">
+		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5" width="300">
+			<mx:dataProvider>
+				<mx:String>重选</mx:String>
+				<mx:String>不要</mx:String>
+				<mx:String>提示</mx:String>
+				<mx:String>出牌</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:HBox>
+	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+</mx:Module>
