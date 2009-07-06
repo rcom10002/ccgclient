@@ -19,6 +19,34 @@ package info.knightrcom.util
 		/**
 		 * 
 		 * @param target 要进行事件绑定的对象
+		 * @param gameType 游戏类型
+		 * @param type 事件类型
+		 * @param listener 监听函数
+		 * @return 
+		 * 
+		 */
+		public static function gameBind(target:EventDispatcher, gameType:uint, type:String, listener:Function):void {
+			if (target == null) {
+				throw Error("EventDispatcher类型参数target为空！\nError #1009: 无法访问空对象引用的属性或方法。");
+			}
+			if (target.hasEventListener(type) && debug) {
+				trace("警告：目标对象" + target + "已经含有" + type + "事件句柄");
+				// Alert.show("警告：目标对象" + target + "已经含有" + type + "事件句柄");
+			}
+			target.addEventListener(gameType + type, function (event:Event):void {
+				try {
+					listener(event);
+				} catch (e:Error) {
+					if (debug) {
+						Alert.show(e.getStackTrace(), e.message);
+					}
+				}
+			});
+		}
+
+		/**
+		 * 
+		 * @param target 要进行事件绑定的对象
 		 * @param type 事件类型
 		 * @param listener 监听函数
 		 * @return 
@@ -32,11 +60,11 @@ package info.knightrcom.util
 				trace("警告：目标对象" + target + "已经含有" + type + "事件句柄");
 				// Alert.show("警告：目标对象" + target + "已经含有" + type + "事件句柄");
 			}
+			var gamePrefix:String = "";
 			if (target is GameEvent) {
-			    getQualifiedClassName(target);
-			    target.toString();
+			    gamePrefix = getQualifiedClassName(target);
 			}
-			target.addEventListener(type, function (event:Event):void {
+			target.addEventListener(gamePrefix + type, function (event:Event):void {
 				try {
 					listener(event);
 				} catch (e:Error) {
@@ -59,7 +87,11 @@ package info.knightrcom.util
 			if (target == null) {
 				throw Error("EventDispatcher类型参数target为空！\nError #1009: 无法访问空对象引用的属性或方法。");
 			}
-			target.addEventListener(type, function (event:Event):void {
+			var gamePrefix:String = "";
+			if (target is GameEvent) {
+			    gamePrefix = getQualifiedClassName(target);
+			}
+			target.addEventListener(gamePrefix + type, function (event:Event):void {
 				try {
 					listener(event);
 					EventDispatcher(event.target).removeEventListener(type, this);
