@@ -1,11 +1,11 @@
 package info.knightrcom.state {
-    import flash.display.StageDisplayState;
     import flash.events.Event;
     import flash.events.MouseEvent;
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.command.PlayerCommand;
     import info.knightrcom.event.PlayerEvent;
+    import info.knightrcom.util.ListenerBinder;
     
     import mx.controls.Alert;
     import mx.events.FlexEvent;
@@ -23,7 +23,7 @@ package info.knightrcom.state {
          */
         public function LoginStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
             super(socketProxy, gameClient, myState);
-            myState.addEventListener(FlexEvent.ENTER_STATE, init);
+            ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
         }
 
         /**
@@ -32,14 +32,14 @@ package info.knightrcom.state {
         private function init(event:Event):void {
             // 配置事件监听
             // 非可视组件
-            socketProxy.addEventListener(PlayerEvent.LOGIN_SUCCESS, loginEventHandler);
-            socketProxy.addEventListener(PlayerEvent.LOGIN_USER_ALREADY_ONLINE, loginEventHandler);
-            socketProxy.addEventListener(PlayerEvent.LOGIN_ERROR_USERNAME_OR_PASSWORD, loginEventHandler);
-            socketProxy.addEventListener(PlayerEvent.LOGIN_MAX_CONNECTION_LIMIT, loginEventHandler);
+            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_SUCCESS, loginEventHandler);
+            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_USER_ALREADY_ONLINE, loginEventHandler);
+            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_ERROR_USERNAME_OR_PASSWORD, loginEventHandler);
+            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_MAX_CONNECTION_LIMIT, loginEventHandler);
             // 可视组件
-            gameClient.btnConnect.addEventListener(MouseEvent.CLICK, connectClick);
-            gameClient.btnSubmit.addEventListener(MouseEvent.CLICK, submitClick);
-            gameClient.btnReset.addEventListener(MouseEvent.CLICK, resetClick);
+            ListenerBinder.bind(gameClient.btnConnect, MouseEvent.CLICK, connectClick);
+            ListenerBinder.bind(gameClient.btnSubmit, MouseEvent.CLICK, submitClick);
+            ListenerBinder.bind(gameClient.btnReset, MouseEvent.CLICK, resetClick);
         }
 
         /**

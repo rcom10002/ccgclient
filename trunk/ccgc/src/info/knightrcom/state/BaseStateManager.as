@@ -5,6 +5,7 @@ package info.knightrcom.state {
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.event.PlatformEvent;
+    import info.knightrcom.util.ListenerBinder;
     
     import mx.controls.Alert;
     import mx.core.Application;
@@ -36,14 +37,14 @@ package info.knightrcom.state {
          */
         public function init(event:Event = null):void {
             // 配置事件监听
-            socketProxy.addEventListener(PlatformEvent.SERVER_CONNECTED, globalEventHandler);
-            socketProxy.addEventListener(PlatformEvent.SERVER_SESSION_TIMED_OUT, globalEventHandler);
-            socketProxy.addEventListener(PlatformEvent.SERVER_DISCONNECTED, globalEventHandler);
-            socketProxy.addEventListener(PlatformEvent.SERVER_IO_ERROR, globalEventHandler);
-            socketProxy.addEventListener(PlatformEvent.SERVER_SECURITY_ERROR, globalEventHandler);
-            socketProxy.addEventListener(PlatformEvent.PLATFORM_MESSAGE_BROADCASTED, globalEventHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_CONNECTED, globalEventHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SESSION_TIMED_OUT, globalEventHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_DISCONNECTED, globalEventHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_IO_ERROR, globalEventHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SECURITY_ERROR, globalEventHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_MESSAGE_BROADCASTED, globalEventHandler);
 
-			gameClient.btnScreenMode.addEventListener(MouseEvent.CLICK, toggleScreenMode);
+			ListenerBinder.bind(gameClient.btnScreenMode, MouseEvent.CLICK, toggleScreenMode);
 
             // 连接服务器
             socketProxy.connect();

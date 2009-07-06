@@ -158,7 +158,7 @@
 				var initSetting:Array = part2.split(";");
 				var playerIndex:int = -1;
 				settingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
-				settingTimer.addEventListener(TimerEvent.TIMER, function ():void {
+				ListenerBinder.bind(settingTimer, TimerEvent.TIMER, function ():void {
 					if (itrIndex == initSetting.length) {
 						// 当设置过程结束时，终止游戏设置过程的演示，并开始游戏过程的回放
 						settingTimer.stop();
@@ -194,7 +194,7 @@
 				});
 				// 游戏过程回放
 				playingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
-				playingTimer.addEventListener(TimerEvent.TIMER, function ():void {
+				ListenerBinder.bind(playingTimer, TimerEvent.TIMER, function ():void {
 					if (itrIndex == initPokers.length) {
 						playingTimer.stop();
 						Alert.show("录像回放完毕！");
