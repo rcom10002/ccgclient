@@ -3,7 +3,6 @@ package info.knightrcom.state {
     import component.Scoreboard;
     
     import flash.events.Event;
-    import flash.events.MouseEvent;
     import flash.events.TimerEvent;
     import flash.utils.Timer;
     
@@ -138,6 +137,8 @@ package info.knightrcom.state {
 		 */
 		private var timer:Timer = new Timer(1000, MAX_CARDS_SELECT_TIME);
 
+		private var currentGame:CCGameRed5 = null;
+
         /**
          *
          * @param socketProxy
@@ -148,6 +149,7 @@ package info.knightrcom.state {
         public function Red5GameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
             super(socketProxy, gameClient, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
+            this.currentGame = gameClient.red5GameModule;
         }
 
         /**
@@ -167,31 +169,31 @@ package info.knightrcom.state {
                 ListenerBinder.bind(socketProxy, GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler);
                 ListenerBinder.bind(socketProxy, GameEvent.GAME_OVER, gameOverHandler);
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
-					gameClient.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-					gameClient.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
+					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
-						if (Button(gameClient.btnBarPokers.getChildAt(1)).enabled) {
+						if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled) {
 							// 可以选择不要按钮时，则进行不要操作
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
 						} else {
 							// 重选
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
 	                        // 选择第一张牌
-	                        PokerButton(gameClient.cardsCandidatedDown.getChildAt(0)).setSelected(true);
+	                        PokerButton(currentGame.cardsCandidatedDown.getChildAt(0)).setSelected(true);
 							// 出牌
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
 						}
 					}
 				});
                 // 可视组件
-                ListenerBinder.bind(gameClient.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
-                ListenerBinder.bind(gameClient.btnBarPokers, FlexEvent.SHOW, show);
-                ListenerBinder.bind(gameClient.btnBarPokers, FlexEvent.HIDE, hide);
+                ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
+                ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
+                ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.HIDE, hide);
                 setInitialized(true);
             }
             // 按照当前玩家序号，进行画面座次安排
-            var tempCardsDealed:Array = new Array(gameClient.cardsDealedDown, gameClient.cardsDealedRight, gameClient.cardsDealedUp, gameClient.cardsDealedLeft);
-            var tempCardsCandidated:Array = new Array(gameClient.cardsCandidatedDown, gameClient.cardsCandidatedRight, gameClient.cardsCandidatedUp, gameClient.cardsCandidatedLeft);
+            var tempCardsDealed:Array = new Array(currentGame.cardsDealedDown, currentGame.cardsDealedRight, currentGame.cardsDealedUp, currentGame.cardsDealedLeft);
+            var tempCardsCandidated:Array = new Array(currentGame.cardsCandidatedDown, currentGame.cardsCandidatedRight, currentGame.cardsCandidatedUp, currentGame.cardsCandidatedLeft);
             // 进行位移操作
             var index:int = 0;
             while (index != localNumber - 1) {
@@ -210,11 +212,11 @@ package info.knightrcom.state {
             for (index = 0; index < cardsCandidatedArray.length; index++) {
                 cardsCandidatedArray[index] = tempCardsCandidated[index];
             }
-            gameClient.btnBarPokers.visible = false;
-            gameClient.timerTip.label = "剩余时间：";
-		    gameClient.timerTip.minimum = 0;
-            gameClient.timerTip.maximum = MAX_CARDS_SELECT_TIME;
-            gameClient.timerTip.mode = ProgressBarMode.MANUAL;
+            currentGame.btnBarPokers.visible = false;
+            currentGame.timerTip.label = "剩余时间：";
+		    currentGame.timerTip.minimum = 0;
+            currentGame.timerTip.maximum = MAX_CARDS_SELECT_TIME;
+            currentGame.timerTip.mode = ProgressBarMode.MANUAL;
         }
 
         /**
@@ -234,7 +236,7 @@ package info.knightrcom.state {
             for each (var cardName:String in cardNames) {
                 poker = new PokerButton();
                 poker.source = "image/poker/" + cardName + ".png";
-                gameClient.cardsCandidatedDown.addChild(poker);
+                currentGame.cardsCandidatedDown.addChild(poker);
             }
             // 其他玩家牌数
             var pokerNumberOfPlayers:String = results[1];
@@ -296,9 +298,9 @@ package info.knightrcom.state {
                 if (setting == Red5GameSetting.EXTINCT_RUSH) {
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                     // 准备出牌
-                    gameClient.btnBarPokers.visible = true;
+                    currentGame.btnBarPokers.visible = true;
                     // 首次出牌需要禁用"不要"按键
-                    Button(gameClient.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
                 }
             } else if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 当前玩家为最后一个玩家时，马上可以开始游戏
@@ -309,9 +311,9 @@ package info.knightrcom.state {
                     gameSetting = setting;
                     gameFinalSettingPlayerNumber = localNumber;
                     // 准备出牌
-                    gameClient.btnBarPokers.visible = true;
+                    currentGame.btnBarPokers.visible = true;
                     // 首次出牌需要禁用"不要"按键
-                    Button(gameClient.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
                 } else {
                     // 游戏设置为不独时
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
@@ -332,9 +334,9 @@ package info.knightrcom.state {
                 gameSetting = setting;
                 gameFinalSettingPlayerNumber = localNumber;
                 // 准备出牌
-                gameClient.btnBarPokers.visible = true;
+                currentGame.btnBarPokers.visible = true;
                 // 首次出牌需要禁用"不要"按键
-                Button(gameClient.btnBarPokers.getChildAt(1)).enabled = false;
+                Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
             }
         }
 
@@ -358,9 +360,9 @@ package info.knightrcom.state {
                 // 每个玩家都进行过游戏设置，则可以开始游戏
                 if (localNumber == currentNumber) {
                     // 游戏设置结束，准备出牌
-                    gameClient.btnBarPokers.visible = true;
+                    currentGame.btnBarPokers.visible = true;
                     // 首次出牌需要禁用"不要"按键
-                    Button(gameClient.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
                 }
             } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH) {
                 // 游戏设置途中有天外天时，等候天独玩家发牌
@@ -455,13 +457,13 @@ package info.knightrcom.state {
             // 为出牌玩家设置扑克操作按钮外观
             if (currentNextNumber == localNumber) {
                 // 轮到当前玩家出牌时
-                gameClient.btnBarPokers.visible = true;
-                Button(gameClient.btnBarPokers.getChildAt(1)).enabled = true;
+                currentGame.btnBarPokers.visible = true;
+                Button(currentGame.btnBarPokers.getChildAt(1)).enabled = true;
                 if (currentNumber == currentNextNumber) {
                     // 如果消息中指定的发牌玩家序号与下家序号都等于当前玩家，
                     // 即当前玩家最后一次出的牌，在回合中最大，本回合从当前玩家开始
                     currentBoutCards = null;
-                    Button(gameClient.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
                 }
             }
         }
@@ -604,7 +606,7 @@ package info.knightrcom.state {
             switch (event.index) {
                 case 0:
                     // 重选
-                    for each (card in gameClient.cardsCandidatedDown.getChildren()) {
+                    for each (card in currentGame.cardsCandidatedDown.getChildren()) {
                         card.setSelected(false);
                     }
                     break;
@@ -616,7 +618,7 @@ package info.knightrcom.state {
                         // 可以由获胜者的直接下家出牌
                         socketProxy.sendGameData(Red5GameCommand.GAME_BRING_OUT, localNumber + "~" + currentBoutCards + "~" + localNextNumber + "~pass");
                         isWinnerFollowed = false;
-                    } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH && localNextNumber == currentNumber && gameClient.cardsCandidatedRight.getChildren().length == 0) {
+                    } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH && localNextNumber == currentNumber && currentGame.cardsCandidatedRight.getChildren().length == 0) {
                         // 设置游戏冠军玩家
                         firstPlaceNumber = currentNumber;
                         // 游戏设置为天外天，且所有非独牌者均不要时
@@ -629,7 +631,7 @@ package info.knightrcom.state {
                             for each (var cardsDealed:Tile in cardsDealedArray) {
                                 cardsDealed.removeAllChildren();
                             }
-                            gameClient.btnBarPokers.visible = false;
+                            currentGame.btnBarPokers.visible = false;
                             return;
                         }
                     }
@@ -641,7 +643,7 @@ package info.knightrcom.state {
                     Tile(cardsDealedArray[currentIndex]).removeAllChildren();
                     Tile(cardsDealedArray[currentIndex]).addChild(passLabel);
                     // 出牌操作结束后，关闭扑克操作栏
-                    gameClient.btnBarPokers.visible = false;
+                    currentGame.btnBarPokers.visible = false;
                     break;
                 case 2:
                     // 提示
@@ -650,7 +652,7 @@ package info.knightrcom.state {
                     // 出牌
                     // 选择要出的牌
                     var cards:String = "";
-                    for each (card in gameClient.cardsCandidatedDown.getChildren()) {
+                    for each (card in currentGame.cardsCandidatedDown.getChildren()) {
                         if (card.isSelected()) {
                             cards += card.value + ",";
                         }
@@ -667,7 +669,7 @@ package info.knightrcom.state {
                     }
                     // 设置出牌结果
                     // 当前剩余的牌数
-                    var cardsCandicateNumber:int = gameClient.cardsCandidatedDown.getChildren().length;
+                    var cardsCandicateNumber:int = currentGame.cardsCandidatedDown.getChildren().length;
                     // 即将打出的牌数
                     var cardsDealedNumber:int = cards.split(",").length;
                     // 打出后剩余牌数
@@ -726,16 +728,16 @@ package info.knightrcom.state {
                         throw Error("其他无法预测的出牌动作！");
                     }
                     // 更新客户端扑克显示
-                    gameClient.cardsDealedDown.removeAllChildren();
-                    for each (card in gameClient.cardsCandidatedDown.getChildren()) {
+                    currentGame.cardsDealedDown.removeAllChildren();
+                    for each (card in currentGame.cardsCandidatedDown.getChildren()) {
                         if (card.isSelected()) {
-                            gameClient.cardsCandidatedDown.removeChild(card);
-                            gameClient.cardsDealedDown.addChild(card);
+                            currentGame.cardsCandidatedDown.removeChild(card);
+                            currentGame.cardsDealedDown.addChild(card);
                             card.allowSelect = false;
                         }
                     }
                     // 出牌操作结束后，关闭扑克操作栏
-                    gameClient.btnBarPokers.visible = false;
+                    currentGame.btnBarPokers.visible = false;
                     break;
             }
         }
@@ -747,9 +749,9 @@ package info.knightrcom.state {
 		 */
 		private function show(event:FlexEvent):void {
 			// 显示进度条，倒计时开始开始
-            gameClient.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
-			gameClient.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
-			gameClient.timerTip.visible = true;
+            currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
+			currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
+			currentGame.timerTip.visible = true;
 			timer.start();
 		}
 
@@ -760,7 +762,7 @@ package info.knightrcom.state {
 		 */
 		private function hide(event:FlexEvent):void {
 			// 进度条隐藏，并重置计时器
-			gameClient.timerTip.visible = false;
+			currentGame.timerTip.visible = false;
 			timer.reset();
 		}
 
