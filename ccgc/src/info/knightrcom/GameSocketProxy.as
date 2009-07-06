@@ -5,7 +5,7 @@ package info.knightrcom {
     import flash.events.IOErrorEvent;
     import flash.events.SecurityErrorEvent;
     import flash.net.XMLSocket;
-
+    
     import info.knightrcom.command.GameCommand;
     import info.knightrcom.command.PlatformCommand;
     import info.knightrcom.command.PlayerCommand;
@@ -13,7 +13,8 @@ package info.knightrcom {
     import info.knightrcom.event.PlatformEvent;
     import info.knightrcom.event.PlayerEvent;
     import info.knightrcom.event.Red5GameEvent;
-
+    import info.knightrcom.util.ListenerBinder;
+    
     import mx.utils.Base64Decoder;
     import mx.utils.Base64Encoder;
 
@@ -41,11 +42,11 @@ package info.knightrcom {
             } catch (err:Error) {
                 trace(err.message);
             }
-            socket.addEventListener(Event.CLOSE, closeHandler);
-            socket.addEventListener(Event.CONNECT, connectHandler);
-            socket.addEventListener(DataEvent.DATA, dataHandler);
-            socket.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-            socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+            ListenerBinder.bind(socket, Event.CLOSE, closeHandler);
+            ListenerBinder.bind(socket, Event.CONNECT, connectHandler);
+            ListenerBinder.bind(socket, DataEvent.DATA, dataHandler);
+            ListenerBinder.bind(socket, IOErrorEvent.IO_ERROR, ioErrorHandler);
+            ListenerBinder.bind(socket, SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
         }
 
         // 通信事件句柄定义开始

@@ -3,7 +3,6 @@ package info.knightrcom.state {
     import component.service.SystemInfoWindow;
     
     import flash.display.DisplayObject;
-    import flash.display.StageDisplayState;
     import flash.events.Event;
     import flash.events.MouseEvent;
     
@@ -17,6 +16,7 @@ package info.knightrcom.state {
     import info.knightrcom.event.PlatformEvent;
     import info.knightrcom.event.PlayerEvent;
     import info.knightrcom.event.Red5GameEvent;
+    import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.Model;
     
     import memorphic.xpath.XPathQuery;
@@ -25,7 +25,6 @@ package info.knightrcom.state {
     import mx.containers.Tile;
     import mx.controls.Alert;
     import mx.controls.Button;
-    import mx.core.Application;
     import mx.core.Container;
     import mx.events.FlexEvent;
     import mx.states.State;
@@ -42,7 +41,7 @@ package info.knightrcom.state {
          */
         public function LobbyStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
             super(socketProxy, gameClient, myState);
-            myState.addEventListener(FlexEvent.ENTER_STATE, init);
+            ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
         }
 
         /**
@@ -55,17 +54,17 @@ package info.knightrcom.state {
                 return;
             }
 
-            gameClient.gameControlBar.btnGameJoin.addEventListener(MouseEvent.CLICK, gameJoinClick);
-            gameClient.gameControlBar.btnSystemInfo.addEventListener(MouseEvent.CLICK, systemInfoClick);
-            gameClient.gameControlBar.btnPlayerInfo.addEventListener(MouseEvent.CLICK, playerInfoClick);
-            gameClient.gameControlBar.btnOption.addEventListener(MouseEvent.CLICK, optionClick);
-            gameClient.gameControlBar.btnLogout.addEventListener(MouseEvent.CLICK, logoutClick);
-            gameClient.gameControlBar.btnHelp.addEventListener(MouseEvent.CLICK, helpClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnGameJoin, MouseEvent.CLICK, gameJoinClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnSystemInfo, MouseEvent.CLICK, systemInfoClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnPlayerInfo, MouseEvent.CLICK, playerInfoClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnOption, MouseEvent.CLICK, optionClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnLogout, MouseEvent.CLICK, logoutClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnHelp, MouseEvent.CLICK, helpClick);
 
-            socketProxy.addEventListener(PlatformEvent.PLATFORM_ENVIRONMENT_INIT, platformEnvironmentInitHandler);
-            socketProxy.addEventListener(PlayerEvent.LOBBY_ENTER_ROOM, lobbyEnterRoomHandler);
-            socketProxy.addEventListener(GameEvent.GAME_CREATE, gameCreateHandler);
-            socketProxy.addEventListener(GameEvent.GAME_WAIT, gameWaitHandler);
+            ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_ENVIRONMENT_INIT, platformEnvironmentInitHandler);
+            ListenerBinder.bind(socketProxy, PlayerEvent.LOBBY_ENTER_ROOM, lobbyEnterRoomHandler);
+            ListenerBinder.bind(socketProxy, GameEvent.GAME_CREATE, gameCreateHandler);
+            ListenerBinder.bind(socketProxy, GameEvent.GAME_WAIT, gameWaitHandler);
 
             // 请求平台信息
             socketProxy.sendPlatformData(PlatformCommand.PLATFORM_REQUEST_ENVIRONMENT);
@@ -152,7 +151,7 @@ package info.knightrcom.state {
                     button.label = buttonModel.name;
                     button.width = 80;
                     button.height = 80;
-                    button.addEventListener(MouseEvent.CLICK, roomClick);
+                    ListenerBinder.bind(button, MouseEvent.CLICK, roomClick);
                     tile.addChild(button);
                 }
                 // Button排序

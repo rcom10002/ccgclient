@@ -1,28 +1,28 @@
 package info.knightrcom.state
 {
 	import component.PokerButton;
-
+	
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.events.ProgressEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-
+	
 	import info.knightrcom.GameSocketProxy;
 	import info.knightrcom.command.FightLandlordGameCommand;
 	import info.knightrcom.event.FightLandlordGameEvent;
 	import info.knightrcom.event.GameEvent;
 	import info.knightrcom.state.fightlandlordgame.FightLandlordGame;
 	import info.knightrcom.state.fightlandlordgame.FightLandlordGameSetting;
+	import info.knightrcom.util.ListenerBinder;
 	import info.knightrcom.util.PlatformAlert;
 	import info.knightrcom.util.PlatformAlertEvent;
-
+	
 	import mx.containers.Box;
 	import mx.containers.Tile;
 	import mx.controls.Alert;
 	import mx.controls.Button;
-	import mx.controls.ProgressBarMode;
 	import mx.controls.Label;
+	import mx.controls.ProgressBarMode;
 	import mx.events.FlexEvent;
 	import mx.events.ItemClickEvent;
 	import mx.states.State;
@@ -163,7 +163,7 @@ package info.knightrcom.state
 		public function FightLandlordGameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void
 		{
 			super(socketProxy, gameClient, myState);
-			myState.addEventListener(FlexEvent.ENTER_STATE, init);
+			ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
 		}
 
 		/**
@@ -177,14 +177,14 @@ package info.knightrcom.state
 			{
 				// 配置事件监听
 				// 非可视组件
-				socketProxy.addEventListener(GameEvent.GAME_BRING_OUT, gameBringOutHandler);
-				socketProxy.addEventListener(GameEvent.GAME_STARTED, gameStartedHandler);
-				socketProxy.addEventListener(GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler);
-				socketProxy.addEventListener(GameEvent.GAME_INTERRUPTED, gameInterruptedHandler);
-				socketProxy.addEventListener(GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler);
-				socketProxy.addEventListener(FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler);
-				socketProxy.addEventListener(GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler);
-				socketProxy.addEventListener(GameEvent.GAME_OVER, gameOverHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_BRING_OUT, gameBringOutHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_STARTED, gameStartedHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_INTERRUPTED, gameInterruptedHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler);
+				ListenerBinder.bind(socketProxy, FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler);
+				ListenerBinder.bind(socketProxy, GameEvent.GAME_OVER, gameOverHandler);
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void
 					{
 						gameClient.timerTip2.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
@@ -208,10 +208,10 @@ package info.knightrcom.state
 						}
 					});
 				// 可视组件
-				gameClient.btnBarPokers2.addEventListener(ItemClickEvent.ITEM_CLICK, itemClick);
-				gameClient.btnBarPokers2.addEventListener(FlexEvent.SHOW, show);
-				gameClient.btnBarPokers2.addEventListener(FlexEvent.HIDE, hide);
-				gameClient.btnDebug2.addEventListener(MouseEvent.CLICK, debug);
+				ListenerBinder.bind(gameClient.btnBarPokers2, ItemClickEvent.ITEM_CLICK, itemClick);
+				ListenerBinder.bind(gameClient.btnBarPokers2, FlexEvent.SHOW, show);
+				ListenerBinder.bind(gameClient.btnBarPokers2, FlexEvent.HIDE, hide);
+				ListenerBinder.bind(gameClient.btnDebug2, MouseEvent.CLICK, debug);
 				setInitialized(true);
 			}
 

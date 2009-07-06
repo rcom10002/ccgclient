@@ -126,7 +126,7 @@ package info.knightrcom.state {
          */
         public function PushdownWinGameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
             super(socketProxy, gameClient, myState);
-            myState.addEventListener(FlexEvent.ENTER_STATE, init);
+            ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
         }
 
         /**
