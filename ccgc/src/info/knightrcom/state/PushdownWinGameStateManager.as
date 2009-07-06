@@ -7,6 +7,7 @@ package info.knightrcom.state {
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.event.GameEvent;
+    import info.knightrcom.state.pushdownwingame.PushdownWinGame;
     import info.knightrcom.event.PushdownWinGameEvent;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.PlatformAlertEvent;
@@ -195,7 +196,7 @@ package info.knightrcom.state {
             // 显示系统洗牌后的结果，格式为：当前玩家待发牌 + "~" + "0=15;1=15;2=15;3=15"
             var results:Array = event.incomingData.split("~");
             var mahjongSequence:String = results[0];
-            // var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
+            var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
             var mahjong:MahjongButton = null;
             // 为当前玩家发牌
 //            for each (var mahjongName:String in mahjongNames) {
