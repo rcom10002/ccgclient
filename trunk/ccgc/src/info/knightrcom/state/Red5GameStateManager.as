@@ -183,7 +183,7 @@ package info.knightrcom.state {
 							// 重选
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
 	                        // 选择第一张牌
-	                        PokerButton(currentGame.cardsCandidatedDown.getChildAt(0)).setSelected(true);
+	                        PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
 							// 出牌
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
 						}
@@ -196,8 +196,8 @@ package info.knightrcom.state {
                 setInitialized(true);
             }
             // 按照当前玩家序号，进行画面座次安排
-            var tempCardsDealed:Array = new Array(currentGame.cardsDealedDown, currentGame.cardsDealedRight, currentGame.cardsDealedUp, currentGame.cardsDealedLeft);
-            var tempCardsCandidated:Array = new Array(currentGame.cardsCandidatedDown, currentGame.cardsCandidatedRight, currentGame.cardsCandidatedUp, currentGame.cardsCandidatedLeft);
+            var tempCardsDealed:Array = new Array(currentGame.dealedDown, currentGame.dealedRight, currentGame.dealedUp, currentGame.dealedLeft);
+            var tempCardsCandidated:Array = new Array(currentGame.candidatedDown, currentGame.candidatedRight, currentGame.candidatedUp, currentGame.candidatedLeft);
             // 进行位移操作
             var index:int = 0;
             while (index != localNumber - 1) {
@@ -240,7 +240,7 @@ package info.knightrcom.state {
             for each (var cardName:String in cardNames) {
                 poker = new PokerButton();
                 poker.source = "image/poker/" + cardName + ".png";
-                currentGame.cardsCandidatedDown.addChild(poker);
+                currentGame.candidatedDown.addChild(poker);
             }
             // 其他玩家牌数
             var pokerNumberOfPlayers:String = results[1];
@@ -644,7 +644,7 @@ package info.knightrcom.state {
             switch (event.index) {
                 case 0:
                     // 重选
-                    for each (card in currentGame.cardsCandidatedDown.getChildren()) {
+                    for each (card in currentGame.candidatedDown.getChildren()) {
                         card.setSelected(false);
                     }
                     break;
@@ -656,7 +656,7 @@ package info.knightrcom.state {
                         // 可以由获胜者的直接下家出牌
                         socketProxy.sendGameData(Red5GameCommand.GAME_BRING_OUT, localNumber + "~" + currentBoutCards + "~" + localNextNumber + "~pass");
                         isWinnerFollowed = false;
-                    } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH && localNextNumber == currentNumber && currentGame.cardsCandidatedRight.getChildren().length == 0) {
+                    } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH && localNextNumber == currentNumber && currentGame.candidatedRight.getChildren().length == 0) {
                         // 设置游戏冠军玩家
                         firstPlaceNumber = currentNumber;
                         // 游戏设置为天外天，且所有非独牌者均不要时
@@ -690,7 +690,7 @@ package info.knightrcom.state {
                     // 出牌
                     // 选择要出的牌
                     var cards:String = "";
-                    for each (card in currentGame.cardsCandidatedDown.getChildren()) {
+                    for each (card in currentGame.candidatedDown.getChildren()) {
                         if (card.isSelected()) {
                             cards += card.value + ",";
                         }
@@ -707,7 +707,7 @@ package info.knightrcom.state {
                     }
                     // 设置出牌结果
                     // 当前剩余的牌数
-                    var cardsCandicateNumber:int = currentGame.cardsCandidatedDown.getChildren().length;
+                    var cardsCandicateNumber:int = currentGame.candidatedDown.getChildren().length;
                     // 即将打出的牌数
                     var cardsDealedNumber:int = cards.split(",").length;
                     // 打出后剩余牌数
@@ -766,11 +766,11 @@ package info.knightrcom.state {
                         throw Error("其他无法预测的出牌动作！");
                     }
                     // 更新客户端扑克显示
-                    currentGame.cardsDealedDown.removeAllChildren();
-                    for each (card in currentGame.cardsCandidatedDown.getChildren()) {
+                    currentGame.dealedDown.removeAllChildren();
+                    for each (card in currentGame.candidatedDown.getChildren()) {
                         if (card.isSelected()) {
-                            currentGame.cardsCandidatedDown.removeChild(card);
-                            currentGame.cardsDealedDown.addChild(card);
+                            currentGame.candidatedDown.removeChild(card);
+                            currentGame.dealedDown.addChild(card);
                             card.allowSelect = false;
                         }
                     }
