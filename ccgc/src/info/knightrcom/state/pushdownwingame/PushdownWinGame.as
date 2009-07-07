@@ -146,7 +146,7 @@ package info.knightrcom.state.pushdownwingame {
                 }
                 // 间隔值判断，相邻的牌必须连续
                 // return prioritySequence.indexOf(resultCards) > -1;
-                return null;
+                return false;
             } else {
                 // 不能整除代表牌中有的倍数有问题
                 return false;

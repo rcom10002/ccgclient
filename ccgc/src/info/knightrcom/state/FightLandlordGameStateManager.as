@@ -32,7 +32,7 @@ package info.knightrcom.state
 	 * 斗地主游戏状态管理器
 	 *
 	 */
-	public class FightLandlordGameStateManager extends AbstractStateManager
+	public class FightLandlordGameStateManager extends AbstractGameStateManager
 	{
 
 		/**
@@ -166,7 +166,17 @@ package info.knightrcom.state
 		{
 			super(socketProxy, gameClient, myState);
 			ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
-			this.currentGame = gameClient.fightLandlordGameModule;
+            batchBindGameEvent(FightLandlordGameEvent.EVENT_TYPE, new Array(
+                    GameEvent.GAME_WAIT, gameWaitHandler,
+                    GameEvent.GAME_CREATE, gameCreateHandler,
+            		GameEvent.GAME_STARTED, gameStartedHandler,
+            		GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler,
+            		GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler,
+            		FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler,
+            		GameEvent.GAME_BRING_OUT, gameBringOutHandler,
+            		GameEvent.GAME_INTERRUPTED, gameInterruptedHandler,
+            		GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler,
+            		GameEvent.GAME_OVER, gameOverHandler));
 		}
 
 		/**
@@ -180,15 +190,7 @@ package info.knightrcom.state
 			{
 				// 配置事件监听
 				// 非可视组件
-                batchBindGameEvent(FightLandlordGameEvent.EVENT_TYPE, new Array(
-                		GameEvent.GAME_STARTED, gameStartedHandler,
-                		GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler,
-                		GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler,
-                		FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler,
-                		GameEvent.GAME_BRING_OUT, gameBringOutHandler,
-                		GameEvent.GAME_INTERRUPTED, gameInterruptedHandler,
-                		GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler,
-                		GameEvent.GAME_OVER, gameOverHandler));
+			    this.currentGame = gameClient.fightLandlordGameModule;
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void
 					{
 						currentGame.timerTip2.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
@@ -765,6 +767,40 @@ package info.knightrcom.state
 			var placeNumbers:Array=new Array(firstPlaceNumber, secondPlaceNumber, thirdPlaceNumber, forthPlaceNumber);
 			Alert.show("玩家[" + placeNumbers.join(",") + "]胜出！", "消息");
 		}
+
+        /**
+         *
+         * 游戏创建，为客户端玩家分配游戏id号与当前游戏玩家序号以及下家玩家序号
+         *
+         * @param event
+         *
+         */
+        private function gameCreateHandler(event:GameEvent):void {
+            var results:Array = null;
+            if (event.incomingData != null) {
+                results = event.incomingData.split("~");
+            }
+        	FightLandlordGameStateManager.resetInitInfo();
+            FightLandlordGameStateManager.currentGameId = results[0];
+            FightLandlordGameStateManager.localNumber = results[1];
+            FightLandlordGameStateManager.playerCogameNumber = results[2];
+            if (FightLandlordGameStateManager.playerCogameNumber == FightLandlordGameStateManager.localNumber) {
+                FightLandlordGameStateManager.localNextNumber = 1;
+            } else {
+                FightLandlordGameStateManager.localNextNumber = FightLandlordGameStateManager.localNumber + 1;
+            }
+            gameClient.currentState = "FIGHTLANDLORDGAME";
+        }
+
+        /**
+         *
+         * @param event
+         *
+         */
+        private function gameWaitHandler(event:GameEvent):void {
+            gameClient.txtSysMessage.text += event.incomingData + "\n";
+            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
+        }
 
 		/**
 		 *

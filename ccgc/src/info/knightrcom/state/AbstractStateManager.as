@@ -34,11 +34,5 @@ package info.knightrcom.state {
         protected function isInitialized():Boolean {
             return initialized;
         }
-        
-        protected function batchBindGameEvent(eventType:uint, eventConfigs:Array):void {
-    	    for (var i:int = 0; i < eventConfigs.length; i += 2) {
-            	ListenerBinder.gameBind(socketProxy, eventType, eventConfigs[i], eventConfigs[i + 1]);
-            }
-        }
     }
 }
