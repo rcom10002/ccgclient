@@ -63,8 +63,6 @@ package info.knightrcom.state {
 
             ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_ENVIRONMENT_INIT, platformEnvironmentInitHandler);
             ListenerBinder.bind(socketProxy, PlayerEvent.LOBBY_ENTER_ROOM, lobbyEnterRoomHandler);
-            ListenerBinder.bind(socketProxy, GameEvent.GAME_CREATE, gameCreateHandler);
-            ListenerBinder.bind(socketProxy, GameEvent.GAME_WAIT, gameWaitHandler);
 
             // 请求平台信息
             socketProxy.sendPlatformData(PlatformCommand.PLATFORM_REQUEST_ENVIRONMENT);
@@ -168,56 +166,6 @@ package info.knightrcom.state {
          */
         private function lobbyEnterRoomHandler(event:PlatformEvent):void {
             gameClient.txtSysMessage.text += event.incomingData + "\n";
-        }
-
-        /**
-         *
-         * 游戏创建，为客户端玩家分配游戏id号与当前游戏玩家序号以及下家玩家序号
-         *
-         * @param event
-         *
-         */
-        private function gameCreateHandler(event:GameEvent):void {
-            var results:Array = null;
-            if (event.incomingData != null) {
-                results = event.incomingData.split("~");
-            }
-            if (event is Red5GameEvent) {
-                Red5GameStateManager.resetInitInfo();
-                Red5GameStateManager.currentGameId = results[0];
-                Red5GameStateManager.localNumber = results[1];
-                Red5GameStateManager.playerCogameNumber = results[2];
-                if (Red5GameStateManager.playerCogameNumber == Red5GameStateManager.localNumber) {
-                    Red5GameStateManager.localNextNumber = 1;
-                } else {
-                    Red5GameStateManager.localNextNumber = Red5GameStateManager.localNumber + 1;
-                }
-                gameClient.currentState = "RED5GAME";
-            } else if (event is FightLandlordGameEvent) {
-            	FightLandlordGameStateManager.resetInitInfo();
-                FightLandlordGameStateManager.currentGameId = results[0];
-                FightLandlordGameStateManager.localNumber = results[1];
-                FightLandlordGameStateManager.playerCogameNumber = results[2];
-                if (FightLandlordGameStateManager.playerCogameNumber == FightLandlordGameStateManager.localNumber) {
-                    FightLandlordGameStateManager.localNextNumber = 1;
-                } else {
-                    FightLandlordGameStateManager.localNextNumber = FightLandlordGameStateManager.localNumber + 1;
-                }
-                gameClient.currentState = "FIGHTLANDLORDGAME";
-            } else {
-                Alert.show("未知游戏类型");
-                return;
-            }
-        }
-
-        /**
-         *
-         * @param event
-         *
-         */
-        private function gameWaitHandler(event:GameEvent):void {
-            gameClient.txtSysMessage.text += event.incomingData + "\n";
-            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
         }
 
         /**

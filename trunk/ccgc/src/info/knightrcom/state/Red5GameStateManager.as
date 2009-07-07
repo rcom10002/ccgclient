@@ -16,6 +16,7 @@ package info.knightrcom.state {
     import info.knightrcom.util.PlatformAlert;
     import info.knightrcom.util.PlatformAlertEvent;
     
+    import mx.binding.utils.BindingUtils;
     import mx.containers.Box;
     import mx.containers.Tile;
     import mx.controls.Alert;
@@ -31,7 +32,7 @@ package info.knightrcom.state {
      * 红五游戏状态管理器
      *
      */
-    public class Red5GameStateManager extends AbstractStateManager {
+    public class Red5GameStateManager extends AbstractGameStateManager {
 
         /**
          * 游戏中玩家的个数
@@ -149,7 +150,16 @@ package info.knightrcom.state {
         public function Red5GameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
             super(socketProxy, gameClient, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
-            this.currentGame = gameClient.red5GameModule;
+            batchBindGameEvent(Red5GameEvent.EVENT_TYPE, new Array(
+                    GameEvent.GAME_WAIT, gameWaitHandler,
+                    GameEvent.GAME_CREATE, gameCreateHandler,
+            		GameEvent.GAME_STARTED, gameStartedHandler,
+            		GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler,
+            		GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler,
+            		GameEvent.GAME_BRING_OUT, gameBringOutHandler,
+            		GameEvent.GAME_INTERRUPTED, gameInterruptedHandler,
+            		GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler,
+            		GameEvent.GAME_OVER, gameOverHandler));
         }
 
         /**
@@ -161,13 +171,7 @@ package info.knightrcom.state {
             if (!isInitialized()) {
                 // 配置事件监听
                 // 非可视组件
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_BRING_OUT, gameBringOutHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_STARTED, gameStartedHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_INTERRUPTED, gameInterruptedHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_OVER, gameOverHandler);
+                this.currentGame = gameClient.red5GameModule;
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
@@ -587,6 +591,40 @@ package info.knightrcom.state {
             // TODO DROP THE FOLLOWING DEBUG INFO
 //            var placeNumbers:Array = new Array(firstPlaceNumber, secondPlaceNumber, thirdPlaceNumber, forthPlaceNumber);
 //            Alert.show("玩家[" + placeNumbers.join(",") + "]胜出！", "消息");
+        }
+
+        /**
+         *
+         * 游戏创建，为客户端玩家分配游戏id号与当前游戏玩家序号以及下家玩家序号
+         *
+         * @param event
+         *
+         */
+        private function gameCreateHandler(event:GameEvent):void {
+            var results:Array = null;
+            if (event.incomingData != null) {
+                results = event.incomingData.split("~");
+            }
+            Red5GameStateManager.resetInitInfo();
+            Red5GameStateManager.currentGameId = results[0];
+            Red5GameStateManager.localNumber = results[1];
+            Red5GameStateManager.playerCogameNumber = results[2];
+            if (Red5GameStateManager.playerCogameNumber == Red5GameStateManager.localNumber) {
+                Red5GameStateManager.localNextNumber = 1;
+            } else {
+                Red5GameStateManager.localNextNumber = Red5GameStateManager.localNumber + 1;
+            }
+            gameClient.currentState = "RED5GAME";
+        }
+
+        /**
+         *
+         * @param event
+         *
+         */
+        private function gameWaitHandler(event:GameEvent):void {
+            gameClient.txtSysMessage.text += event.incomingData + "\n";
+            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
         }
 
         /**
