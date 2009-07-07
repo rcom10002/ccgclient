@@ -33,6 +33,7 @@ package info.knightrcom.util
 				trace("警告：目标对象" + target + "已经含有" + type + "事件句柄");
 				// Alert.show("警告：目标对象" + target + "已经含有" + type + "事件句柄");
 			}
+			trace("绑定游戏事件：" + gameType + type);
 			target.addEventListener(gameType + type, function (event:Event):void {
 				try {
 					listener(event);
