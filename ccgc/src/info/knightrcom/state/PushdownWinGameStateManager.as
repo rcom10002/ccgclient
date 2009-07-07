@@ -7,8 +7,8 @@ package info.knightrcom.state {
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.event.GameEvent;
-    import info.knightrcom.state.pushdownwingame.PushdownWinGame;
     import info.knightrcom.event.PushdownWinGameEvent;
+    import info.knightrcom.state.pushdownwingame.PushdownWinGame;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.PlatformAlertEvent;
     
@@ -27,7 +27,7 @@ package info.knightrcom.state {
      * 红五游戏状态管理器
      *
      */
-    public class PushdownWinGameStateManager extends AbstractStateManager {
+    public class PushdownWinGameStateManager extends AbstractGameStateManager {
 
         /**
          * 游戏中玩家的个数
@@ -126,7 +126,16 @@ package info.knightrcom.state {
         public function PushdownWinGameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
             super(socketProxy, gameClient, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
-            currentGame = gameClient.pushdownWinGameModule;
+            batchBindGameEvent(PushdownWinGameEvent.EVENT_TYPE, new Array(
+                    GameEvent.GAME_WAIT, gameWaitHandler,
+                    GameEvent.GAME_CREATE, gameCreateHandler,
+            		GameEvent.GAME_STARTED, gameStartedHandler,
+            		GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler,
+            		GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler,
+            		GameEvent.GAME_BRING_OUT, gameBringOutHandler,
+            		GameEvent.GAME_INTERRUPTED, gameInterruptedHandler,
+            		GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler,
+            		GameEvent.GAME_OVER, gameOverHandler));
         }
 
         /**
@@ -138,38 +147,32 @@ package info.knightrcom.state {
             if (!isInitialized()) {
                 // 配置事件监听
                 // 非可视组件
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_BRING_OUT, gameBringOutHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_STARTED, gameStartedHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_INTERRUPTED, gameInterruptedHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler);
-                ListenerBinder.bind(socketProxy, GameEvent.GAME_OVER, gameOverHandler);
+            	this.currentGame = gameClient.pushdownWinGameModule;
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
-					currentGame.timerTip3.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-					currentGame.timerTip3.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
+					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
-						if (Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled) {
+						if (Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled) {
 							// 可以选择不要按钮时，则进行不要操作
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
 						} else {
 							// 重选
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
 	                        // 选择第一张牌
-	                        MahjongButton(currentGame.mahjongsCandidatedDown.getChildAt(0)).setSelected(true);
+	                        MahjongButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
 							// 出牌
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
 						}
 					}
 				});
                 // 可视组件
-                ListenerBinder.bind(currentGame.btnBarPdwMahjongs, ItemClickEvent.ITEM_CLICK, itemClick);
-                ListenerBinder.bind(currentGame.btnBarPdwMahjongs, FlexEvent.SHOW, show);
-                ListenerBinder.bind(currentGame.btnBarPdwMahjongs, FlexEvent.HIDE, hide);
+                ListenerBinder.bind(currentGame.btnBarMahjongs, ItemClickEvent.ITEM_CLICK, itemClick);
+                ListenerBinder.bind(currentGame.btnBarMahjongs, FlexEvent.SHOW, show);
+                ListenerBinder.bind(currentGame.btnBarMahjongs, FlexEvent.HIDE, hide);
                 setInitialized(true);
             }
             // 按照当前玩家序号，进行画面座次安排
-            var tempCardsCandidated:Array = new Array(currentGame.mahjongsCandidatedDown, currentGame.mahjongsCandidatedRight, currentGame.mahjongsCandidatedUp, currentGame.mahjongsCandidatedLeft);
+            var tempCardsCandidated:Array = new Array(currentGame.candidatedDown, currentGame.candidatedRight, currentGame.candidatedUp, currentGame.candidatedLeft);
             // 进行位移操作
             var index:int = 0;
             // 更改画面组件
@@ -178,11 +181,11 @@ package info.knightrcom.state {
             for (index = 0; index < mahjongsCandidatedArray.length; index++) {
                 mahjongsCandidatedArray[index] = tempCardsCandidated[index];
             }
-            currentGame.btnBarPdwMahjongs.visible = false;
-            currentGame.timerTip3.label = "剩余时间：";
-		    currentGame.timerTip3.minimum = 0;
-            currentGame.timerTip3.maximum = MAX_CARDS_SELECT_TIME;
-            currentGame.timerTip3.mode = ProgressBarMode.MANUAL;
+            currentGame.btnBarMahjongs.visible = false;
+            currentGame.timerTip.label = "剩余时间：";
+		    currentGame.timerTip.minimum = 0;
+            currentGame.timerTip.maximum = MAX_CARDS_SELECT_TIME;
+            currentGame.timerTip.mode = ProgressBarMode.MANUAL;
         }
 
         /**
@@ -264,9 +267,9 @@ package info.knightrcom.state {
 //                if (setting == PushdownWinGameSetting.EXTINCT_RUSH) {
 //                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
 //                    // 准备出牌
-//                    currentGame.btnBarPdwMahjongs.visible = true;
+//                    currentGame.btnBarMahjongs.visible = true;
 //                    // 首次出牌需要禁用"不要"按键
-//                    Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled = false;
+//                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
 //                }
 //            } else if (gameSettingUpdateTimes == playerCogameNumber) {
 //                // 当前玩家为最后一个玩家时，马上可以开始游戏
@@ -277,9 +280,9 @@ package info.knightrcom.state {
 //                    gameSetting = setting;
 //                    gameFinalSettingPlayerNumber = localNumber;
 //                    // 准备出牌
-//                    currentGame.btnBarPdwMahjongs.visible = true;
+//                    currentGame.btnBarMahjongs.visible = true;
 //                    // 首次出牌需要禁用"不要"按键
-//                    Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled = false;
+//                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
 //                } else {
 //                    // 游戏设置为不独时
 //                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
@@ -300,9 +303,9 @@ package info.knightrcom.state {
 //                gameSetting = setting;
 //                gameFinalSettingPlayerNumber = localNumber;
 //                // 准备出牌
-//                currentGame.btnBarPdwMahjongs.visible = true;
+//                currentGame.btnBarMahjongs.visible = true;
 //                // 首次出牌需要禁用"不要"按键
-//                Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled = false;
+//                Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
 //            }
         }
 
@@ -326,9 +329,9 @@ package info.knightrcom.state {
 //                // 每个玩家都进行过游戏设置，则可以开始游戏
 //                if (localNumber == currentNumber) {
 //                    // 游戏设置结束，准备出牌
-//                    currentGame.btnBarPdwMahjongs.visible = true;
+//                    currentGame.btnBarMahjongs.visible = true;
 //                    // 首次出牌需要禁用"不要"按键
-//                    Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled = false;
+//                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
 //                }
 //            } else if (gameSetting == PushdownWinGameSetting.EXTINCT_RUSH) {
 //                // 游戏设置途中有天外天时，等候天独玩家发牌
@@ -423,13 +426,13 @@ package info.knightrcom.state {
             // 为出牌玩家设置麻将操作按钮外观
             if (currentNextNumber == localNumber) {
                 // 轮到当前玩家出牌时
-                currentGame.btnBarPdwMahjongs.visible = true;
-                Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled = true;
+                currentGame.btnBarMahjongs.visible = true;
+                Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = true;
                 if (currentNumber == currentNextNumber) {
                     // 如果消息中指定的发牌玩家序号与下家序号都等于当前玩家，
                     // 即当前玩家最后一次出的牌，在回合中最大，本回合从当前玩家开始
                     currentBoutCards = null;
-                    Button(currentGame.btnBarPdwMahjongs.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
                 }
             }
         }
@@ -557,6 +560,40 @@ package info.knightrcom.state {
 
         /**
          *
+         * 游戏创建，为客户端玩家分配游戏id号与当前游戏玩家序号以及下家玩家序号
+         *
+         * @param event
+         *
+         */
+        private function gameCreateHandler(event:GameEvent):void {
+            var results:Array = null;
+            if (event.incomingData != null) {
+                results = event.incomingData.split("~");
+            }
+            Red5GameStateManager.resetInitInfo();
+            Red5GameStateManager.currentGameId = results[0];
+            Red5GameStateManager.localNumber = results[1];
+            Red5GameStateManager.playerCogameNumber = results[2];
+            if (Red5GameStateManager.playerCogameNumber == Red5GameStateManager.localNumber) {
+                Red5GameStateManager.localNextNumber = 1;
+            } else {
+                Red5GameStateManager.localNextNumber = Red5GameStateManager.localNumber + 1;
+            }
+            gameClient.currentState = "RED5GAME";
+        }
+
+        /**
+         *
+         * @param event
+         *
+         */
+        private function gameWaitHandler(event:GameEvent):void {
+            gameClient.txtSysMessage.text += event.incomingData + "\n";
+            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
+        }
+
+        /**
+         *
          * 麻将操作
          *
          * 1#mahjongSeq#2#mahjongSeq#3#mahjongSeq#4#mahjongSeq#
@@ -597,7 +634,7 @@ package info.knightrcom.state {
 //                            for each (var mahjongsDealed:Tile in mahjongsDealedArray) {
 //                                mahjongsDealed.removeAllChildren();
 //                            }
-//                            currentGame.btnBarPdwMahjongs.visible = false;
+//                            currentGame.btnBarMahjongs.visible = false;
 //                            return;
 //                        }
 //                    }
@@ -609,7 +646,7 @@ package info.knightrcom.state {
 //                    Tile(mahjongsDealedArray[currentIndex]).removeAllChildren();
 //                    Tile(mahjongsDealedArray[currentIndex]).addChild(passLabel);
 //                    // 出牌操作结束后，关闭麻将操作栏
-//                    currentGame.btnBarPdwMahjongs.visible = false;
+//                    currentGame.btnBarMahjongs.visible = false;
 //                    break;
 //                case 2:
 //                    // 提示
@@ -703,7 +740,7 @@ package info.knightrcom.state {
 //                        }
 //                    }
 //                    // 出牌操作结束后，关闭麻将操作栏
-//                    currentGame.btnBarPdwMahjongs.visible = false;
+//                    currentGame.btnBarMahjongs.visible = false;
 //                    break;
             }
         }
@@ -715,9 +752,9 @@ package info.knightrcom.state {
 		 */
 		private function show(event:FlexEvent):void {
 			// 显示进度条，倒计时开始开始
-            currentGame.timerTip3.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
-			currentGame.timerTip3.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
-			currentGame.timerTip3.visible = true;
+            currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
+			currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
+			currentGame.timerTip.visible = true;
 			timer.start();
 		}
 
@@ -728,7 +765,7 @@ package info.knightrcom.state {
 		 */
 		private function hide(event:FlexEvent):void {
 			// 进度条隐藏，并重置计时器
-			currentGame.timerTip3.visible = false;
+			currentGame.timerTip.visible = false;
 			timer.reset();
 		}
 

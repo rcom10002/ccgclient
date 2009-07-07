@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
 	<!-- 上侧区域 -->
-	<mx:HBox id="mahjongsCandidatedUp"
+	<mx:HBox id="candidatedUp"
 			 height="80"
 			 horizontalGap="0"
 			 horizontalAlign="center"
@@ -11,7 +11,7 @@
 			 right="200">
 	</mx:HBox>
 	<!-- 右侧区域 -->
-	<mx:VBox id="mahjongsCandidatedRight"
+	<mx:VBox id="candidatedRight"
 			 width="80"
 			 top="150"
 			 bottom="150"
@@ -21,7 +21,7 @@
 			 verticalGap="-78">
 	</mx:VBox>
 	<!-- 下侧区域 -->
-	<mx:HBox id="mahjongsCandidatedDown"
+	<mx:HBox id="candidatedDown"
 			 height="80"
 			 horizontalGap="0"
 			 horizontalAlign="center"
@@ -31,7 +31,7 @@
 			 verticalAlign="top">
 	</mx:HBox>
 	<!-- 左侧区域 -->
-	<mx:VBox id="mahjongsCandidatedLeft"
+	<mx:VBox id="candidatedLeft"
 			 width="80"
 			 top="150"
 			 bottom="149"
@@ -42,7 +42,7 @@
 	</mx:VBox>
 	<mx:Canvas left="149" right="149" top="149" bottom="187">
 		<!-- 牌桌区域 -->
-		<mx:Tile id="mahjongsDealed"
+		<mx:Tile id="dealed"
 				 width="0"
 				 height="0"
 				 top="0"
@@ -58,7 +58,7 @@
 			 right="200"
 			 bottom="149"
 			 height="30">
-		<mx:ButtonBar id="btnBarPdwMahjongs" borderStyle="solid" horizontalGap="5" width="300">
+		<mx:ButtonBar id="btnBarMahjongs" borderStyle="solid" horizontalGap="5" width="300">
 			<mx:dataProvider>
 				<mx:String>吃</mx:String>
 				<mx:String>碰</mx:String>
@@ -69,8 +69,7 @@
 			</mx:dataProvider>
 		</mx:ButtonBar>
 	</mx:HBox>
-	<mx:ProgressBar x="10" y="10" id="timerTipPdwMahjongs" visible="false"/>
-	<mx:VBox id="mahjongsDaisLeft"
+	<mx:VBox id="daisLeft"
 			 width="53"
 			 top="150"
 			 bottom="196"
@@ -79,7 +78,7 @@
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
-	<mx:VBox id="mahjongsDaisRight"
+	<mx:VBox id="daisRight"
 			 width="53"
 			 top="196"
 			 bottom="150"
@@ -88,7 +87,7 @@
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
-	<mx:HBox id="mahjongsDaisDown"
+	<mx:HBox id="daisDown"
 			 height="53"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
@@ -97,7 +96,7 @@
 			 bottom="88"
 			 verticalAlign="top">
 	</mx:HBox>
-	<mx:HBox id="mahjongsDaisUp"
+	<mx:HBox id="daisUp"
 			 height="53"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
@@ -106,7 +105,7 @@
 			 left="256"
 			 right="200">
 	</mx:HBox>
-	<mx:VBox id="mahjongsTempLeft"
+	<mx:VBox id="tempLeft"
 			 height="39"
 			 width="53"
 			 bottom="149"
@@ -115,7 +114,7 @@
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
-	<mx:HBox id="mahjongsTempDown"
+	<mx:HBox id="tempDown"
 			 height="53"
 			 width="48"
 			 horizontalGap="-55"
@@ -124,7 +123,7 @@
 			 bottom="88"
 			 verticalAlign="top">
 	</mx:HBox>
-	<mx:HBox id="mahjongsTempUp"
+	<mx:HBox id="tempUp"
 			 height="53"
 			 width="48"
 			 horizontalGap="-55"
@@ -133,7 +132,7 @@
 			 top="88"
 			 left="200">
 	</mx:HBox>
-	<mx:VBox id="mahjongsTempRight"
+	<mx:VBox id="tempRight"
 			 height="39"
 			 width="53"
 			 top="149"
@@ -142,5 +141,5 @@
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
-	<mx:ProgressBar x="10" y="10" id="timerTip3" visible="false"/>
+	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
 </mx:Module>
