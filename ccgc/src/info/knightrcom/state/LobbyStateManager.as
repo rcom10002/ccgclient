@@ -10,12 +10,10 @@ package info.knightrcom.state {
     import info.knightrcom.command.FightLandlordGameCommand;
     import info.knightrcom.command.PlatformCommand;
     import info.knightrcom.command.PlayerCommand;
+    import info.knightrcom.command.PushdownWinGameCommand;
     import info.knightrcom.command.Red5GameCommand;
-    import info.knightrcom.event.FightLandlordGameEvent;
-    import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.PlatformEvent;
     import info.knightrcom.event.PlayerEvent;
-    import info.knightrcom.event.Red5GameEvent;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.Model;
     
@@ -198,6 +196,8 @@ package info.knightrcom.state {
                 socketProxy.sendGameData(Red5GameCommand.GAME_JOIN_MATCHING_QUEUE);
             } else if (roomIdFlag.indexOf("fightlandlord") > -1) {
                 socketProxy.sendGameData(FightLandlordGameCommand.GAME_JOIN_MATCHING_QUEUE);
+            } else if (roomIdFlag.indexOf("pushdownwin") > -1) {
+                socketProxy.sendGameData(PushdownWinGameCommand.GAME_JOIN_MATCHING_QUEUE);
             } else {
                 Alert.show("当前房间暂不开放！");
             }

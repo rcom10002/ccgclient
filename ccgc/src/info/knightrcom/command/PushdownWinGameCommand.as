@@ -1,10 +1,10 @@
 package info.knightrcom.command {
-    import info.knightrcom.event.Red5GameEvent;
+    import info.knightrcom.event.PushdownWinGameEvent;
 
     public class PushdownWinGameCommand extends GameCommand {
 
         public function PushdownWinGameCommand(number:Number, signature:String):void {
-            super(Red5GameEvent.EVENT_TYPE, signature);
+            super(PushdownWinGameEvent.EVENT_TYPE, signature);
             this.number = number;
         }
 
