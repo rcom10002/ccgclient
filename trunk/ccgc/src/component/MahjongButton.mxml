@@ -5,12 +5,17 @@
 	<mx:Number id="direction">-1</mx:Number>
 	<mx:init>
 		<![CDATA[
-			this.addEventListener(MouseEvent.CLICK, toggleSelect);
+			this.addEventListener(MouseEvent.CLICK, clickHandler);
+			this.addEventListener(MouseEvent.MOUSE_OVER, toggleSelect);
+			this.addEventListener(MouseEvent.MOUSE_OUT, toggleSelect);
 		]]>
 	</mx:init>
 	<mx:Script>
 		<![CDATA[
 			private var selected:Boolean = false;
+			private function clickHandler(event:MouseEvent):void {
+				this.visible = false;
+			}
 			private function toggleSelect(event:MouseEvent):void {
 				if (!allowSelect) {
 					return;
