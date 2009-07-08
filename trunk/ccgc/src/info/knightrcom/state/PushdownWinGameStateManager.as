@@ -131,7 +131,6 @@ package info.knightrcom.state {
                     GameEvent.GAME_CREATE, gameCreateHandler,
             		GameEvent.GAME_STARTED, gameStartedHandler,
             		GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler,
-            		GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler,
             		GameEvent.GAME_BRING_OUT, gameBringOutHandler,
             		GameEvent.GAME_INTERRUPTED, gameInterruptedHandler,
             		GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler,
@@ -202,12 +201,12 @@ package info.knightrcom.state {
             var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
             var mahjong:MahjongButton = null;
             // 为当前玩家发牌
-//            for each (var mahjongName:String in mahjongNames) {
-//                mahjong = new MahjongButton();
-//                mahjong.source = "image/mahjong/" + mahjongName + ".png";
-//                currentGame.mahjongsCandidatedDown.addChild(mahjong);
-//            }
-            // 其他玩家牌数
+            for each (var mahjongName:String in mahjongNames) {
+                mahjong = new MahjongButton();
+                mahjong.source = "image/mahjong/down/standard/" + mahjongName + ".jpg";
+                currentGame.candidatedDown.addChild(mahjong);
+            }
+            // 为其他玩家发牌
             var mahjongNumberOfPlayers:String = results[1];
             var index:int = 0;
             while (index != playerCogameNumber) {
@@ -241,121 +240,7 @@ package info.knightrcom.state {
          */
         private function gameFirstPlayHandler(event:PushdownWinGameEvent):void {
             // PlatformAlert.show("游戏设置", "信息", PushdownWinGameSetting.getNoRushStyle(), gameSettingSelect);
-        }
-
-        /**
-         *
-         * 发送游戏设置
-         *
-         * @param event
-         *
-         */
-        private function gameSettingSelect(event:PlatformAlertEvent):void {
-//            if (currentGame.currentState != "PushdownWinGame") {
-//                return;
-//            }
-//            // 更新游戏设置已经进行的次数
-//            gameSettingUpdateTimes++;
-//
-//            var setting:int = -1;
-//            setting = int(event.detail);
-//            if (gameSetting == -1) {
-//                // 首次进行游戏设置时，直接发送本次的游戏设置
-//                socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
-//                gameSetting = setting;
-//                gameFinalSettingPlayerNumber = localNumber;
-//                if (setting == PushdownWinGameSetting.EXTINCT_RUSH) {
-//                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
-//                    // 准备出牌
-//                    currentGame.btnBarMahjongs.visible = true;
-//                    // 首次出牌需要禁用"不要"按键
-//                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
-//                }
-//            } else if (gameSettingUpdateTimes == playerCogameNumber) {
-//                // 当前玩家为最后一个玩家时，马上可以开始游戏
-//                if (setting != PushdownWinGameSetting.NO_RUSH) {
-//                    // 游戏设置为独牌或天独时
-//                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
-//                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
-//                    gameSetting = setting;
-//                    gameFinalSettingPlayerNumber = localNumber;
-//                    // 准备出牌
-//                    currentGame.btnBarMahjongs.visible = true;
-//                    // 首次出牌需要禁用"不要"按键
-//                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
-//                } else {
-//                    // 游戏设置为不独时
-//                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
-//                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
-//                }
-//            } else if (setting == PushdownWinGameSetting.NO_RUSH) {
-//                // 非首次和末次，不独时，直接转发前次的游戏设置
-//                socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
-//            } else if (setting == PushdownWinGameSetting.RUSH || setting == PushdownWinGameSetting.DEADLY_RUSH) {
-//                // 非首次和末次，独牌或天独时，发送本次的游戏设置
-//                socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
-//                gameSetting = setting;
-//                gameFinalSettingPlayerNumber = localNumber;
-//            } else if (setting == PushdownWinGameSetting.EXTINCT_RUSH) {
-//                socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING_FINISH, localNumber + "~" + gameSetting);
-//                // 非首次和末次，天外天时，发送本次的游戏设置
-//                socketProxy.sendGameData(PushdownWinGameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
-//                gameSetting = setting;
-//                gameFinalSettingPlayerNumber = localNumber;
-//                // 准备出牌
-//                currentGame.btnBarMahjongs.visible = true;
-//                // 首次出牌需要禁用"不要"按键
-//                Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
-//            }
-        }
-
-        /**
-         *
-         * 游戏设置结束，准备发牌
-         *
-         * @param event
-         *
-         */
-        private function gameSettingUpdateHandler(event:PushdownWinGameEvent):void {
-//            gameSettingUpdateTimes++;
-//            var results:Array = event.incomingData.split("~");
-//            currentNumber = results[0];
-//            if (gameSetting < results[1]) {
-//                gameSetting = results[1];
-//            }
-//            currentNextNumber = results[2];
-//            gameFinalSettingPlayerNumber = currentNumber;
-//            if (gameSettingUpdateTimes == playerCogameNumber) {
-//                // 每个玩家都进行过游戏设置，则可以开始游戏
-//                if (localNumber == currentNumber) {
-//                    // 游戏设置结束，准备出牌
-//                    currentGame.btnBarMahjongs.visible = true;
-//                    // 首次出牌需要禁用"不要"按键
-//                    Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = false;
-//                }
-//            } else if (gameSetting == PushdownWinGameSetting.EXTINCT_RUSH) {
-//                // 游戏设置途中有天外天时，等候天独玩家发牌
-//            } else if (currentNextNumber == localNumber) {
-//                // 当前设置为不独或非最后一个玩家的独牌、天独，则继续进行游戏设置
-//                var alertButtons:Array = null;
-//                switch (gameSetting) {
-//                    case PushdownWinGameSetting.NO_RUSH:
-//                        // 当前游戏设置为不独时
-//                        alertButtons = PushdownWinGameSetting.getNoRushStyle();
-//                        break;
-//                    case PushdownWinGameSetting.RUSH:
-//                        // 当前游戏设置为独时
-//                        alertButtons = PushdownWinGameSetting.getRushStyle();
-//                        break;
-//                    case PushdownWinGameSetting.DEADLY_RUSH:
-//                        // 当前游戏设置天独时
-//                        alertButtons = PushdownWinGameSetting.getDeadlyRushStyle();
-//                        break;
-//                    case PushdownWinGameSetting.EXTINCT_RUSH:
-//                        return;
-//                }
-//                PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect);
-//            }
+            currentGame.btnBarMahjongs.visible = true;
         }
 
         /**
@@ -566,20 +451,22 @@ package info.knightrcom.state {
          *
          */
         private function gameCreateHandler(event:GameEvent):void {
+            // 游戏初始化
             var results:Array = null;
             if (event.incomingData != null) {
                 results = event.incomingData.split("~");
             }
-            Red5GameStateManager.resetInitInfo();
-            Red5GameStateManager.currentGameId = results[0];
-            Red5GameStateManager.localNumber = results[1];
-            Red5GameStateManager.playerCogameNumber = results[2];
-            if (Red5GameStateManager.playerCogameNumber == Red5GameStateManager.localNumber) {
-                Red5GameStateManager.localNextNumber = 1;
+            PushdownWinGameStateManager.resetInitInfo();
+            PushdownWinGameStateManager.currentGameId = results[0];
+            PushdownWinGameStateManager.localNumber = results[1];
+            PushdownWinGameStateManager.playerCogameNumber = results[2];
+            // 为当前玩家的下家分配编号
+            if (PushdownWinGameStateManager.playerCogameNumber == PushdownWinGameStateManager.localNumber) {
+                PushdownWinGameStateManager.localNextNumber = 1;
             } else {
-                Red5GameStateManager.localNextNumber = Red5GameStateManager.localNumber + 1;
+                PushdownWinGameStateManager.localNextNumber = PushdownWinGameStateManager.localNumber + 1;
             }
-            gameClient.currentState = "RED5GAME";
+            gameClient.currentState = "PUSHDOWNWINGAME";
         }
 
         /**

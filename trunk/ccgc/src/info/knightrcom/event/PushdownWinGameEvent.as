@@ -2,7 +2,7 @@ package info.knightrcom.event {
 
     public class PushdownWinGameEvent extends GameEvent {
 
-        public static const EVENT_TYPE:uint = 2;
+        public static const EVENT_TYPE:uint = 4;
 
         /**
          *
