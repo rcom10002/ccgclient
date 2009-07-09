@@ -72,25 +72,113 @@ package info.knightrcom.state.pushdownwingame {
         }
 
         /**
-         *
-         * 严重发牌规则，分为两种验证：首发、接牌
-         *
-         * @param previousBout
-         * @param currentBout
-         * @return
-         *
+         * 
+         * 胡牌判断
+         * 
+         * @param target
+         * @param currentMahjongArray
+         * @param excluded
+         * @return 
+         * 
          */
-        public static function isRuleFollowed(currentBout:String, previousBout:String = null):Boolean {
-            if (previousBout == null) {
-                // 首次发牌判断
-                return false;
-            }
-            // 接牌判断
-            return false;
+        public static function isWin(target:String, currentMahjongArray:Array, excluded:int):int {
+            return -1;
         }
 
-		public static function add():void {
-			
+        /**
+         * 
+         * 杠牌判断
+         * 
+         * @param target
+         * @param currentMahjongArray
+         * @param excluded
+         * @return 
+         * 
+         */
+        public static function isKong(target:String, currentMahjongArray:Array, excluded:int):int {
+            for (var index:int = 0; index < currentMahjongArray.length; index++) {
+            	if (index == excluded) {
+            		continue;
+            	}
+            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
+            	var oldLen:int = currentMahjongs.length;
+            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
+            	if ((oldLen - newLen) / target.length == 3) {
+            		return index;
+            	}
+            }
+            return -1;
+        }
+
+        /**
+         * 
+         * 碰牌判断
+         * 
+         * @param target
+         * @param currentMahjongArray
+         * @param excluded
+         * @return 
+         * 
+         */
+        public static function isPong(target:String, currentMahjongArray:Array, excluded:int):int {
+            for (var index:int = 0; index < currentMahjongArray.length; index++) {
+            	if (index == excluded) {
+            		continue;
+            	}
+            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
+            	var oldLen:int = currentMahjongs.length;
+            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
+            	if ((oldLen - newLen) / target.length == 2) {
+            		return index;
+            	}
+            }
+            return -1;
+        }
+
+        /**
+         * 
+         * 吃牌判断
+         * 
+         * @param target 当前打出的牌
+         * @param currentMahjongs 当前玩家手中的牌
+         * @return 
+         * 
+         */
+        public static function isChow(target:String, currentMahjongs:Array):int {
+        	var strValue:String = target.replace(/[WBT]/, "");
+        	var strColor:String = target.replace(/\d/, "");
+        	if (!new RegExp("^[2-8]$").test(strValue)) {
+        		// 牌值在2至9之间才能进行吃牌操作
+        		return -1;
+        	}
+        	var intValue:int = int(strValue);
+        	var headTarget:String = strColor + (intValue - 1);
+        	var tailTarget:String = strColor + (intValue + 1);
+        	if (currentMahjongs.indexOf(headTarget) > 0 && currentMahjongs.indexOf(tailTarget)) {
+        		return currentMahjongs.indexOf(target);
+        	}
+            return -1;
+        }
+
+		/**
+		 * 返回int类型数组中最大值
+		 * 
+		 * @param array
+		 * @return 
+		 * 
+		 */
+		public static function maxValue(array:Array):int
+		{
+			var mxm:int = array[0];
+			for (var i:int = 0; i < array.length; i++)
+			{
+				if (array[i] > mxm)
+				{
+					mxm = array[i];
+				}
+			}
+			return mxm;
 		}
+
     }
 }
