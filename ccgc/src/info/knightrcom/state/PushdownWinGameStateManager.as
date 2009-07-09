@@ -6,17 +6,15 @@ package info.knightrcom.state {
     import flash.utils.Timer;
     
     import info.knightrcom.GameSocketProxy;
+    import info.knightrcom.command.PushdownWinGameCommand;
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.PushdownWinGameEvent;
     import info.knightrcom.state.pushdownwingame.PushdownWinGame;
     import info.knightrcom.util.ListenerBinder;
-    import info.knightrcom.util.PlatformAlertEvent;
     
     import mx.containers.Box;
     import mx.containers.Tile;
-    import mx.controls.Alert;
     import mx.controls.Button;
-    import mx.controls.Label;
     import mx.controls.ProgressBarMode;
     import mx.events.FlexEvent;
     import mx.events.ItemClickEvent;
@@ -100,11 +98,6 @@ package info.knightrcom.state {
 		private static const MAX_CARDS_SELECT_TIME:int = 15;
 
         /**
-         * 已发牌区域
-         */
-        private static var mahjongsDealedArray:Array = null;
-
-        /**
          * 待发牌区域
          */
         private static var mahjongsCandidatedArray:Array = null;
@@ -119,11 +112,24 @@ package info.knightrcom.state {
          */
         private static var mahjongsRandArray:Array = null;
 
+        /**
+         * 备选牌
+         */
+        private static var mahjongsSpared:Array = null;
+
+        /**
+         * 玩家方向
+         */
+        private static var playerDirection:Array = null;
+
 		/**
 		 * 计时器
 		 */
 		private var timer:Timer = new Timer(1000, MAX_CARDS_SELECT_TIME);
 
+        /**
+         * 当前游戏模块
+         */
 		private var currentGame:CCGamePushdownWin = null;
 
         /**
@@ -161,17 +167,13 @@ package info.knightrcom.state {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
-						if (Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled) {
-							// 可以选择不要按钮时，则进行不要操作
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
-						} else {
-							// 重选
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
-	                        // 选择第一张牌
-	                        MahjongButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
-							// 出牌
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
-						}
+                        if (currentGame.randDown.numChildren > 0) {
+                            // 摸牌区域有牌时，将摸到的牌打出
+                            dealMahjong("down", MahjongButton(currentGame.randDown.getChildAt(0)));
+                        } else {
+                            // 摸牌区域无牌时，将玩家手中第一张牌打出
+                            dealMahjong("down", MahjongButton(currentGame.candidatedDown.getChildAt(0)));
+                        }
 					}
 				});
                 // 可视组件
@@ -184,6 +186,7 @@ package info.knightrcom.state {
             var tempMahjongsCandidated:Array = new Array(currentGame.candidatedDown, currentGame.candidatedRight, currentGame.candidatedUp, currentGame.candidatedLeft);
             var tempMahjongsDais:Array = new Array(currentGame.daisDown, currentGame.daisRight, currentGame.daisUp, currentGame.daisLeft);
             var tempMahjongsRand:Array = new Array(currentGame.randDown, currentGame.randRight, currentGame.randUp, currentGame.randLeft);
+            var tempPlayerDirection:Array = new Array("down", "right", "up", "left")
             // 进行位移操作
             var index:int = 0;
             while (index != localNumber - 1) {
@@ -194,6 +197,8 @@ package info.knightrcom.state {
                 tempMahjongsDais.unshift(temp);
                 temp = tempMahjongsRand.pop();
                 tempMahjongsRand.unshift(temp);
+                temp = tempPlayerDirection.pop();
+                tempPlayerDirection.unshift(temp);
                 index++;
             }
             // 更改画面组件
@@ -203,11 +208,15 @@ package info.knightrcom.state {
             }
             mahjongsDaisArray = new Array(playerCogameNumber);
             for (index = 0; index < mahjongsDaisArray.length; index++) {
-                mahjongsDaisArray[index] = tempMahjongsCandidated[index];
+                mahjongsDaisArray[index] = tempMahjongsDais[index];
             }
             mahjongsRandArray = new Array(playerCogameNumber);
             for (index = 0; index < mahjongsRandArray.length; index++) {
-                mahjongsRandArray[index] = tempMahjongsCandidated[index];
+                mahjongsRandArray[index] = tempMahjongsRand[index];
+            }
+            playerDirection = new Array(playerCogameNumber);
+            for (index = 0; index < playerDirection.length; index++) {
+                playerDirection[index] = tempPlayerDirection[index];
             }
             currentGame.btnBarMahjongs.visible = false;
             currentGame.timerTip.label = "剩余时间：";
@@ -224,19 +233,23 @@ package info.knightrcom.state {
          *
          */
         private function gameStartedHandler(event:PushdownWinGameEvent):void {
-            // 显示系统洗牌后的结果，格式为：当前玩家待发牌 + "~" + "0=15;1=15;2=15;3=15"
+            // 显示系统洗牌后的结果，格式为：一号玩家待发牌 + "~" + 二号玩家待发牌 + "~" + 
+            // 三号玩家待发牌 + "~" + 四号玩家待发牌 + "~" + 其余未分配的牌 
             var results:Array = event.incomingData.split("~");
-            var mahjongSequence:String = results[0];
+            mahjongsSpared = results[4].toString().split(",");
+            var mahjongSequence:String = results[localNumber - 1];
             var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
             var mahjong:MahjongButton = null;
             // 为当前玩家发牌
             for each (var mahjongName:String in mahjongNames) {
                 mahjong = new MahjongButton();
                 mahjong.source = "image/mahjong/down/standard/" + mahjongName + ".jpg";
+                ListenerBinder.bind(mahjong, FlexEvent.HIDE, function (event:FlexEvent):void {
+                    dealMahjong("down", mahjong);
+                });
                 currentGame.candidatedDown.addChild(mahjong);
             }
-            // TODO 为其他玩家发牌
-            var mahjongNumberOfPlayers:String = results[1];
+            // 为其他玩家发牌
             var index:int = 0;
             while (index != playerCogameNumber) {
                 // 跳过当前玩家
@@ -245,14 +258,13 @@ package info.knightrcom.state {
                     continue;
                 }
                 // 获取玩家手中的牌数
-                var mahjongNumberPattern:RegExp = new RegExp("^.*" + index + "=(\\d+).*$");
-                var mahjongNumber:int = Number(mahjongNumberOfPlayers.replace(mahjongNumberPattern, "$1"));
+                var mahjongNumber:int = Number(results[index].toString().split(",").length);
                 // 获取当前玩家待发牌个数
                 var mahjongsCandidated:Box = Box(mahjongsCandidatedArray[index]);
                 // 为其他玩家发牌，全为牌的背面图案
                 for (var i:int = 0; i < mahjongNumber; i++) {
                     mahjong = new MahjongButton();
-                    mahjong.source = "image/mahjong/back.png";
+                    mahjong.source = "image/mahjong/" + playerDirection[index] + "/standard/DEFAULT.jpg";
                     mahjong.allowSelect = false;
                     mahjongsCandidated.addChild(mahjong);
                 }
@@ -269,7 +281,13 @@ package info.knightrcom.state {
          */
         private function gameFirstPlayHandler(event:PushdownWinGameEvent):void {
             // 开始摸牌
-            
+            var mahjongValue:String = mahjongsSpared.pop();
+            var mahjongRand:MahjongButton = new MahjongButton();
+            mahjongRand.source = "image/mahjong/down/standard/" + mahjongValue + ".jpg";
+            ListenerBinder.bind(mahjongRand, FlexEvent.HIDE, function (event:FlexEvent):void {
+                dealMahjong("down", mahjongRand);
+            });
+            currentGame.randDown.addChild(mahjongRand);
             // 显示操作按钮
             currentGame.btnBarMahjongs.visible = true;
         }
@@ -298,46 +316,8 @@ package info.knightrcom.state {
             }
             // 上局待发牌区域
             var mahjongsCandidated:Box = mahjongsCandidatedArray[Number(currentNumber) - 1];
-            // 上局已发牌区域
-            var mahjongsDealed:Tile = mahjongsDealedArray[Number(currentNumber) - 1];
             // 获取牌序
             var mahjongNames:Array = currentBoutMahjong.split(",");
-            // 更新发牌玩家的发牌区域
-            if (passed) {
-                // 上家不要时，显示不要的内容 TODO 间隔玩家？？？
-                var currentIndex:int = (currentNextNumber - 1);
-                var previousIndex:int = currentIndex == 0 ? playerCogameNumber - 1 : currentIndex - 1;
-                var passLabel:Label = new Label();
-                passLabel.text = "不要";
-                passLabel.setStyle("fontSize", 24);
-                Tile(mahjongsDealedArray[previousIndex]).removeAllChildren();
-                Tile(mahjongsDealedArray[previousIndex]).addChild(passLabel);
-            } else {
-                if (isOrderNeighbor(currentNumber, currentNextNumber)) {
-                    // 如果牌序中的两个玩家为邻座的两个人，并且上下家顺序为逆时针，则为正常出牌
-                    count = mahjongNames.length;
-                    while (count-- > 0) {
-                        // 从待发牌中移除牌
-                        mahjongsCandidated.removeChildAt(0);
-                    }
-                }
-                // 上家出牌时，从已发牌中移除所有牌
-                mahjongsDealed.removeAllChildren();
-                for each (var mahjongName:String in mahjongNames) {
-                    // 向已发牌中添加牌
-                    var mahjong:MahjongButton = new MahjongButton();
-                    mahjong.allowSelect = false;
-                    mahjong.source = "image/mahjong/" + mahjongName + ".png";
-                    mahjongsDealed.addChild(mahjong);
-                }
-            }
-
-            // 全都"不要"时的首发牌，清除桌面上所有牌
-            if (currentNumber == currentNextNumber) {
-                for each (tempTile in mahjongsDealedArray) {
-                    tempTile.removeAllChildren();
-                }
-            }
 
             // 为出牌玩家设置麻将操作按钮外观
             if (currentNextNumber == localNumber) {
@@ -596,6 +576,13 @@ package info.knightrcom.state {
                     break;
                 case 5:
                     // 摸牌
+                    var mahjongRandValue:String = mahjongsSpared.pop();
+                    var mahjongRand:MahjongButton = new MahjongButton();
+                    mahjongRand.source = "image/mahjong/down/standard/" + mahjongRandValue + ".jpg";
+                    ListenerBinder.bind(mahjongRand, FlexEvent.HIDE, function (event:FlexEvent):void {
+                        dealMahjong("down", mahjongRand);
+                    });
+                    currentGame.candidatedDown.addChild(mahjongRand);
                     break;
             }
         }
@@ -626,32 +613,25 @@ package info.knightrcom.state {
 
         /**
          *
-         * 判断两个玩家是否为逆时针顺序紧挨着的
-         *
-         * @param previousNumber
-         * @param nextNumber
-         *
+         * 打出选中的麻将牌
+         * 
+         * @param direction
+         * @param mahjong
+         * @return 
+         * 
          */
-        private function isOrderNeighbor(number:int, nextNumber:int):Boolean {
-            var initOrder:String = "1234";
-            if (firstPlaceNumber != UNOCCUPIED_PLACE_NUMBER) {
-                initOrder = initOrder.replace(new RegExp(firstPlaceNumber, "g"), "");
-            }
-            if (secondPlaceNumber != UNOCCUPIED_PLACE_NUMBER) {
-                initOrder = initOrder.replace(new RegExp(secondPlaceNumber, "g"), "");
-            }
-            if (thirdPlaceNumber != UNOCCUPIED_PLACE_NUMBER) {
-                Alert.show("isOrderNeighbor[thirdPlaceNumber != UNOCCUPIED_PLACE_NUMBER]");
-            }
-            // 取得索引号
-            var index:int = initOrder.indexOf(String(number));
-            var nextIndex:int = initOrder.indexOf(String(nextNumber));
-            if (initOrder.length == 2) {
-                return true;
-            }
-            // 计算所有间隔
-            var indexInterval:int = nextIndex - index;
-            return (indexInterval == 1 || indexInterval == 1 - initOrder.length);
+        private function dealMahjong(direction:String, mahjong:MahjongButton):void {
+            // 从玩家手中牌删除选中牌
+            mahjong.parent.removeChild(mahjong);
+            // 获取玩家位置索引
+            var playerPosIndex:uint = playerDirection.indexOf(direction);
+            // 将牌显示在桌面
+            mahjong.allowSelect = false;
+            currentGame.dealed.addChild(mahjong);
+            mahjong.visible = true;
+            socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjong.value + "~" + localNextNumber);
+            // 隐藏操作按钮
+            currentGame.btnBarMahjongs.visible = false;
         }
 
         /**
@@ -673,9 +653,6 @@ package info.knightrcom.state {
             secondPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
             thirdPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
             forthPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
-            for each (var mahjongsDealed:Tile in mahjongsDealedArray) {
-                mahjongsDealed.removeAllChildren();
-            }
             for each (var mahjongsCandidated:Box in mahjongsCandidatedArray) {
                 mahjongsCandidated.removeAllChildren();
             }

@@ -14,6 +14,9 @@
 		<![CDATA[
 			private var selected:Boolean = false;
 			private function clickHandler(event:MouseEvent):void {
+			    if (!this.allowSelect) {
+			        return;
+			    }
 				this.visible = false;
 			}
 			private function toggleSelect(event:MouseEvent):void {

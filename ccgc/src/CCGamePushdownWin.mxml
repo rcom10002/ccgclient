@@ -7,14 +7,14 @@
 			 horizontalAlign="center"
 			 verticalAlign="bottom"
 			 top="0"
-			 left="200"
-			 right="200">
+			 left="170"
+			 right="150">
 	</mx:HBox>
 	<!-- 右侧区域 -->
 	<mx:VBox id="candidatedRight"
 			 width="80"
-			 top="150"
-			 bottom="150"
+			 top="120"
+			 bottom="80"
 			 right="0"
 			 horizontalAlign="left"
 			 verticalAlign="middle"
@@ -25,22 +25,22 @@
 			 height="80"
 			 horizontalGap="0"
 			 horizontalAlign="center"
-			 left="200"
-			 right="200"
+			 left="150"
+			 right="170"
 			 bottom="0"
 			 verticalAlign="top">
 	</mx:HBox>
 	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
 			 width="80"
-			 top="150"
-			 bottom="149"
+			 top="80"
+			 bottom="120"
 			 left="0"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
-	<mx:Canvas left="149" right="149" top="149" bottom="187">
+	<mx:Canvas left="150" right="150" top="150" bottom="187">
 		<!-- 牌桌区域 -->
 		<mx:Tile id="dealed"
 				 width="0"
@@ -70,18 +70,17 @@
 		</mx:ButtonBar>
 	</mx:HBox>
 	<mx:VBox id="daisLeft"
-			 width="53"
-			 top="150"
-			 bottom="196"
+			 top="100"
+			 bottom="100"
 			 left="88"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
-			 verticalGap="-78">
+			 verticalGap="-78" width="53">
 	</mx:VBox>
 	<mx:VBox id="daisRight"
 			 width="53"
-			 top="196"
-			 bottom="150"
+			 top="100"
+			 bottom="100"
 			 right="88"
 			 horizontalAlign="left"
 			 verticalAlign="middle"
@@ -91,8 +90,8 @@
 			 height="53"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
-			 left="200"
-			 right="256"
+			 left="175"
+			 right="175"
 			 bottom="88"
 			 verticalAlign="top">
 	</mx:HBox>
@@ -102,41 +101,41 @@
 			 horizontalAlign="center"
 			 verticalAlign="bottom"
 			 top="88"
-			 left="256"
-			 right="200">
+			 left="175"
+			 right="175">
 	</mx:HBox>
 	<mx:VBox id="randLeft"
-			 height="39"
-			 width="53"
-			 bottom="149"
-			 left="88"
+			 height="60"
+			 width="80"
+			 bottom="50"
+			 left="0"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
 	<mx:HBox id="randDown"
-			 height="53"
-			 width="48"
+			 height="80"
+			 width="60"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
-			 right="200"
-			 bottom="88"
+			 right="100"
+			 bottom="0"
 			 verticalAlign="top">
 	</mx:HBox>
 	<mx:HBox id="randUp"
-			 height="53"
-			 width="48"
+			 height="80"
+			 width="60"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
 			 verticalAlign="bottom"
-			 top="88"
-			 left="200">
+			 top="0"
+			 left="100">
 	</mx:HBox>
 	<mx:VBox id="randRight"
-			 height="39"
-			 width="53"
-			 top="149"
-			 right="88"
+			 height="60"
+			 width="80"
+			 top="50"
+			 right="1"
 			 horizontalAlign="left"
 			 verticalAlign="middle"
 			 verticalGap="-78">
