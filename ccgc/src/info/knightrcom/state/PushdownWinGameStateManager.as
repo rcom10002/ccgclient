@@ -13,7 +13,6 @@ package info.knightrcom.state {
     import info.knightrcom.util.ListenerBinder;
     
     import mx.containers.Box;
-    import mx.containers.Tile;
     import mx.controls.Button;
     import mx.controls.ProgressBarMode;
     import mx.events.FlexEvent;
@@ -22,7 +21,7 @@ package info.knightrcom.state {
 
     /**
      *
-     * 红五游戏状态管理器
+     * 推倒胡游戏状态管理器
      *
      */
     public class PushdownWinGameStateManager extends AbstractGameStateManager {
@@ -32,10 +31,10 @@ package info.knightrcom.state {
          */
         public static var playerCogameNumber:int;
 
-        /**
-         * 游戏的最终设置所对应的玩家编号
-         */
-        public static var gameFinalSettingPlayerNumber:int = -1;
+//        /**
+//         * 游戏的最终设置所对应的玩家编号
+//         */
+//        public static var gameFinalSettingPlayerNumber:int = -1;
 
         /**
          * 当前游戏id
@@ -305,23 +304,51 @@ package info.knightrcom.state {
             currentNumber = results[0];
             currentBoutMahjong = results[1];
             currentNextNumber = results[2];
-            var passed:Boolean = false;
-            var count:int = 0;
-            var tempTile:Tile = null;
-
-            // 在桌面上显示最近新出的牌
-            if (results.length == 4) {
-                // 获取"不要"标识
-                passed = ("pass" == results[3]);
-            }
-            // 上局待发牌区域
-            var mahjongsCandidated:Box = mahjongsCandidatedArray[Number(currentNumber) - 1];
-            // 获取牌序
-            var mahjongNames:Array = currentBoutMahjong.split(",");
-
-            // 为出牌玩家设置麻将操作按钮外观
-            if (currentNextNumber == localNumber) {
-                // 轮到当前玩家出牌时
+			// 从非出牌玩家中，找出一个可以进行胡牌、杠牌和碰牌操作的玩家
+			var indexWin:int = PushdownWinGame.isWin(null, null, 0);
+			var indexKong:int = PushdownWinGame.isKong(null, null, 0);
+			var indexPong:int = PushdownWinGame.isPong(null, null, 0);
+			var indexFinal:int = -1;
+			var operatorIndex:int = -1;
+			if (indexWin > -1) {
+				indexFinal = indexWin;
+				operatorIndex = PushdownWinGame.OPTR_WIN;
+			} else if (indexKong > -1) {
+				indexFinal = indexKong;
+				operatorIndex = PushdownWinGame.OPTR_KONG;
+			} else if (indexPong > -1) {
+				indexFinal = indexPong;
+				operatorIndex = PushdownWinGame.OPTR_PONG;
+			}
+  			PushdownWinGame.maxValue(new Array(indexWin, indexKong, indexPong));
+  			var operationList:Array = new Array(
+	  			function ():void {
+					if (indexWin > -1) {
+						// 胡牌，为出牌玩家设置麻将操作按钮外观
+						Button(currentGame.btnBarMahjongs.getChildAt(0)).enabled = true;
+					}
+	  			}, 
+	  			function ():void {
+					if (indexKong > -1) {
+						// 杠牌，为出牌玩家设置麻将操作按钮外观
+						Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = true;
+					}
+	  			},
+	  			function ():void {
+					if (indexPong > -1) {
+						// 碰牌，为出牌玩家设置麻将操作按钮外观
+						Button(currentGame.btnBarMahjongs.getChildAt(2)).enabled = true;
+					}
+	  			}
+	     	);
+	     	for (var i:int = operatorIndex; i < 3; i++) {
+	     		operationList[operatorIndex]();
+	     	}
+	     	if (indexFinal > 0 && indexFinal != localNumber - 1) {
+	     		return;
+	     	}
+			if (currentNextNumber == localNumber) {
+            	// 为出牌玩家设置麻将操作按钮外观
                 currentGame.btnBarMahjongs.visible = true;
                 Button(currentGame.btnBarMahjongs.getChildAt(1)).enabled = true;
                 if (currentNumber == currentNextNumber) {
@@ -528,11 +555,6 @@ package info.knightrcom.state {
                     if (mahjongs.length == 0) {
                         return;
                     }
-                    // 规则验证
-                    if (!PushdownWinGame.isRuleFollowed(mahjongs, currentBoutMahjong)) {
-                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
-                        return;
-                    }
                     // 设置出牌结果
                     // 当前剩余的牌数
                     var mahjongsCandicateNumber:int = currentGame.candidatedDown.getChildren().length;
@@ -572,7 +594,7 @@ package info.knightrcom.state {
                     currentGame.btnBarMahjongs.visible = false;
                     break;
                 case 4:
-                    // 放弃
+	            	// 玩家放弃胡牌、杠牌、碰牌操作，则将优先权转移至下家玩家
                     break;
                 case 5:
                     // 摸牌
@@ -642,7 +664,7 @@ package info.knightrcom.state {
         public static function resetInitInfo():void {
             // 参数初始化
             playerCogameNumber = 0;
-            gameFinalSettingPlayerNumber = -1;
+//            gameFinalSettingPlayerNumber = -1;
             currentGameId = null;
             localNumber = 0;
             localNextNumber = 0;
