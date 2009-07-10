@@ -43,13 +43,11 @@
 	<mx:Canvas left="150" right="150" top="150" bottom="187">
 		<!-- 牌桌区域 -->
 		<mx:Tile id="dealed"
-				 width="0"
-				 height="0"
 				 top="0"
 				 left="0"
 				 horizontalGap="2"
 				 verticalGap="2"
-				 verticalAlign="middle">
+				 verticalAlign="middle" right="0" bottom="0">
 		</mx:Tile>
 	</mx:Canvas>
 	<!-- 操作区域 -->

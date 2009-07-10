@@ -1,6 +1,7 @@
 package info.knightrcom.state {
     import component.MahjongButton;
     
+    import flash.display.DisplayObjectContainer;
     import flash.events.Event;
     import flash.events.TimerEvent;
     import flash.utils.Timer;
@@ -238,15 +239,9 @@ package info.knightrcom.state {
             mahjongsSpared = results[4].toString().split(",");
             var mahjongSequence:String = results[localNumber - 1];
             var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
-            var mahjong:MahjongButton = null;
             // 为当前玩家发牌
             for each (var mahjongName:String in mahjongNames) {
-                mahjong = new MahjongButton();
-                mahjong.source = "image/mahjong/down/standard/" + mahjongName + ".jpg";
-                ListenerBinder.bind(mahjong, FlexEvent.HIDE, function (event:FlexEvent):void {
-                    dealMahjong("down", mahjong);
-                });
-                currentGame.candidatedDown.addChild(mahjong);
+                addMahjongDown(currentGame.candidatedDown, "image/mahjong/down/standard/" + mahjongName + ".jpg");
             }
             // 为其他玩家发牌
             var index:int = 0;
@@ -262,10 +257,7 @@ package info.knightrcom.state {
                 var mahjongsCandidated:Box = Box(mahjongsCandidatedArray[index]);
                 // 为其他玩家发牌，全为牌的背面图案
                 for (var i:int = 0; i < mahjongNumber; i++) {
-                    mahjong = new MahjongButton();
-                    mahjong.source = "image/mahjong/" + playerDirection[index] + "/standard/DEFAULT.jpg";
-                    mahjong.allowSelect = false;
-                    mahjongsCandidated.addChild(mahjong);
+                    addMahjongExceptDown(mahjongsCandidated, "image/mahjong/" + playerDirection[index] + "/standard/DEFAULT.jpg");
                 }
                 index++;
             }
@@ -280,13 +272,9 @@ package info.knightrcom.state {
          */
         private function gameFirstPlayHandler(event:PushdownWinGameEvent):void {
             // 开始摸牌
-            var mahjongValue:String = mahjongsSpared.pop();
-            var mahjongRand:MahjongButton = new MahjongButton();
-            mahjongRand.source = "image/mahjong/down/standard/" + mahjongValue + ".jpg";
-            ListenerBinder.bind(mahjongRand, FlexEvent.HIDE, function (event:FlexEvent):void {
-                dealMahjong("down", mahjongRand);
-            });
-            currentGame.randDown.addChild(mahjongRand);
+            var dummyEvent:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+            dummyEvent.index = currentGame.btnBarMahjongs.numChildren - 1;
+            itemClick(dummyEvent);
             // 显示操作按钮
             currentGame.btnBarMahjongs.visible = true;
         }
@@ -529,8 +517,6 @@ package info.knightrcom.state {
          *
          */
         private function itemClick(event:ItemClickEvent):void {
-            var mahjong:MahjongButton;
-            var isGameOver:Boolean = false;
             switch (event.index) {
                 case 0:
                     // 胡牌
@@ -545,7 +531,7 @@ package info.knightrcom.state {
                     // 吃
                     // 选择要出的牌
                     var mahjongs:String = "";
-                    for each (mahjong in currentGame.candidatedDown.getChildren()) {
+                    for each (var mahjong:MahjongButton in currentGame.candidatedDown.getChildren()) {
                         if (mahjong.isSelected()) {
                             mahjongs += mahjong.value + ",";
                         }
@@ -604,7 +590,7 @@ package info.knightrcom.state {
                     ListenerBinder.bind(mahjongRand, FlexEvent.HIDE, function (event:FlexEvent):void {
                         dealMahjong("down", mahjongRand);
                     });
-                    currentGame.candidatedDown.addChild(mahjongRand);
+                    currentGame.randDown.addChild(mahjongRand);
                     break;
             }
         }
@@ -654,6 +640,54 @@ package info.knightrcom.state {
             socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjong.value + "~" + localNextNumber);
             // 隐藏操作按钮
             currentGame.btnBarMahjongs.visible = false;
+        }
+
+        /**
+         * 
+         * @param container
+         * @param picPath
+         * @return 
+         * 
+         */
+        private function addMahjongDown(
+                container:DisplayObjectContainer, 
+                picPath:String):MahjongButton {
+            var mahjong:MahjongButton = new MahjongButton();
+            mahjong.source = picPath;
+            ListenerBinder.bind(mahjong, FlexEvent.HIDE, function (event:FlexEvent):void {
+                dealMahjong("down", mahjong);
+            });
+            container.addChild(mahjong);
+            return mahjong;
+        }
+
+
+        /**
+         * 
+         * @param container
+         * @param picPath
+         * @return 
+         * 
+         */
+        private function addMahjongExceptDown(
+                container:DisplayObjectContainer, 
+                picPath:String):MahjongButton {
+            var mahjong:MahjongButton = new MahjongButton();
+            mahjong.source = picPath;
+            mahjong.allowSelect = false;
+            container.addChild(mahjong);
+            return mahjong;
+        }
+
+        /**
+         *
+         * 禁用所有操作按钮 
+         * 
+         */
+        private function disableBtnBar():void {
+            for each (var eachButton:Button in currentGame.btnBarMahjongs.getChildren()) {
+                eachButton.enabled = false;
+            }
         }
 
         /**
