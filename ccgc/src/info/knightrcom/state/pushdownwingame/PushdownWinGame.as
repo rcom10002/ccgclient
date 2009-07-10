@@ -1,4 +1,6 @@
 package info.knightrcom.state.pushdownwingame {
+	import component.MahjongButton;
+	
 
     /**
      *
@@ -37,7 +39,7 @@ package info.knightrcom.state.pushdownwingame {
         /**
          * 对服务器端洗牌后分配的尚未排序过的麻将进行排序
          *
-         * @param mahjongs
+         * @param mahjongs 格式为逗号分隔的麻将值
          * @return
          *
          */
@@ -75,110 +77,110 @@ package info.knightrcom.state.pushdownwingame {
          * 
          * 胡牌判断
          * 
-         * @param target
-         * @param currentMahjongArray
-         * @param excluded
-         * @return 
+         * @param dealedMahjong
+         * @param mahjongOfPlayers
+         * @param excludedIndex
+         * @return 胡牌玩家索引
          * 
          */
-        public static function isWin(target:String, currentMahjongArray:Array, excluded:int):int {
-            return -1;
+        public static function isWin(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int {
+            return -1; // 正确结果需加0
         }
 
         /**
          * 
          * 杠牌判断
          * 
-         * @param target
-         * @param currentMahjongArray
-         * @param excluded
-         * @return 
+         * @param dealedMahjong
+         * @param mahjongOfPlayers
+         * @param excludedIndex
+         * @return 杠牌玩家索引
          * 
          */
-        public static function isKong(target:String, currentMahjongArray:Array, excluded:int):int {
-//            for (var index:int = 0; index < currentMahjongArray.length; index++) {
-//            	if (index == excluded) {
+        public static function isKong(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int {
+//            for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
+//            	if (index == excludedIndex) {
 //            		continue;
 //            	}
-//            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
+//            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
 //            	var oldLen:int = currentMahjongs.length;
-//            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
-//            	if ((oldLen - newLen) / target.length == 3) {
+//            	var newLen:int = currentMahjongs.replace(new RegExp(dealedMahjong), "").length;
+//            	if ((oldLen - newLen) / dealedMahjong.length == 3) {
 //            		return index;
 //            	}
 //            }
-            return -1;
+            return -1; // 正确结果需加10
         }
 
         /**
          * 
          * 碰牌判断
          * 
-         * @param target
-         * @param currentMahjongArray
-         * @param excluded
-         * @return 
+         * @param dealedMahjong
+         * @param mahjongOfPlayers
+         * @param excludedIndex
+         * @return 碰牌玩家索引
          * 
          */
-        public static function isPong(target:String, currentMahjongArray:Array, excluded:int):int {
-//            for (var index:int = 0; index < currentMahjongArray.length; index++) {
-//            	if (index == excluded) {
+        public static function isPong(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int {
+//            for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
+//            	if (index == excludedIndex) {
 //            		continue;
 //            	}
-//            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
+//            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
 //            	var oldLen:int = currentMahjongs.length;
-//            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
-//            	if ((oldLen - newLen) / target.length == 2) {
+//            	var newLen:int = currentMahjongs.replace(new RegExp(dealedMahjong), "").length;
+//            	if ((oldLen - newLen) / dealedMahjong.length == 2) {
 //            		return index;
 //            	}
 //            }
-            return -1;
+            return -1; // 正确结果需加20
         }
 
         /**
          * 
          * 吃牌判断
          * 
-         * @param target 当前打出的牌
+         * @param dealedMahjong 当前打出的牌
          * @param currentMahjongs 当前玩家手中的牌
          * @return 
          * 
          */
-        public static function isChow(target:String, currentMahjongs:Array):int {
-//        	var strValue:String = target.replace(/[WBT]/, "");
-//        	var strColor:String = target.replace(/\d/, "");
+        public static function isChow(dealedMahjong:String, currentMahjongs:Array):Boolean {
+//        	var strValue:String = dealedMahjong.replace(/[WBT]/, "");
+//        	var strColor:String = dealedMahjong.replace(/\d/, "");
 //        	if (!new RegExp("^[2-8]$").test(strValue)) {
 //        		// 牌值在2至9之间才能进行吃牌操作
 //        		return -1;
 //        	}
 //        	var intValue:int = int(strValue);
-//        	var headTarget:String = strColor + (intValue - 1);
-//        	var tailTarget:String = strColor + (intValue + 1);
-//        	if (currentMahjongs.indexOf(headTarget) > 0 && currentMahjongs.indexOf(tailTarget)) {
-//        		return currentMahjongs.indexOf(target);
+//        	var headdealedMahjong:String = strColor + (intValue - 1);
+//        	var taildealedMahjong:String = strColor + (intValue + 1);
+//        	if (currentMahjongs.indexOf(headdealedMahjong) > 0 && currentMahjongs.indexOf(taildealedMahjong)) {
+//        		return currentMahjongs.indexOf(dealedMahjong);
 //        	}
-            return -1;
+            return false; // 正确结果需加30
         }
 
-		/**
-		 * 返回int类型数组中最大值
-		 * 
-		 * @param array
-		 * @return 
-		 * 
-		 */
-		public static function maxValue(array:Array):int
-		{
-			var mxm:int = array[0];
-			for (var i:int = 0; i < array.length; i++)
-			{
-				if (array[i] > mxm)
-				{
-					mxm = array[i];
-				}
-			}
-			return mxm;
-		}
+//		/**
+//		 * 返回int类型数组中最大值
+//		 * 
+//		 * @param array
+//		 * @return 
+//		 * 
+//		 */
+//		public static function maxValue(array:Array):int
+//		{
+//			var mxm:int = array[0];
+//			for (var i:int = 0; i < array.length; i++)
+//			{
+//				if (array[i] > mxm)
+//				{
+//					mxm = array[i];
+//				}
+//			}
+//			return mxm;
+//		}
 
     }
 }
