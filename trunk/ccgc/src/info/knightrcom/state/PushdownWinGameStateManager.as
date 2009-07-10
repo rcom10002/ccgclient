@@ -292,6 +292,8 @@ package info.knightrcom.state {
             currentNumber = results[0];
             currentBoutMahjong = results[1];
             currentNextNumber = results[2];
+            // 初始化操作按钮
+            disableBtnBar();
 			// 从非出牌玩家中，找出一个可以进行胡牌、杠牌和碰牌操作的玩家
 			var indexWin:int = PushdownWinGame.isWin(null, null, 0);
 			var indexKong:int = PushdownWinGame.isKong(null, null, 0);
@@ -637,6 +639,9 @@ package info.knightrcom.state {
             mahjong.allowSelect = false;
             currentGame.dealed.addChild(mahjong);
             mahjong.visible = true;
+            // 重新设置当前玩家的布局
+            // TODO
+            // 发送出牌命令
             socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjong.value + "~" + localNextNumber);
             // 隐藏操作按钮
             currentGame.btnBarMahjongs.visible = false;
