@@ -20,7 +20,7 @@ package info.knightrcom.state.pushdownwingame {
 		public static const DIRECTION_UP:uint = 300;
 		public static const DIRECTION_LEFT:uint = 400;
 
-		/** 操作动作，参考地址 http://en.wikipedia.org/wiki/Mahjong */
+		/** 操作动作名称，参考地址 http://en.wikipedia.org/wiki/Mahjong */
 		/** 胡牌 */
 		public static const OPTR_WIN:uint = 0;
 		/** 杠 */
@@ -96,17 +96,17 @@ package info.knightrcom.state.pushdownwingame {
          * 
          */
         public static function isKong(target:String, currentMahjongArray:Array, excluded:int):int {
-            for (var index:int = 0; index < currentMahjongArray.length; index++) {
-            	if (index == excluded) {
-            		continue;
-            	}
-            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
-            	var oldLen:int = currentMahjongs.length;
-            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
-            	if ((oldLen - newLen) / target.length == 3) {
-            		return index;
-            	}
-            }
+//            for (var index:int = 0; index < currentMahjongArray.length; index++) {
+//            	if (index == excluded) {
+//            		continue;
+//            	}
+//            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
+//            	var oldLen:int = currentMahjongs.length;
+//            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
+//            	if ((oldLen - newLen) / target.length == 3) {
+//            		return index;
+//            	}
+//            }
             return -1;
         }
 
@@ -121,17 +121,17 @@ package info.knightrcom.state.pushdownwingame {
          * 
          */
         public static function isPong(target:String, currentMahjongArray:Array, excluded:int):int {
-            for (var index:int = 0; index < currentMahjongArray.length; index++) {
-            	if (index == excluded) {
-            		continue;
-            	}
-            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
-            	var oldLen:int = currentMahjongs.length;
-            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
-            	if ((oldLen - newLen) / target.length == 2) {
-            		return index;
-            	}
-            }
+//            for (var index:int = 0; index < currentMahjongArray.length; index++) {
+//            	if (index == excluded) {
+//            		continue;
+//            	}
+//            	var currentMahjongs:String = (currentMahjongArray[index] as Array).join(",");
+//            	var oldLen:int = currentMahjongs.length;
+//            	var newLen:int = currentMahjongs.replace(new RegExp(target), "").length;
+//            	if ((oldLen - newLen) / target.length == 2) {
+//            		return index;
+//            	}
+//            }
             return -1;
         }
 
@@ -145,18 +145,18 @@ package info.knightrcom.state.pushdownwingame {
          * 
          */
         public static function isChow(target:String, currentMahjongs:Array):int {
-        	var strValue:String = target.replace(/[WBT]/, "");
-        	var strColor:String = target.replace(/\d/, "");
-        	if (!new RegExp("^[2-8]$").test(strValue)) {
-        		// 牌值在2至9之间才能进行吃牌操作
-        		return -1;
-        	}
-        	var intValue:int = int(strValue);
-        	var headTarget:String = strColor + (intValue - 1);
-        	var tailTarget:String = strColor + (intValue + 1);
-        	if (currentMahjongs.indexOf(headTarget) > 0 && currentMahjongs.indexOf(tailTarget)) {
-        		return currentMahjongs.indexOf(target);
-        	}
+//        	var strValue:String = target.replace(/[WBT]/, "");
+//        	var strColor:String = target.replace(/\d/, "");
+//        	if (!new RegExp("^[2-8]$").test(strValue)) {
+//        		// 牌值在2至9之间才能进行吃牌操作
+//        		return -1;
+//        	}
+//        	var intValue:int = int(strValue);
+//        	var headTarget:String = strColor + (intValue - 1);
+//        	var tailTarget:String = strColor + (intValue + 1);
+//        	if (currentMahjongs.indexOf(headTarget) > 0 && currentMahjongs.indexOf(tailTarget)) {
+//        		return currentMahjongs.indexOf(target);
+//        	}
             return -1;
         }
 
