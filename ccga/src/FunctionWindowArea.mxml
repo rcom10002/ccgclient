@@ -1,32 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
-    layout="absolute" 
-    minWidth="400" 
-    minHeight="300" 
-    width="100%"
-    height="100%"
-    xmlns:sw="info.knightrcom.sw.*" 
-    currentState="WELCOME" xmlns:service="info.knightrcom.service.*">
-    <mx:states>
-        <mx:State name="GROUP_USER_EDIT">
-            <mx:AddChild position="lastChild">
-                <service:GroupUserWindow>
-                </service:GroupUserWindow>
-            </mx:AddChild>
-        </mx:State>
-        <mx:State name="WELCOME">
-            <mx:AddChild position="lastChild">
-                <mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-                    <mx:Label text="Welcome" fontWeight="bold" fontSize="36" fontFamily="Verdana"/>
-                </mx:HBox>
-            </mx:AddChild>
-        </mx:State>
-        <mx:State name="SOLO_USER_EDIT">
-            <mx:AddChild position="lastChild">
-                <service:PlayerProfileWindow>
-                </service:PlayerProfileWindow>
-            </mx:AddChild>
-        </mx:State>
-    </mx:states>
-	
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+		   layout="absolute"
+		   minWidth="400"
+		   minHeight="300"
+		   width="100%"
+		   height="100%"
+		   xmlns:sw="info.knightrcom.sw.*"
+		   currentState="WELCOME"
+		   xmlns:service="info.knightrcom.service.*">
+	<mx:states>
+		<mx:State name="GROUP_USER_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GroupUserWindow>
+				</service:GroupUserWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="WELCOME">
+			<mx:AddChild position="lastChild">
+				<mx:HBox width="100%"
+						 height="100%"
+						 verticalAlign="middle"
+						 horizontalAlign="center">
+					<mx:Label text="Welcome"
+							  fontWeight="bold"
+							  fontSize="36"
+							  fontFamily="Verdana"/>
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SOLO_USER_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:PlayerProfileWindow>
+				</service:PlayerProfileWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigureWindow>
+				</service:GameConfigureWindow>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+
 </mx:Module>

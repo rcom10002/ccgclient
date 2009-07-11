@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="creationCompleteHandler();">
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				creationComplete="creationCompleteHandler();">
 	<mx:Script>
 		<![CDATA[
 			import mx.utils.Base64Decoder;
@@ -13,202 +15,244 @@
 			import info.knightrcom.util.HttpServiceProxy;
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.service.LocalPlayerProfileService;
-    		import mx.events.ItemClickEvent;
+			import mx.events.ItemClickEvent;
 
 			public var currentOperationMethod:OperationMethod;
 
-            protected function defaultSearch():void {
-            	HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_PROFILE, 
-            			{CURRENT_PAGE: CURRENT_PAGE}, infoService);
-            }
+			protected function defaultSearch():void
+			{
+				HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_PROFILE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
 
-            protected function clearEditor():void {
-            	for each (var thisFormItem:FormItem in Form(this.editor).getChildren()) {
-            		var control:Object = thisFormItem.getChildAt(0);
-            		if (control is ComboBox) {
-            			ComboBox(control).text = "";
-            		} else if (control is TextInput) {
-            			TextInput(control).text = "";
-            		} else if (control is TextArea) {
-            			TextArea(control).text = "";
-            		} else {
-            			throw Error("无法为当前控件进行初始化");
-            		}
-            	}
-            }
+			protected function clearEditor():void
+			{
+				for each (var thisFormItem:FormItem in Form(this.editor).getChildren())
+				{
+					var control:Object=thisFormItem.getChildAt(0);
+					if (control is ComboBox)
+					{
+						ComboBox(control).text="";
+					}
+					else if (control is TextInput)
+					{
+						TextInput(control).text="";
+					}
+					else if (control is TextArea)
+					{
+						TextArea(control).text="";
+					}
+					else
+					{
+						throw Error("无法为当前控件进行初始化");
+					}
+				}
+			}
 
-			protected function creationCompleteHandler():void {
-			    // 状态初始化
-			    initializeEachState("LIST");
+			protected function creationCompleteHandler():void
+			{
+				// 状态初始化
+				initializeEachState("LIST");
 				// 事件绑定
 				// 检索
-	    		ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
-	    			CURRENT_PAGE = 1;
-	    			defaultSearch();
-	    		});
-	    		// 翻页
-	            ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
-	            	if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
-	            		return;
-	            	}
-	            	if (event.index == 0) {
-	            		CURRENT_PAGE--;
-	            	} else if (event.index == 1) {
-	            		CURRENT_PAGE++;
-	            	}
-	    			defaultSearch();
-	            });
-	            // 添加
-	            ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void {
-	            	currentState = "EDIT";
-	            	currentOperationMethod = OperationMethod.CREATE;
-	            	clearEditor();
-	            });
-	            // 更新
-	            ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void {
-	            	currentState = "EDIT";
-	            	currentOperationMethod = OperationMethod.UPDATE;
-	            	HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE,
-	            			{PROFILE_ID : datagrid.selectedItem.profileId.text()}, null, function (event:ResultEvent):void {
-	            				var e4xResult:XML = new XML(event.result);
-	            				playerProfileId.text = e4xResult.entity.profileId.text();
-	            				playerUserId.text = e4xResult.entity.userId.text();
-	            				playerPassword.text = e4xResult.entity.password.text();
-	            				playerPasswordConfirm.text = e4xResult.entity.password.text();
-	            				trace(e4xResult.entity.profileId.text());
-	            			});
-	            });
-	            // 删除
-	            ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void {
-	            	currentOperationMethod = OperationMethod.DELETE;
-	            	HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE,
-	            			{PROFILE_ID : datagrid.selectedItem.profileId.text()}, null, function ():void {
-			            		defaultSearch();
-			            	});
-	            	currentOperationMethod = OperationMethod.UNKNOWN;
-	            });
-	            // 确定
-	            ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void {
-	            	if (currentOperationMethod == OperationMethod.CREATE) {
-		            	HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE,
-		            			{USER_ID : playerUserId.text,
-		            			 PASSWORD : playerPassword.text,
-		            			 playerLimit : playerLimit.text,
-		            			 ROLE : playerRole.text}, null, function (event:ResultEvent):void {
-	            					var e4xResult:XML = new XML(event.result);
-		            			 	playerProfileId.text = e4xResult.entity.profileId.text();
-		            			 });
-	            	} else if (currentOperationMethod == OperationMethod.UPDATE) {
-		            	HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE,
-		            			{PROFILE_ID : playerProfileId.text,
-		            			 USER_ID : playerUserId.text,
-		            			 PASSWORD : playerPassword.text,
-		            			 playerLimit : playerLimit.text,
-		            			 ROLE : playerRole.text});
-	            	}
-	            	currentOperationMethod = OperationMethod.UPDATE;
-	            });
-	            // 取消
-	            ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void {
-	            	currentState = "LIST";
-	            	currentOperationMethod = OperationMethod.UNKNOWN;
-	            });
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function(event:MouseEvent):void
+					{
+						CURRENT_PAGE=1;
+						defaultSearch();
+					});
+				// 翻页
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
+					{
+						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+						{
+							return;
+						}
+						if (event.index == 0)
+						{
+							CURRENT_PAGE--;
+						}
+						else if (event.index == 1)
+						{
+							CURRENT_PAGE++;
+						}
+						defaultSearch();
+					});
+				// 添加
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
+					{
+						currentState="EDIT";
+						currentOperationMethod=OperationMethod.CREATE;
+						clearEditor();
+					});
+				// 更新
+				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
+					{
+						currentState="EDIT";
+						currentOperationMethod=OperationMethod.UPDATE;
+						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, function(event:ResultEvent):void
+							{
+								var e4xResult:XML=new XML(event.result);
+								playerProfileId.text=e4xResult.entity.profileId.text();
+								playerUserId.text=e4xResult.entity.userId.text();
+								playerPassword.text=e4xResult.entity.password.text();
+								playerPasswordConfirm.text=e4xResult.entity.password.text();
+								trace(e4xResult.entity.profileId.text());
+							});
+					});
+				// 删除
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
+					{
+						currentOperationMethod=OperationMethod.DELETE;
+						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, function():void
+							{
+								defaultSearch();
+							});
+						currentOperationMethod=OperationMethod.UNKNOWN;
+					});
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
+					{
+						if (currentOperationMethod == OperationMethod.CREATE)
+						{
+							HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, {USER_ID: playerUserId.text, PASSWORD: playerPassword.text, playerLimit: playerLimit.text, ROLE: playerRole.text}, null, function(event:ResultEvent):void
+								{
+									var e4xResult:XML=new XML(event.result);
+									playerProfileId.text=e4xResult.entity.profileId.text();
+								});
+						}
+						else if (currentOperationMethod == OperationMethod.UPDATE)
+						{
+							HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE, {PROFILE_ID: playerProfileId.text, USER_ID: playerUserId.text, PASSWORD: playerPassword.text, playerLimit: playerLimit.text, ROLE: playerRole.text});
+						}
+						currentOperationMethod=OperationMethod.UPDATE;
+					});
+				// 取消
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
+					{
+						currentState="LIST";
+						currentOperationMethod=OperationMethod.UNKNOWN;
+					});
 			}
 		]]>
 	</mx:Script>
 	<states>
 		<mx:State name="EDIT">
-            <mx:AddChild position="lastChild">
-			    <mx:Form id="editor"
-			    	     left="0"
-			             right="0"
-			             top="0"
-			             bottom="40">
-	                <mx:FormItem label="uuid" visible="false">
-	                    <mx:TextInput id="playerProfileId"/>
-	                </mx:FormItem>
-	                <mx:FormItem label="用户ID">
-	                    <mx:TextInput id="playerUserId"/>
-	                </mx:FormItem>
-	                <mx:FormItem label="所属用户组">
-	                    <mx:ComboBox id="playerGroup"/>
-	                </mx:FormItem>
-	                <mx:FormItem label="密码">
-	                    <mx:TextInput id="playerPassword" displayAsPassword="true"/>
-	                </mx:FormItem>
-	                <mx:FormItem label="密码确认">
-	                    <mx:TextInput id="playerPasswordConfirm" displayAsPassword="true"/>
-	                </mx:FormItem>
-	                <mx:FormItem label="用户额度">
-	                    <mx:TextInput id="playerLimit"/>
-	                </mx:FormItem>
-	                <mx:FormItem label="角色">
-	                    <mx:ComboBox id="playerRole" />
-	                </mx:FormItem>
-			    </mx:Form>
-            </mx:AddChild>
-            <mx:AddChild position="lastChild">
-			    <mx:Button label="确定"
-			               id="btnSubmit"
-			               right="66"
-			               bottom="10"/>
-            </mx:AddChild>
-            <mx:AddChild position="lastChild">
-			    <mx:Button label="返回"
-			               id="btnBack"
-			               right="10"
-			               bottom="10"/>
-            </mx:AddChild>
-            <mx:SetProperty name="title"
-                            value="用户编辑"/>
+			<mx:AddChild position="lastChild">
+				<mx:Form id="editor"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="40">
+					<mx:FormItem label="uuid"
+								 visible="false">
+						<mx:TextInput id="playerProfileId"/>
+					</mx:FormItem>
+					<mx:FormItem label="用户ID">
+						<mx:TextInput id="playerUserId"/>
+					</mx:FormItem>
+					<mx:FormItem label="所属用户组">
+						<mx:ComboBox id="playerGroup"/>
+					</mx:FormItem>
+					<mx:FormItem label="密码">
+						<mx:TextInput id="playerPassword"
+									  displayAsPassword="true"/>
+					</mx:FormItem>
+					<mx:FormItem label="密码确认">
+						<mx:TextInput id="playerPasswordConfirm"
+									  displayAsPassword="true"/>
+					</mx:FormItem>
+					<mx:FormItem label="用户额度">
+						<mx:TextInput id="playerLimit"/>
+					</mx:FormItem>
+					<mx:FormItem label="角色">
+						<mx:ComboBox id="playerRole"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="66"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="用户编辑"/>
 		</mx:State>
 		<mx:State name="LIST">
 			<mx:AddChild position="lastChild">
-				<mx:HBox left="10" right="10" top="10">
+				<mx:HBox left="10"
+						 right="10"
+						 top="10">
 					<mx:Label text="用户ID"/>
 					<mx:TextInput/>
 					<mx:Label text="用户组"/>
 					<mx:TextInput/>
 					<mx:Label text="用户额度"/>
 					<mx:TextInput/>
-					<mx:Button id="btnSearch" label="查询"/>
+					<mx:Button id="btnSearch"
+							   label="查询"/>
 				</mx:HBox>
 			</mx:AddChild>
-            <mx:AddChild position="lastChild">
-            	<mx:HBox top="40" left="10" right="10">
-            		<mx:Button label="添加" id="btnCreate"/>
-            		<mx:Button label="修改" id="btnUpdate"/>
-            		<mx:Button label="删除" id="btnDelete"/>
-            	</mx:HBox>
-            </mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:DataGrid top="68" left="10" right="10" bottom="10" id="datagrid">
+				<mx:HBox top="40"
+						 left="10"
+						 right="10">
+					<mx:Button label="添加"
+							   id="btnCreate"/>
+					<mx:Button label="修改"
+							   id="btnUpdate"/>
+					<mx:Button label="删除"
+							   id="btnDelete"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="68"
+							 left="10"
+							 right="10"
+							 bottom="10"
+							 id="datagrid">
 					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn dataField="profileId" visible="false"/>
-						<mx:DataGridColumn dataField="password" visible="false"/>
-						<mx:DataGridColumn headerText="用户ID" dataField="userId"/>
-						<mx:DataGridColumn headerText="所属用户组" dataField=""/>
-						<mx:DataGridColumn headerText="用户额度" dataField=""/>
-						<mx:DataGridColumn headerText="角色" dataField="role"/>
-						<mx:DataGridColumn headerText="创建日期" dataField="createTime"/>
-						<mx:DataGridColumn headerText="创建人" dataField="createBy"/>
+						<mx:DataGridColumn dataField="profileId"
+										   visible="false"/>
+						<mx:DataGridColumn dataField="password"
+										   visible="false"/>
+						<mx:DataGridColumn headerText="用户ID"
+										   dataField="userId"/>
+						<mx:DataGridColumn headerText="所属用户组"
+										   dataField=""/>
+						<mx:DataGridColumn headerText="用户额度"
+										   dataField=""/>
+						<mx:DataGridColumn headerText="角色"
+										   dataField="role"/>
+						<mx:DataGridColumn headerText="创建日期"
+										   dataField="createTime"/>
+						<mx:DataGridColumn headerText="创建人"
+										   dataField="createBy"/>
 					</mx:columns>
 				</mx:DataGrid>
 			</mx:AddChild>
-            <mx:AddChild position="lastChild">
-            	<mx:ControlBar paddingTop="0" paddingBottom="0" horizontalAlign="right">
-			        <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
-			        <mx:LinkBar id="pageRoller">
-					    <mx:Array>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
 							<mx:Object label="前页"/>
 							<mx:Object label="后页"/>
 						</mx:Array>
-			        </mx:LinkBar>
-            	</mx:ControlBar>
-            </mx:AddChild>
-            <mx:SetProperty name="title"
-                            value="用户列表"/>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="用户列表"/>
 		</mx:State>
 	</states>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
