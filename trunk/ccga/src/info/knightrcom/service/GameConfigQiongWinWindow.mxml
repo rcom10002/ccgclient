@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.Base64Decoder;
+			import mx.events.DragEvent;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.TextArea;
+			import mx.containers.FormItem;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalGameConfigureService;
+			import mx.events.ItemClickEvent;
+
+			public var currentOperationMethod:OperationMethod;
+
+			protected function readData(ind:Number):void
+			{
+				HttpServiceProxy.send(LocalGameConfigureService.READ_ROOM_CONFIGURE, {GAME_TYPE: ind, CURRENT_PAGE: CURRENT_PAGE}, infoService, function(event:ResultEvent):void
+					{
+						var e4xResult:XML=new XML(event.result);
+						lobbyId.text=e4xResult.entity.map[CURRENT_PAGE - 1].parent.text();
+						lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].parent.text();
+						gameId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
+						gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
+						roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
+						minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
+						trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
+					});
+			}
+
+
+			protected function clearEditor():void
+			{
+				for each (var thisFormItem:FormItem in Form(this.editor).getChildren())
+				{
+					var control:Object=thisFormItem.getChildAt(0);
+					if (control is TextInput)
+					{
+						TextInput(control).text="";
+					}
+					else if (control is TextArea)
+					{
+						TextArea(control).text="";
+					}
+					else
+					{
+						throw Error("无法为当前控件进行初始化");
+					}
+				}
+			}
+
+			protected function creationCompleteHandler():void
+			{
+				// 状态初始化
+				initializeEachState("EDIT");
+				// 事件绑定
+				CURRENT_PAGE=1;
+				// param 2: QiongWin
+				readData(2);
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
+					{
+						currentOperationMethod=OperationMethod.UPDATE;
+						if (currentOperationMethod == OperationMethod.UPDATE)
+						{
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAMENAME: gameName.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
+						}
+						currentOperationMethod=OperationMethod.UPDATE;
+					});
+				// 翻页
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
+					{
+						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+						{
+							return;
+						}
+						if (event.index == 0)
+						{
+							CURRENT_PAGE--;
+						}
+						else if (event.index == 1)
+						{
+							CURRENT_PAGE++;
+						}
+						// param 2: QiongWin
+						readData(2);
+					});
+			}
+		]]>
+	</mx:Script>
+	<states>
+		<mx:State name="EDIT">
+			<mx:AddChild position="lastChild">
+				<mx:Form id="editor"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="40">
+					<mx:FormItem label="uuid"
+								 visible="false">
+						<mx:TextInput id="globalConfigId"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏大厅ID">
+						<mx:TextInput id="lobbyId"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏大厅名">
+						<mx:TextInput id="lobbyName"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏ID">
+						<mx:TextInput id="gameId"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏名">
+						<mx:TextInput id="gameName"/>
+					</mx:FormItem>
+					<mx:FormItem label="每局分数">
+						<mx:TextInput id="roundMark"/>
+					</mx:FormItem>
+					<mx:FormItem label="最少底分">
+						<mx:TextInput id="minMarks"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="穷胡参数管理"/>
+		</mx:State>
+	</states>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

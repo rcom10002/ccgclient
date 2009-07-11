@@ -104,6 +104,18 @@ package info.knightrcom
 				case "游戏参数":
 					adminApp.functionWindowArea.currentState="GAME_PARAM_EDIT";
 					break;
+				case "大连红五":
+					adminApp.functionWindowArea.currentState="GAME_RED5_PARAM_EDIT";
+					break;
+				case "斗地主":
+					adminApp.functionWindowArea.currentState="GAME_FIGHTLANDLORD_PARAM_EDIT";
+					break;
+				case "穷胡":
+					adminApp.functionWindowArea.currentState="GAME_QIONGWIN_PARAM_EDIT";
+					break;
+				case "推倒胡":
+					adminApp.functionWindowArea.currentState="GAME_PUSHDOWNWIN_PARAM_EDIT";
+					break;
 				default:
 					adminApp.currentState="MAIN";
 					Alert.show("该功能正在完善中");
