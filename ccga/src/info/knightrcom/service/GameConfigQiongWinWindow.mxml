@@ -69,7 +69,7 @@
 						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAMENAME: gameName.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAME_NAME: gameName.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
 					});
