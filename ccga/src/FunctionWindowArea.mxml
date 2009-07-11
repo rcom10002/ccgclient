@@ -40,6 +40,30 @@
 				</service:GameConfigureWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="GAME_RED5_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigRed5Window>
+				</service:GameConfigRed5Window>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_FIGHTLANDLORD_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigFightLandlordWindow>
+				</service:GameConfigFightLandlordWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_QIONGWIN_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigQiongWinWindow>
+				</service:GameConfigQiongWinWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_PUSHDOWNWIN_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigPushDownWinWindow>
+				</service:GameConfigPushDownWinWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 
 </mx:Module>

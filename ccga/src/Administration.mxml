@@ -123,7 +123,7 @@
 				</node>
 				<node label="麻将游戏">
 					<node label="穷胡"/>
-					<node label="推到胡"/>
+					<node label="推倒胡"/>
 				</node>
 			</node>
 			<node label="报表管理">
