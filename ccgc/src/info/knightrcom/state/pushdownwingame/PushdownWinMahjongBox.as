@@ -130,7 +130,7 @@ package info.knightrcom.state.pushdownwingame
 			this.lastPlayerIndex = index;
 			// 从玩家手中的牌删除打出的牌
 			var targetPos:int = (mjOfPlayers[index] as Array).indexOf(dealedValue);
-			mjOfPlayers[index] = (mjOfPlayers[index] as Array).slice(targetPos, targetPos);
+			(mjOfPlayers[index] as Array).splice(targetPos, 1);
 			// 向桌面的麻将中添加新打出的牌
 			this.mjOnTable.push(dealedValue);
 		}
