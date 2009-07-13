@@ -1,5 +1,6 @@
 package info.knightrcom.state.pushdownwingame {
-	import component.MahjongButton;
+    import component.MahjongButton;
+	
 	
 
     /**
@@ -45,32 +46,50 @@ package info.knightrcom.state.pushdownwingame {
          */
         public static function sortMahjongs(mahjongs:String):Array {
             var mahjongArray:Array = mahjongs.split(",");
-            mahjongArray.sort(mahjongSorter);
+            mahjongArray.sort(function (mahjong1:String, mahjong2:String):int {
+                if (mahjong1 == mahjong2) {
+                    // 相同时
+                    return 0;
+                }
+                // 实现排序功能
+                var pri1:int = prioritySequence.indexOf(mahjong1.replace(/^[0-4]/, ""));
+                var pri2:int = prioritySequence.indexOf(mahjong2.replace(/^[0-4]/, ""));
+                // 值比较
+                if (pri1 > pri2) {
+                    return 1;
+                } else if (pri1 < pri2) {
+                    return -1;
+                }
+                return 0;
+            });
             return mahjongArray;
         }
 
         /**
+         * 对服务器端洗牌后分配的尚未排序过的麻将进行排序
          *
-         * @param mahjong1
-         * @param mahjong2
+         * @param mahjongArray
          * @return
          *
          */
-        private static function mahjongSorter(mahjong1:String, mahjong2:String):int {
-            if (mahjong1 == mahjong2) {
-                // 相同时
+        public static function sortMahjongButtons(mahjongButtonArray:Array):Array {
+            mahjongButtonArray.sort(function (mahjong1:MahjongButton, mahjong2:MahjongButton):int {
+                if (mahjong1.value == mahjong2.value) {
+                    // 相同时
+                    return 0;
+                }
+                // 实现排序功能
+                var pri1:int = prioritySequence.indexOf(mahjong1.value);
+                var pri2:int = prioritySequence.indexOf(mahjong2.value);
+                // 值比较
+                if (pri1 > pri2) {
+                    return 1;
+                } else if (pri1 < pri2) {
+                    return -1;
+                }
                 return 0;
-            }
-            // 实现排序功能
-            var pri1:int = prioritySequence.indexOf(mahjong1.replace(/^[0-4]/, ""));
-            var pri2:int = prioritySequence.indexOf(mahjong2.replace(/^[0-4]/, ""));
-            // 值比较
-            if (pri1 > pri2) {
-                return 1;
-            } else if (pri1 < pri2) {
-                return -1;
-            }
-            return 0;
+            });
+            return mahjongButtonArray;
         }
 
         /**
@@ -98,17 +117,17 @@ package info.knightrcom.state.pushdownwingame {
          * 
          */
         public static function isKong(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int {
-//            for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
-//            	if (index == excludedIndex) {
-//            		continue;
-//            	}
-//            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
-//            	var oldLen:int = currentMahjongs.length;
-//            	var newLen:int = currentMahjongs.replace(new RegExp(dealedMahjong), "").length;
-//            	if ((oldLen - newLen) / dealedMahjong.length == 3) {
-//            		return index;
-//            	}
-//            }
+            for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
+            	if (index == excludedIndex) {
+            		continue;
+            	}
+            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
+            	var oldLen:int = currentMahjongs.length;
+            	var newLen:int = currentMahjongs.replace(new RegExp(dealedMahjong), "").length;
+            	if ((oldLen - newLen) / dealedMahjong.length == 3) {
+            		return index * 10 + OPTR_KONG;
+            	}
+            }
             return -1; // 正确结果需加10
         }
 
@@ -123,17 +142,17 @@ package info.knightrcom.state.pushdownwingame {
          * 
          */
         public static function isPong(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int {
-//            for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
-//            	if (index == excludedIndex) {
-//            		continue;
-//            	}
-//            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
-//            	var oldLen:int = currentMahjongs.length;
-//            	var newLen:int = currentMahjongs.replace(new RegExp(dealedMahjong), "").length;
-//            	if ((oldLen - newLen) / dealedMahjong.length == 2) {
-//            		return index;
-//            	}
-//            }
+            for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
+            	if (index == excludedIndex) {
+            		continue;
+            	}
+            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
+            	var oldLen:int = currentMahjongs.length;
+            	var newLen:int = currentMahjongs.replace(new RegExp(dealedMahjong), "").length;
+            	if ((oldLen - newLen) / dealedMahjong.length == 2) {
+            		return index * 10 + OPTR_KONG;
+            	}
+            }
             return -1; // 正确结果需加20
         }
 
@@ -147,40 +166,20 @@ package info.knightrcom.state.pushdownwingame {
          * 
          */
         public static function isChow(dealedMahjong:String, currentMahjongs:Array):Boolean {
-//        	var strValue:String = dealedMahjong.replace(/[WBT]/, "");
-//        	var strColor:String = dealedMahjong.replace(/\d/, "");
-//        	if (!new RegExp("^[2-8]$").test(strValue)) {
-//        		// 牌值在2至9之间才能进行吃牌操作
-//        		return -1;
-//        	}
-//        	var intValue:int = int(strValue);
-//        	var headdealedMahjong:String = strColor + (intValue - 1);
-//        	var taildealedMahjong:String = strColor + (intValue + 1);
-//        	if (currentMahjongs.indexOf(headdealedMahjong) > 0 && currentMahjongs.indexOf(taildealedMahjong)) {
-//        		return currentMahjongs.indexOf(dealedMahjong);
-//        	}
+        	var strValue:String = dealedMahjong.replace(/[WBT]/, "");
+        	var strColor:String = dealedMahjong.replace(/\d/, "");
+        	if (!new RegExp("^[2-8]$").test(strValue)) {
+        		// 牌值在2至9之间才能进行吃牌操作
+        		return false;
+        	}
+        	var intValue:int = int(strValue);
+        	var headDealedMahjong:String = strColor + (intValue - 1);
+        	var tailDealedMahjong:String = strColor + (intValue + 1);
+        	if (currentMahjongs.indexOf(headDealedMahjong) > 0 && currentMahjongs.indexOf(tailDealedMahjong)) {
+        		return true;
+        	}
             return false; // 正确结果需加30
         }
-
-//		/**
-//		 * 返回int类型数组中最大值
-//		 * 
-//		 * @param array
-//		 * @return 
-//		 * 
-//		 */
-//		public static function maxValue(array:Array):int
-//		{
-//			var mxm:int = array[0];
-//			for (var i:int = 0; i < array.length; i++)
-//			{
-//				if (array[i] > mxm)
-//				{
-//					mxm = array[i];
-//				}
-//			}
-//			return mxm;
-//		}
 
     }
 }

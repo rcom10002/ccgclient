@@ -5,8 +5,9 @@ package info.knightrcom.state.pushdownwingame
 	{
 		public function PushdownWinMahjongBox()
 		{
+		    this.mjOnTable = new Array();
 		}
-// mahjongsOfPlayers:Array, mahjongSpared:Array, mahjongsOnTable:Array
+
 		/**
 		 * 当前玩家们手中的麻将
 		 */
@@ -34,7 +35,10 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		public function set mahjongsOfPlayers(mahjongsOfPlayers:Array):void
 		{
-			this.mjOfPlayers=mahjongsOfPlayers;
+			this.mjOfPlayers = mahjongsOfPlayers;
+			for (var i:int = 0; i < mjOfPlayers.length; i++) {
+			    this.mjOfPlayers[i] = this.mjOfPlayers.toString().split(",");
+			}
 		}
 
 		/**
@@ -44,7 +48,7 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		public function set mahjongsSpared(mahjongSpared:Array):void
 		{
-			this.mjSpared=mahjongSpared;
+			this.mjSpared = mahjongSpared;
 		}
 
 		/**
@@ -54,7 +58,7 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		public function set mahjongsOnTable(mahjongsOnTable:Array):void
 		{
-			this.mjOnTable=mahjongsOnTable;
+			this.mjOnTable = mahjongsOnTable;
 		}
 
 		/**
@@ -103,6 +107,9 @@ package info.knightrcom.state.pushdownwingame
 		 * 
 		 */
 		public function rand(index:int):String {
+		    if (mjSpared.length == 0) {
+		        return null;
+		    }
 			this.lastPlayerIndex = index;
 			// 未使用牌中选出第一张牌
 			var dealedMj:String = this.mjSpared.shift();
@@ -121,10 +128,10 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		public function deal(index:int, dealedValue:String):void {
 			this.lastPlayerIndex = index;
-			// 定位要打出的牌的索引
+			// 从玩家手中的牌删除打出的牌
 			var targetPos:int = (mjOfPlayers[index] as Array).indexOf(dealedValue);
 			mjOfPlayers[index] = (mjOfPlayers[index] as Array).slice(targetPos, targetPos);
-			// 向打出的麻将中添加新打出的牌
+			// 向桌面的麻将中添加新打出的牌
 			this.mjOnTable.push(dealedValue);
 		}
 	}
