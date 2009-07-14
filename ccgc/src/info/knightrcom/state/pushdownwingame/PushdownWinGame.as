@@ -116,6 +116,8 @@ package info.knightrcom.state.pushdownwingame {
 		 */
 		public static function isWin(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int
 		{
+			mahjongOfPlayers.push(dealedMahjong);
+			// TODO return new PushdownWinningCube(mahjongOfPlayers.join(",")).walkAllRoutes();
             for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
             	if (index == excludedIndex) {
             		continue;
