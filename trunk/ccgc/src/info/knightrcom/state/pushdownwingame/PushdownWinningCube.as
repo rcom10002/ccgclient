@@ -1,117 +1,210 @@
 package info.knightrcom.state.pushdownwingame
 {
 
+	/**
+	 * 
+	 */
 	public class PushdownWinningCube
 	{
 		/**
 		 * 
-		 * @param mahjongs
-		 * @param initSeq
+		 * @param currentTrack
+		 * @param parentTrackResult
+		 * @param rootCube
+		 * @param parentCube
 		 * 
 		 */
-		public function PushdownWinningCube(mahjongs:Array, initSeq:String = null):void
+		public function PushdownWinningCube(currentTrack:String, parentTrackResult:String = null, rootCube:PushdownWinningCube = null, parentCube:PushdownWinningCube = null)
 		{
-			this.mahjongs = mahjongs;
-			this.initSeq = this.mahjongs.join(",");
-			walkAllWays();
+			this.name = new Date().toTimeString();
+			this.currentTrack = currentTrack;
+			this.parentTrackResult = parentTrackResult;
+			this.rootCube = rootCube;
+			this.parentCube = parentCube;
+			if (this.rootCube != null) {
+				trace(this.rootCube.name);
+			}
 		}
 
-		public var pongCube:PushdownWinningCube;
+		public var name:String;
 
-		public var eyeCube:PushdownWinningCube;
+		/** 碰节点 */
+		private var pongCube:PushdownWinningCube;
 
-		public var chowCube:PushdownWinningCube;
+		/** 将节点 */
+		private var eyeCube:PushdownWinningCube;
 
+		/** 吃节点 */
+		private var chowCube:PushdownWinningCube;
+
+		/** 父节点 */
 		public var parentCube:PushdownWinningCube;
 
-		private var mahjongs:Array;
+		/** 根节点 */
+		private var rootCube:PushdownWinningCube;
 
-		private var initSeq:String;
-
+		/** 当前要处理的麻将牌序 */
 		private var currentTrack:String;
 
-		private function walkAllWays():void {
-			var oldLen = currentTrack.length;
-			if (oldLen == 0) {
-				// TODO 完成胡牌路径
+		/** 当前要处理的麻将牌序 */
+		public var parentTrackResult:String;
+
+		/** 当前处理结果 */
+		public var currentTrackResult:String;
+
+		/** 可以胡牌的路径结果 */
+		private var winRoutes:Array = new Array();
+
+		/**
+		 * 
+		 * @return 
+		 * 
+		 */
+		public function walkAllRoutes():void {
+			// 三张牌以内的情况下，完成胡牌路径
+			if (currentTrack.split(",").length < 2) {
+				return;
+			} else if (currentTrack.split(",").length == 3) {
+				if (/^(\w+),\1,\1$/.test(currentTrack)) {
+					// 碰
+					addWinRoute(this);
+					// return currentTrack;
+				}
+				if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
+					return;
+				} else {
+					var mahjongs:Array = currentTrack.match(/\d/);
+					if ((int(mahjongs[1]) - int(mahjongs[0]) == 1) && (int(mahjongs[2]) - int(mahjongs[1]) == 1)) {
+						// 吃
+						addWinRoute(this);
+						// return currentTrack;
+					}
+					return;
+				}
+			} else if (currentTrack.split(",").length == 2 && /^(\w+),\1$/.test(currentTrack)) {
+				addWinRoute(this);
+				// return currentTrack;
+			}
+
+			// 三张牌以上的情况下，进行递归处理胡牌路径
+			var tempRootCube:PushdownWinningCube, optrResult:Array = null;
+			if (parentTrackResult == null) {
+				tempRootCube = this;
+			} else {
+				tempRootCube = this.rootCube;
 			}
 			// 碰
-			if (currentTrack.replace(/^(\w+),\1,\1/, "").length <> oldLen) {
-				this.pongCube = new PushdownWinningCube(mahjongs.slice(3));
+			if (/^(\w+),\1,\1.*$/.test(currentTrack)) {
+				optrResult = createPong(currentTrack);
+				this.pongCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
+				this.pongCube.walkAllRoutes();
 			}
 			// 对子
-			if (currentTrack.replace(/^(\w+),\1/, "").length <> oldLen) {
-				this.eyeCube = new PushdownWinningCube(mahjongs.slice(2));
+			if (/^(\w+),\1.*$/.test(currentTrack)) {
+				optrResult = createEye(currentTrack);
+				this.eyeCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
+				this.eyeCube.walkAllRoutes();
 			}
 			// 顺子
-			if (currentTrack.replace(/^([WBT])\d,\1\d,\1\d/, "").length <> oldLen) {
-				var mahjongValue0:int = int(mahjongs[0].toString().replace("[WBT]", ""));
-				var mahjongValue1:int = int(mahjongs[1].toString().replace("[WBT]", ""));
-				var mahjongValue2:int = int(mahjongs[2].toString().replace("[WBT]", ""));
-				if ((mahjongValue0 + 1 == mahjongValue1) && (mahjongValue1 + 1 == mahjongValue2)) {
-					this.chowCube = new PushdownWinningCube(mahjongs.slice(2));
-				}
+			if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
+				return;
 			}
-			// 非碰、对子、顺子的情况
-			// TODO 完成胡牌路径
+			optrResult = createChow(currentTrack);
+			if (optrResult != null) {
+				this.chowCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
+				this.chowCube.walkAllRoutes();
+			}
+		}
+
+		/**
+		 * 
+		 * 从既存牌序中创建出一个碰牌
+		 * 
+		 * @param mahjongs
+		 * @return
+		 *
+		 */
+		private function createPong(currentTrack:String):Array
+		{
+			var result:String = currentTrack.replace(/^((\w+),\2,\2).*$/, "$1");
+			return new Array(tidy(currentTrack.replace(new RegExp("^" + result), "")), result);
 		}
 
 		/**
 		 *
-		 * @param dealedMahjong
-		 * @param mahjongOfPlayers
-		 * @param excludedIndex
+		 * 从既存牌序中创建出一个吃牌
+		 * 
+		 * @param mahjongs
 		 * @return
 		 *
 		 */
-		private function createPong(mahjongOfPlayers:Array):Boolean
+		private function createChow(currentTrack:String):Array
 		{
-			// 找刻子
-			// 找对子
-			// 找顺子
-			return false;
+			var result:String = null;
+			var mahjongPattern:String = currentTrack.replace(/^([WBT]\d).*/, "$1");
+			var color:String = mahjongPattern.charAt(0);
+			var value:int = int(mahjongPattern.charAt(1));
+			var mahjong0:String = color + (value + 0);
+			var mahjong1:String = color + (value + 1);
+			var mahjong2:String = color + (value + 2);
+			var mahjongArray:Array = currentTrack.split(",");
+			var mahjongIndex1:int = mahjongArray.indexOf(mahjong1);
+			var mahjongIndex2:int = mahjongArray.indexOf(mahjong2);
+			if (mahjongIndex1 > 0 && mahjongIndex2 > 0) {
+				mahjongArray.splice(mahjongIndex2, 1);
+				mahjongArray.splice(mahjongIndex1, 1);
+				mahjongArray.shift();
+				result = new Array(mahjong0, mahjong1, mahjong2).join(",");
+				return new Array(mahjongArray.join(","), result);
+			} else {
+				return null;
+			}
 		}
 
 		/**
 		 *
-		 * @param dealedMahjong
-		 * @param mahjongOfPlayers
-		 * @param excludedIndex
+		 * 从既存牌序中创建出一个将牌
+		 * 
+		 * @param mahjongs
 		 * @return
 		 *
 		 */
-		private function createChow(mahjongOfPlayers:Array):Boolean
+		private function createEye(currentTrack:String):Array
 		{
-			// 找刻子
-			// 找对子
-			// 找顺子
-			return false;
+			var result:String = currentTrack.replace(/^((\w+),\2).*$/, "$1");
+			return new Array(tidy(currentTrack.replace(new RegExp("^" + result), "")), result);
 		}
 
 		/**
-		 *
-		 * @param dealedMahjong
-		 * @param mahjongOfPlayers
-		 * @param excludedIndex
-		 * @return
-		 *
+		 * 
+		 * 添加胡牌路径中的叶子节点<br>
+		 * 注意：该方法只会被叶子节点调用
+		 * 
 		 */
-		private function createEye(mahjongOfPlayers:Array):Boolean
-		{
-			// 找刻子
-			// 找对子
-			// 找顺子
-			return false;
+		private function addWinRoute(leafCube:PushdownWinningCube):void {
+			this.rootCube.winRoutes.push(leafCube);
 		}
 
 		/**
-		 *
-		 * @return
-		 *
+		 * 
+		 * @return 
+		 * 
 		 */
-		private function toWinPath():String
+		public function get winningRoutes():Array {
+			return winRoutes;
+		}
+
+		/**
+		 * 
+		 * 整理牌序
+		 *  
+		 * @param target
+		 * @return 
+		 * 
+		 */
+		private function tidy(target:String):String
 		{
-			return null;
+			return target.replace(/^,|,$|/, "").replace(/,{2,}/, ",");
 		}
 	}
 }
