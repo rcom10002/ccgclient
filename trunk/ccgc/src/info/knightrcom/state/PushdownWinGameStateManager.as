@@ -66,6 +66,11 @@ package info.knightrcom.state {
         public static var currentNextNumber:int;
 
         /**
+         * 消息中被当前玩家操作了的玩家序号
+         */
+        public static var currentOperatedNumber:int;
+
+        /**
          * 第一名玩家序号
          */
         public static var firstPlaceNumber:int = UNOCCUPIED_PLACE_NUMBER;
@@ -274,40 +279,81 @@ package info.knightrcom.state {
         /**
          *
          * 接收到系统通知当前玩家出牌的消息<br>
-         * 数据格式为：<br>
-         * 当前玩家序号~牌名~下家玩家序号 - 玩家发牌格式<br>
-         * 牌名 - 玩家摸牌格式<br>
-         *
+         * 数据格式为：
+         * <ul>
+         * <li>摸牌：发牌玩家序号~牌名</li>
+         * <li>发牌：发牌玩家序号~牌名~发牌玩家的下家序号</li>
+         * <li>杠碰吃：发牌玩家序号~牌序~发牌玩家的下家序号~被发牌玩家执行了操作的玩家序号~被操作牌</li>
+         * </ul>
+         * 
          * @param event
          *
          */
         private function gameBringOutHandler(event:PushdownWinGameEvent):void {
             // 接收上家出牌序列，显示出牌结果
             var results:Array = event.incomingData.split("~");
-            if (results.length == 1) {
-                // 玩家摸牌时，从尚未使用过的牌中移除已摸的牌，更新麻将模型
-                mahjongBox.rand(results[0] - 1);
-                return;
-            }
             currentNumber = results[0];
             currentBoutMahjong = results[1];
+            var boutMahjongButton:MahjongButton, eachMahjongValue:String = null;
+            if (results.length == 2) {
+                // 玩家摸牌时，更新模型
+                mahjongBox.randomMahjong();
+                // 玩家摸牌时，更新布局
+            	boutMahjongButton = new MahjongButton();
+	            boutMahjongButton.allowSelect = false;
+	            boutMahjongButton.source = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/standard/DEFAULT.jpg"
+                Box(mahjongsRandArray[currentNumber - 1]).addChild(boutMahjongButton);
+                return;
+            }
             currentNextNumber = results[2];
 
-            // 更新模型中已打出的牌
-            mahjongBox.deal(currentNumber - 1, currentBoutMahjong);
-            var boutMahjongButton:MahjongButton = new MahjongButton();
-            boutMahjongButton.allowSelect = false;
-            boutMahjongButton.source = "image/mahjong/down/standard/" + currentBoutMahjong + ".jpg"
-            currentGame.dealed.addChild(boutMahjongButton);
-
-            if (currentNumber == currentNextNumber) {
-            	// TODO 有玩家暗杠时，只做模型更新
+            if (results.length == 4) {
+            	// 玩家杠牌时
+            	currentOperatedNumber = results[3];
+            	if (currentBoutMahjong.split(",").length == 4) {
+            		// 杠牌时
+	                // 更新模型
+	                mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong, results[4]);
+	                var sourcePath:String = null;
+	            	if (currentNumber == currentOperatedNumber) {
+		                // 玩家暗杠时，更新布局
+			            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/DEFAULT.jpg"
+	            	} else {
+		                // 玩家明杠时，更新布局
+			            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + results[4] + ".jpg"
+	            	}
+	                for each (eachMahjongValue in currentBoutMahjong.split(",")) {
+	                	boutMahjongButton = new MahjongButton();
+			            boutMahjongButton.allowSelect = false;
+			            boutMahjongButton.source = sourcePath;
+            			Box(mahjongsDaisArray[currentNumber - 1]).addChild(boutMahjongButton);
+	                }
+            	} else {
+            		// 非杠牌时
+	                // 更新模型
+	                mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong, results[4]);
+	                // 更新布局
+	                for each (eachMahjongValue in currentBoutMahjong.split(",")) {
+	                	boutMahjongButton = new MahjongButton();
+			            boutMahjongButton.allowSelect = false;
+			            boutMahjongButton.source = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/eachMahjongValue.jpg";
+            			Box(mahjongsDaisArray[currentNumber - 1]).addChild(boutMahjongButton);
+	                }
+            	}
             	return;
+            } else {
+	            // 玩家出牌时，更新模型与布局
+	            mahjongBox.exportMahjong(currentNumber - 1, currentBoutMahjong);
+	            mahjongBox.discardMahjong(currentBoutMahjong);
+            	boutMahjongButton = new MahjongButton();
+	            boutMahjongButton.allowSelect = false;
+	            boutMahjongButton.source = "image/mahjong/down/dealed/" + currentBoutMahjong + ".jpg"
+            	currentGame.dealed.addChild(boutMahjongButton);
             }
 
             // 初始化操作按钮
             resetBtnBar();
-
+// TODO CHECK FROM HERE
 			// 从非出牌玩家中，找出唯一一个可以进行胡牌、杠牌或碰牌操作的玩家
 			// 玩家的优先权取决于操作权（如胡牌优先权最高，其次是杠牌，再次是碰牌）
 			var finalMixedIndex:int = -1;
@@ -581,16 +627,21 @@ package info.knightrcom.state {
                     currentGame.btnBarMahjongs.visible = false;
                     break;
                 case 4:
-	            	// 玩家放弃胡牌、杠牌、碰牌操作，则将优先权转移至下家玩家
-	            	// TODO
+	            	// 玩家放弃胡牌、杠牌、碰牌操作
+	            	// 禁用操作按钮
+	            	resetInitInfo();
+	            	// TODO 优先权转移至下家玩家 or 开始摸牌
                     break;
                 case 5:
                     // 摸牌
-                    var mahjongRandValue:String = mahjongBox.rand(localNumber - 1);
+                    // 更新内存
+                    var mahjongRandValue:String = mahjongBox.randomMahjong();
                     if (mahjongRandValue == null) {
-                        socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, null);
+                        socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END);
                         return;
                     }
+                    mahjongBox.importMahjong(localNumber - 1, mahjongRandValue);
+                    // 更新布局
                     var mahjongRand:MahjongButton = new MahjongButton();
                     mahjongRand.source = "image/mahjong/down/standard/" + mahjongRandValue + ".jpg";
                     ListenerBinder.bind(mahjongRand, MouseEvent.CLICK, function (event:MouseEvent):void {
@@ -598,7 +649,14 @@ package info.knightrcom.state {
                     });
                     currentGame.randDown.addChild(mahjongRand);
                     // 判断是否可以自摸、杠
-                    // TODO
+                    if (PushdownWinGame.canWinNow(mahjongRandValue, mahjongBox.mahjongsOfPlayers[localNumber - 1])) {
+                    	// 自摸
+                    	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
+                    }
+                    if (PushdownWinGame.canKongNow(mahjongRandValue, mahjongBox.mahjongsOfPlayers[localNumber - 1])) {
+                    	// 杠
+                    	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled = true;
+                    }
                     socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, mahjongRandValue);
                     break;
             }
@@ -644,6 +702,7 @@ package info.knightrcom.state {
             // 隐藏操作按钮
             currentGame.btnBarMahjongs.visible = false;
 
+			// 更新布局
             // 从玩家手中牌删除选中牌
             mahjong.parent.removeChild(mahjong);
 
@@ -661,7 +720,8 @@ package info.knightrcom.state {
             }
 
             // 更新内存模型
-            mahjongBox.deal(localNumber - 1, mahjong.value);
+            mahjongBox.exportMahjong(localNumber - 1, mahjong.value);
+            mahjongBox.discardMahjong(mahjong.value);
 
             // 发送出牌命令
             socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjong.value + "~" + localNextNumber);

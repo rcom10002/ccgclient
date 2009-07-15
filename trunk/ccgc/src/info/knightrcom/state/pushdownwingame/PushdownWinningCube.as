@@ -16,17 +16,11 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		public function PushdownWinningCube(currentTrack:String, parentTrackResult:String = null, rootCube:PushdownWinningCube = null, parentCube:PushdownWinningCube = null)
 		{
-			this.name = new Date().toTimeString();
 			this.currentTrack = currentTrack;
 			this.parentTrackResult = parentTrackResult;
 			this.rootCube = rootCube;
 			this.parentCube = parentCube;
-			if (this.rootCube != null) {
-				trace(this.rootCube.name);
-			}
 		}
-
-		public var name:String;
 
 		/** 碰节点 */
 		private var pongCube:PushdownWinningCube;
@@ -67,6 +61,7 @@ package info.knightrcom.state.pushdownwingame
 			} else if (currentTrack.split(",").length == 3) {
 				if (/^(\w+),\1,\1$/.test(currentTrack)) {
 					// 碰
+					this.currentTrackResult = currentTrack;
 					addWinRoute(this);
 					// return currentTrack;
 				}
@@ -76,12 +71,14 @@ package info.knightrcom.state.pushdownwingame
 					var mahjongs:Array = currentTrack.match(/\d/);
 					if ((int(mahjongs[1]) - int(mahjongs[0]) == 1) && (int(mahjongs[2]) - int(mahjongs[1]) == 1)) {
 						// 吃
+						this.currentTrackResult = currentTrack;
 						addWinRoute(this);
 						// return currentTrack;
 					}
 					return;
 				}
 			} else if (currentTrack.split(",").length == 2 && /^(\w+),\1$/.test(currentTrack)) {
+				this.currentTrackResult = currentTrack;
 				addWinRoute(this);
 				// return currentTrack;
 			}
@@ -96,12 +93,14 @@ package info.knightrcom.state.pushdownwingame
 			// 碰
 			if (/^(\w+),\1,\1.*$/.test(currentTrack)) {
 				optrResult = createPong(currentTrack);
+				this.currentTrackResult = optrResult[1];
 				this.pongCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
 				this.pongCube.walkAllRoutes();
 			}
 			// 对子
 			if (/^(\w+),\1.*$/.test(currentTrack)) {
 				optrResult = createEye(currentTrack);
+				this.currentTrackResult = optrResult[1];
 				this.eyeCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
 				this.eyeCube.walkAllRoutes();
 			}
@@ -111,6 +110,7 @@ package info.knightrcom.state.pushdownwingame
 			}
 			optrResult = createChow(currentTrack);
 			if (optrResult != null) {
+				this.currentTrackResult = optrResult[1];
 				this.chowCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
 				this.chowCube.walkAllRoutes();
 			}
@@ -182,7 +182,21 @@ package info.knightrcom.state.pushdownwingame
 		 * 
 		 */
 		private function addWinRoute(leafCube:PushdownWinningCube):void {
-			this.rootCube.winRoutes.push(leafCube);
+			// 构造完整的牌型
+			var groups:Array = new Array();
+			while (leafCube.parentCube != null) {
+				groups.push(leafCube.currentTrackResult);
+				leafCube = leafCube.parentCube;
+			}
+			groups = groups.sort();
+			// 验证路径是否有效的胡牌形式
+			for each (var eachCompleteGroup:String in this.rootCube.winRoutes) {
+				if (groups.join("~") == eachCompleteGroup) {
+					return;
+				}
+			}
+			this.rootCube.winRoutes.push(groups.join("~"));
+			trace(groups.join("~"));
 		}
 
 		/**
@@ -204,7 +218,7 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		private function tidy(target:String):String
 		{
-			return target.replace(/^,|,$|/, "").replace(/,{2,}/, ",");
+			return target.replace(/^,|,$/, "").replace(/,{2,}/, ",");
 		}
 	}
 }

@@ -17,24 +17,24 @@ package info.knightrcom.state.pushdownwingame {
 		private static const prioritySequence:String="EAST,SOUTH,WEST,NORTH,RED,GREEN,WHITE,W1,W2,W3,W4,W5,W6,W7,W8,W9,B1,B2,B3,B4,B5,B6,B7,B8,B9,T1,T2,T3,T4,T5,T6,T7,T8,T9";
 
 		/** 玩家处于牌桌的方向 */
-		public static const DIRECTION_DOWN:uint = 100;
-		public static const DIRECTION_RIGHT:uint = 200;
-		public static const DIRECTION_UP:uint = 300;
-		public static const DIRECTION_LEFT:uint = 400;
+		public static const DIRECTION_DOWN:int = 100;
+		public static const DIRECTION_RIGHT:int = 200;
+		public static const DIRECTION_UP:int = 300;
+		public static const DIRECTION_LEFT:int = 400;
 
 		/** 操作动作名称，参考地址 http://en.wikipedia.org/wiki/Mahjong */
 		/** 胡牌 */
-		public static const OPTR_WIN:uint = 0;
+		public static const OPTR_WIN:int = 0;
 		/** 杠 */
-		public static const OPTR_KONG:uint = 1;
+		public static const OPTR_KONG:int = 1;
 		/** 碰 */
-		public static const OPTR_PONG:uint = 2;
+		public static const OPTR_PONG:int = 2;
 		/** 吃 */
-		public static const OPTR_CHOW:uint = 3;
+		public static const OPTR_CHOW:int = 3;
 		/** 放弃 */
-		public static const OPTR_GIVEUP:uint = 4;
+		public static const OPTR_GIVEUP:int = 4;
 		/** 摸牌 */
-		public static const OPTR_RAND:uint = 5;
+		public static const OPTR_RAND:int = 5;
 
         /**
          * 对服务器端洗牌后分配的尚未排序过的麻将进行排序
@@ -116,17 +116,19 @@ package info.knightrcom.state.pushdownwingame {
 		 */
 		public static function isWin(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int
 		{
-			// TODO return new PushdownWinningCube(mahjongOfPlayers.join(",")).walkAllRoutes();
+			// TODO 特殊牌型处理
+			
+			// 常规牌型处理
 			var winResults:Array = new Array();
+			var winResultsLength:Array = new Array();
             for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
             	if (index == excludedIndex) {
             		continue;
             	}
-				var eachMahjongs:Array = (mahjongOfPlayers[index] as Array).slice(0);
-				eachMahjongs.push(dealedMahjong);
-				var winCube:PushdownWinningCube = new PushdownWinningCube(eachMahjongs.join(","));
+				var winCube:PushdownWinningCube = new PushdownWinningCube((mahjongOfPlayers[index] as Array).join(",") + "," + dealedMahjong);
 				winCube.walkAllRoutes();
 				winResults[index] = winCube.winningRoutes;
+				winResultsLength[index] = winCube.winningRoutes.length;
             }
             // TODO 确定可以胡牌的玩家
 			return -1; // 正确结果需加0
@@ -207,5 +209,38 @@ package info.knightrcom.state.pushdownwingame {
             return false;
         }
 
+		/**
+		 * 
+		 * 在摸牌过程中，判断是否可以自摸胡牌
+		 * 
+		 * @param randMahjong
+		 * @param currentMahjongs
+		 * @return 
+		 * 
+		 */
+		public static function canWinNow(randMahjong:String, currentMahjongs:Array):Boolean {
+			// 计算所有可能胡牌的路径
+			var mahjongs:Array = currentMahjongs.slice(0);
+			mahjongs.push(randMahjong)
+			var cube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(mahjongs.join(",")).join(","));
+			cube.walkAllRoutes();
+			// 提取正确的胡牌路径
+			return false;
+		}
+
+		/**
+		 * 
+		 * 在摸牌过程中，判断是否可以暗杠
+		 * 
+		 * @param randMahjong
+		 * @param currentMahjongs
+		 * @return 
+		 * 
+		 */
+		public static function canKongNow(randMahjong:String, currentMahjongs:Array):Boolean {
+			var oldLength:int = currentMahjongs.join(",").length;
+			var newLength:int = currentMahjongs.join(",").replace(randMahjong, "").length;
+			return (oldLength - newLength) == randMahjong.length * 3; 
+		}
     }
 }

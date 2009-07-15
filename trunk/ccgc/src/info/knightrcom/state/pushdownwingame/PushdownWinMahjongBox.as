@@ -14,6 +14,11 @@ package info.knightrcom.state.pushdownwingame
 		private var mjOfPlayers:Array;
 
 		/**
+		 * 当前玩家们手中的麻将
+		 */
+		private var mjOfDais:Array = new Array(4);
+
+		/**
 		 * 尚未使用过的麻将
 		 */
 		private var mjSpared:Array;
@@ -22,11 +27,6 @@ package info.knightrcom.state.pushdownwingame
 		 * 已经打出的麻将
 		 */
 		private var mjOnTable:Array;
-
-		/**
-		 * 最后一次操作时的玩家索引
-		 */
-		private var lastPlayerIndex:int
 
 		/**
 		 *
@@ -92,47 +92,79 @@ package info.knightrcom.state.pushdownwingame
 		}
 
 		/**
-		 *
-		 * @return
-		 *
-		 */
-		public function get lastIndex():int
-		{
-			return this.lastPlayerIndex;
-		}
-
-		/**
 		 * 
-		 * @param index
+		 * 随机出牌
 		 * 
 		 */
-		public function rand(index:int):String {
+		public function randomMahjong():String {
 		    if (mjSpared.length == 0) {
 		        return null;
 		    }
-			this.lastPlayerIndex = index;
 			// 未使用牌中选出第一张牌
-			var dealedMj:String = this.mjSpared.shift();
-			// 将选中的牌放入玩家牌中
-			(mjOfPlayers[index] as Array).push(dealedMj);
-			// 将玩家手中的牌进行排序
-			mjOfPlayers[index] = PushdownWinGame.sortMahjongs((mjOfPlayers[index] as Array).join(","));
-			return dealedMj;
+			return this.mjSpared.shift();
 		}
 
 		/**
 		 * 
+		 * 将玩家操作过的牌移除
+		 * 
 		 * @param index
-		 * @param dealedValue
+		 * @param mahjongValues
+		 * @param mahjongOperated
+		 * @return 
 		 * 
 		 */
-		public function deal(index:int, dealedValue:String):void {
-			this.lastPlayerIndex = index;
+		public function moveMahjongToDais(index:int, mahjongValues:String, mahjongOperated:String):Array {
+			// 为玩家添加被操作牌
+			(mjOfDais[index] as Array).push(mahjongOperated);
+			// 从玩家手中删除牌序中含有的牌
+			for each (var eachMahjong:String in mahjongValues.split(",")) {
+				var mjIndex:int = (mjOfDais[index] as Array).indexOf(eachMahjong);
+				(mjOfDais[index] as Array).splice(mjIndex, 1);
+			}
+			return mjOfDais[index] as Array;
+		}
+
+		/**
+		 * 
+		 * 为玩家添加手牌(杠牌也需要调用该方法)
+		 * 
+		 * @param index
+		 * @param mahjongValue
+		 * @return 
+		 * 
+		 */
+		public function importMahjong(index:int, mahjongValue:String):Array {
+			(mjOfPlayers[index] as Array).push(mahjongValue);
+			return mjOfPlayers[index] as Array;
+		}
+
+		/**
+		 * 
+		 * 从玩家手牌中删除指定的牌
+		 * 
+		 * @param index
+		 * @param mahjongValue
+		 * @return 
+		 * 
+		 */
+		public function exportMahjong(index:int, mahjongValue:String):Array {
 			// 从玩家手中的牌删除打出的牌
-			var targetPos:int = (mjOfPlayers[index] as Array).indexOf(dealedValue);
+			var targetPos:int = (mjOfPlayers[index] as Array).indexOf(mahjongValue);
 			(mjOfPlayers[index] as Array).splice(targetPos, 1);
+			return mjOfPlayers[index] as Array;
+		}
+
+		/**
+		 * 
+		 * 将玩家打出的牌添加到桌面
+		 * 
+		 * @param mahjongValue
+		 * 
+		 */
+		public function discardMahjong(mahjongValue:String):void {
 			// 向桌面的麻将中添加新打出的牌
-			this.mjOnTable.push(dealedValue);
+			this.mjOnTable.push(mahjongValue);
 		}
 	}
 }
