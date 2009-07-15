@@ -101,10 +101,10 @@ package info.knightrcom.state.pushdownwingame {
 		 *　　（3）11、123、123、111、111<br>
 		 *　　（4）11、123、111、111、111．<br>
 		 *　　（5）11、111、111、111、111．<br>
-		 *　　2．和牌的特殊牌型<br>
-		 *　　（1）11、11、11、11、11、11、11（七对）。<br>
-		 *　　（2）1、1、1、1、1、1、1、1、1、1、1、1、11（十三幺）。<br>
-		 *　　（3）1、1、1、1、1、1、1、1、1、1、1、1、1、1、（全不靠）。<br>
+		 *　　2．和牌的特殊牌型 - 该规则暂不适用<br>
+		 *　　（1）11、11、11、11、11、11、11（七对：由7个对子组成和牌）<br>
+		 *　　（2）1、1、1、1、1、1、1、1、1、1、1、1、11（十三幺：由3种序数牌的一、九牌，7种字牌及其中一对作将组成的和牌）<br>
+		 *　　（3）1、1、1、1、1、1、1、1、1、1、1、1、1、1、（全不靠：由单张3种花色147、258、369不能错位的序数牌及东南西北中发白中的任何14张牌组成的没有将牌的和牌）<br>
 		 *
 		 *   （注：1=单张，11=将、对子，111=刻子，1111=杠，123=顺子；有多种胡法时，只取得分最高的一种。）<br>
 		 *
@@ -116,38 +116,21 @@ package info.knightrcom.state.pushdownwingame {
 		 */
 		public static function isWin(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:int):int
 		{
-			mahjongOfPlayers.push(dealedMahjong);
 			// TODO return new PushdownWinningCube(mahjongOfPlayers.join(",")).walkAllRoutes();
+			var winResults:Array = new Array();
             for (var index:int = 0; index < mahjongOfPlayers.length; index++) {
             	if (index == excludedIndex) {
             		continue;
             	}
-            	if (is3332Seq(dealedMahjong, mahjongOfPlayers, excludedIndex)) {
-            		return index * 10 + OPTR_WIN;
-            	}
+				var eachMahjongs:Array = (mahjongOfPlayers[index] as Array).slice(0);
+				eachMahjongs.push(dealedMahjong);
+				var winCube:PushdownWinningCube = new PushdownWinningCube(eachMahjongs.join(","));
+				winCube.walkAllRoutes();
+				winResults[index] = winCube.winningRoutes;
             }
+            // TODO 确定可以胡牌的玩家
 			return -1; // 正确结果需加0
 		}
-
-		/**
-		 * 
-		 * @param dealedMahjong
-		 * @param mahjongOfPlayers
-		 * @param excludedIndex
-		 * @return 
-		 * 
-		 */
-		private static function is3332Seq(mahjongs:String, mahjongOfPlayers:Array, excludedIndex:int):Boolean {
-			while (mahjongs.length > 0) {
-				// 创造刻子
-				// 创造对子
-				// 创造顺子
-			}
-			return false;
-		}
-
-
-
 
         /**
          * 
