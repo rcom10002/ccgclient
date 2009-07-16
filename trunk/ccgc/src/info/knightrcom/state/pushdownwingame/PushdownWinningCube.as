@@ -20,6 +20,8 @@ package info.knightrcom.state.pushdownwingame
 			this.parentTrackResult = parentTrackResult;
 			this.rootCube = rootCube;
 			this.parentCube = parentCube;
+			trace("parentTrackResult: " + parentTrackResult);
+			trace("currentTrack: " + currentTrack);
 		}
 
 		/** 碰节点 */
@@ -68,7 +70,7 @@ package info.knightrcom.state.pushdownwingame
 				if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
 					return;
 				} else {
-					var mahjongs:Array = currentTrack.match(/\d/);
+					var mahjongs:Array = currentTrack.match(/\d/g);
 					if ((int(mahjongs[1]) - int(mahjongs[0]) == 1) && (int(mahjongs[2]) - int(mahjongs[1]) == 1)) {
 						// 吃
 						this.currentTrackResult = currentTrack;
@@ -185,21 +187,33 @@ package info.knightrcom.state.pushdownwingame
 			// 构造完整的牌型
 			var groups:Array = new Array();
 			while (leafCube.parentCube != null) {
+				// 添加非根节点处理结果
 				groups.push(leafCube.currentTrackResult);
 				leafCube = leafCube.parentCube;
 			}
+			// 添加根节点处理结果
+			groups.push(leafCube.currentTrackResult);
+			// 对结果进行排序
 			groups = groups.sort();
-			// 验证路径是否有效的胡牌形式
+
+			if (groups.length > 5) {
+				// 可分解的牌组超过四组，则跳过
+				return;
+			}
 			for each (var eachCompleteGroup:String in this.rootCube.winRoutes) {
 				if (groups.join("~") == eachCompleteGroup) {
+					// 当前处理结果已经存在，则跳过
 					return;
 				}
 			}
+
 			this.rootCube.winRoutes.push(groups.join("~"));
 			trace(groups.join("~"));
 		}
 
 		/**
+		 * 
+		 * 返回可能的胡牌形式
 		 * 
 		 * @return 
 		 * 
@@ -210,7 +224,7 @@ package info.knightrcom.state.pushdownwingame
 
 		/**
 		 * 
-		 * 整理牌序
+		 * 整理表现形式
 		 *  
 		 * @param target
 		 * @return 
