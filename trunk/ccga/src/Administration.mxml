@@ -116,7 +116,7 @@
 				<node label="用户关系管理"/>
 			</node>
 			<node label="游戏管理">
-				<node label="游戏参数"/>
+				<node label="游戏大厅"/>
 				<node label="扑克游戏">
 					<node label="大连红五"/>
 					<node label="斗地主"/>
