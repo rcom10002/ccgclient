@@ -123,12 +123,12 @@ package info.knightrcom.state {
 		/**
 		 * 计时器
 		 */
-		private var timer:Timer = new Timer(1000, MAX_CARDS_SELECT_TIME);
+		private static var timer:Timer = new Timer(1000, MAX_CARDS_SELECT_TIME);
 
         /**
          * 当前游戏模块
          */
-		private var currentGame:CCGamePushdownWin = null;
+		private static var currentGame:CCGamePushdownWin = null;
 
         /**
          *
@@ -160,7 +160,7 @@ package info.knightrcom.state {
             if (!isInitialized()) {
                 // 配置事件监听
                 // 非可视组件
-            	this.currentGame = gameClient.pushdownWinGameModule;
+            	currentGame = gameClient.pushdownWinGameModule;
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
@@ -263,6 +263,42 @@ package info.knightrcom.state {
             }
             // 操作按钮初始化
             resetBtnBar();
+        }
+
+        /**
+         * 
+         * @param container
+         * @param picPath
+         * @return 
+         * 
+         */
+        private function addMahjongDown(
+                container:DisplayObjectContainer, 
+                picPath:String):MahjongButton {
+            var mahjong:MahjongButton = new MahjongButton();
+            mahjong.source = picPath;
+            ListenerBinder.bind(mahjong, MouseEvent.CLICK, function (event:MouseEvent):void {
+                dealMahjong(mahjong);
+            });
+            container.addChild(mahjong);
+            return mahjong;
+        }
+
+        /**
+         * 
+         * @param container
+         * @param picPath
+         * @return 
+         * 
+         */
+        private function addMahjongExceptDown(
+                container:DisplayObjectContainer, 
+                picPath:String):MahjongButton {
+            var mahjong:MahjongButton = new MahjongButton();
+            mahjong.allowSelect = false;
+            mahjong.source = picPath;
+            container.addChild(mahjong);
+            return mahjong;
         }
 
         /**
@@ -687,7 +723,8 @@ package info.knightrcom.state {
                     	// 杠
                     	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled = true;
                     }
-                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, mahjongRandValue);
+                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjongRandValue);
+                    // TODO 显示操作按钮栏
                     break;
             }
         }
@@ -707,7 +744,8 @@ package info.knightrcom.state {
 
 		/**
 		 * 
-		 * 轮到当前玩家出牌时，开始倒计时，时间到则自动进行pass，若为首发牌，打出最小的一张牌
+		 * 轮到当前玩家出牌时，开始倒计时，时间到则自动发牌<br>
+		 * 打出摸牌区域的牌或按东南西北中发白万饼条打出最左边的一张
 		 * 
 		 */
 		private function hide(event:FlexEvent):void {
@@ -735,12 +773,14 @@ package info.knightrcom.state {
 			// 更新布局
             // 从玩家手中牌删除选中牌
             mahjong.parent.removeChild(mahjong);
-
             // 将牌显示在桌面
             mahjong.allowSelect = false;
             currentGame.dealed.addChild(mahjong);
 
-            // 重新设置当前玩家的布局
+            // 将玩家摸牌区域与放牌区域的麻将合并后重新排序
+            if (currentGame.randDown.numChildren == 0) {
+                return;
+            }
             var mahjongsDown:Array = currentGame.candidatedDown.getChildren();
             var mahjongsNewDown:Array = mahjongsDown.concat(currentGame.randDown.getChildren());
             currentGame.candidatedDown.removeAllChildren();
@@ -755,42 +795,6 @@ package info.knightrcom.state {
 
             // 发送出牌命令
             socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjong.value + "~" + localNextNumber);
-        }
-
-        /**
-         * 
-         * @param container
-         * @param picPath
-         * @return 
-         * 
-         */
-        private function addMahjongDown(
-                container:DisplayObjectContainer, 
-                picPath:String):MahjongButton {
-            var mahjong:MahjongButton = new MahjongButton();
-            mahjong.source = picPath;
-            ListenerBinder.bind(mahjong, MouseEvent.CLICK, function (event:MouseEvent):void {
-                dealMahjong(mahjong);
-            });
-            container.addChild(mahjong);
-            return mahjong;
-        }
-
-        /**
-         * 
-         * @param container
-         * @param picPath
-         * @return 
-         * 
-         */
-        private function addMahjongExceptDown(
-                container:DisplayObjectContainer, 
-                picPath:String):MahjongButton {
-            var mahjong:MahjongButton = new MahjongButton();
-            mahjong.allowSelect = false;
-            mahjong.source = picPath;
-            container.addChild(mahjong);
-            return mahjong;
         }
 
         /**
@@ -820,10 +824,16 @@ package info.knightrcom.state {
             currentNextNumber = 0;
             firstPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
             secondPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
-            mahjongsCandidatedArray.removeAllChildren();
-            mahjongsDaisArray.removeAllChildren();
-            mahjongsRandArray.removeAllChildren();
-            playerDirectionArray.removeAllChildren();
+            var container:Box = null;
+            for each (container in mahjongsCandidatedArray) {
+                container.removeAllChildren();
+            }
+            for each (container in mahjongsDaisArray) {
+                container.removeAllChildren();
+            }
+            for each (container in mahjongsRandArray) {
+                container.removeAllChildren();
+            }
         }
     }
 }
