@@ -132,13 +132,15 @@ package info.knightrcom.state {
          */
         private static var cardsCandidatedArray:Array = null;
 
-
 		/**
 		 * 计时器
 		 */
-		private var timer:Timer = new Timer(1000, MAX_CARDS_SELECT_TIME);
+		private static var timer:Timer = new Timer(1000, MAX_CARDS_SELECT_TIME);
 
-		private var currentGame:CCGameRed5 = null;
+        /**
+         * 当前游戏模块
+         */
+		private static var currentGame:CCGameRed5 = null;
 
         /**
          *
@@ -171,7 +173,7 @@ package info.knightrcom.state {
             if (!isInitialized()) {
                 // 配置事件监听
                 // 非可视组件
-                this.currentGame = gameClient.red5GameModule;
+                currentGame = gameClient.red5GameModule;
 				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);

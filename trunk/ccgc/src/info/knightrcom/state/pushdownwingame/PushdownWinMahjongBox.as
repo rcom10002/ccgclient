@@ -11,7 +11,7 @@ package info.knightrcom.state.pushdownwingame
 		/**
 		 * 当前玩家们手中的麻将
 		 */
-		private var mjOfPlayers:Array;
+		private var mjOfPlayers:Array = new Array(4);
 
 		/**
 		 * 当前玩家们手中的麻将
@@ -35,9 +35,8 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		public function set mahjongsOfPlayers(mahjongsOfPlayers:Array):void
 		{
-			this.mjOfPlayers = mahjongsOfPlayers;
-			for (var i:int = 0; i < mjOfPlayers.length; i++) {
-			    this.mjOfPlayers[i] = this.mjOfPlayers.toString().split(",");
+			for (var i:int = 0; i < mahjongsOfPlayers.length; i++) {
+			    this.mjOfPlayers[i] = mahjongsOfPlayers[i].toString().split(",");
 			}
 		}
 

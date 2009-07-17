@@ -274,7 +274,7 @@ package info.knightrcom.state.pushdownwingame {
 			mahjongs.push(randMahjong)
 			var cube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(mahjongs.join(",")).join(","));
 			cube.walkAllRoutes();
-			// 提取正确的胡牌路径
+			// 提取正确的胡牌路径 TODO 修正该段
 			return false;
 		}
 
@@ -289,7 +289,7 @@ package info.knightrcom.state.pushdownwingame {
 		 */
 		public static function canKongNow(randMahjong:String, currentMahjongs:Array):Boolean {
 			var oldLength:int = currentMahjongs.join(",").length;
-			var newLength:int = currentMahjongs.join(",").replace(randMahjong, "").length;
+			var newLength:int = currentMahjongs.join(",").replace(new RegExp(randMahjong, "g"), "").length;
 			return (oldLength - newLength) == randMahjong.length * 3; 
 		}
     }
