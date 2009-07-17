@@ -274,8 +274,8 @@ package info.knightrcom.state.pushdownwingame {
 			mahjongs.push(randMahjong)
 			var cube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(mahjongs.join(",")).join(","));
 			cube.walkAllRoutes();
-			// 提取正确的胡牌路径 TODO 修正该段
-			return false;
+			// 提取正确的胡牌路径
+			return cube.winningRoutes.length > 0;
 		}
 
 		/**

@@ -174,9 +174,9 @@ package info.knightrcom.state {
                 // 配置事件监听
                 // 非可视组件
                 currentGame = gameClient.red5GameModule;
-				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
+				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+					// currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
 						if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled) {
 							// 可以选择不要按钮时，则进行不要操作

@@ -161,9 +161,9 @@ package info.knightrcom.state {
                 // 配置事件监听
                 // 非可视组件
             	currentGame = gameClient.pushdownWinGameModule;
-				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
+				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+					// DROP THIS LINE currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
                         if (currentGame.randDown.numChildren > 0) {
                             // 摸牌区域有牌时，将摸到的牌打出
@@ -723,8 +723,10 @@ package info.knightrcom.state {
                     	// 杠
                     	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled = true;
                     }
-                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjongRandValue);
                     // TODO 显示操作按钮栏
+                    currentGame.btnBarMahjongs.visible = true;
+                    // 发送游戏命令
+                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjongRandValue);
                     break;
             }
         }
