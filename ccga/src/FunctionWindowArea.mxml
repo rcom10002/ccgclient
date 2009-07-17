@@ -64,6 +64,19 @@
 				</service:GameConfigPushDownWinWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="ADMIN_MANUAL">
+			<mx:AddChild position="lastChild">
+				<service:AdminManual right="10" left="10" top="10" bottom="10">
+				</service:AdminManual>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="ABOUT_GAME_PLATFORM">
+			<mx:AddChild position="lastChild">
+				<service:AboutGamePlatform left="10" top="10" bottom="10" right="10">
+					<mx:title>关于游戏平台</mx:title>
+					<mx:showControlBar>false</mx:showControlBar>
+				</service:AboutGamePlatform>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
-
 </mx:Module>

@@ -116,6 +116,12 @@ package info.knightrcom
 				case "推倒胡":
 					adminApp.functionWindowArea.currentState="GAME_PUSHDOWNWIN_PARAM_EDIT";
 					break;
+				case "管理员帮助手册":
+					adminApp.functionWindowArea.currentState="ADMIN_MANUAL";
+					break;
+				case "关于管理平台":
+					adminApp.functionWindowArea.currentState="ABOUT_GAME_PLATFORM";
+					break;
 				default:
 					adminApp.currentState="MAIN";
 					Alert.show("该功能正在完善中");
