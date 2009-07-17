@@ -151,9 +151,12 @@ package info.knightrcom.state
 		/**
 		 * 计时器
 		 */
-		private var timer:Timer=new Timer(1000, MAX_CARDS_SELECT_TIME);
+		private static var timer:Timer=new Timer(1000, MAX_CARDS_SELECT_TIME);
 
-		private var currentGame:CCGameFightLandlord = null;
+        /**
+         * 当前游戏模块
+         */
+		private static var currentGame:CCGameFightLandlord = null;
 
 		/**
 		 *
@@ -190,29 +193,28 @@ package info.knightrcom.state
 			{
 				// 配置事件监听
 				// 非可视组件
-			    this.currentGame = gameClient.fightLandlordGameModule;
-				timer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void
+			    currentGame = gameClient.fightLandlordGameModule;
+				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
+					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
+					// DROP THIS LINE currentGame.timerTip.label="剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+					if (timer.currentCount == MAX_CARDS_SELECT_TIME)
 					{
-						currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-						currentGame.timerTip.label="剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
-						if (timer.currentCount == MAX_CARDS_SELECT_TIME)
+						if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled)
 						{
-							if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled)
-							{
-								// 可以选择不要按钮时，则进行不要操作
-								itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
-							}
-							else
-							{
-								// 重选
-								itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
-								// 选择第一张牌
-								PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
-								// 出牌
-								itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
-							}
+							// 可以选择不要按钮时，则进行不要操作
+							itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
 						}
-					});
+						else
+						{
+							// 重选
+							itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
+							// 选择第一张牌
+							PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+							// 出牌
+							itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
+						}
+					}
+				});
 				// 可视组件
 				ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
 				ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
