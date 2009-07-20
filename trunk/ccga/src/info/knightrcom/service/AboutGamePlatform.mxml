@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:RichTextEditor xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:RichTextEditor xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="richtexteditor1_creationCompleteHandler(event)">
+    <mx:Script>
+        <![CDATA[
+            import mx.events.FlexEvent;
+
+            protected function richtexteditor1_creationCompleteHandler(event:FlexEvent):void
+            {
+                var t:URLRequest = new URLRequest("www.baidu.com");
+    			this.htmlText = t.data.toString();
+    			this.title = "关于游戏平台";
+    			this.showControlBar = false;
+            }
+
+        ]]>
+    </mx:Script>
 	<mx:creationComplete>
 		<![CDATA[
-			// info.knightrcom.service.LocalAbstractService.getRemoteServerURI('pages/about_game_platform.html')
-			this.htmlText = new URLRequest(photoFeed.entry[dataIndex].author.uri).data;
+		//info.knightrcom.service.LocalAbstractService.getRemoteServerURI('pages/about_game_platform.html')
 		]]>
 	</mx:creationComplete>
 </mx:RichTextEditor>
