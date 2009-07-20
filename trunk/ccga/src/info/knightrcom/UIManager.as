@@ -101,7 +101,7 @@ package info.knightrcom
 							Alert.show("游戏服务器重新启动失败！");
 						});
 					break;
-				case "游戏参数":
+				case "游戏大厅":
 					adminApp.functionWindowArea.currentState="GAME_PARAM_EDIT";
 					break;
 				case "大连红五":
