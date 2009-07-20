@@ -63,89 +63,83 @@
 	<mx:Number id="color2">#1695A3</mx:Number>
 	<mx:Number id="color3">#ACF0F2</mx:Number>
 	<mx:Number id="color4">#F3FFE2</mx:Number>
-	<book:LargeBook id="myBook"
-					openAt="0"
-					autoFlipDuration="600"
-					easing="0.7"
-					regionSize="150"
-					sideFlip="true"
-					hardCover="false"
-					hover="true"
-					snap="false"
-					flipOnClick="true"
-					height="660"
-					y="15"
-					width="980"
-					x="15"
-					initialize="init()">
-		<rs:Page hard="true" name="0" backgroundColor="{color2}">
-			<mx:Text text="0"/>
-		</rs:Page>
-		<rs:Page name="1" backgroundColor="{color1}">
-			<mx:Text text="1"/>
-		</rs:Page>
-		<rs:Page name="2" backgroundColor="{color3}">
-			<mx:Text text="2"/>
-		</rs:Page>
-		<rs:Page name="3" backgroundColor="{color4}">
-			<mx:Text text="3"/>
-		</rs:Page>
-		<rs:Page name="4" backgroundColor="{color2}">
-			<mx:Text text="4"/>
-		</rs:Page>
-		<rs:Page name="5" backgroundColor="{color1}">
-			<mx:Text text="5"/>
-		</rs:Page>
-		<rs:Page name="6" backgroundColor="{color3}">
-			<mx:Text text="6"/>
-		</rs:Page>
-		<rs:Page name="7" backgroundColor="{color4}">
-			<mx:Text text="7"/>
-		</rs:Page>
-		<rs:Page name="8" backgroundColor="{color2}">
-			<mx:Text text="8"/>
-		</rs:Page>
-		<rs:Page name="9" backgroundColor="{color1}">
-			<mx:Text text="9"/>
-		</rs:Page>
-		<rs:Page name="10" backgroundColor="{color3}">
-			<mx:Text text="10"/>
-		</rs:Page>
-		<rs:Page name="11" backgroundColor="{color4}">
-			<mx:Text text="11"/>
-		</rs:Page>
-		<rs:Page name="12" backgroundColor="{color2}">
-			<mx:Text text="12"/>
-		</rs:Page>
-	</book:LargeBook>
-	<mx:Button x="665" y="685" label="Go To Page" click="myBook.jumpToPage(Number(pageNumber.text))"/>
-	<mx:TextInput x="583"
-				  y="685"
-				  width="83"
-				  text="11"
-				  id="pageNumber"/>
-	<mx:Button x="15"
-			   y="685"
-			   label="&lt;&lt;"
-			   id="fCover"
-			   click="myBook.jumpToPage(0)"
-			   width="45"/>
-	<mx:Button x="121"
-			   y="685"
-			   label="&lt;"
-			   id="pPage0"
-			   click="myBook.prevPage()"
-			   width="45"/>
-	<mx:Button x="68"
-			   y="685"
-			   label="&gt;&gt;"
-			   id="bCover"
-			   click="myBook.jumpToPage(myBook.pageArray.length)"
-			   width="45"/>
-	<mx:Button x="174"
-			   y="685"
-			   label="&gt;"
-			   id="nPage"
-			   click="myBook.nextPage()"
-			   width="45"/>
+	<mx:HBox>
+    	<book:LargeBook id="myBook"
+    					openAt="0"
+    					autoFlipDuration="600"
+    					easing="0.7"
+    					regionSize="150"
+    					sideFlip="true"
+    					hardCover="false"
+    					hover="true"
+    					snap="false"
+    					flipOnClick="true"
+    					height="400"
+    					y="15"
+    					width="300"
+    					x="15"
+    					initialize="init()">
+    		<rs:Page hard="true" name="0" backgroundColor="{color2}">
+    			<mx:Text text="0"/>
+    		</rs:Page>
+    		<rs:Page name="1" backgroundColor="{color1}">
+    			<mx:Text text="1"/>
+    		</rs:Page>
+    		<rs:Page name="2" backgroundColor="{color3}">
+    			<mx:Text text="2"/>
+    		</rs:Page>
+    		<rs:Page name="3" backgroundColor="{color4}">
+    			<mx:Text text="3"/>
+    		</rs:Page>
+    		<rs:Page name="4" backgroundColor="{color2}">
+    			<mx:Text text="4"/>
+    		</rs:Page>
+    		<rs:Page name="5" backgroundColor="{color1}">
+    			<mx:Text text="5"/>
+    		</rs:Page>
+    		<rs:Page name="6" backgroundColor="{color3}">
+    			<mx:Text text="6"/>
+    		</rs:Page>
+    		<rs:Page name="7" backgroundColor="{color4}">
+    			<mx:Text text="7"/>
+    		</rs:Page>
+    		<rs:Page name="8" backgroundColor="{color2}">
+    			<mx:Text text="8"/>
+    		</rs:Page>
+    		<rs:Page name="9" backgroundColor="{color1}">
+    			<mx:Text text="9"/>
+    		</rs:Page>
+    		<rs:Page name="10" backgroundColor="{color3}">
+    			<mx:Text text="10"/>
+    		</rs:Page>
+    		<rs:Page name="11" backgroundColor="{color4}">
+    			<mx:Text text="11"/>
+    		</rs:Page>
+    		<rs:Page name="12" backgroundColor="{color2}">
+    			<mx:Text text="12"/>
+    		</rs:Page>
+    	</book:LargeBook>
+    </mx:HBox>
+    <mx:HBox>
+    	<mx:Button label="Go To Page" click="myBook.jumpToPage(Number(pageNumber.text))"/>
+    	<mx:TextInput width="83"
+    				  text="11"
+    				  id="pageNumber"/>
+    	<mx:Button label="&lt;&lt;"
+    			   id="fCover"
+    			   click="myBook.jumpToPage(0)"
+    			   width="45"/>
+    	<mx:Button label="&lt;"
+    			   id="pPage0"
+    			   click="myBook.prevPage()"
+    			   width="45"/>
+    	<mx:Button label="&gt;&gt;"
+    			   id="bCover"
+    			   click="myBook.jumpToPage(myBook.pageArray.length)"
+    			   width="45"/>
+    	<mx:Button label="&gt;"
+    			   id="nPage"
+    			   click="myBook.nextPage()"
+    			   width="45"/>
+    </mx:HBox>
 </mx:Canvas>

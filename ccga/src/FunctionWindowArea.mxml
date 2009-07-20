@@ -73,8 +73,6 @@
 		<mx:State name="ABOUT_GAME_PLATFORM">
 			<mx:AddChild position="lastChild">
 				<service:AboutGamePlatform left="10" top="10" bottom="10" right="10">
-					<mx:title>关于游戏平台</mx:title>
-					<mx:showControlBar>false</mx:showControlBar>
 				</service:AboutGamePlatform>
 			</mx:AddChild>
 		</mx:State>
