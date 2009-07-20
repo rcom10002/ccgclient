@@ -28,6 +28,7 @@
 						lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].parent.text();
 						gameId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
 						gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
+						displayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
 						roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
 						minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
 						trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
@@ -63,15 +64,35 @@
 				CURRENT_PAGE=1;
 				// param 0: red5
 				readData(0);
-				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
+				// 保存
+				currentOperationMethod=OperationMethod.UPDATE; // default
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
-						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAME_NAME: gameName.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
+						}
+						else if (currentOperationMethod == OperationMethod.CREATE)
+						{
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_REDFIVE_ROOM_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
+					});
+				// 新增
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
+					{
+						currentOperationMethod=OperationMethod.CREATE;
+						clearEditor();
+					});
+				// 删除
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
+					{
+						currentOperationMethod=OperationMethod.DELETE;
+						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text}, null, function():void
+							{
+								readData(0);
+							});
+						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
 				// 翻页
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
@@ -118,6 +139,9 @@
 					<mx:FormItem label="游戏名">
 						<mx:TextInput id="gameName"/>
 					</mx:FormItem>
+					<mx:FormItem label="游戏房间位置">
+						<mx:TextInput id="displayIndex"/>
+					</mx:FormItem>
 					<mx:FormItem label="每局分数">
 						<mx:TextInput id="roundMark"/>
 					</mx:FormItem>
@@ -127,8 +151,20 @@
 				</mx:Form>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="确定"
-						   id="btnSubmit"
+				<mx:Button label="新增"
+						   id="btnCreate"
+						   right="130"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="保存"
+						   id="btnSave"
+						   right="70"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="删除"
+						   id="btnDelete"
 						   right="10"
 						   bottom="10"/>
 			</mx:AddChild>
