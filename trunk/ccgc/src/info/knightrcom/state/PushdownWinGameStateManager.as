@@ -98,7 +98,9 @@ package info.knightrcom.state {
 		/**
 		 * 用户发牌最大等待时间(秒)
 		 */
-		private static const MAX_CARDS_SELECT_TIME:int = 10;
+		// private static const MAX_CARDS_SELECT_TIME:int = 15;
+		// 测试用时间为10分钟
+		private static const MAX_CARDS_SELECT_TIME:int = 10 * 60;
 
         /**
          * 待发牌区域
@@ -349,20 +351,20 @@ package info.knightrcom.state {
             switch (results.length) {
                 case 2:
                 	// 摸牌
-                	boutRand();
+                	handleBoutRand();
                     break;
                 case 3:
                 	// 出牌
-                	boutDeal();
+                	handleBoutDeal();
                     break;
                 case 5:
                 	// 碰杠
             		currentOperatedNumber = results[3];
-            	    boutOperate(results[4]);
+            	    handleBoutOperation(results[4]);
                     break;
                 case 4:
                 	// 放弃
-                	boutGiveup();
+                	handleBoutGiveup(results[3]);
                     break;
                 default:
                     throw Error("其他无法预测的接牌动作！");
@@ -371,10 +373,10 @@ package info.knightrcom.state {
 
 		/**
 		 * 
-		 * 
+		 * 响应玩家摸牌动作
 		 * 
 		 */
-		private function boutRand():void {
+		private function handleBoutRand():void {
             // 玩家摸牌时，更新模型
             mahjongBox.randomMahjong();
             // 玩家摸牌时，更新布局
@@ -386,9 +388,10 @@ package info.knightrcom.state {
 
 		/**
 		 * 
+		 * 响应玩家出牌动作
 		 * 
 		 */
-		private function boutDeal():void {
+		private function handleBoutDeal():void {
             // 玩家出牌时，更新模型与布局
             mahjongBox.exportMahjong(currentNumber - 1, currentBoutMahjong);
             mahjongBox.discardMahjong(currentBoutMahjong);
@@ -396,7 +399,6 @@ package info.knightrcom.state {
             boutMahjongButton.allowSelect = false;
             boutMahjongButton.source = "image/mahjong/down/dealed/" + currentBoutMahjong + ".jpg"
         	currentGame.dealed.addChild(boutMahjongButton);
-
 
             // 初始化操作按钮
             resetBtnBar();
@@ -475,10 +477,12 @@ package info.knightrcom.state {
 
 		/**
 		 * 
+		 * 响应玩家杠碰牌动作
+		 * 
 		 * @param currentOperatedMahjong
 		 * 
 		 */
-		private function boutOperate(currentOperatedMahjong:String):void {
+		private function handleBoutOperation(currentOperatedMahjong:String):void {
         	// 玩家杠牌时
         	var eachMahjongValue:String = null;
         	var boutMahjongButton:MahjongButton = null;
@@ -516,9 +520,12 @@ package info.knightrcom.state {
 
 		/**
 		 * 
+		 * 响应玩家放弃动作
+		 * 
+		 * @param giveupPlayerNumbers
 		 * 
 		 */
-		private function boutGiveup():void {
+		private function handleBoutGiveup(giveupPlayerNumbers:String):void {
 			// TODO
 		}
 
@@ -814,6 +821,7 @@ package info.knightrcom.state {
             mahjong.parent.removeChild(mahjong);
             // 将牌显示在桌面
             mahjong.allowSelect = false;
+            mahjong.source = mahjong.source.toString().replace("standard", "dealed");
             currentGame.dealed.addChild(mahjong);
 
             // 将玩家摸牌区域与放牌区域的麻将合并后重新排序
