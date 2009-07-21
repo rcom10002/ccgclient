@@ -2,11 +2,11 @@ package info.knightrcom
 {
 
 	import flash.events.MouseEvent;
-
+	
 	import info.knightrcom.service.LocalAdminLoginService;
 	import info.knightrcom.service.LocalApplicationServerOperationService;
 	import info.knightrcom.util.HttpServiceProxy;
-
+	
 	import mx.controls.Alert;
 	import mx.events.ListEvent;
 	import mx.rpc.events.FaultEvent;
@@ -77,23 +77,33 @@ package info.knightrcom
 				case "启动游戏服务器":
 					HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
 						{
-							Alert.show("游戏服务器启动成功！");
-						}, function(event:FaultEvent):void
+							var result:XML = new XML(event.result);
+							if (result.entity == "UPDATE_WARNING") {
+								Alert.show("游戏服务器已经是启动状态，该操作被中止！");
+							} else {
+								Alert.show("游戏服务器启动成功！");
+							}
+						}, function():void
 						{
 							Alert.show("游戏服务器启动失败！");
 						});
 					break;
 				case "关闭游戏服务器":
-					HttpServiceProxy.send(LocalApplicationServerOperationService.STOP_APPLICATION_SERVER, null, null, function():void
+					HttpServiceProxy.send(LocalApplicationServerOperationService.STOP_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
 						{
-							Alert.show("游戏服务器关闭成功！");
+							var result:XML = new XML(event.result);
+							if (result.entity == "UPDATE_WARNING") {
+								Alert.show("游戏服务器已经是关闭状态，该操作被中止！");
+							} else {
+								Alert.show("游戏服务器关闭成功！");
+							}
 						}, function():void
 						{
 							Alert.show("游戏服务器关闭失败！");
 						});
 					break;
 				case "重新启动游戏服务器":
-					HttpServiceProxy.send(LocalApplicationServerOperationService.RESTART_APPLICATION_SERVER, null, null, function():void
+					HttpServiceProxy.send(LocalApplicationServerOperationService.RESTART_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
 						{
 							Alert.show("游戏服务器重新启动成功！");
 						}, function():void
