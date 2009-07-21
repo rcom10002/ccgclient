@@ -19,8 +19,8 @@
 	<mx:applicationComplete>
 		<![CDATA[
 		for each (var currentState:State in this.states) {
-		trace(currentState.name);
-		this.currentState = currentState.name;
+			trace(currentState.name);
+			this.currentState = currentState.name;
 		}
 		this.currentState = "LOGIN";
 		UIManager.adminApp = this;
@@ -36,8 +36,8 @@
 						  layout="absolute"
 						  height="138"
 						  width="240"
-						  right="10"
-						  bottom="10"
+						  right="50"
+						  bottom="50"
 						  title="用户登录">
 					<mx:Label x="10"
 							  y="10"
