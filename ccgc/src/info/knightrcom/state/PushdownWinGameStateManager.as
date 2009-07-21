@@ -76,6 +76,11 @@ package info.knightrcom.state {
         public static var currentOperationIndex:int;
 
         /**
+         * 是否自摸
+         */
+        public static var isNarrowWin:Boolean = false;
+
+        /**
          * 第一名玩家序号
          */
         public static var firstPlaceNumber:int = UNOCCUPIED_PLACE_NUMBER;
@@ -336,29 +341,39 @@ package info.knightrcom.state {
             var results:Array = event.incomingData.split("~");
             currentNumber = results[0];
             currentBoutMahjong = results[1];
+            if (results.length > 2) {
+                currentNextNumber = results[2];
+            }
             var boutMahjongButton:MahjongButton, eachMahjongValue:String = null;
 
-            if (results.length == 2) {
-            	// 摸牌
-            	boutRand();
-            	return;
+            switch (results.length) {
+                case 2:
+                	// 摸牌
+                	boutRand();
+                    break;
+                case 3:
+                	// 出牌
+                	boutDeal();
+                    break;
+                case 5:
+                	// 碰杠
+            		currentOperatedNumber = results[3];
+            	    boutOperate(results[4]);
+                    break;
+                case 4:
+                	// 放弃
+                	boutGiveup();
+                    break;
+                default:
+                    throw Error("其他无法预测的接牌动作！");
             }
-
-            currentNextNumber = results[2];
-            if (results.length == 3) {
-            	// 出牌
-            	boutDeal();
-            } else if (results.length == 5) {
-            	// 碰杠
-        		currentOperatedNumber = results[3];
-            	boutOperate(results[4]);
-            } else if (results.length == 4) {
-            	// 放弃
-            	boutGiveup();
-            }
-
         }
 
+		/**
+		 * 
+		 * 
+		 * 
+		 */
 		private function boutRand():void {
             // 玩家摸牌时，更新模型
             mahjongBox.randomMahjong();
@@ -369,6 +384,10 @@ package info.knightrcom.state {
             Box(mahjongsRandArray[currentNumber - 1]).addChild(boutMahjongButton);
 		}
 
+		/**
+		 * 
+		 * 
+		 */
 		private function boutDeal():void {
             // 玩家出牌时，更新模型与布局
             mahjongBox.exportMahjong(currentNumber - 1, currentBoutMahjong);
@@ -454,6 +473,11 @@ package info.knightrcom.state {
             }
 		}
 
+		/**
+		 * 
+		 * @param currentOperatedMahjong
+		 * 
+		 */
 		private function boutOperate(currentOperatedMahjong:String):void {
         	// 玩家杠牌时
         	var eachMahjongValue:String = null;
@@ -490,6 +514,10 @@ package info.knightrcom.state {
         	}
 		}
 
+		/**
+		 * 
+		 * 
+		 */
 		private function boutGiveup():void {
 			// TODO
 		}
@@ -640,7 +668,13 @@ package info.knightrcom.state {
             switch (event.index) {
                 case 0:
                     // 胡牌
-                    socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END);
+                    if (isNarrowWin) {
+                        // 自摸
+                        socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, localNumber + "~" + MahjongButton(currentGame.randDown.getChildAt(0)).value);
+                    } else {
+                        // 非自摸
+                        socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, localNumber + "~" + currentBoutMahjong + "~" + currentNumber);
+                    }
                     break;
                 case 1:
                     // 杠
@@ -703,6 +737,7 @@ package info.knightrcom.state {
                     // 更新内存
                     var mahjongRandValue:String = mahjongBox.randomMahjong();
                     if (mahjongRandValue == null) {
+                        // 扑、流局
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END);
                         return;
                     }
@@ -717,6 +752,7 @@ package info.knightrcom.state {
                     // 判断是否可以自摸、杠
                     if (PushdownWinGame.canWinNow(mahjongRandValue, mahjongBox.mahjongsOfPlayers[localNumber - 1])) {
                     	// 自摸
+                    	isNarrowWin = true;
                     	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
                     }
                     if (PushdownWinGame.canKongNow(mahjongRandValue, mahjongBox.mahjongsOfPlayers[localNumber - 1])) {
@@ -765,6 +801,7 @@ package info.knightrcom.state {
          * 
          */
         private function dealMahjong(mahjong:MahjongButton):void {
+
             if (!currentGame.btnBarMahjongs.visible || !mahjong.allowSelect) {
                 return;
             }
@@ -780,15 +817,14 @@ package info.knightrcom.state {
             currentGame.dealed.addChild(mahjong);
 
             // 将玩家摸牌区域与放牌区域的麻将合并后重新排序
-            if (currentGame.randDown.numChildren == 0) {
-                return;
-            }
-            var mahjongsDown:Array = currentGame.candidatedDown.getChildren();
-            var mahjongsNewDown:Array = mahjongsDown.concat(currentGame.randDown.getChildren());
-            currentGame.candidatedDown.removeAllChildren();
-            // 重新排序
-            for each (var eachMahjongButton:MahjongButton in PushdownWinGame.sortMahjongButtons(mahjongsNewDown)) {
-                currentGame.candidatedDown.addChild(eachMahjongButton);
+            if (currentGame.randDown.numChildren > 0) {
+                var mahjongsDown:Array = currentGame.candidatedDown.getChildren();
+                var mahjongsNewDown:Array = mahjongsDown.concat(currentGame.randDown.getChildren());
+                currentGame.candidatedDown.removeAllChildren();
+                // 重新排序
+                for each (var eachMahjongButton:MahjongButton in PushdownWinGame.sortMahjongButtons(mahjongsNewDown)) {
+                    currentGame.candidatedDown.addChild(eachMahjongButton);
+                }
             }
 
             // 更新内存模型
@@ -826,6 +862,7 @@ package info.knightrcom.state {
             currentNextNumber = 0;
             firstPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
             secondPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
+            isNarrowWin = false;
             var container:Box = null;
             for each (container in mahjongsCandidatedArray) {
                 container.removeAllChildren();
