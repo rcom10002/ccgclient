@@ -382,7 +382,8 @@ package info.knightrcom.state {
             // 玩家摸牌时，更新布局
         	var boutMahjongButton:MahjongButton = new MahjongButton();
             boutMahjongButton.allowSelect = false;
-            boutMahjongButton.source = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/standard/DEFAULT.jpg"
+            boutMahjongButton.source = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/standard/DEFAULT.jpg";
+            Box(mahjongsRandArray[currentNumber - 1]).removeAllChildren();
             Box(mahjongsRandArray[currentNumber - 1]).addChild(boutMahjongButton);
 		}
 
@@ -399,10 +400,14 @@ package info.knightrcom.state {
             boutMahjongButton.allowSelect = false;
             boutMahjongButton.source = "image/mahjong/down/dealed/" + currentBoutMahjong + ".jpg"
         	currentGame.dealed.addChild(boutMahjongButton);
+        	// 移除摸牌区域的牌
+        	currentGame.randRight.removeAllChildren();
+        	currentGame.randUp.removeAllChildren();
+        	currentGame.randLeft.removeAllChildren();
 
             // 初始化操作按钮
             resetBtnBar();
-// TODO CHECK FROM HERE
+
 			// 从非出牌玩家中，找出唯一一个可以进行胡牌、杠牌或碰牌操作的玩家
 			// 玩家的优先权取决于操作权（如胡牌优先权最高，其次是杠牌，再次是碰牌）
 			var finalMixedIndex:int = -1;
@@ -455,7 +460,13 @@ package info.knightrcom.state {
 		     	for (var i:int = finalMixedIndex / 10; i < 3; i++) {
 		     		operationList[i]();
 		     	}
-	     		Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
+		     	if (currentNextNumber == localNumber) {
+		     	    // 当前玩家为出牌玩家的下家时
+	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
+		     	} else {
+		     	    // 当前玩家不是出牌玩家下家时
+	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
+	     		}
                 currentGame.btnBarMahjongs.visible = true;
 	     	} else if (finalMixedIndex < 0 && currentNextNumber == localNumber) {
 	     		// 没有玩家胡牌、杠牌、胡牌时，为当前玩家出牌做准备
@@ -465,6 +476,7 @@ package info.knightrcom.state {
 		     		Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled = true;
 		     		// 启用摸牌按钮
 		     		Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
+		     		return;
 		     	}
             	// 为出牌玩家设置麻将操作按钮外观
                 currentGame.btnBarMahjongs.visible = true;
@@ -712,7 +724,7 @@ package info.knightrcom.state {
                 case 3:
                     // 吃
                     // TODO 选择要出的牌
-                    var mahjongs:String = "";
+                    var mahjongs:String = ""; // TODO 吃牌功能有问题
                     for each (var mahjong:MahjongButton in currentGame.candidatedDown.getChildren()) {
                         if (mahjong.isSelected()) {
                             mahjongs += mahjong.value + ",";
