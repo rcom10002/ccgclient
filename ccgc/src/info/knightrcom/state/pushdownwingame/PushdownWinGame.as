@@ -52,8 +52,7 @@ package info.knightrcom.state.pushdownwingame {
          *
          */
         public static function sortMahjongs(mahjongs:String):Array {
-            var mahjongArray:Array = mahjongs.split(",");
-            mahjongArray.sort(function (mahjong1:String, mahjong2:String):int {
+            return mahjongs.split(",").sort(function (mahjong1:String, mahjong2:String):int {
                 if (mahjong1 == mahjong2) {
                     // 相同时
                     return 0;
@@ -69,7 +68,6 @@ package info.knightrcom.state.pushdownwingame {
                 }
                 return 0;
             });
-            return mahjongArray;
         }
 
         /**
@@ -80,7 +78,7 @@ package info.knightrcom.state.pushdownwingame {
          *
          */
         public static function sortMahjongButtons(mahjongButtonArray:Array):Array {
-            mahjongButtonArray.sort(function (mahjong1:MahjongButton, mahjong2:MahjongButton):int {
+            return mahjongButtonArray.sort(function (mahjong1:MahjongButton, mahjong2:MahjongButton):int {
                 if (mahjong1.value == mahjong2.value) {
                     // 相同时
                     return 0;
@@ -96,7 +94,6 @@ package info.knightrcom.state.pushdownwingame {
                 }
                 return 0;
             });
-            return mahjongButtonArray;
         }
 
 		/**
