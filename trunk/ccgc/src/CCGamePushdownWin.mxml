@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600" xmlns:component="component.*">
 	<!-- 上侧区域 -->
 	<mx:HBox id="candidatedUp"
 			 height="80"
@@ -50,6 +50,24 @@
 				 verticalAlign="middle" right="0" bottom="0">
 		</mx:Tile>
 	</mx:Canvas>
+	<!-- 操作提示区域 -->
+	<mx:HBox left="150" right="150" bottom="187" height="53" horizontalAlign="center">
+		<mx:HBox id="toolTip1" visible="false">
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+		</mx:HBox>
+		<mx:HBox id="toolTip2" visible="false">
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+		</mx:HBox>
+		<mx:HBox id="toolTip3" visible="false">
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+		</mx:HBox>
+	</mx:HBox>
 	<!-- 操作区域 -->
 	<mx:HBox horizontalAlign="center"
 			 left="200"
