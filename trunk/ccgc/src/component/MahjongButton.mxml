@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Image xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Boolean id="allowSelect">true</mx:Boolean>
-	<mx:String id="value">{this.source.toString().replace(/^.*\/(\w+)\.(\w+)$/, "$1")}</mx:String>
 	<mx:Number id="direction">-1</mx:Number>
 	<mx:init>
 		<![CDATA[
@@ -36,9 +35,13 @@
 				}
 			}
 
-//			public override function toString():String {
-//			    return this.value;
-//			}
+			public function get value():String {
+				return this.source.toString().replace(/^.*\/(\w+)\.(\w+)$/, "$1");
+			}
+
+			public override function toString():String {
+			    return value;
+			}
 		]]>
 	</mx:Script>
 </mx:Image>

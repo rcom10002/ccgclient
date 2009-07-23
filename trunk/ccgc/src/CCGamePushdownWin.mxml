@@ -50,6 +50,24 @@
 				 verticalAlign="middle" right="0" bottom="0">
 		</mx:Tile>
 	</mx:Canvas>
+    <mx:Style>
+    	.unhighlight {
+			paddingTop : 1;
+			paddingRight : 1;
+			paddingBottom : 1;
+			paddingLeft : 1;
+    	}
+    	.highlight {
+			paddingTop : 1;
+			paddingRight : 1;
+			paddingBottom : 1;
+			paddingLeft : 1;
+            borderStyle : solid;
+            borderThickness : 1;
+            borderSides : "left right top bottom";
+			borderColor : #48b;
+    	}
+    </mx:Style>
 	<!-- 操作提示区域 -->
 	<mx:HBox left="150" right="150" bottom="187" height="53" horizontalAlign="center">
 		<mx:HBox id="toolTip1" visible="false">
