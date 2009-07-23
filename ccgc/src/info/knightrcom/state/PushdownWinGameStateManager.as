@@ -66,16 +66,6 @@ package info.knightrcom.state {
         public static var currentNextNumber:int;
 
         /**
-         * 消息中被当前玩家操作了的玩家序号
-         */
-        public static var currentOperatedNumber:int;
-
-        /**
-         * 消息中操作索引值
-         */
-        public static var currentOperationIndex:int;
-
-        /**
          * 是否自摸
          */
         public static var isNarrowWin:Boolean = false;
@@ -283,6 +273,8 @@ package info.knightrcom.state {
 
         /**
          * 
+         * 游戏开始后为当前玩家添加麻将组件
+         * 
          * @param container
          * @param picPath
          * @return 
@@ -302,6 +294,8 @@ package info.knightrcom.state {
 
         /**
          * 
+         * 游戏开始后为非当前玩家添加麻将组件
+         *  
          * @param container
          * @param picPath
          * @return 
@@ -340,8 +334,8 @@ package info.knightrcom.state {
          * <ul>
          * <li>摸牌：发牌玩家序号~牌名</li>
          * <li>发牌：发牌玩家序号~牌名~发牌玩家的下家序号</li>
-         * <li>吃碰杠：发牌玩家序号~牌序~发牌玩家的下家序号~被发牌玩家执行了操作的玩家序号~被操作牌</li>
-         * <li>放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表</li>
+         * <li>吃碰杠：发牌玩家序号~牌序~发牌玩家的下家序号~被发牌玩家执行了操作的玩家序号~被操作牌~动作索引</li>
+         * <li>放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……)</li>
          * </ul>
          * 
          * @param event
@@ -366,10 +360,9 @@ package info.knightrcom.state {
                 	// 出牌
                 	handleBoutDeal();
                     break;
-                case 5:
-                	// 碰杠
-            		currentOperatedNumber = results[3];
-            	    handleBoutOperation(results[4]);
+                case 6:
+                	// 吃碰杠
+            	    handleBoutOperation(int(results[3]), results[4], results[5]);
                     break;
                 case 4:
                 	// 放弃
@@ -423,7 +416,7 @@ package info.knightrcom.state {
 			var canWin:Boolean, canKong:Boolean, canPong:Boolean = false;
 			var indexWin:int, indexKong:int, indexPong:int = -1; 
 			indexWin = PushdownWinGame.isWin(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1));
-			finalMixedIndex = indexWin > 0 ? indexWin : finalMixedIndex;
+			finalMixedIndex = indexWin > 0 ? indexWin : finalMixedIndex; // indexWin is useless, use finalMixedIndex directly is ok
 			canWin = finalMixedIndex > -1;
 			if (!canWin) {
 				indexKong = PushdownWinGame.isKong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1));
@@ -500,26 +493,28 @@ package info.knightrcom.state {
 
 		/**
 		 * 
-		 * 响应玩家杠碰牌动作
+		 * 响应玩家吃杠碰牌动作
 		 * 
-		 * @param currentOperatedMahjong
+		 * @param operatedNumber 消息中被当前玩家操作了的玩家序号
+		 * @param operatedMahjong 消息中被当前玩家操作了的麻将值
+		 * @param operationIndex 消息中所执行的操作动作索引
 		 * 
 		 */
-		private function handleBoutOperation(currentOperatedMahjong:String):void {
+		private function handleBoutOperation(operatedNumber:int, operatedMahjong:String, operationIndex:int):void {
         	// 玩家杠牌时
         	var eachMahjongValue:String = null;
         	var boutMahjongButton:MahjongButton = null;
-        	if (currentBoutMahjong.split(",").length == 4) {
+        	if (operationIndex == PushdownWinGame.OPTR_KONG) {
         		// 杠牌时
                 // 更新模型
-                mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong, currentOperatedMahjong);
+                mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong, operatedMahjong);
                 var sourcePath:String = null;
-            	if (currentNumber == currentOperatedNumber) {
+            	if (currentNumber == operatedNumber) {
 	                // 玩家暗杠时，更新布局
 		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/DEFAULT.jpg"
             	} else {
 	                // 玩家明杠时，更新布局
-		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + currentOperatedMahjong + ".jpg"
+		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + operatedMahjong + ".jpg"
             	}
                 for each (eachMahjongValue in currentBoutMahjong.split(",")) {
                 	boutMahjongButton = new MahjongButton();
@@ -527,10 +522,10 @@ package info.knightrcom.state {
 		            boutMahjongButton.source = sourcePath;
         			Box(mahjongsDaisArray[currentNumber - 1]).addChild(boutMahjongButton);
                 }
-        	} else {
+        	} else if (operationIndex == PushdownWinGame.OPTR_CHOW) {
         		// 非杠牌时
                 // 更新模型
-                mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong, currentOperatedMahjong);
+                mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong, operatedMahjong);
                 // 更新布局
                 for each (eachMahjongValue in currentBoutMahjong.split(",")) {
                 	boutMahjongButton = new MahjongButton();
@@ -538,6 +533,8 @@ package info.knightrcom.state {
 		            boutMahjongButton.source = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + eachMahjongValue + ".jpg";
         			Box(mahjongsDaisArray[currentNumber - 1]).addChild(boutMahjongButton);
                 }
+        	} else {
+        		throw Error("无法处理当前动作类型！");
         	}
 		}
 
@@ -757,31 +754,34 @@ package info.knightrcom.state {
 		        	var leftValueRight:Array = new Array(headDealedMahjong, currentBoutMahjong, tailDealedMahjong);
 		        	// 吃右右
 		        	var valueRightRight:Array = new Array(currentBoutMahjong, tailDealedMahjong, tailTailDealedMahjong);
+		        	// 当前玩家手中的牌
 		        	var fullSeq:Array = (mahjongBox.mahjongsOfPlayers[localNumber - 1] as Array).slice(0);
+		        	// 将当前玩家手中的牌与上家打出的牌合并
 		        	fullSeq.push(currentBoutMahjong);
+		        	fullSeq = fullSeq.sort();
 					// 构造出牌提示
 					var eachMahjongButton:MahjongButton = null;
 					var eachIndex:int = 0;
-		        	if (fullSeq.sort().indexOf(leftLeftValue.join(",")) > 0) {
+		        	if (fullSeq.indexOf(leftLeftValue.join(",")) > 0) {
 		        		for each (eachMahjongButton in currentGame.toolTip1.getChildren()) {
 		        			eachIndex = currentGame.toolTip1.getChildIndex(eachMahjongButton);
 		        			eachMahjongButton.source = eachMahjongButton.source.toString().replace(/\w+.jpg/, leftLeftValue[eachIndex] + ".jpg");
 		        		}
-		        	} else if (fullSeq.sort().indexOf(leftValueRight.join(",")) > 0) {
+		        	} else if (fullSeq.indexOf(leftValueRight.join(",")) > 0) {
 		        		for each (eachMahjongButton in currentGame.toolTip2.getChildren()) {
-		        			eachIndex = currentGame.toolTip1.getChildIndex(eachMahjongButton);
+		        			eachIndex = currentGame.toolTip2.getChildIndex(eachMahjongButton);
 		        			eachMahjongButton.source = eachMahjongButton.source.toString().replace(/\w+.jpg/, leftValueRight[eachIndex] + ".jpg");
 		        		}
-		        	} else if (fullSeq.sort().indexOf(valueRightRight.join(",")) > 0) {
+		        	} else if (fullSeq.indexOf(valueRightRight.join(",")) > 0) {
 		        		for each (eachMahjongButton in currentGame.toolTip3.getChildren()) {
-		        			eachIndex = currentGame.toolTip1.getChildIndex(eachMahjongButton);
+		        			eachIndex = currentGame.toolTip3.getChildIndex(eachMahjongButton);
 		        			eachMahjongButton.source = eachMahjongButton.source.toString().replace(/\w+.jpg/, valueRightRight[eachIndex] + ".jpg");
 		        		}
 		        	}
 		        	// 显示操作提示栏
-		        	currentGame.toolTip1.visible = fullSeq.sort().indexOf(leftLeftValue.join(",")) > 0;
-		        	currentGame.toolTip2.visible = fullSeq.sort().indexOf(leftValueRight.join(",")) > 0;
-		        	currentGame.toolTip3.visible = fullSeq.sort().indexOf(valueRightRight.join(",")) > 0; 
+		        	currentGame.toolTip1.visible = fullSeq.indexOf(leftLeftValue.join(",")) > 0;
+		        	currentGame.toolTip2.visible = fullSeq.indexOf(leftValueRight.join(",")) > 0;
+		        	currentGame.toolTip3.visible = fullSeq.indexOf(valueRightRight.join(",")) > 0; 
 
 //                    var mahjongs:String = ""; // TODO 吃牌功能有问题
 //                    for each (var mahjong:MahjongButton in currentGame.candidatedDown.getChildren()) {
@@ -804,7 +804,7 @@ package info.knightrcom.state {
 //                    // 出牌操作结束后，关闭麻将操作栏
                     break;
                 case 4:
-	            	// 玩家放弃胡牌、杠牌、碰牌操作
+	            	// 放弃
 	            	// 禁用操作按钮
 	            	resetInitInfo();
 	            	// TODO 优先权转移至下家玩家 or 开始摸牌
