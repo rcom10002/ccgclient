@@ -13,6 +13,10 @@
 <application path="CCGameClient.mxml"/>
 <application path="Test.mxml"/>
 </applications>
-<modules/>
+<modules>
+<module application="src/CCGameClient.mxml" destPath="CCGameRed5.swf" optimize="true" sourcePath="src/CCGameRed5.mxml"/>
+<module application="src/CCGameClient.mxml" destPath="CCGameFightLandlord.swf" optimize="true" sourcePath="src/CCGameFightLandlord.mxml"/>
+<module application="src/CCGameClient.mxml" destPath="CCGamePushdownWin.swf" optimize="true" sourcePath="src/CCGamePushdownWin.mxml"/>
+</modules>
 <buildCSSFiles/>
 </actionScriptProperties>
