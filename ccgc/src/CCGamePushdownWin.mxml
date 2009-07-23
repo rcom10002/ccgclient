@@ -4,7 +4,7 @@
 	<mx:HBox id="candidatedUp"
 			 height="80"
 			 horizontalGap="0"
-			 horizontalAlign="center"
+			 horizontalAlign="left"
 			 verticalAlign="bottom"
 			 top="0"
 			 left="170"
@@ -17,14 +17,14 @@
 			 bottom="80"
 			 right="0"
 			 horizontalAlign="left"
-			 verticalAlign="middle"
-			 verticalGap="-78">
+			 verticalAlign="top"
+			 verticalGap="-20">
 	</mx:VBox>
 	<!-- 下侧区域 -->
 	<mx:HBox id="candidatedDown"
 			 height="80"
 			 horizontalGap="0"
-			 horizontalAlign="center"
+			 horizontalAlign="right"
 			 left="150"
 			 right="170"
 			 bottom="0"
@@ -37,8 +37,8 @@
 			 bottom="120"
 			 left="0"
 			 horizontalAlign="right"
-			 verticalAlign="middle"
-			 verticalGap="-78">
+			 verticalAlign="bottom"
+			 verticalGap="-20">
 	</mx:VBox>
 	<mx:Canvas left="150" right="150" top="150" bottom="187">
 		<!-- 牌桌区域 -->
@@ -91,7 +91,7 @@
 			 left="88"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
-			 verticalGap="-78" width="53">
+			 verticalGap="0" width="53">
 	</mx:VBox>
 	<mx:VBox id="daisRight"
 			 width="53"
@@ -100,11 +100,11 @@
 			 right="88"
 			 horizontalAlign="left"
 			 verticalAlign="middle"
-			 verticalGap="-78">
+			 verticalGap="0">
 	</mx:VBox>
 	<mx:HBox id="daisDown"
 			 height="53"
-			 horizontalGap="-55"
+			 horizontalGap="0"
 			 horizontalAlign="center"
 			 left="175"
 			 right="175"
@@ -113,7 +113,7 @@
 	</mx:HBox>
 	<mx:HBox id="daisUp"
 			 height="53"
-			 horizontalGap="-55"
+			 horizontalGap="0"
 			 horizontalAlign="center"
 			 verticalAlign="bottom"
 			 top="88"

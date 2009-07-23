@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Image xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Boolean id="allowSelect">true</mx:Boolean>
-	<mx:String id="value">{String(this.source).replace(/.*\/(\w+)\.(\w+)/, "$1")}</mx:String>
+	<mx:String id="value">{this.source.toString().replace(/^.*\/(\w+)\.(\w+)$/, "$1")}</mx:String>
 	<mx:Number id="direction">-1</mx:Number>
 	<mx:init>
 		<![CDATA[
@@ -12,15 +12,18 @@
 	<mx:Script>
 		<![CDATA[
 			private var selected:Boolean = false;
+
 			private function toggleSelect(event:MouseEvent):void {
 				if (!allowSelect) {
 					return;
 				}
 				setSelected(!this.selected);
 			}
+
 			public function isSelected():Boolean {
 				return this.selected;
 			}
+
 			public function setSelected(selectedFlag:Boolean):void {
 				if (!allowSelect || this.selected == selectedFlag) {
 					return;
@@ -32,6 +35,10 @@
 					this.y += 10;
 				}
 			}
+
+//			public override function toString():String {
+//			    return this.value;
+//			}
 		]]>
 	</mx:Script>
 </mx:Image>
