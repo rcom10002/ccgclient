@@ -1022,6 +1022,9 @@ package info.knightrcom.state {
             for each (container in mahjongsRandArray) {
                 container.removeAllChildren();
             }
+            if (currentGame) {
+                currentGame.dealed.removeAllChildren();
+            }
         }
     }
 }
