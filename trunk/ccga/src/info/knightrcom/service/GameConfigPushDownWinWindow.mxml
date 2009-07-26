@@ -19,19 +19,24 @@
 
 			public var currentOperationMethod:OperationMethod;
 
+			protected function setValue(event:ResultEvent):void
+			{
+				var e4xResult:XML=new XML(event.result);
+				// 读取时ID不可编辑
+				gameId.enabled=false;
+				gameId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
+				gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
+				displayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
+				roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
+				minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
+				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
+			}
+
 			protected function readData(ind:Number):void
 			{
 				HttpServiceProxy.send(LocalGameConfigureService.READ_ROOM_CONFIGURE, {GAME_TYPE: ind, CURRENT_PAGE: CURRENT_PAGE}, infoService, function(event:ResultEvent):void
 					{
-						var e4xResult:XML=new XML(event.result);
-						lobbyId.text=e4xResult.entity.map[CURRENT_PAGE - 1].parent.text();
-						lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].parent.text();
-						gameId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
-						gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
-						displayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
-						roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
-						minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
-						trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
+						setValue(event);
 					});
 			}
 
@@ -68,20 +73,26 @@
 				currentOperationMethod=OperationMethod.UPDATE;
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
-						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, infoService, function(event:ResultEvent):void
+								{
+									setValue(event);
+								});
 						}
 						else if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text});
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, infoService, function(event:ResultEvent):void
+								{
+									setValue(event);
+								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
 					});
 				// 新增
 				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
 					{
+						gameId.enabled=true;
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
 					});
@@ -89,9 +100,9 @@
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, GAME_ID: gameId.text}, null, function():void
+						HttpServiceProxy.send(LocalGameConfigureService.DELETE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameId.text}, infoService, function(event:ResultEvent):void
 							{
-								readData(3);
+								setValue(event);
 							});
 						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
@@ -127,12 +138,6 @@
 					<mx:FormItem label="uuid"
 								 visible="false">
 						<mx:TextInput id="globalConfigId"/>
-					</mx:FormItem>
-					<mx:FormItem label="游戏大厅ID">
-						<mx:TextInput id="lobbyId"/>
-					</mx:FormItem>
-					<mx:FormItem label="游戏大厅名">
-						<mx:TextInput id="lobbyName"/>
 					</mx:FormItem>
 					<mx:FormItem label="游戏ID">
 						<mx:TextInput id="gameId"/>

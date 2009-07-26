@@ -19,16 +19,23 @@
 
 			public var currentOperationMethod:OperationMethod;
 
+			protected function setValue(event:ResultEvent):void
+			{
+				lobbyId.enabled=false;
+				lobbyRoomCount.enabled=false;
+				var e4xResult:XML=new XML(event.result);
+				lobbyId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
+				lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
+				lobbyDisplayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
+				lobbyRoomCount.text=e4xResult.entity.map[CURRENT_PAGE - 1].roomcount.text();
+				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
+			}
+
 			protected function readData():void
 			{
 				HttpServiceProxy.send(LocalGameConfigureService.READ_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE}, infoService, function(event:ResultEvent):void
 					{
-						var e4xResult:XML=new XML(event.result);
-						lobbyId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
-						lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
-						lobbyDisplayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
-						lobbyRoomCount.text=e4xResult.entity.map[CURRENT_PAGE - 1].roomcount.text();
-						trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
+						setValue(event);
 					});
 			}
 
@@ -60,25 +67,44 @@
 				// 事件绑定
 				CURRENT_PAGE=1;
 				readData();
-				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
+				// 隐藏
+				btnCreate.visible=false;
+				btnDelete.visible=false;
+				// 保存
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_GAME_CONFIGURE, null, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, infoService, function(event:ResultEvent):void
 								{
-									var e4xResult:XML=new XML(event.result);
-								/*
-								   playerProfileId.text=e4xResult.entity.profileId.text();
-								 */
+									setValue(event);
 								});
 						}
 						else if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, LOBBY_ROOMCOUNT: lobbyRoomCount.text});
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, infoService, function(event:ResultEvent):void
+								{
+									setValue(event);
+								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
+					});
+				// 新增
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
+					{
+						currentOperationMethod=OperationMethod.CREATE;
+						clearEditor();
+					});
+				// 删除
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
+					{
+						currentOperationMethod=OperationMethod.DELETE;
+						HttpServiceProxy.send(LocalGameConfigureService.DELETE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text}, infoService, function(event:ResultEvent):void
+							{
+								setValue(event);
+							});
+						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
 				// 翻页
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
@@ -127,8 +153,20 @@
 				</mx:Form>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="确定"
-						   id="btnSubmit"
+				<mx:Button label="新增"
+						   id="btnCreate"
+						   right="130"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="保存"
+						   id="btnSave"
+						   right="70"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="删除"
+						   id="btnDelete"
 						   right="10"
 						   bottom="10"/>
 			</mx:AddChild>
