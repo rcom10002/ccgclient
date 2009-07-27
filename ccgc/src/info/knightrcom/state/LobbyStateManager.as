@@ -5,6 +5,7 @@ package info.knightrcom.state {
     import flash.display.DisplayObject;
     import flash.events.Event;
     import flash.events.MouseEvent;
+    import flash.external.ExternalInterface;
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.command.FightLandlordGameCommand;
@@ -240,7 +241,8 @@ package info.knightrcom.state {
          */
         private function logoutClick(event:Event):void {
         	socketProxy.disconnect();
-        	gameClient.currentState = "LOGIN";
+        	// FIXME This line is not necessary if the statement below works! gameClient.currentState = "LOGIN";
+			flash.external.ExternalInterface.call("location.reload", true);
         }
 
         /**
