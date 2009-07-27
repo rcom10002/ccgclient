@@ -50,6 +50,7 @@
 				 verticalAlign="middle" right="0" bottom="0">
 		</mx:Tile>
 	</mx:Canvas>
+	<!-- TODO 暂时保留 -->
     <mx:Style>
     	.unhighlight {
 			paddingTop : 1;
@@ -68,22 +69,23 @@
 			borderColor : #48b;
     	}
     </mx:Style>
+	<!-- TODO 暂时保留 -->
 	<!-- 操作提示区域 -->
 	<mx:HBox left="150" right="150" bottom="187" height="53" horizontalAlign="center">
 		<mx:HBox id="toolTip1" visible="false">
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/RED.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/GREEN.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/WHITE.jpg" allowSelect="false"/>
 		</mx:HBox>
 		<mx:HBox id="toolTip2" visible="false">
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
 		</mx:HBox>
 		<mx:HBox id="toolTip3" visible="false">
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/standard/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
 		</mx:HBox>
 	</mx:HBox>
 	<!-- 操作区域 -->

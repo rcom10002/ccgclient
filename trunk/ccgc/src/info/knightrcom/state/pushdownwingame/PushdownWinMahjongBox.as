@@ -16,7 +16,7 @@ package info.knightrcom.state.pushdownwingame
 		/**
 		 * 当前玩家们手中的麻将
 		 */
-		private var mjOfDais:Array = new Array(4);
+		private var mjOfDais:Array = new Array(new Array(), new Array(), new Array(), new Array());
 
 		/**
 		 * 尚未使用过的麻将
@@ -105,21 +105,21 @@ package info.knightrcom.state.pushdownwingame
 
 		/**
 		 * 
-		 * 将玩家操作过的牌移除
+		 * 将玩家操作过的牌移除()
 		 * 
 		 * @param index
-		 * @param mahjongValues
-		 * @param mahjongOperated
+		 * @param mahjongValues 吃碰杠牌的组合
+		 * @param mahjongOperated 被操作麻将
 		 * @return 
 		 * 
 		 */
 		public function moveMahjongToDais(index:int, mahjongValues:String, mahjongOperated:String):Array {
-			// 为玩家添加被操作牌
-			(mjOfDais[index] as Array).push(mahjongOperated);
-			// 从玩家手中删除牌序中含有的牌
 			for each (var eachMahjong:String in mahjongValues.split(",")) {
-				var mjIndex:int = (mjOfDais[index] as Array).indexOf(eachMahjong);
-				(mjOfDais[index] as Array).splice(mjIndex, 1);
+		    	// 从玩家手中删除牌序中含有的牌
+				var mjIndex:int = (mjOfPlayers[index] as Array).indexOf(eachMahjong);
+				(mjOfPlayers[index] as Array).splice(mjIndex, 1);
+    			// 为玩家添加被操作牌
+				(mjOfDais[index] as Array).push(eachMahjong);
 			}
 			return mjOfDais[index] as Array;
 		}

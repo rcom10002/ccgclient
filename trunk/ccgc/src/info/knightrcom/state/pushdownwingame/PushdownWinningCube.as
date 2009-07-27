@@ -20,8 +20,6 @@ package info.knightrcom.state.pushdownwingame
 			this.parentTrackResult = parentTrackResult;
 			this.rootCube = rootCube;
 			this.parentCube = parentCube;
-			trace("parentTrackResult: " + parentTrackResult);
-			trace("currentTrack: " + currentTrack);
 		}
 
 		/** 碰节点 */
@@ -208,7 +206,6 @@ package info.knightrcom.state.pushdownwingame
 			}
 
 			this.rootCube.winRoutes.push(groups.join("~"));
-			trace(groups.join("~"));
 		}
 
 		/**

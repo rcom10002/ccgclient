@@ -198,10 +198,8 @@ package info.knightrcom.state.pushdownwingame {
             	if (excludedIndex.indexOf(index.toString()) > -1) {
             		continue;
             	}
-            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(","); 
-    			var oldLength:int = currentMahjongs.length;
-    			var newLength:int = currentMahjongs.replace(new RegExp(dealedMahjong, "g"), "").length;            	
-            	if ((oldLength - newLength) == dealedMahjong.length * 4) {
+            	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
+            	if (currentMahjongs.indexOf(dealedMahjong + "," + dealedMahjong + "," + dealedMahjong) > -1) {
             		return index + OPTR_KONG * 10;
             	}
             }
