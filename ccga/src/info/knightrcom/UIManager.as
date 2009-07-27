@@ -2,6 +2,7 @@ package info.knightrcom
 {
 
 	import flash.events.MouseEvent;
+	import flash.external.ExternalInterface;
 	
 	import info.knightrcom.service.LocalAdminLoginService;
 	import info.knightrcom.service.LocalApplicationServerOperationService;
@@ -131,6 +132,9 @@ package info.knightrcom
 					break;
 				case "关于管理平台":
 					adminApp.functionWindowArea.currentState="ABOUT_GAME_PLATFORM";
+					break;
+				case "注销登录":
+					flash.external.ExternalInterface.call("location.reload", true);
 					break;
 				default:
 					adminApp.currentState="MAIN";

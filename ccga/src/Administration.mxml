@@ -148,6 +148,8 @@
 				</node>
 				<node label="运行状态查看"/>
 			</node>
+			<node label="注销登录">
+			</node>
 			<node label="帮助">
 				<node label="管理员帮助手册"/>
 				<node label="关于管理平台"/>
