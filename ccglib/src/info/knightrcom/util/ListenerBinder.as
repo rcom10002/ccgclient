@@ -95,7 +95,7 @@ package info.knightrcom.util
 			target.addEventListener(gamePrefix + type, function (event:Event):void {
 				try {
 					listener(event);
-					EventDispatcher(event.target).removeEventListener(type, this);
+					EventDispatcher(event.target).removeEventListener(type, listener);
 				} catch (e:Error) {
 					if (debug) {
 						Alert.show(e.getStackTrace(), e.message);
