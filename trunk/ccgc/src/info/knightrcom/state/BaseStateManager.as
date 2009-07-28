@@ -36,18 +36,21 @@ package info.knightrcom.state {
          *
          */
         public function init(event:Event = null):void {
-            // 配置事件监听
-            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_CONNECTED, globalEventHandler);
-            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SESSION_TIMED_OUT, globalEventHandler);
-            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_DISCONNECTED, globalEventHandler);
-            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_IO_ERROR, globalEventHandler);
-            ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SECURITY_ERROR, globalEventHandler);
-            ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_MESSAGE_BROADCASTED, globalEventHandler);
-
-			ListenerBinder.bind(gameClient.btnScreenMode, MouseEvent.CLICK, toggleScreenMode);
-
-            // 连接服务器
-            socketProxy.connect();
+            if (!isInitialized()) {
+                // 配置事件监听
+                ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_CONNECTED, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SESSION_TIMED_OUT, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_DISCONNECTED, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_IO_ERROR, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SECURITY_ERROR, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_MESSAGE_BROADCASTED, globalEventHandler);
+                // 全屏
+    			ListenerBinder.bind(gameClient.btnScreenMode, MouseEvent.CLICK, toggleScreenMode);
+                // 连接服务器
+                socketProxy.connect();
+                // 设置初始化标识
+                setInitialized(true);
+            }
 
             // 切换画面状态
             gameClient.currentState = "LOGIN";
@@ -73,7 +76,7 @@ package info.knightrcom.state {
                     if (gameClient.currentState != "LOGIN") {
                         gameClient.currentState = "LOGIN"
                     }
-                    Alert.show("网络连接失败！", "错误");
+                    Alert.show("网络连接已断开！", "错误");
                     break;
                 case PlatformEvent.SERVER_IO_ERROR:
                     if (gameClient.currentState != "LOGIN") {
