@@ -240,7 +240,7 @@ package info.knightrcom.state {
          *
          */
         private function logoutClick(event:Event):void {
-        	socketProxy.disconnect();
+        	// FIXME This line is not necessary if the statement below works! socketProxy.disconnect();
         	// FIXME This line is not necessary if the statement below works! gameClient.currentState = "LOGIN";
 			flash.external.ExternalInterface.call("location.reload", true);
         }
