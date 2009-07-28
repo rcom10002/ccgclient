@@ -1,12 +1,13 @@
 package info.knightrcom.state
 {
 	import component.PokerButton;
-	
+	import component.Scoreboard;
+
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	
+
 	import info.knightrcom.GameSocketProxy;
 	import info.knightrcom.command.FightLandlordGameCommand;
 	import info.knightrcom.event.FightLandlordGameEvent;
@@ -16,7 +17,7 @@ package info.knightrcom.state
 	import info.knightrcom.util.ListenerBinder;
 	import info.knightrcom.util.PlatformAlert;
 	import info.knightrcom.util.PlatformAlertEvent;
-	
+
 	import mx.containers.Box;
 	import mx.containers.Tile;
 	import mx.controls.Alert;
@@ -153,10 +154,10 @@ package info.knightrcom.state
 		 */
 		private static var timer:Timer=new Timer(1000, MAX_CARDS_SELECT_TIME);
 
-        /**
-         * 当前游戏模块
-         */
-		private static var currentGame:CCGameFightLandlord = null;
+		/**
+		 * 当前游戏模块
+		 */
+		private static var currentGame:CCGameFightLandlord=null;
 
 		/**
 		 *
@@ -169,17 +170,7 @@ package info.knightrcom.state
 		{
 			super(socketProxy, gameClient, myState);
 			ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
-            batchBindGameEvent(FightLandlordGameEvent.EVENT_TYPE, new Array(
-                    GameEvent.GAME_WAIT, gameWaitHandler,
-                    GameEvent.GAME_CREATE, gameCreateHandler,
-            		GameEvent.GAME_STARTED, gameStartedHandler,
-            		GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler,
-            		GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler,
-            		FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler,
-            		GameEvent.GAME_BRING_OUT, gameBringOutHandler,
-            		GameEvent.GAME_INTERRUPTED, gameInterruptedHandler,
-            		GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler,
-            		GameEvent.GAME_OVER, gameOverHandler));
+			batchBindGameEvent(FightLandlordGameEvent.EVENT_TYPE, new Array(GameEvent.GAME_WAIT, gameWaitHandler, GameEvent.GAME_CREATE, gameCreateHandler, GameEvent.GAME_STARTED, gameStartedHandler, GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler, GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler, FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler, GameEvent.GAME_BRING_OUT, gameBringOutHandler, GameEvent.GAME_INTERRUPTED, gameInterruptedHandler, GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler, GameEvent.GAME_OVER, gameOverHandler));
 		}
 
 		/**
@@ -193,28 +184,29 @@ package info.knightrcom.state
 			{
 				// 配置事件监听
 				// 非可视组件
-			    currentGame = gameClient.fightLandlordGameModule;
-				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
-					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-					// DROP THIS LINE currentGame.timerTip.label="剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
-					if (timer.currentCount == MAX_CARDS_SELECT_TIME)
+				currentGame=gameClient.fightLandlordGameModule;
+				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void
 					{
-						if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled)
+						currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
+						// DROP THIS LINE currentGame.timerTip.label="剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+						if (timer.currentCount == MAX_CARDS_SELECT_TIME)
 						{
-							// 可以选择不要按钮时，则进行不要操作
-							itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
+							if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled)
+							{
+								// 可以选择不要按钮时，则进行不要操作
+								itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
+							}
+							else
+							{
+								// 重选
+								itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
+								// 选择第一张牌
+								PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+								// 出牌
+								itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
+							}
 						}
-						else
-						{
-							// 重选
-							itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
-							// 选择第一张牌
-							PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
-							// 出牌
-							itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
-						}
-					}
-				});
+					});
 				// 可视组件
 				ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
 				ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
@@ -657,6 +649,7 @@ package info.knightrcom.state
 			currentNumber=results[0];
 			currentBoutCards=results[1];
 			currentNextNumber=results[2];
+			var scoreboardInfo:Array=String(results[3]).split(/;/);
 			/*
 			   // 非出牌者时，移除桌面上显示的已出的牌，在桌面上显示最近新出的牌
 			   // if (localNumber != currentNumber && gameSetting != FightLandlordGameSetting.THREE_RUSH) {
@@ -693,6 +686,11 @@ package info.knightrcom.state
 			   {
 			 */
 			firstPlaceNumber=currentNumber;
+			// 显示记分牌
+			new Scoreboard().popUp(gameClient, scoreboardInfo, function():void
+				{
+					gameClient.currentState='LOBBY';
+				});
 			// 显示游戏积分
 			var rushResult:String=null;
 			if (firstPlaceNumber == gameFinalSettingPlayerNumber)
@@ -704,10 +702,10 @@ package info.knightrcom.state
 				rushResult="失败！";
 			}
 			// 游戏结束，并且当前玩家不是最终的游戏规则设置者
-			Alert.show(FightLandlordGameSetting.getDisplayName(gameSetting) + rushResult, "信息", Alert.OK, gameClient, function():void
-				{
-					gameClient.currentState="LOBBY";
-				});
+//			Alert.show(FightLandlordGameSetting.getDisplayName(gameSetting) + rushResult, "信息", Alert.OK, gameClient, function():void
+//				{
+//					gameClient.currentState="LOBBY";
+//				});
 			gameClient.txtSysMessage.text+=FightLandlordGameSetting.getDisplayName(gameSetting) + rushResult + "\n";
 		/*
 		   }
@@ -769,39 +767,45 @@ package info.knightrcom.state
 			Alert.show("玩家[" + placeNumbers.join(",") + "]胜出！", "消息");
 		}
 
-        /**
-         *
-         * 游戏创建，为客户端玩家分配游戏id号与当前游戏玩家序号以及下家玩家序号
-         *
-         * @param event
-         *
-         */
-        private function gameCreateHandler(event:GameEvent):void {
-            var results:Array = null;
-            if (event.incomingData != null) {
-                results = event.incomingData.split("~");
-            }
-        	FightLandlordGameStateManager.resetInitInfo();
-            FightLandlordGameStateManager.currentGameId = results[0];
-            FightLandlordGameStateManager.localNumber = results[1];
-            FightLandlordGameStateManager.playerCogameNumber = results[2];
-            if (FightLandlordGameStateManager.playerCogameNumber == FightLandlordGameStateManager.localNumber) {
-                FightLandlordGameStateManager.localNextNumber = 1;
-            } else {
-                FightLandlordGameStateManager.localNextNumber = FightLandlordGameStateManager.localNumber + 1;
-            }
-            gameClient.currentState = "FIGHTLANDLORDGAME";
-        }
+		/**
+		 *
+		 * 游戏创建，为客户端玩家分配游戏id号与当前游戏玩家序号以及下家玩家序号
+		 *
+		 * @param event
+		 *
+		 */
+		private function gameCreateHandler(event:GameEvent):void
+		{
+			var results:Array=null;
+			if (event.incomingData != null)
+			{
+				results=event.incomingData.split("~");
+			}
+			FightLandlordGameStateManager.resetInitInfo();
+			FightLandlordGameStateManager.currentGameId=results[0];
+			FightLandlordGameStateManager.localNumber=results[1];
+			FightLandlordGameStateManager.playerCogameNumber=results[2];
+			if (FightLandlordGameStateManager.playerCogameNumber == FightLandlordGameStateManager.localNumber)
+			{
+				FightLandlordGameStateManager.localNextNumber=1;
+			}
+			else
+			{
+				FightLandlordGameStateManager.localNextNumber=FightLandlordGameStateManager.localNumber + 1;
+			}
+			gameClient.currentState="FIGHTLANDLORDGAME";
+		}
 
-        /**
-         *
-         * @param event
-         *
-         */
-        private function gameWaitHandler(event:GameEvent):void {
-            gameClient.txtSysMessage.text += event.incomingData + "\n";
-            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
-        }
+		/**
+		 *
+		 * @param event
+		 *
+		 */
+		private function gameWaitHandler(event:GameEvent):void
+		{
+			gameClient.txtSysMessage.text+=event.incomingData + "\n";
+			gameClient.txtSysMessage.selectionEndIndex=gameClient.txtSysMessage.length - 1;
+		}
 
 		/**
 		 *
