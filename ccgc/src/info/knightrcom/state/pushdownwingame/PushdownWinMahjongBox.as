@@ -75,6 +75,16 @@ package info.knightrcom.state.pushdownwingame
 		 * @return
 		 *
 		 */
+		public function get mahjongsOfDais():Array
+		{
+			return this.mjOfDais;
+		}
+
+		/**
+		 *
+		 * @return
+		 *
+		 */
 		public function get mahjongsSpared():Array
 		{
 			return this.mjSpared;
@@ -109,14 +119,17 @@ package info.knightrcom.state.pushdownwingame
 		 * 
 		 * @param index
 		 * @param mahjongValues 吃碰杠牌的组合
-		 * @param mahjongOperated 被操作麻将
 		 * @return 
 		 * 
 		 */
-		public function moveMahjongToDais(index:int, mahjongValues:String, mahjongOperated:String):Array {
+		public function moveMahjongToDais(index:int, mahjongValues:String):Array {
 			for each (var eachMahjong:String in mahjongValues.split(",")) {
 		    	// 从玩家手中删除牌序中含有的牌
 				var mjIndex:int = (mjOfPlayers[index] as Array).indexOf(eachMahjong);
+				if (mjIndex < 0) {
+				    trace("WARNING: THERE IS A NEGATIVE INDEX FOUND WHEN MOVE A MAHJONG TO THE DAIS!")
+				    continue;
+				}
 				(mjOfPlayers[index] as Array).splice(mjIndex, 1);
     			// 为玩家添加被操作牌
 				(mjOfDais[index] as Array).push(eachMahjong);
@@ -150,6 +163,9 @@ package info.knightrcom.state.pushdownwingame
 		public function exportMahjong(index:int, mahjongValue:String):Array {
 			// 从玩家手中的牌删除打出的牌
 			var targetPos:int = (mjOfPlayers[index] as Array).indexOf(mahjongValue);
+			if (targetPos < 0) {
+			    return null;
+			}
 			(mjOfPlayers[index] as Array).splice(targetPos, 1);
 			return mjOfPlayers[index] as Array;
 		}

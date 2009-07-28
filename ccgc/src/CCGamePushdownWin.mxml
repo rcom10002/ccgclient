@@ -49,6 +49,7 @@
 				 verticalGap="2"
 				 verticalAlign="middle" right="0" bottom="0">
 		</mx:Tile>
+		<mx:TextArea id="testArea" height="100" left="0" right="50" bottom="0" /><mx:Button id="testFresh" width="50" height="50" right="0" bottom="0"/>
 	</mx:Canvas>
 	<!-- TODO 暂时保留 -->
     <mx:Style>

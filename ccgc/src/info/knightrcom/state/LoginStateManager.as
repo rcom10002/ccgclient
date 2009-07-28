@@ -30,16 +30,20 @@ package info.knightrcom.state {
          * 初始化
          */
         private function init(event:Event):void {
-            // 配置事件监听
-            // 非可视组件
-            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_SUCCESS, loginEventHandler);
-            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_USER_ALREADY_ONLINE, loginEventHandler);
-            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_ERROR_USERNAME_OR_PASSWORD, loginEventHandler);
-            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_MAX_CONNECTION_LIMIT, loginEventHandler);
-            // 可视组件
-            ListenerBinder.bind(gameClient.btnConnect, MouseEvent.CLICK, connectClick);
-            ListenerBinder.bind(gameClient.btnSubmit, MouseEvent.CLICK, submitClick);
-            ListenerBinder.bind(gameClient.btnReset, MouseEvent.CLICK, resetClick);
+            if (!isInitialized()) {
+                // 配置事件监听
+                // 非可视组件
+                ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_SUCCESS, loginEventHandler);
+                ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_USER_ALREADY_ONLINE, loginEventHandler);
+                ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_ERROR_USERNAME_OR_PASSWORD, loginEventHandler);
+                ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_MAX_CONNECTION_LIMIT, loginEventHandler);
+                // 可视组件
+                ListenerBinder.bind(gameClient.btnConnect, MouseEvent.CLICK, connectClick);
+                ListenerBinder.bind(gameClient.btnSubmit, MouseEvent.CLICK, submitClick);
+                ListenerBinder.bind(gameClient.btnReset, MouseEvent.CLICK, resetClick);
+                // 设置初始化标识
+                setInitialized(true);
+            }
         }
 
         /**
@@ -102,6 +106,7 @@ package info.knightrcom.state {
             try {
                 gameClient.txtUsername.text = "";
                 gameClient.txtPassword.text = "";
+                gameClient.txtUsername.setFocus();
             } catch (error:Error) {
                 trace(error.message);
             }

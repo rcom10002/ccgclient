@@ -185,7 +185,7 @@ package info.knightrcom.state.pushdownwingame {
 
         /**
          * 
-         * 杠牌判断
+         * 当前玩家根据其他玩家出牌内容，进行杠牌判断
          * 
          * @param dealedMahjong
          * @param mahjongOfPlayers
@@ -208,7 +208,7 @@ package info.knightrcom.state.pushdownwingame {
 
         /**
          * 
-         * 碰牌判断
+         * 当前玩家根据其他玩家出牌内容，进行碰牌判断
          * 
          * @param dealedMahjong
          * @param mahjongOfPlayers
@@ -231,7 +231,7 @@ package info.knightrcom.state.pushdownwingame {
 
         /**
          * 
-         * 吃牌判断
+         * 当前玩家根据其他玩家出牌内容，进行吃牌判断
          * 
          * @param dealedMahjong 当前打出的牌
          * @param currentMahjongs 当前玩家手中的牌
@@ -260,15 +260,13 @@ package info.knightrcom.state.pushdownwingame {
 		 * 
 		 * 在摸牌过程中，判断是否可以自摸胡牌
 		 * 
-		 * @param randMahjong
 		 * @param currentMahjongs
 		 * @return 
 		 * 
 		 */
-		public static function canWinNow(randMahjong:String, currentMahjongs:Array):Boolean {
+		public static function canWinNow(currentMahjongs:Array):Boolean {
 			// 计算所有可能胡牌的路径
 			var mahjongs:Array = currentMahjongs.slice(0);
-			mahjongs.push(randMahjong)
 			var cube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(mahjongs.join(",")).join(","));
 			cube.walkAllRoutes();
 			// 提取正确的胡牌路径
