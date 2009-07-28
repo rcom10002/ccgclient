@@ -251,6 +251,7 @@ package info.knightrcom.state {
          *
          */
         private function helpClick(event:Event):void {
+        	gameClient.currentState = "CCGAMECLIENTHELP";
         }
 
     }

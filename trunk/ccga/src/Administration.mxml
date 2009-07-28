@@ -136,6 +136,10 @@
     				<node label="删除报表模板"/><!-- 将不需要的报表sql禁用，不用做物理删除 -->
 				</node>
 			</node>
+			<node label="反馈信息">
+				<node label="游戏反馈"/><!-- 改进游戏的建议 -->
+				<node label="不良举报"/><!-- 作弊玩家举报 -->
+			</node>
 			<node label="系统参数管理">
 				<node label="服务器参数"/>
 			</node>
