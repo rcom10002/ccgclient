@@ -147,6 +147,14 @@
                 </ccgame:CCGamePushdownWin>
             </mx:AddChild>
         </mx:State>
+        <!-- 推倒胡游戏 -->
+        <mx:State id="ccgameClientHelpState"
+                  name="CCGAMECLIENTHELP">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGameHelp id="ccgameHelpModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGameHelp>
+            </mx:AddChild>
+        </mx:State>
     </mx:states>
     <!-- 验证器 -->
     <mx:Array id="loginValidators">
