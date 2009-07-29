@@ -66,19 +66,14 @@ package info.knightrcom.state {
         public static var currentNextNumber:int;
 
         /**
+         * 消息中的执行放弃的玩家序号
+         */
+        public static var currentGiveupIndice:String;
+
+        /**
          * 是否自摸
          */
         public static var isNarrowWin:Boolean = false;
-
-        /**
-         * 第一名玩家序号
-         */
-        public static var firstPlaceNumber:int = UNOCCUPIED_PLACE_NUMBER;
-
-        /**
-         * 第二名玩家序号
-         */
-        public static var secondPlaceNumber:int = UNOCCUPIED_PLACE_NUMBER;
 
         /**
          * 未占用的位置
@@ -270,7 +265,7 @@ package info.knightrcom.state {
                                                      "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B8,B8",
                                                      "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T8,T8", 
                                                      "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
-            mahjongBox.mahjongsSpared = "B5,W3,WEST,RED,RED,T7,WHITE,W6,W8,GREEN,W7,W4,W9,RED,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,W5,B6,W2,T5,W6,W6,GREEN,W7,T8,W8,W9,GREEN,W9,RED,B5,B7,B2,B2,T4,T3,B3,NORTH,B4,B1,B8,W9,B6,B2,B6,B6,B5,B7,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
+            mahjongBox.mahjongsSpared = "B3,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,RED,RED,T7,WHITE,W6,W8,GREEN,W7,W4,W9,RED,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,RED,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B7,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
             results[0] = mahjongBox.mahjongsOfPlayers[0];
             results[1] = mahjongBox.mahjongsOfPlayers[1];
             results[2] = mahjongBox.mahjongsOfPlayers[2];
@@ -369,7 +364,7 @@ package info.knightrcom.state {
          * <li>摸牌：发牌玩家序号~牌名</li>
          * <li>发牌：发牌玩家序号~牌名~发牌玩家的下家序号(pass)?</li>
          * <li>吃碰杠：发牌玩家序号~牌序~发牌玩家的下家序号~被发牌玩家执行了操作的玩家序号~被操作牌~动作索引</li>
-         * <li>放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……)</li>
+         * <li>放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家索引列表(列表内容为：012或01或0……)</li>
          * </ul>
          * 
          * @param event
@@ -400,7 +395,8 @@ package info.knightrcom.state {
                     break;
                 case 4:
                 	// 放弃
-                	handleBoutGiveup(results[3]);
+                	currentGiveupIndice = results[3]; 
+                	handleBoutGiveup();
                     break;
                 default:
                     throw Error("其他无法预测的接牌动作！");
@@ -480,10 +476,10 @@ package info.knightrcom.state {
 			// 准备胡杠碰操作
 			// 玩家索引
 			var playerIndex:int = finalMixedIndex % 10;
-	     	if (finalMixedIndex > 0 && playerIndex != localNumber - 1) {
+	     	if (finalMixedIndex > -1 && playerIndex != localNumber - 1) {
 	     		// 胡牌、杠牌、碰牌玩家非当前玩家时，不执行任何操作
 	     		return;
-	     	} else if (finalMixedIndex > 0 && playerIndex == localNumber - 1) {
+	     	} else if (finalMixedIndex > -1 && playerIndex == localNumber - 1) {
 	     		// 胡牌、杠牌、碰牌玩家为当前玩家时
 
 				// 更改操作按钮状态
@@ -513,6 +509,8 @@ package info.knightrcom.state {
 		     	if (currentNextNumber == localNumber) {
 		     	    // 当前玩家为出牌玩家的下家时
 	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
+	     		    var canChow:Boolean = PushdownWinGame.isChow(currentBoutMahjong, mahjongBox.mahjongsOfPlayers[localNumber - 1])
+	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = canChow;
 		     	} else {
 		     	    // 当前玩家不是出牌玩家下家时
 	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
@@ -638,8 +636,104 @@ package info.knightrcom.state {
 		 * @param isPass
 		 * 
 		 */
-		private function handleBoutGiveup(giveupPlayerNumbers:String):void {
-		    throw Error("Unsupported Give UP process")
+		private function handleBoutGiveup():void {
+            // 初始化操作按钮
+            resetBtnBar();
+
+			// 从非出牌玩家中，找出唯一一个可以进行胡牌、杠牌或碰牌操作的玩家
+			// 玩家的优先权取决于操作权（如胡牌优先权最高，其次是杠牌，再次是碰牌）
+			var finalMixedIndex:int = -1, winMixedIndex:int = -1, kongMixedIndex:int = -1, pongMixedIndex:int = -1;
+			var canWin:Boolean = false, canKong:Boolean = false, canPong:Boolean = false;
+			var indexWin:int = -1, indexKong:int = -1, indexPong:int = -1;
+			// 胡牌情况
+			indexWin = PushdownWinGame.isWin(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + currentGiveupIndice);
+			canWin = indexWin > -1;
+			if (canWin) {
+			    winMixedIndex = indexWin;
+			}
+		    // 杠牌情况
+			indexKong = PushdownWinGame.isKong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + currentGiveupIndice);
+			canKong = indexKong > -1;
+			if (canKong) {
+			    kongMixedIndex = indexKong;
+			}
+		    // 碰牌情况
+			indexPong = PushdownWinGame.isPong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + currentGiveupIndice);
+			canPong = indexPong > -1;
+			if (canPong) {
+			    pongMixedIndex = indexPong;
+			}
+			// 确定优先级最高的玩家混合索引值
+			if (canWin) {
+			    finalMixedIndex = indexWin;
+			} else if (canKong) {
+			    finalMixedIndex = indexKong;
+			} else if (canPong) {
+			    finalMixedIndex = indexPong;
+			}
+
+			// 准备胡杠碰操作
+			// 玩家索引
+			var playerIndex:int = finalMixedIndex % 10;
+	     	if (finalMixedIndex > -1 && playerIndex != localNumber - 1) {
+	     		// 胡牌、杠牌、碰牌玩家非当前玩家时，不执行任何操作
+	     		return;
+	     	} else if (finalMixedIndex > -1 && playerIndex == localNumber - 1) {
+	     		// 胡牌、杠牌、碰牌玩家为当前玩家时
+
+				// 更改操作按钮状态
+	  			var operationList:Array = new Array(
+		  			function ():void {
+						if (canWin && playerIndex == localNumber - 1) {
+							// 胡牌，为出牌玩家设置麻将操作按钮外观
+							Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
+						}
+		  			},
+		  			function ():void {
+						if (canKong && playerIndex == localNumber - 1) {
+							// 杠牌，为出牌玩家设置麻将操作按钮外观
+							Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled = true;
+						}
+		  			},
+		  			function ():void {
+						if (canPong && playerIndex == localNumber - 1) {
+							// 碰牌，为出牌玩家设置麻将操作按钮外观
+							Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_PONG)).enabled = true;
+						}
+		  			}
+		     	);
+		     	for (var i:int = finalMixedIndex / 10; i < 3; i++) {
+		     		operationList[i]();
+		     	}
+		     	if (currentNextNumber == localNumber) {
+		     	    // 当前玩家为出牌玩家的下家时
+	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
+	     		    var canChow:Boolean = PushdownWinGame.isChow(currentBoutMahjong, mahjongBox.mahjongsOfPlayers[localNumber - 1])
+	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = canChow;
+		     	} else {
+		     	    // 当前玩家不是出牌玩家下家时
+	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
+	     		}
+                currentGame.btnBarMahjongs.visible = true;
+	     	} else if (finalMixedIndex < 0 && currentNextNumber == localNumber) {
+	     		// 没有玩家胡牌、杠牌、胡牌时，为当前玩家出牌做准备
+				// 吃牌判断
+		     	if (PushdownWinGame.isChow(currentBoutMahjong, mahjongBox.mahjongsOfPlayers[localNumber - 1])) {
+		     		// 启用吃牌按钮
+		     		Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled = true;
+		     		// 启用摸牌按钮
+		     		Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
+                	// 为出牌玩家设置麻将操作按钮外观
+                    currentGame.btnBarMahjongs.visible = true;
+		     		return;
+		     	}
+            	// 为出牌玩家设置麻将操作按钮外观
+                currentGame.btnBarMahjongs.visible = true;
+                // 自动摸牌
+	            var dummyEvent:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+	            dummyEvent.index = PushdownWinGame.OPTR_RAND;
+	            itemClick(dummyEvent);
+            }
 		}
 
         /**
@@ -806,11 +900,11 @@ package info.knightrcom.state {
                     // 更新内存模型与外观
                     if (currentGame.randDown.numChildren > 0) {
                         // 暗杠时
-                        mahjongBox.moveMahjongToDais(localNumber - 1, new Array(currentBoutMahjong, 
-                                                                                currentBoutMahjong, 
-                                                                                currentBoutMahjong, 
-                                                                                currentBoutMahjong).join(","));
                         var randValueForKong:String = MahjongButton(currentGame.randDown.getChildAt(0)).value;
+                        mahjongBox.moveMahjongToDais(localNumber - 1, new Array(randValueForKong, 
+                                                                                randValueForKong, 
+                                                                                randValueForKong, 
+                                                                                randValueForKong).join(","));
                         for (i = 0; i < currentGame.candidatedDown.getChildren().length; i++) {
                             if (randValueForKong == MahjongButton(currentGame.candidatedDown.getChildAt(i)).value) {
                                 break;
@@ -862,7 +956,7 @@ package info.knightrcom.state {
                         // 移除摸牌区域中参与杠操作的牌
                         currentGame.randDown.removeAllChildren();
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + 
-                                new Array(mahjongKong1, mahjongKong2, mahjongKong3, mahjongKong4).join(",") + "~" + 
+                                new Array(mahjongKong2, mahjongKong2, mahjongKong3, mahjongKong3).join(",") + "~" + 
                                 localNextNumber + "~" + localNumber + "~" + mahjongKong1.value + "~" + PushdownWinGame.OPTR_KONG);
                     } else {
                         // 明杠
@@ -954,14 +1048,13 @@ package info.knightrcom.state {
                     break;
                 case 4:
 	            	// 放弃
-	            	// 禁用操作按钮
-        		    if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled) {
-        		        // 
-        		        throw Error("Unsupported process!");
-        		    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled || 
-        		        currentGame.toolTip1.visible || currentGame.toolTip2.visible || currentGame.toolTip3.visible) {
+        		    if ((!Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled &&
+        		        !Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled &&
+        		        !Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_PONG)).enabled) &&
+        		        (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled || 
+        		        currentGame.toolTip1.visible || currentGame.toolTip2.visible || currentGame.toolTip3.visible)) {
+        		        // 在非胡牌、杠牌、碰牌的情况下，吃牌时。即除了吃牌动作外，无其他任何动作可以操作
 	            	    resetBtnBar();
-        		        // 吃牌时的放弃按钮
         		        currentGame.toolTip1.visible = false;
         		        currentGame.toolTip2.visible = false;
         		        currentGame.toolTip3.visible = false;
@@ -969,24 +1062,73 @@ package info.knightrcom.state {
         		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
                         event.index = PushdownWinGame.OPTR_RAND;
                         itemClick(event);
-        		    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled ||
-        		                Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_PONG)).enabled) {
-	            	    resetBtnBar();
-        		        // 杠碰
-        		        if (isOrderNeighbor(currentNumber, localNumber)) {
-            		        // 当前发牌玩家的下家为当前玩家时，开始摸牌
-            		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
-                            event.index = PushdownWinGame.OPTR_RAND;
-                            itemClick(event);
-        		        } else {
-        		            // 当前发牌玩家的下家非当前玩家时，将游戏控制权转移至出牌玩家的下家
-        		            // (放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……))
-        		            socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
-        		                    currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + localNumber);
-        		        }
-        		    } else {
-        		        throw Error("Unsupported [give up] action!");
+                        return;
         		    }
+        		    // 放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……)
+        		    currentGiveupIndice += (localNumber - 1);
+	            	if (PushdownWinGame.isWin(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, (currentNumber - 1) + currentGiveupIndice) > 0) {
+	            	    // 有其他可以胡牌或杠牌或碰牌的玩家
+            		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
+            		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + currentGiveupIndice);
+	            	} else if (PushdownWinGame.isKong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, (currentNumber - 1) + currentGiveupIndice) > 0) {
+	            	    // 有其他可以杠牌的玩家
+            		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
+            		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + currentGiveupIndice);
+	            	} else if (PushdownWinGame.isPong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, (currentNumber - 1) + currentGiveupIndice) > 0) {
+	            	    // 有其他可以碰牌的玩家
+            		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
+            		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + currentGiveupIndice);
+	            	} else if (currentNextNumber == localNumber) {
+	            	    // 当前玩家为发牌玩家下家时
+	            	    resetBtnBar();
+        		        currentGame.toolTip1.visible = false;
+        		        currentGame.toolTip2.visible = false;
+        		        currentGame.toolTip3.visible = false;
+        		        // 开始摸牌
+        		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+                        event.index = PushdownWinGame.OPTR_RAND;
+                        itemClick(event);
+	            	} else {
+	            	    // 放弃当前优先权，将优先权返还给发牌玩家的下家
+	            	    Alert.show("放弃当前优先权，将优先权返还给发牌玩家的下家");
+            		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
+            		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + currentGiveupIndice);
+	            	}
+
+//        		    if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled || 
+//        		        currentGame.toolTip1.visible || currentGame.toolTip2.visible || currentGame.toolTip3.visible) {
+//        		        // 吃牌时
+//	            	    resetBtnBar();
+//        		        currentGame.toolTip1.visible = false;
+//        		        currentGame.toolTip2.visible = false;
+//        		        currentGame.toolTip3.visible = false;
+//        		        // 开始摸牌
+//        		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+//                        event.index = PushdownWinGame.OPTR_RAND;
+//                        itemClick(event);
+//        		    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled) {
+//        		        // 胡牌时
+//            		    // 放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……)
+//            		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
+//            		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + localNumber);
+//        		    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled ||
+//        		                Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_PONG)).enabled) {
+//        		        // 杠碰时
+//	            	    resetBtnBar();
+//        		        if (isOrderNeighbor(currentNumber, localNumber)) {
+//            		        // 当前发牌玩家的下家为当前玩家时，开始摸牌
+//            		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+//                            event.index = PushdownWinGame.OPTR_RAND;
+//                            itemClick(event);
+//        		        } else {
+//        		            // 当前发牌玩家的下家非当前玩家时，将游戏控制权转移至出牌玩家的下家
+//        		            // (放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……))
+//        		            socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
+//        		                    currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + localNumber);
+//        		        }
+//        		    } else {
+//        		        throw Error("Unsupported [give up] action!");
+//        		    }
 	            	// TODO 优先权转移至发牌玩家的下家 or 开始摸牌
                     break;
                 case 5:
@@ -1220,8 +1362,7 @@ package info.knightrcom.state {
             currentNumber = 0;
             currentBoutMahjong = null;
             currentNextNumber = 0;
-            firstPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
-            secondPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
+            currentGiveupIndice = "";
             isNarrowWin = false;
             var container:Box = null;
             for each (container in mahjongsCandidatedArray) {
