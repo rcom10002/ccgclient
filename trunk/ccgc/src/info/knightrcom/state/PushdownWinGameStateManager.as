@@ -1,5 +1,6 @@
 package info.knightrcom.state {
     import component.MahjongButton;
+    import component.Scoreboard;
     
     import flash.display.DisplayObjectContainer;
     import flash.events.Event;
@@ -170,7 +171,7 @@ package info.knightrcom.state {
                 ListenerBinder.bind(currentGame.btnBarMahjongs, ItemClickEvent.ITEM_CLICK, itemClick);
                 ListenerBinder.bind(currentGame.btnBarMahjongs, FlexEvent.SHOW, show);
                 ListenerBinder.bind(currentGame.btnBarMahjongs, FlexEvent.HIDE, hide);
-
+// TEST SIMULATION CODE IS BEGIN
                 ListenerBinder.bind(currentGame.testFresh, MouseEvent.CLICK, function(e:MouseEvent):void {
                     currentGame.testArea.text = 
                     new Array(
@@ -187,12 +188,12 @@ package info.knightrcom.state {
                                   mahjongBox.mahjongsOfDais[2].join(","), 
                                   mahjongBox.mahjongsOfDais[2].length).join("\t"),
                         new Array(mahjongBox.mahjongsOfPlayers[3].join(","), 
-                                  mahjongBox.mahjongsOfPlayers[3].length, 
-                                  mahjongBox.mahjongsOfDais[3].join(","), 
+                                  mahjongBox.mahjongsOfPlayers[3].length,
+                                  mahjongBox.mahjongsOfDais[3].join(","),
                                   mahjongBox.mahjongsOfDais[3].length).join("\t"),
                         mahjongBox.mahjongsOnTable.join(",")).join("\n");
                 });
-
+// TEST SIMULATION CODE IS END
                 for each (var eachToolTip:Box in new Array(currentGame.toolTip1, currentGame.toolTip2, currentGame.toolTip3)) {
                     ListenerBinder.bind(MahjongButton(eachToolTip.getChildAt(0)), MouseEvent.CLICK, toolTipClick);
                     ListenerBinder.bind(MahjongButton(eachToolTip.getChildAt(1)), MouseEvent.CLICK, toolTipClick);
@@ -203,11 +204,13 @@ package info.knightrcom.state {
                 }
                 setInitialized(true);
             }
+
             // 按照当前玩家序号，进行画面座次安排
             var tempMahjongsCandidated:Array = new Array(currentGame.candidatedDown, currentGame.candidatedRight, currentGame.candidatedUp, currentGame.candidatedLeft);
             var tempMahjongsDais:Array = new Array(currentGame.daisDown, currentGame.daisRight, currentGame.daisUp, currentGame.daisLeft);
             var tempMahjongsRand:Array = new Array(currentGame.randDown, currentGame.randRight, currentGame.randUp, currentGame.randLeft);
             var tempPlayerDirection:Array = new Array("down", "right", "up", "left")
+
             // 进行位移操作
             var index:int = 0;
             while (index != localNumber - 1) {
@@ -222,6 +225,7 @@ package info.knightrcom.state {
                 tempPlayerDirection.unshift(temp);
                 index++;
             }
+
             // 更改画面组件
             mahjongsCandidatedArray = new Array(playerCogameNumber);
             for (index = 0; index < mahjongsCandidatedArray.length; index++) {
@@ -240,7 +244,7 @@ package info.knightrcom.state {
                 playerDirectionArray[index] = tempPlayerDirection[index];
             }
             currentGame.btnBarMahjongs.visible = false;
-            currentGame.timerTip.label = "剩余时间：";
+            currentGame.timerTip.label = "剩余时间："; // DROP THIS LINE!!! TODO
 		    currentGame.timerTip.minimum = 0;
             currentGame.timerTip.maximum = MAX_CARDS_SELECT_TIME;
             currentGame.timerTip.mode = ProgressBarMode.MANUAL;
@@ -265,7 +269,7 @@ package info.knightrcom.state {
                                                      "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B8,B8",
                                                      "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T8,T8", 
                                                      "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
-            mahjongBox.mahjongsSpared = "B3,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,RED,RED,T7,WHITE,W6,W8,GREEN,W7,W4,W9,RED,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,RED,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B7,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
+            mahjongBox.mahjongsSpared = "W7,B7,B3,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,RED,RED,T7,WHITE,W6,W8,GREEN,W4,W9,RED,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,RED,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
             results[0] = mahjongBox.mahjongsOfPlayers[0];
             results[1] = mahjongBox.mahjongsOfPlayers[1];
             results[2] = mahjongBox.mahjongsOfPlayers[2];
@@ -274,10 +278,12 @@ package info.knightrcom.state {
             // FIXME TEST PART END
             var mahjongSequence:String = results[localNumber - 1];
             var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
+
             // 为当前玩家发牌
             for each (var mahjongName:String in mahjongNames) {
                 addMahjongDown(currentGame.candidatedDown, "image/mahjong/down/standard/" + mahjongName + ".jpg");
             }
+
             // 为其他玩家发牌
             var index:int = 0;
             while (index != playerCogameNumber) {
@@ -756,68 +762,67 @@ package info.knightrcom.state {
          *
          */
         private function gameOverHandler(event:PushdownWinGameEvent):void {
-//            // 格式：发前玩家~牌序~接牌玩家
-//            var results:Array = event.incomingData.split("~");
-//            currentNumber = results[0];
-//            currentBoutMahjong = results[1];
-//            currentNextNumber = results[2];
-//            var scoreboardInfo:Array = String(results[3]).split(/;/);
-//            // 非出牌者时，移除桌面上显示的已出的牌，在桌面上显示最近新出的牌
-//            // if (localNumber != currentNumber && gameSetting != PushdownWinGameSetting.EXTINCT_RUSH) {
-//            if (localNumber != currentNumber && isOrderNeighbor(currentNumber, currentNextNumber)) {
-//                // 本局待发牌区域
-//                var mahjongsCandidated:Box = mahjongsCandidatedArray[Number(currentNumber) - 1];
-//                // 本局已发牌区域
-//                var mahjongsDealed:Tile = mahjongsDealedArray[Number(currentNumber) - 1];
-//                mahjongsDealed.removeAllChildren();
-//                var mahjongNames:Array = currentBoutMahjong.split(",");
-//                for each (var mahjongName:String in mahjongNames) {
-//                    // 为发牌区域添加已经发出的牌
-//                    var mahjong:MahjongButton = new MahjongButton();
-//                    mahjong.allowSelect = false;
-//                    mahjong.source = "image/mahjong/" + mahjongName + ".png";
-//                    mahjongsDealed.addChild(mahjong);
-//                    // 从待发牌区域移除已经发出的牌
-//                    mahjongsCandidated.removeChildAt(0);
-//                }
-//            }
-//            // 设置游戏排名
-//            if (gameSetting == PushdownWinGameSetting.NO_RUSH) {
-//                // 设置不独时的排名
-//                thirdPlaceNumber = currentNumber;
-//                forthPlaceNumber = currentNextNumber;
-//            } else if (gameSetting != PushdownWinGameSetting.NO_RUSH) {
-//                // 设置独牌时的排名
-//                firstPlaceNumber = currentNumber;
-//            }
-//            // 显示记分牌
-//            new Scoreboard().popUp(currentGame, scoreboardInfo, function():void {
-//            	currentGame.currentState = 'LOBBY';
-//            });
-//            // 显示游戏积分
-//            if (gameSetting != PushdownWinGameSetting.NO_RUSH) {
-//                var rushResult:String = null;
-//                if (firstPlaceNumber == gameFinalSettingPlayerNumber) {
-//                    rushResult = "成功！";
-//                } else {
-//                    rushResult = "失败！";
-//                }
-//                // 游戏结束，并且当前玩家不是最终的游戏规则设置者
-////                Alert.show(PushdownWinGameSetting.getDisplayName(gameSetting) + rushResult, "信息", Alert.OK, currentGame, function():void {
-////                        currentGame.currentState = "LOBBY";
-////                    });
-//                currentGame.txtSysMessage.text += PushdownWinGameSetting.getDisplayName(gameSetting) + rushResult + "\n";
-//            } else {
-////                Alert.show(new Array(firstPlaceNumber, secondPlaceNumber, thirdPlaceNumber, forthPlaceNumber).join(","), "信息", Alert.OK, currentGame, function():void {
-////                        currentGame.currentState = "LOBBY";
-////                    });
-//                currentGame.txtSysMessage.text += [firstPlaceNumber, 
-//                                                  secondPlaceNumber, 
-//                                                  thirdPlaceNumber, 
-//                                                  forthPlaceNumber].join(",") + "\n";
-//            }
-            gameClient.txtSysMessage.text += "推倒胡游戏结束！\n";
-            gameClient.currentState = "LOBBY";
+            // 格式：发牌玩家~牌序(~接牌玩家)?~得分结果
+            // 得分结果样例(编号，得分，系统积分)：3,30,0;2,30,0;4,30,0;1,30,0
+            var results:Array = event.incomingData.split("~");
+            var scoreboardInfo:Array = String(results[results.length - 1]).split(/;/);
+            // 显示记分牌
+            if ((results.length == 3) || (results.length == 4)) {
+	            new Scoreboard().popUp(currentGame, scoreboardInfo, function():void {
+	            	currentGame.currentState = 'LOBBY';
+	            });
+	            currentNumber = results[0];
+	            currentBoutMahjong = results[1];
+	            if (results.length == 4) {
+	            	currentNextNumber = results[2];
+	            }
+            }
+            // 显示游戏积分
+            var currentIndex:int = -1;
+			var winnerMahjongSeq:Array = null;
+            var mahjongValue:String = null;
+            var mahjongButton:MahjongButton = null;
+            if (results.length == 3) {
+            	// 自摸
+            	gameClient.txtSysMessage.text += "推倒胡游戏结束，玩家#1自摸获胜！\n";
+				// 显示获胜玩家牌
+				currentIndex = currentNextNumber - 1;
+				winnerMahjongSeq = (mahjongBox.mahjongsOfPlayers[currentIndex] as Array);
+				mahjongValue = winnerMahjongSeq.pop();
+				winnerMahjongSeq = PushdownWinGame.sortMahjongs(winnerMahjongSeq.join(","));
+				// 摸牌区域
+				Box(mahjongsRandArray[currentIndex]).removeAllChildren();
+				mahjongButton = new MahjongButton();
+				mahjongButton.allowSelect = false;
+				mahjongButton.source = "image/mahjong/" + playerDirectionArray[currentIndex] + "/dealed/" + mahjongValue + ".jpg";
+				Box(mahjongsRandArray[currentIndex]).addChild(mahjongButton);
+				// 待发牌区域
+				Box(mahjongsCandidatedArray[currentIndex]).removeAllChildren();
+				for each (mahjongValue in winnerMahjongSeq) {
+					mahjongButton = new MahjongButton();
+					mahjongButton.allowSelect = false;
+					mahjongButton.source = "image/mahjong/" + playerDirectionArray[currentIndex] + "/dealed/" + mahjongValue + ".jpg";
+					Box(mahjongsCandidatedArray[currentIndex]).addChild(mahjongButton);
+				}
+            } else if (results.length == 4) {
+            	// 点炮
+            	gameClient.txtSysMessage.text += "推倒胡游戏结束，玩家#1为玩家#2点炮！\n".replace(/#1/, results[0]).replace(/#2/, results[2]);
+				// 显示获胜玩家牌
+				currentIndex = currentNextNumber - 1;
+				winnerMahjongSeq = (mahjongBox.mahjongsOfPlayers[currentIndex] as Array);
+				mahjongValue = winnerMahjongSeq.pop();
+				winnerMahjongSeq = PushdownWinGame.sortMahjongs(winnerMahjongSeq.join(","));
+				// 待发牌区域
+				Box(mahjongsCandidatedArray[currentIndex]).removeAllChildren();
+				for each (mahjongValue in winnerMahjongSeq) {
+					mahjongButton = new MahjongButton();
+					mahjongButton.allowSelect = false;
+					mahjongButton.source = "image/mahjong/" + playerDirectionArray[currentIndex] + "/dealed/" + mahjongValue + ".jpg";
+					Box(mahjongsCandidatedArray[currentIndex]).addChild(mahjongButton);
+				}
+            } else {
+            	gameClient.txtSysMessage.text += "推倒胡游戏结束，没有玩家获胜，流局！\n";
+            }
         }
 
         /**
@@ -1094,42 +1099,6 @@ package info.knightrcom.state {
             		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
             		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + currentGiveupIndice);
 	            	}
-
-//        		    if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled || 
-//        		        currentGame.toolTip1.visible || currentGame.toolTip2.visible || currentGame.toolTip3.visible) {
-//        		        // 吃牌时
-//	            	    resetBtnBar();
-//        		        currentGame.toolTip1.visible = false;
-//        		        currentGame.toolTip2.visible = false;
-//        		        currentGame.toolTip3.visible = false;
-//        		        // 开始摸牌
-//        		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
-//                        event.index = PushdownWinGame.OPTR_RAND;
-//                        itemClick(event);
-//        		    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled) {
-//        		        // 胡牌时
-//            		    // 放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……)
-//            		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
-//            		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + localNumber);
-//        		    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled ||
-//        		                Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_PONG)).enabled) {
-//        		        // 杠碰时
-//	            	    resetBtnBar();
-//        		        if (isOrderNeighbor(currentNumber, localNumber)) {
-//            		        // 当前发牌玩家的下家为当前玩家时，开始摸牌
-//            		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
-//                            event.index = PushdownWinGame.OPTR_RAND;
-//                            itemClick(event);
-//        		        } else {
-//        		            // 当前发牌玩家的下家非当前玩家时，将游戏控制权转移至出牌玩家的下家
-//        		            // (放弃：发牌玩家序号~牌名~发牌玩家的下家序号~执行放弃操作的玩家序号列表(列表内容为：123或12或1……))
-//        		            socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
-//        		                    currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + localNumber);
-//        		        }
-//        		    } else {
-//        		        throw Error("Unsupported [give up] action!");
-//        		    }
-	            	// TODO 优先权转移至发牌玩家的下家 or 开始摸牌
                     break;
                 case 5:
                     // 摸牌
@@ -1362,7 +1331,7 @@ package info.knightrcom.state {
             currentNumber = 0;
             currentBoutMahjong = null;
             currentNextNumber = 0;
-            currentGiveupIndice = "";
+            currentGiveupIndice = null;
             isNarrowWin = false;
             var container:Box = null;
             for each (container in mahjongsCandidatedArray) {
