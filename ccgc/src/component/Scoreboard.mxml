@@ -5,7 +5,7 @@
                 height="209"
                 verticalAlign="top"
                 horizontalAlign="center"
-                xmlns:model="memorphic.xpath.model.*" title="本局得分明细">
+                title="本局得分明细">
     <mx:Script>
         <![CDATA[
         	import info.knightrcom.util.ListenerBinder;

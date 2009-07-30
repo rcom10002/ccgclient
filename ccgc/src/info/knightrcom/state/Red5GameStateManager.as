@@ -541,14 +541,8 @@ package info.knightrcom.state {
                     rushResult = "失败！";
                 }
                 // 游戏结束，并且当前玩家不是最终的游戏规则设置者
-//                Alert.show(Red5GameSetting.getDisplayName(gameSetting) + rushResult, "信息", Alert.OK, gameClient, function():void {
-//                        gameClient.currentState = "LOBBY";
-//                    });
                 gameClient.txtSysMessage.text += Red5GameSetting.getDisplayName(gameSetting) + rushResult + "\n";
             } else {
-//                Alert.show(new Array(firstPlaceNumber, secondPlaceNumber, thirdPlaceNumber, forthPlaceNumber).join(","), "信息", Alert.OK, gameClient, function():void {
-//                        gameClient.currentState = "LOBBY";
-//                    });
                 gameClient.txtSysMessage.text += [firstPlaceNumber, 
                                                   secondPlaceNumber, 
                                                   thirdPlaceNumber, 
