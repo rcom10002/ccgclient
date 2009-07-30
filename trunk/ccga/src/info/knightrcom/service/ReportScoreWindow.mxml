@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.Base64Decoder;
+			import mx.events.DragEvent;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.TextArea;
+			import mx.containers.FormItem;
+			import mx.formatters.DateFormatter;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalReportScoreService;
+			import mx.events.ItemClickEvent;
+
+			public static var CURRENT_PROFILE_ID:String;
+
+			public var currentOperationMethod:OperationMethod;
+
+			protected function defaultSearch():void
+			{
+				var dateFormatter:DateFormatter = new DateFormatter();
+    			dateFormatter.formatString = "YYYYMMDD";
+				HttpServiceProxy.send(LocalReportScoreService.RETRIEVE_REPORT_SCORE, {CURRENT_PROFILE_ID: CURRENT_PROFILE_ID, 
+            			 FROM_DATE: dateFormatter.format(dateFrom.selectedDate),
+            			 TO_DATE: dateFormatter.format(dateTo.selectedDate),
+            			 SHOW_CONDITION: sc.selectedValue,
+            			 CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+
+			protected function creationCompleteHandler():void
+			{
+				// 状态初始化
+				initializeEachState("LIST");
+				// 事件绑定
+				// 检索
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function(event:MouseEvent):void
+					{
+						CURRENT_PAGE=1;
+						defaultSearch();
+					});
+				// 翻页
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
+					{
+						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+						{
+							return;
+						}
+						if (event.index == 0)
+						{
+							CURRENT_PAGE--;
+						}
+						else if (event.index == 1)
+						{
+							CURRENT_PAGE++;
+						}
+						defaultSearch();
+					});
+			}
+		]]>
+	</mx:Script>
+	<states>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:HBox left="10"
+						 right="10"
+						 top="10">
+					<mx:Label text="从："/>
+			        <mx:DateField id="dateFrom">
+			        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+			        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+			        </mx:DateField>
+			        <mx:Label text="至："/>
+			        <mx:DateField id="dateTo">
+			        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+			        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+			        </mx:DateField>
+				    <mx:Label text="显示：" />
+				    <mx:RadioButtonGroup id="sc" />
+				    <mx:RadioButton id="radioShowAll" label="全部" value="999" groupName="sc" selected="true"/>
+				    <mx:RadioButton id="radioShowWin" label="获胜" value="1" groupName="sc"/>
+				    <mx:RadioButton id="radioShowLose" label="失败" value="-1" groupName="sc"/>
+				    <mx:RadioButton id="radioShowDraw" label="平局" value="0" groupName="sc"/>
+					<mx:Button id="btnSearch"
+							   label="查询"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="40"
+							 left="10"
+							 right="10"
+							 bottom="10"
+							 id="datagrid">
+					<mx:dataProvider>{infoService.lastResult.entityList.TodayInfo}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn dataField="profileId"
+										   visible="false"/>
+						<mx:DataGridColumn dataField="password"
+										   visible="false"/>
+						<mx:DataGridColumn headerText="用户ID"
+										   dataField="userId"/>
+						<mx:DataGridColumn headerText="游戏类型"
+										   dataField="gameType"/>
+						<mx:DataGridColumn headerText="游戏次数"
+										   dataField="gameCount"/>
+						<mx:DataGridColumn headerText="获胜次数"
+										   dataField="winCount"/>
+						<mx:DataGridColumn headerText="获胜积分"
+										   dataField="winScore"/>				 
+						<mx:DataGridColumn headerText="失败次数"
+										   dataField="lostCount"/>
+						<mx:DataGridColumn headerText="失败积分"
+										   dataField="lostScore"/>
+						<mx:DataGridColumn headerText="平局次数"
+										   dataField="drawCount"/>
+						<mx:DataGridColumn headerText="平局积分"
+										   dataField="drawScore"/>
+						<mx:DataGridColumn headerText="总次数"
+										   dataField="totalCount"/>
+					   	<mx:DataGridColumn headerText="总积分"
+					   					   dataField="totalScore"/>
+					    <mx:DataGridColumn headerText="总系统分"
+					   					   dataField="totalSysScore"/>
+						<mx:DataGridColumn headerText="开始统计时间"
+										   dataField="startTime"/>
+						<mx:DataGridColumn headerText="结束统计时间"
+										   dataField="endTime"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="积分统计 "/>
+		</mx:State>
+	</states>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

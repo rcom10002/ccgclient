@@ -76,5 +76,11 @@
 				</service:AboutGamePlatform>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="REPORT_SCORE_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ReportScoreWindow>
+				</service:ReportScoreWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
