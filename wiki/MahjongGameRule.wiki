@@ -1,5 +1,5 @@
-#summary One-sentence summary of this page.
 #labels Featured
+#Rule of Mahjong(Chinese Version)
 
 = Introduction =
 
