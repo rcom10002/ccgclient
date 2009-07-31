@@ -61,25 +61,29 @@
     </mx:Script>
     <mx:creationComplete>
     	<![CDATA[
-			// 事件绑定
-    		ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
-    			CURRENT_PAGE = 1;
-    			defaultSearch();
-    		});
-            ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-            ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
-            	if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
-            		return;
-            	}
-            	if (event.index == 0) {
-            		CURRENT_PAGE--;
-            	} else if (event.index == 1) {
-            		CURRENT_PAGE++;
-            	}
-            	defaultSearch();
-            });
+    	    if (!initialized) {
+    			// 事件绑定
+        		ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
+        			CURRENT_PAGE = 1;
+        			defaultSearch();
+        		});
+                ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+                ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
+                	if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+                		return;
+                	}
+                	if (event.index == 0) {
+                		CURRENT_PAGE--;
+                	} else if (event.index == 1) {
+                		CURRENT_PAGE++;
+                	}
+                	defaultSearch();
+                });
+                initialized = true;
+            }
     	]]>
     </mx:creationComplete>
+    <mx:Boolean id="initialized">false</mx:Boolean>
 	<!-- 查询组件 -->
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
