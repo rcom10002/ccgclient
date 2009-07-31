@@ -77,25 +77,29 @@
     </mx:Script>
     <mx:creationComplete>
     	<![CDATA[
-            ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-        	ListenerBinder.bind(btnGameVedio, MouseEvent.CLICK, gameVedioClickHandler);
-        	ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackClickHandler);
-        	ListenerBinder.bind(btnSubmitFeeckback, MouseEvent.CLICK, btnSubmitFeeckbackClickHandler);
-        	ListenerBinder.bind(feedbackWindow, CloseEvent.CLOSE, function ():void {
-            	for each (var thisFormItem:FormItem in Form(editor).getChildren()) {
-            		var control:Object = thisFormItem.getChildAt(0);
-            		if (control is TextInput) {
-            			TextInput(control).text = "";
-            		} else if (control is TextArea) {
-            			TextArea(control).text = "";
-            		} else {
-            			throw Error("无法为当前控件进行初始化");
-            		}
-            	}
-        		feedbackWindow.visible = false;
-        	});
+    	    if (!initialized) {
+                ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+            	ListenerBinder.bind(btnGameVedio, MouseEvent.CLICK, gameVedioClickHandler);
+            	ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackClickHandler);
+            	ListenerBinder.bind(btnSubmitFeeckback, MouseEvent.CLICK, btnSubmitFeeckbackClickHandler);
+            	ListenerBinder.bind(feedbackWindow, CloseEvent.CLOSE, function ():void {
+                	for each (var thisFormItem:FormItem in Form(editor).getChildren()) {
+                		var control:Object = thisFormItem.getChildAt(0);
+                		if (control is TextInput) {
+                			TextInput(control).text = "";
+                		} else if (control is TextArea) {
+                			TextArea(control).text = "";
+                		} else {
+                			throw Error("无法为当前控件进行初始化");
+                		}
+                	}
+            		feedbackWindow.visible = false;
+            	});
+            	initialized = true;
+        	}
     	]]>
     </mx:creationComplete>
+    <mx:Boolean id="initialized">false</mx:Boolean>
 	<!-- 外部查询条件 -->
     <mx:HBox horizontalGap="4" top="10" left="10" right="10" id="hbox1">
         <mx:Button id="btnGameVedio" label="游戏录像"/>
