@@ -2,18 +2,20 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
 	<!-- 上侧区域 -->
 	<mx:HBox id="candidatedUp"
+			 horizontalScrollPolicy="off"
 			 height="150"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
 			 verticalAlign="bottom"
 			 top="0"
-			 left="50"
+			 left="200"
 			 right="200">
 	</mx:HBox>
 	<!-- 右侧区域 -->
 	<mx:VBox id="candidatedRight"
+			 verticalScrollPolicy="off"
 			 width="200"
-			 top="50"
+			 top="150"
 			 bottom="150"
 			 right="0"
 			 horizontalAlign="left"
@@ -22,19 +24,21 @@
 	</mx:VBox>
 	<!-- 下侧区域 -->
 	<mx:HBox id="candidatedDown"
+			 horizontalScrollPolicy="off"
 			 height="150"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
 			 left="200"
-			 right="50"
+			 right="200"
 			 bottom="0"
 			 verticalAlign="top">
 	</mx:HBox>
 	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
+			 verticalScrollPolicy="off"
 			 width="200"
 			 top="150"
-			 bottom="50"
+			 bottom="150"
 			 left="0"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
@@ -43,6 +47,7 @@
 	<mx:Canvas left="208" right="208" top="158" bottom="187">
 		<!-- 牌桌区域 -->
 		<mx:Tile id="dealedRight"
+				 horizontalScrollPolicy="off"
 				 width="190"
 				 height="125"
 				 right="0"
@@ -52,6 +57,7 @@
 				 verticalAlign="middle">
 		</mx:Tile>
 		<mx:Tile id="dealedDown"
+				 horizontalScrollPolicy="off"
 				 height="125"
 				 right="100"
 				 bottom="0"
@@ -61,6 +67,7 @@
 				 left="100">
 		</mx:Tile>
 		<mx:Tile id="dealedLeft"
+				 horizontalScrollPolicy="off"
 				 width="190"
 				 left="0"
 				 horizontalGap="-55"
