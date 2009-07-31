@@ -26,7 +26,7 @@
 			{
 				var dateFormatter:DateFormatter=new DateFormatter();
 				dateFormatter.formatString="YYYYMMDD";
-				HttpServiceProxy.send(LocalReportScoreService.RETRIEVE_REPORT_SCORE, {CURRENT_PROFILE_ID: CURRENT_PROFILE_ID, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				HttpServiceProxy.send(LocalReportScoreService.RETRIEVE_REPORT_SCORE, {CURRENT_PROFILE_ID: CURRENT_PROFILE_ID, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), USER_ID: userId.text, CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 
 			protected function creationCompleteHandler():void
@@ -66,6 +66,9 @@
 				<mx:HBox left="10"
 						 right="10"
 						 top="10">
+					<mx:FormItem label="用户ID">
+						<mx:TextInput id="userId"/>
+					</mx:FormItem>
 					<mx:Label text="从："/>
 					<mx:DateField id="dateFrom">
 						<mx:selectedDate>{new Date()}</mx:selectedDate>
@@ -76,25 +79,6 @@
 						<mx:selectedDate>{new Date()}</mx:selectedDate>
 						<mx:formatString>YYYY年MM月DD日</mx:formatString>
 					</mx:DateField>
-					<mx:Label text="显示："/>
-					<mx:RadioButtonGroup id="sc"/>
-					<mx:RadioButton id="radioShowAll"
-									label="全部"
-									value="999"
-									groupName="sc"
-									selected="true"/>
-					<mx:RadioButton id="radioShowWin"
-									label="获胜"
-									value="1"
-									groupName="sc"/>
-					<mx:RadioButton id="radioShowLose"
-									label="失败"
-									value="-1"
-									groupName="sc"/>
-					<mx:RadioButton id="radioShowDraw"
-									label="平局"
-									value="0"
-									groupName="sc"/>
 					<mx:Button id="btnSearch"
 							   label="查询"/>
 				</mx:HBox>
@@ -132,9 +116,9 @@
 						<mx:DataGridColumn headerText="总系统分"
 										   dataField="totalSysScore"/>
 						<mx:DataGridColumn headerText="开始统计时间"
-										   dataField="startTime"/>
+										   dataField="fromTime"/>
 						<mx:DataGridColumn headerText="结束统计时间"
-										   dataField="endTime"/>
+										   dataField="toTime"/>
 					</mx:columns>
 				</mx:DataGrid>
 			</mx:AddChild>
