@@ -4,8 +4,7 @@
                 minWidth="800"
                 minHeight="600"
                 xmlns:cmpext="component.*"
-                xmlns:f3sweb="component.*"
-                xmlns:service="component.service.*" xmlns:ccgame="*">
+                xmlns:service="component.service.*" xmlns:ccgame="*" alpha="0.1">
     <mx:applicationComplete>
         <![CDATA[
 	        import info.knightrcom.state.BaseStateManager;

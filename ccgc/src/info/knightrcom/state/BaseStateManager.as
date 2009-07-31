@@ -90,8 +90,10 @@ package info.knightrcom.state {
                 case PlatformEvent.PLATFORM_MESSAGE_BROADCASTED:
                     // 显示系统消息
                     if (gameClient.currentState == "LOBBY") {
-                        Alert.show(event.incomingData, "系统消息");
+                        Alert.show(event.incomingData, "系统消息A");
                         gameClient.txtSysMessage.text += "系统消息：" + event.incomingData + "\n";
+                    } else {
+                    	Alert.show(event.incomingData, "系统消息B");
                     }
                     break;
             }
