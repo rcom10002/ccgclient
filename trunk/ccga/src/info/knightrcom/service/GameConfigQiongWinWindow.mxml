@@ -29,6 +29,7 @@
 				gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
 				displayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
 				roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
+				pointMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].pointmark.text();
 				minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
 				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
 			}
@@ -76,7 +77,7 @@
 						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, POINT_MARK: pointMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -144,7 +145,7 @@
 					{
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, POINT_MARK: pointMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -189,8 +190,11 @@
 					<mx:FormItem label="游戏名">
 						<mx:TextInput id="gameNameNew"/>
 					</mx:FormItem>
-					<mx:FormItem label="每局分数">
+					<mx:FormItem label="底分">
 						<mx:TextInput id="roundMarkNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="番分">
+						<mx:TextInput id="pointMarkNew"/>
 					</mx:FormItem>
 					<mx:FormItem label="最少底分">
 						<mx:TextInput id="minMarksNew"/>
@@ -232,8 +236,11 @@
 					<mx:FormItem label="游戏房间位置">
 						<mx:TextInput id="displayIndex"/>
 					</mx:FormItem>
-					<mx:FormItem label="每局分数">
+					<mx:FormItem label="底分">
 						<mx:TextInput id="roundMark"/>
+					</mx:FormItem>
+					<mx:FormItem label="番分">
+						<mx:TextInput id="pointMark"/>
 					</mx:FormItem>
 					<mx:FormItem label="最少底分">
 						<mx:TextInput id="minMarks"/>
