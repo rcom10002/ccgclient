@@ -81,6 +81,10 @@
 									{
 										Alert.show("保存成功！");
 									}
+									else
+									{
+										Alert.show("保存失败！");
+									}
 								}, function(event:FaultEvent):void
 								{
 									Alert.show("保存失败！");
@@ -106,6 +110,10 @@
 									Alert.show("删除成功！");
 									currentOperationMethod=OperationMethod.UPDATE;
 									readData(2);
+								}
+								else
+								{
+									Alert.show("删除失败！");
 								}
 							}, function(event:FaultEvent):void
 							{
@@ -135,12 +143,16 @@
 					{
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, DISPLAY_INDEX: displayIndexNew.text, ROUND_MARK: roundMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
 										Alert.show("新增成功！");
 										currentOperationMethod=OperationMethod.UPDATE;
+									}
+									else
+									{
+										Alert.show("新增失败！");
 									}
 								}, function(event:FaultEvent):void
 								{
@@ -175,9 +187,6 @@
 					</mx:FormItem>
 					<mx:FormItem label="游戏名">
 						<mx:TextInput id="gameNameNew"/>
-					</mx:FormItem>
-					<mx:FormItem label="游戏房间位置">
-						<mx:TextInput id="displayIndexNew"/>
 					</mx:FormItem>
 					<mx:FormItem label="每局分数">
 						<mx:TextInput id="roundMarkNew"/>
