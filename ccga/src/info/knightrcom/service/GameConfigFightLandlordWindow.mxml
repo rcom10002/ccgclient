@@ -43,7 +43,7 @@
 
 			protected function clearEditor():void
 			{
-				for each (var thisFormItem:FormItem in Form(this.editor).getChildren())
+				for each (var thisFormItem:FormItem in Form(this.editorNew).getChildren())
 				{
 					var control:Object=thisFormItem.getChildAt(0);
 					if (control is TextInput)
@@ -70,21 +70,20 @@
 				// param 1: FightLandlord
 				readData(1);
 				// 保存
-				currentOperationMethod=OperationMethod.UPDATE;
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
+						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_FIGHT_LANDLORD_ROOM_CONFIGURE, {GAME_TYPE: 1, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, infoService, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_FIGHT_LANDLORD_ROOM_CONFIGURE, {GAME_TYPE: 1, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
 								{
-									setValue(event);
-								});
-						}
-						else if (currentOperationMethod == OperationMethod.CREATE)
-						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_FIGHT_LANDLORD_ROOM_CONFIGURE, {GAME_TYPE: 1, CURRENT_PAGE: 1, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, infoService, function(event:ResultEvent):void
+									if (new XML(event.result).result == "SUCCESS")
+									{
+										Alert.show("保存成功！");
+									}
+								}, function(event:FaultEvent):void
 								{
-									setValue(event);
+									Alert.show("保存失败！");
 								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
@@ -92,7 +91,7 @@
 				// 新增
 				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
 					{
-						gameId.enabled=true;
+						currentState="ADD";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
 					});
@@ -100,11 +99,18 @@
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalGameConfigureService.DELETE_FIGHT_LANDLORD_ROOM_CONFIGURE, {GAME_TYPE: 1, CURRENT_PAGE: 1, GAME_ID: gameId.text}, infoService, function(event:ResultEvent):void
+						HttpServiceProxy.send(LocalGameConfigureService.DELETE_FIGHT_LANDLORD_ROOM_CONFIGURE, {GAME_TYPE: 1, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
 							{
-								setValue(event);
+								if (new XML(event.result).result == "SUCCESS")
+								{
+									Alert.show("删除成功！");
+									currentOperationMethod=OperationMethod.UPDATE;
+									readData(1);
+								}
+							}, function(event:FaultEvent):void
+							{
+								Alert.show("删除失败！");
 							});
-						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
 				// 翻页
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
@@ -124,10 +130,78 @@
 						// param 1: FightLandlord
 						readData(1);
 					});
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
+					{
+						if (currentOperationMethod == OperationMethod.CREATE)
+						{
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_FIGHT_LANDLORD_ROOM_CONFIGURE, {GAME_TYPE: 1, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, DISPLAY_INDEX: displayIndexNew.text, ROUND_MARK: roundMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
+								{
+									if (new XML(event.result).result == "SUCCESS")
+									{
+										Alert.show("新增成功！");
+										currentOperationMethod=OperationMethod.UPDATE;
+									}
+								}, function(event:FaultEvent):void
+								{
+									Alert.show("新增失败！");
+								});
+						}
+					});
+				// 取消
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
+					{
+						currentState="EDIT";
+						currentOperationMethod=OperationMethod.UNKNOWN;
+						readData(1);
+					});
 			}
 		]]>
 	</mx:Script>
 	<states>
+		<mx:State name="ADD">
+			<mx:AddChild position="lastChild">
+				<mx:Form id="editorNew"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="40">
+					<mx:FormItem label="uuid"
+								 visible="false">
+						<mx:TextInput id="globalConfigIdNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏ID">
+						<mx:TextInput id="gameIdNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏名">
+						<mx:TextInput id="gameNameNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏房间位置">
+						<mx:TextInput id="displayIndexNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="每局分数">
+						<mx:TextInput id="roundMarkNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="最少底分">
+						<mx:TextInput id="minMarksNew"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="66"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="斗地主房间新增"/>
+		</mx:State>
 		<mx:State name="EDIT">
 			<mx:AddChild position="lastChild">
 				<mx:Form id="editor"
