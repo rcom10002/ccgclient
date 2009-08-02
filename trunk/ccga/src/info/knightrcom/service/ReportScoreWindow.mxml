@@ -26,7 +26,7 @@
 			{
 				var dateFormatter:DateFormatter=new DateFormatter();
 				dateFormatter.formatString="YYYYMMDD";
-				HttpServiceProxy.send(LocalReportScoreService.RETRIEVE_REPORT_SCORE, {CURRENT_PROFILE_ID: CURRENT_PROFILE_ID, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), USER_ID: userId.text, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 
 			protected function creationCompleteHandler():void
@@ -114,11 +114,11 @@
 						<mx:DataGridColumn headerText="平局积分"
 										   dataField="drawScores"/>
 						<mx:DataGridColumn headerText="总系统分"
-										   dataField="totalSysScore"/>
+										   dataField="totalSystemScore"/>
 						<mx:DataGridColumn headerText="开始统计时间"
-										   dataField="fromTime"/>
+										   dataField="startDate"/>
 						<mx:DataGridColumn headerText="结束统计时间"
-										   dataField="toTime"/>
+										   dataField="endDate"/>
 					</mx:columns>
 				</mx:DataGrid>
 			</mx:AddChild>
