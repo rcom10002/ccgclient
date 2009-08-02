@@ -83,6 +83,10 @@
 										Alert.show("保存成功！");
 										currentOperationMethod=OperationMethod.UPDATE;
 									}
+									else
+									{
+										Alert.show("保存失败！");
+									}
 								}, function(event:FaultEvent):void
 								{
 									Alert.show("保存失败！");
@@ -135,6 +139,10 @@
 									{
 										Alert.show("新增成功！");
 										currentOperationMethod=OperationMethod.UPDATE;
+									}
+									else
+									{
+										Alert.show("新增失败！");
 									}
 								}, function(event:FaultEvent):void
 								{
