@@ -42,7 +42,7 @@
 
 			protected function clearEditor():void
 			{
-				for each (var thisFormItem:FormItem in Form(this.editor).getChildren())
+				for each (var thisFormItem:FormItem in Form(this.editorNew).getChildren())
 				{
 					var control:Object=thisFormItem.getChildAt(0);
 					if (control is TextInput)
@@ -70,22 +70,22 @@
 				// 隐藏
 				btnCreate.visible=false;
 				btnDelete.visible=false;
+				currentOperationMethod=OperationMethod.UPDATE; // default
 				// 保存
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
-						currentOperationMethod=OperationMethod.UPDATE;
-						if (currentOperationMethod == OperationMethod.CREATE)
+						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, infoService, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, null, function(event:ResultEvent):void
 								{
-									setValue(event);
-								});
-						}
-						else if (currentOperationMethod == OperationMethod.UPDATE)
-						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, infoService, function(event:ResultEvent):void
+									if (new XML(event.result).result == "SUCCESS")
+									{
+										Alert.show("保存成功！");
+										currentOperationMethod=OperationMethod.UPDATE;
+									}
+								}, function(event:FaultEvent):void
 								{
-									setValue(event);
+									Alert.show("保存失败！");
 								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
@@ -93,6 +93,7 @@
 				// 新增
 				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
 					{
+						currentState="ADD";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
 					});
@@ -123,10 +124,72 @@
 						}
 						readData();
 					});
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
+					{
+						if (currentOperationMethod == OperationMethod.CREATE)
+						{
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text}, null, function(event:ResultEvent):void
+								{
+									if (new XML(event.result).result == "SUCCESS")
+									{
+										Alert.show("新增成功！");
+										currentOperationMethod=OperationMethod.UPDATE;
+									}
+								}, function(event:FaultEvent):void
+								{
+									Alert.show("新增失败！");
+								});
+						}
+					});
+				// 取消
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
+					{
+						currentState="EDIT";
+						currentOperationMethod=OperationMethod.UNKNOWN;
+						readData();
+					});
 			}
 		]]>
 	</mx:Script>
 	<states>
+		<mx:State name="ADD">
+			<mx:AddChild position="lastChild">
+				<mx:Form id="editorNew"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="40">
+					<mx:FormItem label="uuid"
+								 visible="false">
+						<mx:TextInput id="globalConfigIdNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏大厅ID">
+						<mx:TextInput id="lobbyIdNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏大厅名">
+						<mx:TextInput id="lobbyNameNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="游戏大厅位置">
+						<mx:TextInput id="lobbyDisplayIndexNew"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="66"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="红五房间新增"/>
+		</mx:State>
 		<mx:State name="EDIT">
 			<mx:AddChild position="lastChild">
 				<mx:Form id="editor"
