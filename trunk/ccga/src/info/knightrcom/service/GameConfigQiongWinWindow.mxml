@@ -24,6 +24,7 @@
 				var e4xResult:XML=new XML(event.result);
 				// 读取时ID不可编辑
 				gameId.enabled=false;
+				displayIndex.enabled=false;
 				gameId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
 				gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
 				displayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
@@ -79,15 +80,15 @@
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
-										Alert.show("保存成功！");
+										Alert.show("保存成功！", "穷胡参数设置");
 									}
 									else
 									{
-										Alert.show("保存失败！");
+										Alert.show("保存失败！", "穷胡参数设置");
 									}
 								}, function(event:FaultEvent):void
 								{
-									Alert.show("保存失败！");
+									Alert.show("保存失败！", "穷胡参数设置");
 								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
@@ -107,17 +108,17 @@
 							{
 								if (new XML(event.result).result == "SUCCESS")
 								{
-									Alert.show("删除成功！");
+									Alert.show("删除成功！", "穷胡参数设置");
 									currentOperationMethod=OperationMethod.UPDATE;
 									readData(2);
 								}
 								else
 								{
-									Alert.show("删除失败！");
+									Alert.show("删除失败！", "穷胡参数设置");
 								}
 							}, function(event:FaultEvent):void
 							{
-								Alert.show("删除失败！");
+								Alert.show("删除失败！", "穷胡参数设置");
 							});
 					});
 				// 翻页
@@ -147,16 +148,16 @@
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
-										Alert.show("新增成功！");
+										Alert.show("新增成功！", "穷胡参数设置");
 										currentOperationMethod=OperationMethod.UPDATE;
 									}
 									else
 									{
-										Alert.show("新增失败！");
+										Alert.show("新增失败！", "穷胡参数设置");
 									}
 								}, function(event:FaultEvent):void
 								{
-									Alert.show("新增失败！");
+									Alert.show("新增失败！", "穷胡参数设置");
 								});
 						}
 					});
