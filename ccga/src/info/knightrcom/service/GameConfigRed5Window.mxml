@@ -80,15 +80,15 @@
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
-										Alert.show("保存成功！");
+										Alert.show("保存成功！", "红五参数设置");
 									}
 									else
 									{
-										Alert.show("保存失败！");
+										Alert.show("保存失败！", "红五参数设置");
 									}
 								}, function(event:FaultEvent):void
 								{
-									Alert.show("保存失败！");
+									Alert.show("保存失败！", "红五参数设置");
 								});
 							currentOperationMethod=OperationMethod.UPDATE;
 						}
@@ -108,17 +108,17 @@
 							{
 								if (new XML(event.result).result == "SUCCESS")
 								{
-									Alert.show("删除成功！");
+									Alert.show("删除成功！", "红五参数设置");
 									currentOperationMethod=OperationMethod.UPDATE;
 									readData(0);
 								}
 								else
 								{
-									Alert.show("删除失败！");
+									Alert.show("删除失败！", "红五参数设置");
 								}
 							}, function(event:FaultEvent):void
 							{
-								Alert.show("删除失败！");
+								Alert.show("删除失败！", "红五参数设置");
 							});
 					});
 				// 翻页
@@ -148,16 +148,16 @@
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
-										Alert.show("新增成功！");
+										Alert.show("新增成功！", "红五参数设置");
 										currentOperationMethod=OperationMethod.UPDATE;
 									}
 									else
 									{
-										Alert.show("新增失败！");
+										Alert.show("新增失败！", "红五参数设置");
 									}
 								}, function(event:FaultEvent):void
 								{
-									Alert.show("新增失败！");
+									Alert.show("新增失败！", "红五参数设置");
 								});
 						}
 					});

@@ -23,6 +23,7 @@
 			{
 				lobbyId.enabled=false;
 				lobbyRoomCount.enabled=false;
+				lobbyDisplayIndex.enabled=false;
 				var e4xResult:XML=new XML(event.result);
 				lobbyId.text=e4xResult.entity.map[CURRENT_PAGE - 1].id.text();
 				lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
@@ -80,16 +81,16 @@
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
-										Alert.show("保存成功！");
+										Alert.show("保存成功！", "游戏大厅参数设置");
 										currentOperationMethod=OperationMethod.UPDATE;
 									}
 									else
 									{
-										Alert.show("保存失败！");
+										Alert.show("保存失败！", "游戏大厅参数设置");
 									}
 								}, function(event:FaultEvent):void
 								{
-									Alert.show("保存失败！");
+									Alert.show("保存失败！", "游戏大厅参数设置");
 								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
@@ -137,16 +138,16 @@
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
-										Alert.show("新增成功！");
+										Alert.show("新增成功！", "游戏大厅参数设置");
 										currentOperationMethod=OperationMethod.UPDATE;
 									}
 									else
 									{
-										Alert.show("新增失败！");
+										Alert.show("新增失败！", "游戏大厅参数设置");
 									}
 								}, function(event:FaultEvent):void
 								{
-									Alert.show("新增失败！");
+									Alert.show("新增失败！", "游戏大厅参数设置");
 								});
 						}
 					});
