@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.core.Application;
+			import info.knightrcom.util.HttpServiceProxy;
+			import mx.core.ScrollPolicy;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.formatters.DateFormatter;
+			import mx.controls.Button;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+			import info.knightrcom.service.LocalReportBusinessService;
+
+			public static var CURRENT_PROFILE_ID:String;
+
+			private var layoutCanvas:DisplayObject=null;
+
+			private function defaultSearch():void
+			{
+				var dateFormatter:DateFormatter=new DateFormatter();
+				dateFormatter.formatString="YYYYMMDD";
+				HttpServiceProxy.send(LocalReportBusinessService.BUSINESS_INFO, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+			
+			protected function creationCompleteHandler():void
+			{
+				// 状态初始化
+				initializeEachState("LIST");
+				// 事件绑定
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
+					CURRENT_PAGE = 1;
+					defaultSearch();
+				});
+				ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
+					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+						return;
+					}
+					if (event.index == 0) {
+						CURRENT_PAGE--;
+					} else if (event.index == 1) {
+						CURRENT_PAGE++;
+					}
+					defaultSearch();
+				});
+			}
+		]]>
+	</mx:Script>
+	<states>
+		<mx:State name="LIST">
+	<!-- 查询条件 -->
+	<mx:AddChild position="lastChild">
+	<mx:HBox  top="10"
+			 left="10"
+			 right="10">
+		<mx:FormItem label="用户ID">
+			<mx:TextInput id="userId"/>
+		</mx:FormItem>
+		<mx:Label text="从："/>
+		<mx:DateField id="dateFrom">
+			<mx:selectedDate>{new Date()}</mx:selectedDate>
+			<mx:formatString>YYYY年MM月DD日</mx:formatString>
+		</mx:DateField>
+		<mx:Label text="至："/>
+		<mx:DateField id="dateTo">
+			<mx:selectedDate>{new Date()}</mx:selectedDate>
+			<mx:formatString>YYYY年MM月DD日</mx:formatString>
+		</mx:DateField>
+		<mx:Label text="显示："/>
+		<mx:RadioButtonGroup id="sc"/>
+		<mx:RadioButton id="radioShowAll"
+						label="全部"
+						value="999"
+						groupName="sc"
+						selected="true"/>
+		<mx:RadioButton id="radioShowWin"
+						label="获胜"
+						value="1"
+						groupName="sc"/>
+		<mx:RadioButton id="radioShowLose"
+						label="失败"
+						value="-1"
+						groupName="sc"/>
+		<mx:RadioButton id="radioShowDraw"
+						label="平局"
+						value="0"
+						groupName="sc"/>
+		<mx:Button id="btnSearch"
+				   label="查询"/>
+	</mx:HBox>
+	</mx:AddChild>
+	<!-- 查询结果 -->
+	<mx:AddChild position="lastChild">
+	<mx:DataGrid id="datagrid1"
+				 left="10"
+				 right="10"
+				 top="40"
+				 bottom="10">
+		<mx:dataProvider>{infoService.lastResult.entityList.ReportBusinessInfo}</mx:dataProvider>
+		<mx:columns>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="玩家ID"
+							   dataField="userId"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="游戏ID"
+							   dataField="gameId"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="游戏类别"
+							   dataField="gameType"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="游戏时间"
+							   dataField="createTime"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="状态"
+							   dataField="winandlose"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="得分"
+							   dataField="score"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="时间开始"
+							   dataField="startTime"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="结束开始"
+							   dataField="endTime"/>
+		</mx:columns>
+	</mx:DataGrid>
+	</mx:AddChild>
+	<mx:AddChild position="lastChild">
+		<mx:ControlBar paddingTop="0"
+					   paddingBottom="0"
+					   horizontalAlign="right">
+			<mx:Label id="lblPage"
+					  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+			<mx:LinkBar id="pageRoller">
+				<mx:Array>
+					<mx:Object label="前页"/>
+					<mx:Object label="后页"/>
+				</mx:Array>
+			</mx:LinkBar>
+		</mx:ControlBar>
+	</mx:AddChild>
+	<mx:SetProperty name="title"
+							value="业务分析报表"/>
+		</mx:State>
+	</states>
+	<!-- 查询组件 -->
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

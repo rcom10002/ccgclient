@@ -82,5 +82,11 @@
 				</service:ReportScoreWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="REPORT_BUSINESS_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ReportBusinessWindow>
+				</service:ReportBusinessWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>

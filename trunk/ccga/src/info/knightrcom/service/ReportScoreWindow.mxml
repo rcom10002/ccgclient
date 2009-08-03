@@ -137,7 +137,7 @@
 				</mx:ControlBar>
 			</mx:AddChild>
 			<mx:SetProperty name="title"
-							value="积分统计 "/>
+							value="积分结算报表"/>
 		</mx:State>
 	</states>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>

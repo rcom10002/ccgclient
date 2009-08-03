@@ -136,8 +136,11 @@ package info.knightrcom
 				case "注销登录":
 					flash.external.ExternalInterface.call("location.reload", true);
 					break;
-				case "积分统计":
+				case "积分结算报表":
 					adminApp.functionWindowArea.currentState="REPORT_SCORE_EDIT";
+					break;
+				case "业务分析报表":
+					adminApp.functionWindowArea.currentState="REPORT_BUSINESS_EDIT";
 					break;
 				default:
 					adminApp.currentState="MAIN";
