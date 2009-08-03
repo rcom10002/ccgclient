@@ -3,7 +3,8 @@
                 layout="absolute"
                 width="{Application.application.screen.width}"
                 height="{Application.application.screen.height}"
-                title="系统信息" xmlns:service="component.service.*" showCloseButton="true">
+                title="系统信息" xmlns:service="component.service.*"
+                showCloseButton="true">
     <mx:Script>
     	<![CDATA[
     		import info.knightrcom.state.BaseStateManager;
@@ -17,8 +18,11 @@
     		import info.knightrcom.util.ListenerBinder;
     		import mx.managers.PopUpManager;
     		import mx.events.CloseEvent;
+    		import mx.controls.Menu;
+    		import mx.events.MenuEvent;
 
 			private var layoutCanvas:DisplayObject = null;
+			private var menu:Menu;
 
             public function popUp(closeHandler:Function = null):void {
                 if (closeHandler != null) {
@@ -30,22 +34,28 @@
                 PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
                 PopUpManager.centerPopUp(this);
             }
-            
+
             public function set currentLayoutCanvas(obj:DisplayObject):void {
             	this.layoutCanvas = obj;
             }
-            
+
             private function closeHandler(event:CloseEvent):void {
                 PopUpManager.removePopUp(this);
                 Button(this.mx_internal::closeButton).dispatchEvent(event);
             }
-            
-            private function gameVedioClickHandler(event:MouseEvent):void {
-            	var gameVedioWindow:GameVedioWindow = new GameVedioWindow();
-            	gameVedioWindow.currentLayoutCanvas = this.layoutCanvas;
-            	gameVedioWindow.popUp();
+
+            private function gameVedioClickHandler(event:MenuEvent):void {
+                switch(event.item.label) {
+                    case "大连红五":
+                    	var red5GameVedio:Red5GameVedioWindow = new Red5GameVedioWindow();
+                    	red5GameVedio.currentLayoutCanvas = this.layoutCanvas;
+                    	red5GameVedio.popUp();
+                    	break;
+                    default:
+                        Alert.show("功能尚未实现！", "消息");
+                }
             }
-            
+
             private function btnFeedbackClickHandler(event:MouseEvent):void {
             	feedbackWindow.visible = true;
 				PopUpManager.removePopUp(feedbackWindow);
@@ -73,13 +83,17 @@
 		            		feedbackWindow.visible = false;
 		            	});
             }
+
         ]]>
     </mx:Script>
     <mx:creationComplete>
     	<![CDATA[
-    	    if (!initialized) {
+    	    if (!menu) {
+            	menu = new Menu;
+            	menu.dataProvider = popupMenuItems;
+            	btnGameVedio.popUp = menu;
                 ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-            	ListenerBinder.bind(btnGameVedio, MouseEvent.CLICK, gameVedioClickHandler);
+            	ListenerBinder.bind(menu, MenuEvent.CHANGE, gameVedioClickHandler);
             	ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackClickHandler);
             	ListenerBinder.bind(btnSubmitFeeckback, MouseEvent.CLICK, btnSubmitFeeckbackClickHandler);
             	ListenerBinder.bind(feedbackWindow, CloseEvent.CLOSE, function ():void {
@@ -95,14 +109,19 @@
                 	}
             		feedbackWindow.visible = false;
             	});
-            	initialized = true;
         	}
     	]]>
     </mx:creationComplete>
-    <mx:Boolean id="initialized">false</mx:Boolean>
 	<!-- 外部查询条件 -->
+    <mx:Array id="popupMenuItems">
+        <mx:Object label="大连红五" id="red5" />
+        <mx:Object label="斗地主" id="fightLandlord" />
+        <mx:Object label="推倒胡" id="pushdownWin" />
+        <mx:Object label="穷胡" id="qiongWin" />
+    </mx:Array>
+    
     <mx:HBox horizontalGap="4" top="10" left="10" right="10" id="hbox1">
-        <mx:Button id="btnGameVedio" label="游戏录像"/>
+        <mx:PopUpButton id="btnGameVedio" label="游戏录像" openAlways="true"/>
         <mx:Button id="btnFeedback" label="作弊举报"/>
         <mx:Button id="btnRefresh" label="刷新信息"/>
     </mx:HBox>

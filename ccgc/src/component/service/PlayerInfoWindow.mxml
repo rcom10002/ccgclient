@@ -26,6 +26,8 @@
 
 			private var layoutCanvas:DisplayObject = null;
 
+            private var isInitialized:Boolean = false;
+
             public function popUp(closeHandler:Function = null):void {
                 if (closeHandler != null) {
                 	this.addEventListener(CloseEvent.CLOSE, closeHandler);
@@ -61,7 +63,7 @@
     </mx:Script>
     <mx:creationComplete>
     	<![CDATA[
-    	    if (!initialized) {
+    	    if (!isInitialized) {
     			// 事件绑定
         		ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
         			CURRENT_PAGE = 1;
@@ -79,11 +81,10 @@
                 	}
                 	defaultSearch();
                 });
-                initialized = true;
+                isInitialized = true;
             }
     	]]>
     </mx:creationComplete>
-    <mx:Boolean id="initialized">false</mx:Boolean>
 	<!-- 查询组件 -->
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
@@ -123,6 +124,8 @@
     </mx:DataGrid>
 	<!-- 查询导航 -->
     <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
+        <mx:Button label="复制游戏ID到剪切板" />
+        <mx:TextInput/>
         <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
         <mx:LinkBar id="pageRoller">
 		    <mx:Array>
