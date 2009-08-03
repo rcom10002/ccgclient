@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flexLibProperties version="1">
-  <includeClasses>
-    <classEntry path="info.knightrcom.event.AbstractEvent"/>
-    <classEntry path="info.knightrcom.event.GameEvent"/>
-    <classEntry path="info.knightrcom.service.LocalAbstractService"/>
-    <classEntry path="info.knightrcom.service.LocalAdminLoginService"/>
-    <classEntry path="info.knightrcom.service.LocalApplicationServerOperationService"/>
-    <classEntry path="info.knightrcom.service.LocalGameConfigureService"/>
-    <classEntry path="info.knightrcom.service.LocalPlayerInfoService"/>
-    <classEntry path="info.knightrcom.service.LocalPlayerProfileService"/>
-    <classEntry path="info.knightrcom.service.LocalReportScoreService"/>
-    <classEntry path="info.knightrcom.service.LocalSystemInfoService"/>
-    <classEntry path="info.knightrcom.util.HttpServiceProxy"/>
-    <classEntry path="info.knightrcom.util.ListenerBinder"/>
-  </includeClasses>
-  <includeResources/>
-  <namespaceManifests/>
+<includeClasses>
+<classEntry path="info.knightrcom.service.LocalApplicationServerOperationService"/>
+<classEntry path="info.knightrcom.util.HttpServiceProxy"/>
+<classEntry path="info.knightrcom.service.LocalAbstractService"/>
+<classEntry path="info.knightrcom.service.LocalPlayerInfoService"/>
+<classEntry path="info.knightrcom.service.LocalAdminLoginService"/>
+<classEntry path="info.knightrcom.service.LocalPlayerProfileService"/>
+<classEntry path="info.knightrcom.util.ListenerBinder"/>
+<classEntry path="info.knightrcom.service.LocalSystemInfoService"/>
+<classEntry path="info.knightrcom.service.LocalGameConfigureService"/>
+<classEntry path="info.knightrcom.event.GameEvent"/>
+<classEntry path="info.knightrcom.service.LocalReportScoreService"/>
+<classEntry path="info.knightrcom.event.AbstractEvent"/>
+<classEntry path="info.knightrcom.service.LocalReportBusinessService"/>
+</includeClasses>
+<includeResources/>
+<namespaceManifests/>
 </flexLibProperties>
