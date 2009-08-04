@@ -19,6 +19,12 @@
 
 			public var currentOperationMethod:OperationMethod;
 
+			// 验证数字
+			private function validateInputNum(str:String):Boolean {
+				var pattern:RegExp = /^\d*$/;
+				return pattern.test(str);
+			}
+			
 			protected function setValue(event:ResultEvent):void
 			{
 				var e4xResult:XML=new XML(event.result);
@@ -80,32 +86,51 @@
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
 							if (gameName.text == "") {
-								Alert.show("游戏名不能为空", "红五参数设置");
+								Alert.show("游戏名不能为空！", "红五参数设置");
 								return;
 							}
 							if (roundMark.text == "") {
-								Alert.show("底分不能为空", "红五参数设置");
+								Alert.show("底分不能为空！", "红五参数设置");
 								return;
 							}
-							
+							if (!validateInputNum(roundMark.text)) {
+								Alert.show("底分必须为数字！", "红五参数设置");
+								return;
+							}
 							if (lowLevelMark.text == "") {
-								Alert.show("独牌不能为空", "红五参数设置");
+								Alert.show("独牌不能为空！", "红五参数设置");
+								return;
+							}
+							if (!validateInputNum(lowLevelMark.text)) {
+								Alert.show("独牌必须为数字！", "红五参数设置");
 								return;
 							}
 							if (midLevelMark.text == "") {
-								Alert.show("天独不能为空", "红五参数设置");
+								Alert.show("天独不能为空！", "红五参数设置");
+								return;
+							}
+							if (!validateInputNum(midLevelMark.text)) {
+								Alert.show("天独必须为数字！", "红五参数设置");
 								return;
 							}
 							if (highLevelMark.text == "") {
-								Alert.show("天外天不能为空", "红五参数设置");
+								Alert.show("天外天不能为空！", "红五参数设置");
+								return;
+							}
+							if (!validateInputNum(highLevelMark.text)) {
+								Alert.show("天外天必须为数字！", "红五参数设置");
 								return;
 							}
 						
 							if (minMarks.text == "") {
-								Alert.show("最少底分不能为空", "红五参数设置");
+								Alert.show("最少底分不能为空！", "红五参数设置");
 								return;
 							}
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, LOW_LEVEL_MARK: lowLevelMark.text, MID_LEVEL_MARK: midLevelMark.text, HIGH_LEVEL_MARK: highLevelMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
+							if (!validateInputNum(minMarks.text)) {
+								Alert.show("最少底分必须为数字！", "红五参数设置");
+								return;
+							}
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMarkNew.text), LOW_LEVEL_MARK: Number(lowLevelMarkNew.text), MID_LEVEL_MARK: Number(midLevelMarkNew.text), HIGH_LEVEL_MARK: Number(highLevelMarkNew.text), MIN_MARKS: Number(minMarksNew.text)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -172,38 +197,57 @@
 				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
 					{
 						if (gameIdNew.text == "") {
-							Alert.show("游戏ID不能为空", "红五参数设置");
+							Alert.show("游戏ID不能为空！", "红五参数设置");
 							return;
 						}
 						if (gameNameNew.text == "") {
-							Alert.show("游戏名不能为空", "红五参数设置");
+							Alert.show("游戏名不能为空！", "红五参数设置");
+							return;
+						}
+						if (roundMarkNew.text == "") {
+							Alert.show("底分不能为空！", "红五参数设置");
+							return;
+						}
+						if (!validateInputNum(roundMarkNew.text)) {
+							Alert.show("底分必须为数字！", "红五参数设置");
 							return;
 						}
 						
 						if (lowLevelMarkNew.text == "") {
-							Alert.show("独牌不能为空", "红五参数设置");
+							Alert.show("独牌不能为空！", "红五参数设置");
+							return;
+						}
+						if (!validateInputNum(lowLevelMarkNew.text)) {
+							Alert.show("独牌必须为数字！", "红五参数设置");
 							return;
 						}
 						if (midLevelMarkNew.text == "") {
-							Alert.show("天独不能为空", "红五参数设置");
+							Alert.show("天独不能为空！", "红五参数设置");
+							return;
+						}
+						if (!validateInputNum(midLevelMarkNew.text)) {
+							Alert.show("天独必须为数字！", "红五参数设置");
 							return;
 						}
 						if (highLevelMarkNew.text == "") {
-							Alert.show("天外天不能为空", "红五参数设置");
+							Alert.show("天外天不能为空！", "红五参数设置");
 							return;
 						}
-						
-						if (roundMarkNew.text == "") {
-							Alert.show("底分不能为空", "红五参数设置");
+						if (!validateInputNum(highLevelMarkNew.text)) {
+							Alert.show("天外天必须为数字！", "红五参数设置");
 							return;
 						}
 						if (minMarksNew.text == "") {
-							Alert.show("最少底分不能为空", "红五参数设置");
+							Alert.show("最少底分不能为空！", "红五参数设置");
+							return;
+						}
+						if (!validateInputNum(minMarksNew.text)) {
+							Alert.show("最少底分必须为数字！", "红五参数设置");
 							return;
 						}
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, LOW_LEVEL_MARK: lowLevelMarkNew.text, MID_LEVEL_MARK: midLevelMarkNew.text, HIGH_LEVEL_MARK: highLevelMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), LOW_LEVEL_MARK: Number(lowLevelMarkNew.text), MID_LEVEL_MARK: Number(midLevelMarkNew.text), HIGH_LEVEL_MARK: Number(highLevelMarkNew.text), MIN_MARKS: Number(minMarksNew.text)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{

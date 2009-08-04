@@ -19,6 +19,12 @@
 
 			public var currentOperationMethod:OperationMethod;
 
+			// 验证数字
+			private function validateInputNum(str:String):Boolean {
+				var pattern:RegExp = /^\d*$/;
+				return pattern.test(str);
+			}
+			
 			protected function setValue(event:ResultEvent):void
 			{
 				var e4xResult:XML=new XML(event.result);
@@ -75,25 +81,37 @@
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
 						if (gameName.text == "") {
-							Alert.show("游戏名不能为空", "推倒胡参数设置");
+							Alert.show("游戏名不能为空！", "推倒胡参数设置");
 							return;
 						}
 						if (roundMark.text == "") {
-							Alert.show("底分不能为空", "推倒胡参数设置");
+							Alert.show("底分不能为空！", "推倒胡参数设置");
+							return;
+						}
+						if (!validateInputNum(roundMark.text)) {
+							Alert.show("底分必须为数字！", "推倒胡参数设置");
 							return;
 						}
 						if (pointMark.text == "") {
-							Alert.show("番分不能为空", "推倒胡参数设置");
+							Alert.show("番分不能为空！", "推倒胡参数设置");
+							return;
+						}
+						if (!validateInputNum(pointMark.text)) {
+							Alert.show("番分必须为数字！", "推倒胡参数设置");
 							return;
 						}
 						if (minMarks.text == "") {
-							Alert.show("最少底分不能为空", "推倒胡参数设置");
+							Alert.show("最少底分不能为空！", "推倒胡参数设置");
+							return;
+						}
+						if (!validateInputNum(minMarks.text)) {
+							Alert.show("最少底分必须为数字！", "推倒胡参数设置");
 							return;
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, POINT_MARK: pointMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -160,28 +178,40 @@
 				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
 					{
 						if (gameIdNew.text == "") {
-							Alert.show("游戏ID不能为空", "推倒胡参数设置");
+							Alert.show("游戏ID不能为空！", "推倒胡参数设置");
 							return;
 						}
 						if (gameNameNew.text == "") {
-							Alert.show("游戏名不能为空", "推倒胡参数设置");
+							Alert.show("游戏名不能为空！", "推倒胡参数设置");
 							return;
 						}
 						if (roundMarkNew.text == "") {
-							Alert.show("底分不能为空", "推倒胡参数设置");
+							Alert.show("底分不能为空！", "推倒胡参数设置");
+							return;
+						}
+						if (!validateInputNum(roundMarkNew.text)) {
+							Alert.show("底分必须为数字！", "推倒胡参数设置");
 							return;
 						}
 						if (pointMarkNew.text == "") {
-							Alert.show("番分不能为空", "推倒胡参数设置");
+							Alert.show("番分不能为空！", "推倒胡参数设置");
+							return;
+						}
+						if (!validateInputNum(pointMarkNew.text)) {
+							Alert.show("番分必须为数字！", "推倒胡参数设置");
 							return;
 						}
 						if (minMarksNew.text == "") {
-							Alert.show("最少底分不能为空", "推倒胡参数设置");
+							Alert.show("最少底分不能为空！", "推倒胡参数设置");
+							return;
+						}
+						if (!validateInputNum(minMarksNew.text)) {
+							Alert.show("最少底分必须为数字！", "推倒胡参数设置");
 							return;
 						}
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, POINT_MARK: pointMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), POINT_MARK: Number(pointMarkNew.text), MIN_MARKS: Number(minMarksNew.text)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
