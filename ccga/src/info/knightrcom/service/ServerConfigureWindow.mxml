@@ -18,7 +18,12 @@
 			import mx.events.ItemClickEvent;
 
 			public var currentOperationMethod:OperationMethod;
-
+			// 验证字母数字和下划线组合
+			private function validateInput(str:String):Boolean {
+				var pattern:RegExp = /^[a-zA-Z_]*$/;
+				return pattern.test(str);
+			}
+			
 			protected function setValue(event:ResultEvent):void
 			{
 				var e4xResult:XML=new XML(event.result);
@@ -76,7 +81,7 @@
 						}
 						if (variableValue.text == "") 
 						{
-							Alert.show("变量值不能为空！","服务器参数数管理");
+							Alert.show("变量值不能为空！","服务器参数管理");
 							return;
 						}
 						if (currentOperationMethod == OperationMethod.UPDATE)
@@ -152,9 +157,14 @@
 							Alert.show("变量名不能为空！","服务器参数管理");
 							return;
 						}
+						if (!validateInput(variableNameNew.text)) 
+						{
+							Alert.show("变量名格式错误！","服务器参数管理");
+							return;
+						}
 						if (variableValueNew.text == "") 
 						{
-							Alert.show("变量值不能为空！","服务器参数数管理");
+							Alert.show("变量值不能为空！","服务器参数管理");
 							return;
 						}
 						if (currentOperationMethod == OperationMethod.CREATE)
