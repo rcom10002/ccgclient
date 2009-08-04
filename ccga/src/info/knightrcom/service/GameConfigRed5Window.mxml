@@ -29,6 +29,9 @@
 				gameName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
 				displayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
 				roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
+				lowLevelMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].lowlevelmark.text();
+				midLevelMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].midlevelmark.text();
+				highLevelMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].highlevelmark.text();
 				minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
 				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
 			}
@@ -76,7 +79,33 @@
 						currentOperationMethod=OperationMethod.UPDATE; // default
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
+							if (gameName.text == "") {
+								Alert.show("游戏名不能为空", "红五参数设置");
+								return;
+							}
+							if (roundMark.text == "") {
+								Alert.show("底分不能为空", "红五参数设置");
+								return;
+							}
+							
+							if (lowLevelMark.text == "") {
+								Alert.show("独牌不能为空", "红五参数设置");
+								return;
+							}
+							if (midLevelMark.text == "") {
+								Alert.show("天独不能为空", "红五参数设置");
+								return;
+							}
+							if (highLevelMark.text == "") {
+								Alert.show("天外天不能为空", "红五参数设置");
+								return;
+							}
+						
+							if (minMarks.text == "") {
+								Alert.show("最少底分不能为空", "红五参数设置");
+								return;
+							}
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: roundMark.text, LOW_LEVEL_MARK: lowLevelMark.text, MID_LEVEL_MARK: midLevelMark.text, HIGH_LEVEL_MARK: highLevelMark.text, MIN_MARKS: minMarks.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -142,9 +171,39 @@
 				// 确定
 				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
 					{
+						if (gameIdNew.text == "") {
+							Alert.show("游戏ID不能为空", "红五参数设置");
+							return;
+						}
+						if (gameNameNew.text == "") {
+							Alert.show("游戏名不能为空", "红五参数设置");
+							return;
+						}
+						
+						if (lowLevelMarkNew.text == "") {
+							Alert.show("独牌不能为空", "红五参数设置");
+							return;
+						}
+						if (midLevelMarkNew.text == "") {
+							Alert.show("天独不能为空", "红五参数设置");
+							return;
+						}
+						if (highLevelMarkNew.text == "") {
+							Alert.show("天外天不能为空", "红五参数设置");
+							return;
+						}
+						
+						if (roundMarkNew.text == "") {
+							Alert.show("底分不能为空", "红五参数设置");
+							return;
+						}
+						if (minMarksNew.text == "") {
+							Alert.show("最少底分不能为空", "红五参数设置");
+							return;
+						}
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: roundMarkNew.text, LOW_LEVEL_MARK: lowLevelMarkNew.text, MID_LEVEL_MARK: midLevelMarkNew.text, HIGH_LEVEL_MARK: highLevelMarkNew.text, MIN_MARKS: minMarksNew.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -189,8 +248,17 @@
 					<mx:FormItem label="游戏名">
 						<mx:TextInput id="gameNameNew"/>
 					</mx:FormItem>
-					<mx:FormItem label="每局分数">
+					<mx:FormItem label="底分">
 						<mx:TextInput id="roundMarkNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="独牌">
+						<mx:TextInput id="lowLevelMarkNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="天独">
+						<mx:TextInput id="midLevelMarkNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="天外天">
+						<mx:TextInput id="highLevelMarkNew"/>
 					</mx:FormItem>
 					<mx:FormItem label="最少底分">
 						<mx:TextInput id="minMarksNew"/>
@@ -232,8 +300,17 @@
 					<mx:FormItem label="游戏房间位置">
 						<mx:TextInput id="displayIndex"/>
 					</mx:FormItem>
-					<mx:FormItem label="每局分数">
+					<mx:FormItem label="底分">
 						<mx:TextInput id="roundMark"/>
+					</mx:FormItem>
+					<mx:FormItem label="独牌">
+						<mx:TextInput id="lowLevelMark"/>
+					</mx:FormItem>
+					<mx:FormItem label="天独">
+						<mx:TextInput id="midLevelMark"/>
+					</mx:FormItem>
+					<mx:FormItem label="天外天">
+						<mx:TextInput id="highLevelMark"/>
 					</mx:FormItem>
 					<mx:FormItem label="最少底分">
 						<mx:TextInput id="minMarks"/>
@@ -276,6 +353,61 @@
 							value="红五参数管理"/>
 		</mx:State>
 	</states>
+	<!-- 验证器 -->
+    <mx:Array id="loginValidators">
+        <mx:StringValidator source="{gameName}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="游戏名不能为空！"/>
+        <mx:NumberValidator source="{roundMark}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="底分不能为空！"/>
+		<mx:NumberValidator source="{lowLevelMark}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="独牌不能为空！"/>
+		<mx:NumberValidator source="{midLevelMark}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="天独不能为空！"/>
+		<mx:NumberValidator source="{highLevelMark}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="天外天不能为空！"/>
+		<mx:NumberValidator source="{minMarks}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="最少底分不能为空！"/>
+        <mx:StringValidator source="{gameIdNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="游戏ID不能为空！"/>
+		<mx:StringValidator source="{gameNameNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="游戏名不能为空！"/>
+        <mx:NumberValidator source="{roundMarkNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="底分不能为空！"/>
+        <mx:NumberValidator source="{lowLevelMarkNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="独牌不能为空！"/>
+		<mx:NumberValidator source="{midLevelMarkNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="天独不能为空！"/>
+		<mx:NumberValidator source="{highLevelMarkNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="天外天不能为空！"/>                    
+		<mx:NumberValidator source="{minMarksNew}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="最少底分不能为空！"/>
+    </mx:Array>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
 </FunctionWindow>
