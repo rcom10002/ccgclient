@@ -31,13 +31,13 @@ package info.knightrcom.state.fightlandlordgame
 					displayName="不叫";
 					break;
 				case ONE_RUSH:
-					displayName="1分";
+					displayName="青龙";
 					break;
 				case TWO_RUSH:
-					displayName="2分";
+					displayName="白虎";
 					break;
 				case THREE_RUSH:
-					displayName="3分";
+					displayName="朱雀";
 					break;
 				default:
 					throw Error("游戏设置参数错误！");
@@ -53,29 +53,29 @@ package info.knightrcom.state.fightlandlordgame
 		 */
 		public static function getNoRushStyle():Array
 		{
-			return ["不叫", "1分", "2分", "3分"];
+			return ["不叫", "青龙", "白虎", "朱雀"];
 		}
 
 		/**
-		 * 有人选择1分
+		 * 有人选择青龙
 		 *
 		 * @return
 		 *
 		 */
 		public static function getRushStyle():Array
 		{
-			return ["不叫", null, "2分", "3分"];
+			return ["不叫", null, "白虎", "朱雀"];
 		}
 
 		/**
-		 * 有人选择2分
+		 * 有人选择白虎
 		 *
 		 * @return
 		 *
 		 */
 		public static function getDeadlyRushStyle():Array
 		{
-			return ["不叫", null, null, "3分"];
+			return ["不叫", null, null, "朱雀"];
 		}
 
 	}

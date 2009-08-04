@@ -75,6 +75,11 @@
 				// 保存
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
 					{
+						if (lobbyName.text == "") 
+						{
+							Alert.show("游戏大厅名不能为空！","游戏参数管理");
+							return;
+						}
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
 							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, null, function(event:ResultEvent):void
@@ -260,6 +265,13 @@
 							value="游戏参数管理"/>
 		</mx:State>
 	</states>
+	<!-- 验证器 -->
+    <mx:Array id="loginValidators">
+        <mx:StringValidator source="{lobbyName}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="游戏大厅名不能为空！"/>
+    </mx:Array>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
 </FunctionWindow>
