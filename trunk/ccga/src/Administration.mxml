@@ -81,7 +81,7 @@
 							 minWidth="100"
 							 maxWidth="300">
 						<mx:Tree id="menuTree"
-								 dataProvider="{xmlDP}"
+								 dataProvider="{adminMenuXML}"
 								 labelField="@label"
 								 showRoot="false"
 								 wordWrap="false"
@@ -108,7 +108,21 @@
 							  horizontalAlign="center">
 		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.4)"/>
 	</mx:ApplicationControlBar>
-	<mx:XML id="xmlDP">
+    <!-- 高级用户界面菜单配置 -->
+	<mx:XML id="userMenuXML">
+		<root label="nodegraphs">
+			<node label="用户管理">
+				<node label="普通用户管理"/>
+			</node>
+			<node label="报表管理">
+				<node label="业务分析报表"/>
+				<node label="积分结算报表"/>
+			</node>
+			<node label="注销登录"/>
+		</root>
+	</mx:XML>
+    <!-- 管理员界面菜单配置 -->
+	<mx:XML id="adminMenuXML">
 		<root label="nodegraphs">
 			<node label="用户管理">
 				<node label="组用户管理"/>

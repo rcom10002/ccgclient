@@ -33,6 +33,13 @@ package info.knightrcom
 				{
 					if (new XML(event.result).result == "SUCCESS")
 					{
+					    var role:String = new XML(event.result).entity.role;
+					    adminApp.menuTree.dataProvider = adminApp[role + "MenuXML"];
+					    if (role.toLowerCase() == "user") {
+					        
+					    } else if (role.toLowerCase() == "user") {
+					        
+					    }
 						adminApp.currentState="MAIN";
 					}
 				}, function(event:FaultEvent):void
