@@ -34,6 +34,12 @@
 				</service:PlayerProfileWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="SERVER_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ServerConfigureWindow>
+				</service:ServerConfigureWindow>
+			</mx:AddChild>
+		</mx:State>
 		<mx:State name="GAME_PARAM_EDIT">
 			<mx:AddChild position="lastChild">
 				<service:GameConfigureWindow>
