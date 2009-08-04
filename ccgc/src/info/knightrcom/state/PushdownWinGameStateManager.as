@@ -87,7 +87,7 @@ package info.knightrcom.state {
 		 */
 		// private static const MAX_CARDS_SELECT_TIME:int = 15;
 		// 测试用时间为10分钟
-		private static const MAX_CARDS_SELECT_TIME:int = 10 * 60;
+		private static const MAX_CARDS_SELECT_TIME:int = 5;// * 60;
 
         /**
          * 待发牌区域
@@ -159,7 +159,20 @@ package info.knightrcom.state {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					// DROP THIS LINE currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
-                        if (currentGame.randDown.numChildren > 0) {
+                        var dummyEvent:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+					    if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled) {
+					        // 执行摸牌动作
+                            dummyEvent.index = PushdownWinGame.OPTR_RAND;
+                            itemClick(dummyEvent);
+                            timer.reset();
+                            timer.start();
+					    } else if (Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled) {
+					        // 执行放弃动作
+                            dummyEvent.index = PushdownWinGame.OPTR_GIVEUP;
+                            itemClick(dummyEvent);
+                            timer.reset();
+                            timer.start();
+					    } else if (currentGame.randDown.numChildren > 0) {
                             // 摸牌区域有牌时，将摸到的牌打出
                             dealMahjong(MahjongButton(currentGame.randDown.getChildAt(0)));
                         } else {
@@ -266,11 +279,11 @@ package info.knightrcom.state {
             mahjongBox.mahjongsOfPlayers = new Array(results[0], results[1], results[2], results[3]);
             mahjongBox.mahjongsSpared = results[4].toString().split(",");
             // FIXME TEST PART BEGIN
-            mahjongBox.mahjongsOfPlayers = new Array("EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W8,W8",
-                                                     "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B8,B8",
-                                                     "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T8,T8", 
+            mahjongBox.mahjongsOfPlayers = new Array("EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,RED",
+                                                     "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B7,RED",
+                                                     "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T7,RED", 
                                                      "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
-            mahjongBox.mahjongsSpared = "B7,W7,B3,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,RED,RED,T7,WHITE,W6,W8,GREEN,W4,W9,RED,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,RED,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
+            mahjongBox.mahjongsSpared = "W8,W8,B3,RED,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,B8,B8,T8,T8,WHITE,W6,W8,GREEN,W4,W9,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
             results[0] = mahjongBox.mahjongsOfPlayers[0];
             results[1] = mahjongBox.mahjongsOfPlayers[1];
             results[2] = mahjongBox.mahjongsOfPlayers[2];
@@ -361,6 +374,9 @@ package info.knightrcom.state {
             itemClick(dummyEvent);
             // 显示操作按钮
             currentGame.btnBarMahjongs.visible = true;
+            currentGame.timerTip.visible = true;
+            timer.reset();
+            timer.start();
         }
 
         /**
@@ -513,13 +529,40 @@ package info.knightrcom.state {
 		     	for (var i:int = finalMixedIndex / 10; i < 3; i++) {
 		     		operationList[i]();
 		     	}
+                // 判断其他玩家是否可以进行胡牌操作动作
+                var isOthersWin:Boolean = PushdownWinGame.isWin(
+                        currentBoutMahjong, 
+                        mahjongBox.mahjongsOfPlayers, 
+                        String(currentNumber - 1) + String(localNumber - 1)) > -1;
+                var eachButton:Button = null;
 		     	if (currentNextNumber == localNumber) {
 		     	    // 当前玩家为出牌玩家的下家时
-	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
-	     		    var canChow:Boolean = PushdownWinGame.isChow(currentBoutMahjong, mahjongBox.mahjongsOfPlayers[localNumber - 1])
-	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = canChow;
+                    if (isOthersWin) {
+                        // 存在其他玩家可以进行胡牌操作动作时
+                        for each (eachButton in currentGame.btnBarMahjongs.getChildren()) {
+                            eachButton.enabled = false;
+                        }
+                        Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
+                        Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
+                    } else {
+    		     	    // 启用摸牌按钮
+    	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
+    		     		// 启用吃牌按钮
+    	     		    var canChow:Boolean = PushdownWinGame.isChow(currentBoutMahjong, mahjongBox.mahjongsOfPlayers[localNumber - 1])
+    	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_CHOW)).enabled = canChow;
+    	     		    // 启用放弃按钮
+    	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
+                    }
 		     	} else {
 		     	    // 当前玩家不是出牌玩家下家时
+                    if (isOthersWin) {
+                        // 存在其他玩家可以进行胡牌操作动作时
+                        for each (eachButton in currentGame.btnBarMahjongs.getChildren()) {
+                            eachButton.enabled = false;
+                        }
+                        Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
+                        Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
+                    }
 	     		    Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled = true;
 	     		}
                 currentGame.btnBarMahjongs.visible = true;
@@ -1245,6 +1288,7 @@ package info.knightrcom.state {
             currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
 			currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
 			currentGame.timerTip.visible = true;
+			timer.reset();
 			timer.start();
 		}
 
