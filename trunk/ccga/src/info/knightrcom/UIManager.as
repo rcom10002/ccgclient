@@ -152,6 +152,9 @@ package info.knightrcom
 				case "业务分析报表":
 					adminApp.functionWindowArea.currentState="REPORT_BUSINESS_EDIT";
 					break;
+				case "报表模板管理":
+					adminApp.functionWindowArea.currentState="REPORT_TEMPLATE_MANAGE_EDIT";
+					break;
 				default:
 					adminApp.currentState="MAIN";
 					Alert.show("该功能正在完善中");

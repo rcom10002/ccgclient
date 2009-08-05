@@ -190,7 +190,7 @@
 				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
 					{
 						currentState="EDIT";
-						currentOperationMethod=OperationMethod.UNKNOWN;
+						currentOperationMethod=OperationMethod.UPDATE;
 						readServerData();
 					});
 			}
