@@ -144,7 +144,8 @@
 				<node label="业务分析报表"/>
 				<node label="积分结算报表"/>
 				<!-- 1.用于每周结算 2.用于调用“创建报表”中创建出来的报表并显示 -->
-				<node label="报表模板管理"><!-- 可以动态创建报表，其实就是一条sql，保存在global_config，key=报表名称，value=sql，在报表查询中可以利用这些sql输出结果。类似于SQL Server的查询分析器，利用SQL跑结果 -->
+				<node label="报表模板"><!-- 可以动态创建报表，其实就是一条sql，保存在global_config，key=报表名称，value=sql，在报表查询中可以利用这些sql输出结果。类似于SQL Server的查询分析器，利用SQL跑结果 -->
+					<node label="报表模板管理"/>
 				    <node label="创建报表模板"/><!-- 将创建出来的报表进行修改 -->
     				<node label="修改报表模板"/><!-- 将创建出来的报表进行修改 -->
     				<node label="删除报表模板"/><!-- 将不需要的报表sql禁用，不用做物理删除 -->

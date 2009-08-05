@@ -94,5 +94,11 @@
 				</service:ReportBusinessWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="REPORT_TEMPLATE_MANAGE_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ReportTemplateManageWindow>
+				</service:ReportTemplateManageWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
