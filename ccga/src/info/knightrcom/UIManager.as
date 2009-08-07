@@ -152,6 +152,18 @@ package info.knightrcom
 				case "业务分析报表":
 					adminApp.functionWindowArea.currentState="REPORT_BUSINESS_EDIT";
 					break;
+				case "即时消息发布":
+					adminApp.functionWindowArea.currentState="SERVER_MESSAGE_SEND";
+					adminApp.functionWindowArea.serverMessageWindow.consoleMessage.text = "";
+					adminApp.functionWindowArea.serverMessageWindow.instantMessage.text = "";
+					adminApp.functionWindowArea.serverMessageWindow.radioInstantMessage.selected = true;
+					break;
+				case "平台信息发布":
+					adminApp.functionWindowArea.currentState="SERVER_MESSAGE_SEND";
+					adminApp.functionWindowArea.serverMessageWindow.consoleMessage.text = "";
+					adminApp.functionWindowArea.serverMessageWindow.instantMessage.text = "";
+					adminApp.functionWindowArea.serverMessageWindow.radioConsoleMessage.selected = true;
+					break;
 				case "报表模板管理":
 					adminApp.functionWindowArea.currentState="REPORT_TEMPLATE_MANAGE_EDIT";
 					break;
