@@ -106,7 +106,7 @@
 							if (gameType == "Red5Game") {
 								var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
 								gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
-								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){4}).*/, "$1"), ";");
+								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
 								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
 								var part3:String = removeBothSides(gameRecord, ";");
 								btnExecute.enabled = false;
@@ -342,7 +342,7 @@
 	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0" showCloseButton="true" visible="false">
 		<mx:Form x="10" y="10">
 			<mx:FormItem label="游戏ID" required="true">
-				<mx:TextInput id="gameId" text="8dc0e2b1-7371-4cb4-82c7-c365d0f03914"/>
+				<mx:TextInput id="gameId" text="61c1f628-1450-4e34-bbb3-9a71c4258504"/>
 			</mx:FormItem>
 			<mx:FormItem label="播放速度">
 				<mx:HSlider id="gameSpeed" minimum="1" maximum="5" snapInterval="1" value="3" showDataTip="false" />
