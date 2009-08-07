@@ -106,7 +106,7 @@
 							  top="0"
 							  id="applicationControlBar"
 							  horizontalAlign="center">
-		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.4)"/>
+		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.6)"/>
 	</mx:ApplicationControlBar>
     <!-- 高级用户界面菜单配置 -->
 	<mx:XML id="userMenuXML">
@@ -129,6 +129,17 @@
 				<node label="普通用户管理"/>
 				<node label="用户关系管理"/>
 			</node>
+			<node label="系统管理">
+				<node label="服务器参数"/>
+				<node label="及时消息发布"/>
+				<node label="平台信息发布"/>
+				<node label="操作管理">
+					<node label="启动游戏服务器"/>
+					<node label="关闭游戏服务器"/>
+					<node label="重启游戏服务器"/>
+				</node>
+				<node label="运行状态查看"/>
+			</node>
 			<node label="游戏管理">
 				<node label="游戏大厅"/>
 				<node label="扑克游戏">
@@ -139,6 +150,10 @@
 					<node label="穷胡"/>
 					<node label="推倒胡"/>
 				</node>
+			</node>
+			<node label="反馈信息管理">
+				<node label="游戏反馈"/><!-- 改进游戏的建议 -->
+				<node label="不良举报"/><!-- 作弊玩家举报 -->
 			</node>
 			<node label="报表管理">
 				<node label="业务分析报表"/>
@@ -151,28 +166,11 @@
     				<node label="删除报表模板"/><!-- 将不需要的报表sql禁用，不用做物理删除 -->
 				</node>
 			</node>
-			<node label="反馈信息">
-				<node label="游戏反馈"/><!-- 改进游戏的建议 -->
-				<node label="不良举报"/><!-- 作弊玩家举报 -->
-			</node>
-			<node label="系统参数管理">
-				<node label="服务器参数"/>
-			</node>
-			<node label="游戏服务器管理">
-				<node label="操作管理">
-					<node label="启动游戏服务器"/>
-					<node label="关闭游戏服务器"/>
-					<node label="重新启动游戏服务器"/>
-					<node label="关于游戏Web服务器"/>
-				</node>
-				<node label="运行状态查看"/>
-			</node>
-			<node label="注销登录">
-			</node>
 			<node label="帮助">
 				<node label="管理员帮助手册"/>
 				<node label="关于管理平台"/>
 			</node>
+			<node label="注销登录" />
 		</root>
 	</mx:XML>
 </mx:Application>
