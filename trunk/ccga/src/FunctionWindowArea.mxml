@@ -70,6 +70,12 @@
 				</service:GameConfigPushDownWinWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="SERVER_MESSAGE_SEND">
+			<mx:AddChild position="lastChild">
+				<service:ServerMessageWindow id="serverMessageWindow">
+				</service:ServerMessageWindow>
+			</mx:AddChild>
+		</mx:State>
 		<mx:State name="ADMIN_MANUAL">
 			<mx:AddChild position="lastChild">
 				<service:AdminManual right="10" left="10" top="10" bottom="10">

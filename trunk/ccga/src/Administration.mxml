@@ -130,15 +130,15 @@
 				<node label="用户关系管理"/>
 			</node>
 			<node label="系统管理">
-				<node label="服务器参数"/>
-				<node label="及时消息发布"/>
+				<node label="即时消息发布"/>
 				<node label="平台信息发布"/>
-				<node label="操作管理">
+				<node label="服务器管理">
 					<node label="启动游戏服务器"/>
 					<node label="关闭游戏服务器"/>
 					<node label="重启游戏服务器"/>
 				</node>
-				<node label="运行状态查看"/>
+				<node label="服务器参数"/>
+				<node label="服务器状态查看"/>
 			</node>
 			<node label="游戏管理">
 				<node label="游戏大厅"/>
