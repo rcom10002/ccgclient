@@ -132,12 +132,12 @@ package info.knightrcom.state
 		/**
 		 * 地主出牌次数
 		 */
-		public static var holderOutTimes:int=0;
+		private var holderOutTimes:int=0;
 
 		/**
 		 * 非地主玩家是否出过牌
 		 */
-		public static var isHaveOut:Boolean=false;
+		private var isHaveOut:Boolean=false;
 
 		/**
 		 * 是否翻倍积分
