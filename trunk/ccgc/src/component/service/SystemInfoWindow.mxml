@@ -51,6 +51,11 @@
                     	red5GameVedio.currentLayoutCanvas = this.layoutCanvas;
                     	red5GameVedio.popUp();
                     	break;
+                    case "斗地主":
+                    	var fightlandlordGameVedio:FightLandlordGameVedioWindow = new FightLandlordGameVedioWindow();
+                    	fightlandlordGameVedio.currentLayoutCanvas = this.layoutCanvas;
+                    	fightlandlordGameVedio.popUp();
+                    	break;
                     default:
                         Alert.show("功能尚未实现！", "消息");
                 }
