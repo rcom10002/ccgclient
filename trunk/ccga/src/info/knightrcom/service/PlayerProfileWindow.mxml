@@ -4,6 +4,12 @@
 				creationComplete="creationCompleteHandler();">
 	<mx:Script>
 		<![CDATA[
+	        import mx.events.StateChangeEvent;
+	        import mx.binding.utils.ChangeWatcher;
+	        import mx.binding.utils.BindingUtils;
+	        import mx.states.State;
+	        import mx.core.Application;
+	        import mx.controls.RadioButton;
 			import mx.utils.Base64Decoder;
 			import mx.events.DragEvent;
 			import info.knightrcom.model.OperationMethod;
@@ -40,6 +46,10 @@
 					else if (control is TextArea)
 					{
 						TextArea(control).text="";
+					}
+					else if (control is RadioButton)
+					{
+					    RadioButton(control).group.getRadioButtonAt(0).selected = true;
 					}
 					else
 					{
@@ -86,6 +96,10 @@
 				// 更新
 				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
 					{
+					    if (datagrid.selectedIndices.length == 0) {
+					        Alert.show("请选择要更新的数据！");
+					        return;
+					    }
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.UPDATE;
 						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, function(event:ResultEvent):void
@@ -101,6 +115,10 @@
 				// 删除
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
+					    if (datagrid.selectedIndices.length == 0) {
+					        Alert.show("请选择要删除的数据！");
+					        return;
+					    }
 						currentOperationMethod=OperationMethod.DELETE;
 						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, function():void
 							{
@@ -130,7 +148,127 @@
 					{
 						currentState="LIST";
 						currentOperationMethod=OperationMethod.UNKNOWN;
-					});
+					}
+				);
+                ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, function (event:StateChangeEvent):void
+                    {
+                        ChangeWatcher.watch(playerCurrentScore, "text", function(event:Event):void {
+                            if (currentState == "EDIT") {
+                                playerLimit.text = playerCurrentScore.text;
+                            }
+                        });
+                    });
+
+                // 初始化玩家关系路径
+                if (Application.application.currentRole == "Administrator") {
+				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, function(event:ResultEvent):void {
+				        playerRlsPath.dataProvider = null;
+				        var responseText:* = new XML(event.result);
+				        playerRlsPath.dataProvider = null;
+				        trace(responseText);
+				    });
+                } else if (Application.application.currentRole == "GroupUser") {
+				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, 
+				            {CURRENT_RLS_PATH : Application.application.currentRlsPath}, 
+				            null, 
+				            function(event:ResultEvent):void {
+				        playerRlsPath.dataProvider = null;
+				        var responseText:* = new XML(event.result);
+				        playerRlsPath.dataProvider = null;
+				        trace(responseText);
+				    });
+event.result = /*
+<EntityInfo>
+  <entity class="PlayerProfile">
+    <createTime>
+      2009-08-10 10:23:40.854 CST
+    </createTime>
+    <createBy>
+      SYSTEM
+    </createBy>
+    <updateTime>
+      2009-08-10 10:23:40.854 CST
+    </updateTime>
+    <updateBy>
+      SYSTEM
+    </updateBy>
+  </entity>
+  <pagination>
+    <log class="org.apache.commons.logging.impl.Log4JLogger">
+      <name>
+        info.knightrcom.web.model.Pagination
+      </name>
+    </log>
+    <totalRecord>
+      -1
+    </totalRecord>
+    <currentPage>
+      -1
+    </currentPage>
+    <pageSize>
+      4
+    </pageSize>
+    <totalPage>
+      0
+    </totalPage>
+  </pagination>
+  <result>
+    SUCCESS
+  </result>
+  <tag class="object-array">
+    <map>
+      <rlsPath>
+        user4
+      </rlsPath>
+    </map>
+    <map>
+      <rlsPath>
+        user3
+      </rlsPath>
+    </map>
+    <map>
+      <rlsPath>
+        user2
+      </rlsPath>
+    </map>
+    <map>
+      <rlsPath>
+        user1
+      </rlsPath>
+    </map>
+    <map>
+      <rlsPath>
+        user5
+      </rlsPath>
+    </map>
+    <map>
+      <rlsPath>
+        user6
+      </rlsPath>
+    </map>
+    <map>
+      <rlsPath>
+        user3!user33
+      </rlsPath>
+    </map>
+  </tag>
+</EntityInfo>
+*/
+                }
+			    // 初始化玩家角色
+			    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_ROLE, null, null, function(event:ResultEvent):void {
+			        playerRole.dataProvider = null;
+			        var roles:Array = new Array();
+			        for each (var eachRole:String in new XML(event.result).tag.string.split(";")) {
+			            roles.push({data : eachRole.split("~")[0], label : eachRole.split("~")[1]});
+			        }
+			        playerRole.dataProvider = roles;
+			        if (playerRole.rowCount > 0) {
+			            playerRole.selectedIndex = playerRole.rowCount - 1;
+			            playerRole.text = playerRole.selectedItem["label"]; 
+			        }
+			    });
+			    // playerRole.addChild(new Label(""));
 			}
 		]]>
 	</mx:Script>
@@ -150,7 +288,7 @@
 						<mx:TextInput id="playerUserId"/>
 					</mx:FormItem>
 					<mx:FormItem label="所属用户组">
-						<mx:ComboBox id="playerGroup"/>
+						<mx:ComboBox id="playerRlsPath"/>
 					</mx:FormItem>
 					<mx:FormItem label="密码">
 						<mx:TextInput id="playerPassword"
@@ -160,11 +298,19 @@
 						<mx:TextInput id="playerPasswordConfirm"
 									  displayAsPassword="true"/>
 					</mx:FormItem>
+					<mx:FormItem label="初始分值">
+						<mx:TextInput id="playerCurrentScore"/>
+					</mx:FormItem>
 					<mx:FormItem label="用户额度">
-						<mx:TextInput id="playerLimit"/>
+						<mx:TextInput id="playerLimit" editable="false"/>
 					</mx:FormItem>
 					<mx:FormItem label="角色">
 						<mx:ComboBox id="playerRole"/>
+					</mx:FormItem>
+					<mx:FormItem label="状态">
+    					<mx:RadioButtonGroup id="disableGroup"/>
+    					<mx:RadioButton label="启用" group="{disableGroup}"/>
+    					<mx:RadioButton label="禁用" group="{disableGroup}"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>

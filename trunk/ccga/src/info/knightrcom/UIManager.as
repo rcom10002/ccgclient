@@ -33,13 +33,18 @@ package info.knightrcom
 				{
 					if (new XML(event.result).result == "SUCCESS")
 					{
-					    var role:String = new XML(event.result).entity.role;
+					    var entity:* = new XML(event.result).entity;
+					    var role:String = entity.role;
 					    adminApp.menuTree.dataProvider = adminApp[role + "MenuXML"];
-					    if (role.toLowerCase() == "user") {
+					    if (role == "Administrator") {
 					        
-					    } else if (role.toLowerCase() == "user") {
+					    } else if (role == "GroupUser") {
 					        
 					    }
+					    adminApp.currentProfileId = entity.profileId;
+					    adminApp.currentUserId = entity.userId;
+					    adminApp.currentRlsPath = entity.rslPath;
+					    adminApp.currentRole = entity.role;
 						adminApp.currentState="MAIN";
 					}
 				}, function(event:FaultEvent):void
