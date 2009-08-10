@@ -29,6 +29,10 @@
 		ListenerBinder.bind(btnReset, MouseEvent.CLICK, UIManager.btnResetClickHandler);
 		]]>
 	</mx:applicationComplete>
+	<mx:String id="currentProfileId"></mx:String>
+	<mx:String id="currentUserId"></mx:String>
+	<mx:String id="currentRlsPath"></mx:String>
+	<mx:String id="currentRole"></mx:String>
 	<mx:states>
 		<mx:State name="LOGIN">
 			<mx:AddChild position="lastChild">
@@ -81,7 +85,6 @@
 							 minWidth="100"
 							 maxWidth="300">
 						<mx:Tree id="menuTree"
-								 dataProvider="{adminMenuXML}"
 								 labelField="@label"
 								 showRoot="false"
 								 wordWrap="false"
@@ -109,7 +112,7 @@
 		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.6)"/>
 	</mx:ApplicationControlBar>
     <!-- 高级用户界面菜单配置 -->
-	<mx:XML id="userMenuXML">
+	<mx:XML id="GroupUserMenuXML">
 		<root label="nodegraphs">
 			<node label="用户管理">
 				<node label="普通用户管理"/>
@@ -122,7 +125,7 @@
 		</root>
 	</mx:XML>
     <!-- 管理员界面菜单配置 -->
-	<mx:XML id="adminMenuXML">
+	<mx:XML id="AdministratorMenuXML">
 		<root label="nodegraphs">
 			<node label="用户管理">
 				<node label="组用户管理"/>
