@@ -82,7 +82,7 @@
 					    }
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.UPDATE;
-						HttpServiceProxy.send(LocalReportTemplateManageService.READ_SQL_TEMPLATE, {PROFILE_ID: datagrid.selectedItem.globalconfigId.text()}, null, function(event:ResultEvent):void
+						HttpServiceProxy.send(LocalReportTemplateManageService.READ_SQL_TEMPLATE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
 							{
 								setValue(event);
 							});
@@ -167,7 +167,7 @@
 						}
 						else if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalReportTemplateManageService.UPDATE_SQL_TEMPLATE, {CURRENT_PAGE: 1, TITLE: reportName.text, CONTENT: content.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalReportTemplateManageService.UPDATE_SQL_TEMPLATE, {CURRENT_PAGE: 1, TITLE: reportName.text, CONTENT: content.text, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{

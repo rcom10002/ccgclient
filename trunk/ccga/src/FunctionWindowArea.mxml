@@ -106,5 +106,11 @@
 				</service:ReportTemplateManageWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="DYNA_REPORT">
+			<mx:AddChild position="lastChild">
+				<service:DynaReportWindow>
+				</service:DynaReportWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
