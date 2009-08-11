@@ -76,6 +76,10 @@
 				// 更新
 				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
 					{
+						if (datagrid.selectedIndices.length == 0) {
+					        Alert.show("请选择要更新的数据！", "报表模板管理");
+					        return;
+					    }
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.UPDATE;
 						HttpServiceProxy.send(LocalReportTemplateManageService.READ_SQL_TEMPLATE, {PROFILE_ID: datagrid.selectedItem.globalconfigId.text()}, null, function(event:ResultEvent):void
@@ -87,7 +91,11 @@
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalReportTemplateManageService.DELETE_SQL_TEMPLATE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalconfigId.text()}, null, function(event:ResultEvent):void
+						if (datagrid.selectedIndices.length == 0) {
+					        Alert.show("请选择要删除的数据！", "报表模板管理");
+					        return;
+					    }
+						HttpServiceProxy.send(LocalReportTemplateManageService.DELETE_SQL_TEMPLATE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
 							{
 								if (new XML(event.result).result == "SUCCESS")
 								{
@@ -227,7 +235,7 @@
 							 id="datagrid">
 					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn dataField="globalconfigId"
+						<mx:DataGridColumn dataField="globalConfigId"
 										   visible="false"/>
 						<mx:DataGridColumn headerText="报表模板标题"
 										   dataField="name"/>
