@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- http://blog.flexexamples.com/2008/03/04/dynamically-adding-new-columns-to-a-datagrid-control-in-flex/ -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        verticalAlign="middle"
+        backgroundColor="white">
+
+    <mx:Script>
+        <![CDATA[
+            import mx.controls.dataGridClasses.DataGridColumn;
+
+            private function addDataGridColumn(dataField:String):void {
+                var dgc:DataGridColumn = new DataGridColumn(dataField);
+                var cols:Array = dataGrid.columns;
+                cols.push(dgc);
+                dataGrid.columns = cols;
+            }
+
+            private function init():void {
+                addDataGridColumn("col4");
+            }
+        ]]>
+    </mx:Script>
+
+    <mx:ArrayCollection id="arrColl">
+        <mx:source>
+            <mx:Array>
+                <mx:Object col1="A.1" col2="A.2" col3="A.3" col4="A.4"/>
+                <mx:Object col1="B.1" col2="B.2" col3="B.3" col4="B.4"/>
+                <mx:Object col1="C.1" col2="C.2" col3="C.3" col4="C.4"/>
+                <mx:Object col1="D.1" col2="D.2" col3="D.3" col4="D.4"/>
+                <mx:Object col1="E.1" col2="E.2" col3="E.3" col4="E.4"/>
+                <mx:Object col1="F.1" col2="F.2" col3="F.3" col4="F.4"/>
+            </mx:Array>
+        </mx:source>
+    </mx:ArrayCollection>
+
+    <mx:ApplicationControlBar dock="true">
+        <mx:Button label="Add column" click="init();" />
+    </mx:ApplicationControlBar>
+
+    <mx:DataGrid id="dataGrid"
+            dataProvider="{arrColl}"
+            width="400"
+            rowCount="6">
+        <mx:columns>
+            <mx:DataGridColumn dataField="col1" />
+            <mx:DataGridColumn dataField="col2" />
+            <mx:DataGridColumn dataField="col3" />
+        </mx:columns>
+    </mx:DataGrid>
+
+</mx:Application>
+
