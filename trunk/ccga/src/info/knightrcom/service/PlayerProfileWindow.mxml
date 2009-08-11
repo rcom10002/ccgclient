@@ -4,6 +4,7 @@
 				creationComplete="creationCompleteHandler();">
 	<mx:Script>
 		<![CDATA[
+	        import mx.validators.Validator;
 	        import mx.events.StateChangeEvent;
 	        import mx.binding.utils.ChangeWatcher;
 	        import mx.binding.utils.BindingUtils;
@@ -102,15 +103,17 @@
 					    }
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.UPDATE;
-						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, function(event:ResultEvent):void
-							{
-								var e4xResult:XML=new XML(event.result);
-								playerProfileId.text=e4xResult.entity.profileId.text();
-								playerUserId.text=e4xResult.entity.userId.text();
-								playerPassword.text=e4xResult.entity.password.text();
-								playerPasswordConfirm.text=e4xResult.entity.password.text();
-								trace(e4xResult.entity.profileId.text());
-							});
+						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
+						        function(event:ResultEvent):void
+    							{
+    								var e4xResult:XML=new XML(event.result);
+    								playerProfileId.text=e4xResult.entity.profileId.text();
+    								playerUserId.text=e4xResult.entity.userId.text();
+    								playerPassword.text=e4xResult.entity.password.text();
+    								playerPasswordConfirm.text=e4xResult.entity.password.text();
+    								trace(e4xResult.entity.profileId.text());
+    							}
+						);
 					});
 				// 删除
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
@@ -120,26 +123,46 @@
 					        return;
 					    }
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, function():void
-							{
-								defaultSearch();
-							});
+						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
+						        function():void
+    							{
+    								defaultSearch();
+    							}
+    					);
 						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
 				// 确定
 				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
 					{
+                        if (Validator.validateAll(submitValidators).length != 0) {
+                            return;
+                        }
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, {USER_ID: playerUserId.text, PASSWORD: playerPassword.text, playerLimit: playerLimit.text, ROLE: playerRole.text}, null, function(event:ResultEvent):void
-								{
-									var e4xResult:XML=new XML(event.result);
-									playerProfileId.text=e4xResult.entity.profileId.text();
-								});
+							HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, 
+							        {USER_ID : playerUserId.text, 
+							         PASSWORD : playerPassword.text, 
+							         RLS_PATH : playerRlsPath.selectedItem.data, 
+							         CURRENT_SCORE : playerCurrentScore.text, 
+							         INIT_LIMIT : playerLimit.text, 
+							         ROLE : playerRole.text, 
+							         STATUS : disableGroup.selectedValue, 
+							         CURRENT_ROLE : Application.application.currentRole}, 
+							        null, 
+							        function(event:ResultEvent):void {
+    									var e4xResult:XML=new XML(event.result);
+    									playerProfileId.text=e4xResult.entity.profileId.text();
+    								});
 						}
 						else if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE, {PROFILE_ID: playerProfileId.text, USER_ID: playerUserId.text, PASSWORD: playerPassword.text, playerLimit: playerLimit.text, ROLE: playerRole.text});
+							HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE, 
+							        {PROFILE_ID : playerProfileId.text, 
+							         USER_ID : playerUserId.text, 
+							         PASSWORD : playerPassword.text, 
+							         ROLE : playerRole.text, 
+							         STATUS : disableGroup.selectedValue, 
+							         CURRENT_ROLE : Application.application.currentRole});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
 					});
@@ -150,6 +173,7 @@
 						currentOperationMethod=OperationMethod.UNKNOWN;
 					}
 				);
+				// 绑定监听
                 ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, function (event:StateChangeEvent):void
                     {
                         ChangeWatcher.watch(playerCurrentScore, "text", function(event:Event):void {
@@ -160,115 +184,37 @@
                     });
 
                 // 初始化玩家关系路径
+                var rlsPathes:Array = new Array();
                 if (Application.application.currentRole == "Administrator") {
-				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, function(event:ResultEvent):void {
-				        playerRlsPath.dataProvider = null;
-				        var responseText:* = new XML(event.result);
-				        playerRlsPath.dataProvider = null;
-				        trace(responseText);
-				    });
+                    // 系统管理员可以添加一个顶级节点
+                    rlsPathes.push({data: "", label:""});
+                }
+                var rlsPathLoad:Function = function (event:ResultEvent):void {
+			        for each (var rlsPath:* in new XML(event.result).tag.map.rlsPath) {
+			            rlsPathes.push({data: rlsPath, label: rlsPath});
+			        }
+			        playerRlsPath.dataProvider = rlsPathes;
+                };
+                if (Application.application.currentRole == "Administrator") {
+				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, rlsPathLoad);
                 } else if (Application.application.currentRole == "GroupUser") {
-				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, 
+				    HttpServiceProxy.send(
+				            LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, 
 				            {CURRENT_RLS_PATH : Application.application.currentRlsPath}, 
 				            null, 
-				            function(event:ResultEvent):void {
-				        playerRlsPath.dataProvider = null;
-				        var responseText:* = new XML(event.result);
-				        playerRlsPath.dataProvider = null;
-				        trace(responseText);
-				    });
-event.result = /*
-<EntityInfo>
-  <entity class="PlayerProfile">
-    <createTime>
-      2009-08-10 10:23:40.854 CST
-    </createTime>
-    <createBy>
-      SYSTEM
-    </createBy>
-    <updateTime>
-      2009-08-10 10:23:40.854 CST
-    </updateTime>
-    <updateBy>
-      SYSTEM
-    </updateBy>
-  </entity>
-  <pagination>
-    <log class="org.apache.commons.logging.impl.Log4JLogger">
-      <name>
-        info.knightrcom.web.model.Pagination
-      </name>
-    </log>
-    <totalRecord>
-      -1
-    </totalRecord>
-    <currentPage>
-      -1
-    </currentPage>
-    <pageSize>
-      4
-    </pageSize>
-    <totalPage>
-      0
-    </totalPage>
-  </pagination>
-  <result>
-    SUCCESS
-  </result>
-  <tag class="object-array">
-    <map>
-      <rlsPath>
-        user4
-      </rlsPath>
-    </map>
-    <map>
-      <rlsPath>
-        user3
-      </rlsPath>
-    </map>
-    <map>
-      <rlsPath>
-        user2
-      </rlsPath>
-    </map>
-    <map>
-      <rlsPath>
-        user1
-      </rlsPath>
-    </map>
-    <map>
-      <rlsPath>
-        user5
-      </rlsPath>
-    </map>
-    <map>
-      <rlsPath>
-        user6
-      </rlsPath>
-    </map>
-    <map>
-      <rlsPath>
-        user3!user33
-      </rlsPath>
-    </map>
-  </tag>
-</EntityInfo>
-*/
+				            rlsPathLoad);
                 }
 			    // 初始化玩家角色
-			    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_ROLE, null, null, function(event:ResultEvent):void {
-			        playerRole.dataProvider = null;
-			        var roles:Array = new Array();
-			        for each (var eachRole:String in new XML(event.result).tag.string.split(";")) {
-			            roles.push({data : eachRole.split("~")[0], label : eachRole.split("~")[1]});
-			        }
-			        playerRole.dataProvider = roles;
-			        if (playerRole.rowCount > 0) {
-			            playerRole.selectedIndex = playerRole.rowCount - 1;
-			            playerRole.text = playerRole.selectedItem["label"]; 
-			        }
-			    });
-			    // playerRole.addChild(new Label(""));
+			    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_ROLE, {CURRENT_ROLE : Application.application.currentRole}, null, 
+			            function(event:ResultEvent):void {
+        			        playerRole.dataProvider = null;
+        			        var roles:Array = new Array();
+        			        for each (var eachRole:String in new XML(event.result).tag.string.split(";")) {
+        			            roles.push({data : eachRole.split("~")[0], label : eachRole.split("~")[1]});
+        			        }
+        			        playerRole.dataProvider = roles;
+			            }
+			    );
 			}
 		]]>
 	</mx:Script>
@@ -285,32 +231,34 @@ event.result = /*
 						<mx:TextInput id="playerProfileId"/>
 					</mx:FormItem>
 					<mx:FormItem label="用户ID">
-						<mx:TextInput id="playerUserId"/>
-					</mx:FormItem>
-					<mx:FormItem label="所属用户组">
-						<mx:ComboBox id="playerRlsPath"/>
+						<mx:TextInput id="playerUserId" maxChars="16"/>
 					</mx:FormItem>
 					<mx:FormItem label="密码">
 						<mx:TextInput id="playerPassword"
-									  displayAsPassword="true"/>
+									  displayAsPassword="true"
+									  maxChars="16"/>
 					</mx:FormItem>
 					<mx:FormItem label="密码确认">
 						<mx:TextInput id="playerPasswordConfirm"
-									  displayAsPassword="true"/>
+									  displayAsPassword="true"
+									  maxChars="16"/>
+					</mx:FormItem>
+					<mx:FormItem label="所属用户组">
+						<mx:ComboBox id="playerRlsPath" selectedIndex="0" selectedItem=""/>
 					</mx:FormItem>
 					<mx:FormItem label="初始分值">
-						<mx:TextInput id="playerCurrentScore"/>
+						<mx:TextInput id="playerCurrentScore" maxChars="6"/>
 					</mx:FormItem>
 					<mx:FormItem label="用户额度">
 						<mx:TextInput id="playerLimit" editable="false"/>
 					</mx:FormItem>
 					<mx:FormItem label="角色">
-						<mx:ComboBox id="playerRole"/>
+						<mx:ComboBox id="playerRole" selectedIndex="0" selectedItem=""/>
 					</mx:FormItem>
 					<mx:FormItem label="状态">
     					<mx:RadioButtonGroup id="disableGroup"/>
-    					<mx:RadioButton label="启用" group="{disableGroup}"/>
-    					<mx:RadioButton label="禁用" group="{disableGroup}"/>
+    					<mx:RadioButton label="启用" value="true" group="{disableGroup}"/>
+    					<mx:RadioButton label="禁用" value="false" group="{disableGroup}"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
@@ -403,4 +351,30 @@ event.result = /*
 	</states>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+    <!-- 验证器 -->
+    <mx:Array id="submitValidators">
+        <mx:RegExpValidator source="{playerUserId}"
+                            required="true"
+                            property="text"
+                            expression="[a-z]([0-9]|[a-z]){3,15}"
+                            flags="i"
+                            noMatchError="用户ID长度需要在4到16之间，只能由半角字母和数字组合，且首位必须为字母！"
+                            requiredFieldError="用户ID不能为空！"/>
+        <mx:StringValidator source="{playerPassword}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="密码不能为空！"/>
+        <mx:StringValidator source="{playerPasswordConfirm}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="密码确认不能为空！"/>
+        <mx:StringValidator source="{playerCurrentScore}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="初始分值不能为空！"/>
+        <mx:StringValidator source="{playerRole}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="用户角色不能为空！"/>
+    </mx:Array>
 </FunctionWindow>
