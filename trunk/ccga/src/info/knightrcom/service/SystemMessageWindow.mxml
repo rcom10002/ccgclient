@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service:FunctionWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+						xmlns:service="info.knightrcom.service.*"
+						width="100%"
+						height="100%"
+						creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+
+			private function resultHandler(event:ResultEvent):void {
+				if (new XML(event.result).result == "SUCCESS") {
+					Alert.show("消息发送全部成功！", "信息");
+				} else if (new XML(event.result).result == "FAIL") {
+					Alert.show("消息发送全部失败", "错误");
+				} else if (new XML(event.result).result == "WARNING") {
+					Alert.show("有部分消息未能发送成功", "警告");
+				} else {
+					Alert.show("发送失败！", "错误");
+				}
+			};
+
+			protected function creationCompleteHandler():void
+			{
+				ListenerBinder.bind(btnSend, MouseEvent.CLICK, sendMessage);
+				ListenerBinder.bind(btnClear, MouseEvent.CLICK, clearMessage);
+			}
+
+			private function sendMessage(event:MouseEvent):void
+			{
+				if (radioInstantMessage.selected)
+				{
+					// 发送即时消息
+					HttpServiceProxy.send(
+							LocalSystemMessageService.SEND_SYSTEM_MESSAGE, 
+							{MESSAGE_CONTENT: instantMessage.text}, 
+							null, 
+							resultHandler
+					);
+				}
+				else if (radioConsoleMessage.selected)
+				{
+					if (consoleMessage.htmlText.length > 200) {
+						Alert.show("字数必须在200以内！", "警告");
+						return;
+					}
+					// 发送控制台消息
+					HttpServiceProxy.send(
+							LocalSystemMessageService.SEND_SYSTEM_MESSAGE, 
+							{MESSAGE_CONTENT: consoleMessage.htmlText}, 
+							null, 
+							resultHandler
+					);
+				}
+			}
+
+			private function clearMessage(event:MouseEvent):void
+			{
+				if (radioInstantMessage.selected)
+				{
+					instantMessage.text = "";
+				}
+				else if (radioConsoleMessage.selected)
+				{
+					consoleMessage.text = "";
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Label text="即时消息：" left="10" top="10"/>
+	<mx:Label left="10" top="30">
+		<mx:text>{instantMessage.text.length + "/70"}</mx:text>
+	</mx:Label>
+	<mx:TextArea left="80"
+				 right="10"
+				 top="10"
+				 height="60"
+				 id="instantMessage"
+				 maxChars="70"
+				 enabled="{radioInstantMessage.selected}"/>
+	<mx:Label text="控制台消息：" left="10" top="80"/>
+	<mx:Label left="10" top="100">
+		<mx:text>{consoleMessage.text.length + "/200"}</mx:text>
+	</mx:Label>
+	<mx:RichTextEditor top="80"
+					   bottom="40"
+					   right="10"
+					   left="80"
+					   id="consoleMessage"
+					   enabled="{radioConsoleMessage.selected}"/>
+	<mx:RadioButtonGroup id="messageGroup"/>
+	<mx:RadioButton id="radioInstantMessage"
+					label="即时消息"
+					groupName="messageGroup"
+					right="130"
+					bottom="10"/>
+	<mx:RadioButton id="radioConsoleMessage"
+					label="控制台消息"
+					groupName="messageGroup"
+					right="200"
+					bottom="10"
+					selected="true"/>
+	<mx:Button id="btnSend" label="发送" right="74" bottom="10"/>
+	<mx:Button id="btnClear" label="清除" right="18" bottom="10"/>
+	<service:title>{"发送" + messageGroup.selectedValue}</service:title>
+</service:FunctionWindow>

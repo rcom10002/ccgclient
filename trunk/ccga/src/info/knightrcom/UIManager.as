@@ -46,6 +46,8 @@ package info.knightrcom
 					    adminApp.currentRlsPath = entity.rslPath;
 					    adminApp.currentRole = entity.role;
 						adminApp.currentState="MAIN";
+					} else {
+						Alert.show("用户登录失败！请检查用户名与密码！", "警告");
 					}
 				}, function(event:FaultEvent):void
 				{
@@ -115,7 +117,7 @@ package info.knightrcom
 							Alert.show("游戏服务器关闭失败！");
 						});
 					break;
-				case "重新启动游戏服务器":
+				case "重启游戏服务器":
 					HttpServiceProxy.send(LocalApplicationServerOperationService.RESTART_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
 						{
 							Alert.show("游戏服务器重新启动成功！");

@@ -250,7 +250,7 @@
 						<mx:TextInput id="playerCurrentScore" maxChars="6"/>
 					</mx:FormItem>
 					<mx:FormItem label="用户额度">
-						<mx:TextInput id="playerLimit" editable="false"/>
+						<mx:TextInput id="playerLimit" maxChars="6" editable="false"/>
 					</mx:FormItem>
 					<mx:FormItem label="角色">
 						<mx:ComboBox id="playerRole" selectedIndex="0" selectedItem=""/>
@@ -356,7 +356,7 @@
         <mx:RegExpValidator source="{playerUserId}"
                             required="true"
                             property="text"
-                            expression="[a-z]([0-9]|[a-z]){3,15}"
+                            expression="{'^[a-z][0-9a-z]{3,15}$'}"
                             flags="i"
                             noMatchError="用户ID长度需要在4到16之间，只能由半角字母和数字组合，且首位必须为字母！"
                             requiredFieldError="用户ID不能为空！"/>
