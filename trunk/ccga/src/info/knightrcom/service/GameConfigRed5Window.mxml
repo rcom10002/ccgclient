@@ -130,7 +130,7 @@
 								Alert.show("最少底分必须为数字！", "红五参数设置");
 								return;
 							}
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), LOW_LEVEL_MARK: Number(lowLevelMark.text), MID_LEVEL_MARK: Number(midLevelMark.text), HIGH_LEVEL_MARK: Number(highLevelMark.text), MIN_MARKS: Number(minMarks.text)}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_RED5_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), LOW_LEVEL_MARK: Number(lowLevelMark.text), MID_LEVEL_MARK: Number(midLevelMark.text), HIGH_LEVEL_MARK: Number(highLevelMark.text), MIN_MARKS: Number(minMarks.text)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -158,7 +158,7 @@
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalGameConfigureService.DELETE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
+						HttpServiceProxy.send(LocalGameConfigureService.DELETE_RED5_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
 							{
 								if (new XML(event.result).result == "SUCCESS")
 								{
@@ -247,7 +247,7 @@
 						}
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_REDFIVE_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), LOW_LEVEL_MARK: Number(lowLevelMarkNew.text), MID_LEVEL_MARK: Number(midLevelMarkNew.text), HIGH_LEVEL_MARK: Number(highLevelMarkNew.text), MIN_MARKS: Number(minMarksNew.text)}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_RED5_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), LOW_LEVEL_MARK: Number(lowLevelMarkNew.text), MID_LEVEL_MARK: Number(midLevelMarkNew.text), HIGH_LEVEL_MARK: Number(highLevelMarkNew.text), MIN_MARKS: Number(minMarksNew.text)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
