@@ -71,31 +71,23 @@ package info.knightrcom.state {
          * 连接按钮动作
          */
         private function connectClick(event:Event):void {
-            try {
-                if (socketProxy.isConnected()) {
-                    Alert.show("连接已经完成！", "信息");
-                    return;
-                }
-                socketProxy.connect();
-            } catch (error:Error) {
-                trace(error.message);
+            if (socketProxy.isConnected()) {
+                Alert.show("连接已经完成！", "信息");
+                return;
             }
+            socketProxy.connect();
         }
 
         /**
          * 提交按钮动作
          */
         private function submitClick(event:Event):void {
-            try {
-                if (Validator.validateAll(gameClient.loginValidators).length == 0) {
-                    var data:Array = new Array(gameClient.txtUsername.text, gameClient.txtPassword.text);
-                    if (!socketProxy.isConnected()) {
-                        socketProxy.connect();
-                    }
-                    socketProxy.sendPlayerData(PlayerCommand.LOGIN_SIGN_IN, data.join("~"));
+            if (Validator.validateAll(gameClient.loginValidators).length == 0) {
+                var data:Array = new Array(gameClient.txtUsername.text, gameClient.txtPassword.text);
+                if (!socketProxy.isConnected()) {
+                    socketProxy.connect();
                 }
-            } catch (error:Error) {
-                trace(error.message);
+                socketProxy.sendPlayerData(PlayerCommand.LOGIN_SIGN_IN, data.join("~"));
             }
         }
 
@@ -103,13 +95,9 @@ package info.knightrcom.state {
          * 重置按钮动作
          */
         private function resetClick(event:Event):void {
-            try {
-                gameClient.txtUsername.text = "";
-                gameClient.txtPassword.text = "";
-                gameClient.txtUsername.setFocus();
-            } catch (error:Error) {
-                trace(error.message);
-            }
+            gameClient.txtUsername.text = "";
+            gameClient.txtPassword.text = "";
+            gameClient.txtUsername.setFocus();
         }
     }
 }
