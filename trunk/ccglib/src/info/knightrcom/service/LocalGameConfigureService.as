@@ -13,9 +13,9 @@ package info.knightrcom.service
 		/** 游戏房间读取 */
 		public static const READ_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "READ_ROOM_CONFIGURE");
 		/** 红五 */
-		public static const UPDATE_REDFIVE_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "UPDATE_REDFIVE_ROOM_CONFIGURE");
-		public static const CREATE_REDFIVE_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "CREATE_REDFIVE_ROOM_CONFIGURE");
-		public static const DELETE_REDFIVE_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "DELETE_REDFIVE_ROOM_CONFIGURE");
+		public static const UPDATE_RED5_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "UPDATE_RED5_ROOM_CONFIGURE");
+		public static const CREATE_RED5_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "CREATE_RED5_ROOM_CONFIGURE");
+		public static const DELETE_RED5_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "DELETE_RED5_ROOM_CONFIGURE");
 		/** 斗地主 */
 		public static const UPDATE_FIGHT_LANDLORD_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "UPDATE_FIGHT_LANDLORD_ROOM_CONFIGURE");
 		public static const CREATE_FIGHT_LANDLORD_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "CREATE_FIGHT_LANDLORD_ROOM_CONFIGURE");
