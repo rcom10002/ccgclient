@@ -72,8 +72,8 @@
 		</mx:State>
 		<mx:State name="SERVER_MESSAGE_SEND">
 			<mx:AddChild position="lastChild">
-				<service:ServerMessageWindow id="serverMessageWindow">
-				</service:ServerMessageWindow>
+				<service:SystemMessageWindow id="serverMessageWindow">
+				</service:SystemMessageWindow>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="ADMIN_MANUAL">

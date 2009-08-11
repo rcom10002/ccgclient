@@ -2,7 +2,7 @@ package info.knightrcom.service
 {
 	public class LocalSystemMessageService extends LocalAbstractService
 	{
-	    public static const SUBMIT_CHEAT:LocalAbstractService = new LocalSystemInfoService("SystemInfoService", "SUBMIT_CHEAT");
+	    public static const SEND_SYSTEM_MESSAGE:LocalAbstractService = new LocalSystemInfoService("SystemInfoService", "SEND_SYSTEM_MESSAGE");
 
 		public function LocalSystemMessageService(service:String, processId:String = null)
 		{
