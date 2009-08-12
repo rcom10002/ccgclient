@@ -37,7 +37,6 @@
     </mx:applicationComplete>
     <mx:Style source="css/ccgcskin-ext.css"/>
     <mx:Style source="style/style.css"/>
-    <mx:Button width="16" height="16" id="btnScreenMode" cornerRadius="8" bottom="10" right="10"/>
     <mx:states>
         <!-- 登录界面 -->
         <mx:State id="loginState"
@@ -156,6 +155,11 @@
             </mx:AddChild>
         </mx:State>
     </mx:states>
+    <mx:Button width="16" height="16" id="btnScreenMode" cornerRadius="8" bottom="10" right="10"/>
+    <mx:Canvas id="instantMessageTip" left="0" top="0" right="0" height="40" backgroundColor="white" backgroundAlpha="0.85" visible="false">
+    	<mx:Text left="10" top="10" right="40" id="txtSysNotification" color="blue" />
+    	<mx:Label text="关闭" top="10" right="10" click="instantMessageTip.visible = false;" color="red" />
+    </mx:Canvas>
     <!-- 验证器 -->
     <mx:Array id="loginValidators">
         <mx:StringValidator source="{txtUsername}"

@@ -44,7 +44,8 @@ package info.knightrcom.state {
                 ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_DISCONNECTED, globalEventHandler);
                 ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_IO_ERROR, globalEventHandler);
                 ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SECURITY_ERROR, globalEventHandler);
-                ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_MESSAGE_BROADCASTED, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_INSTANT_MESSAGE_BROADCASTED, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_CONSOLE_MESSAGE_BROADCASTED, globalEventHandler);
                 // 全屏
     			ListenerBinder.bind(gameClient.btnScreenMode, MouseEvent.CLICK, toggleScreenMode);
                 // 连接服务器
@@ -87,10 +88,15 @@ package info.knightrcom.state {
                     	flash.external.ExternalInterface.call("location.reload", true);
                     });
                     break;
-                case PlatformEvent.PLATFORM_MESSAGE_BROADCASTED:
+                case PlatformEvent.PLATFORM_INSTANT_MESSAGE_BROADCASTED:
+                    // 显示系统消息
+                    gameClient.txtSysNotification.text = event.incomingData;
+                    gameClient.setChildIndex(gameClient.instantMessageTip, gameClient.numChildren - 1);
+                    gameClient.instantMessageTip.visible = true;
+                    break;
+                case PlatformEvent.PLATFORM_CONSOLE_MESSAGE_BROADCASTED:
                     // 显示系统消息
                     if (gameClient.currentState == "LOBBY") {
-                        Alert.show(event.incomingData, "系统消息A");
                         gameClient.txtSysMessage.text += "系统消息：" + event.incomingData + "\n";
                     } else {
                     	Alert.show(event.incomingData, "系统消息B");
