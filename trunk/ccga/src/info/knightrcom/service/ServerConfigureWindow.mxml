@@ -73,6 +73,7 @@
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
+						variableName.enabled = true;
 					});
 				// 更新
 				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
@@ -83,6 +84,7 @@
 					    }
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.UPDATE;
+						variableName.enabled = false;
 						HttpServiceProxy.send(LocalServerConfigureService.READ_SERVER_CONFIGURE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
 							{
 								setValue(event);
@@ -158,6 +160,10 @@
 										currentState="LIST";
 										currentOperationMethod=OperationMethod.UNKNOWN;
 										readServerData();
+									} 
+									else if (new XML(event.result).result == "WARNING")
+									{
+										Alert.show("变量名已存在！", "服务器参数设置");
 									}
 									else
 									{
@@ -186,7 +192,6 @@
 									Alert.show("保存失败！", "服务器参数设置");
 								});
 						}
-						currentOperationMethod=OperationMethod.UPDATE;
 					});
 				// 取消
 				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
