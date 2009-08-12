@@ -27,7 +27,6 @@
 			protected function setValue(event:ResultEvent):void
 			{
 				var e4xResult:XML=new XML(event.result);
-				reportName.text=e4xResult.entity.globalconfigId.text();
 				reportName.text=e4xResult.entity.name.text();
 				content.text=e4xResult.entity.value.text();
 				trace(e4xResult.entity.globalconfigId.text());
@@ -139,7 +138,7 @@
 						}
 						if (!validateInput(reportName.text)) 
 						{
-							Alert.show("报表名称格式错误！","报表模板管理");
+							Alert.show("报表名称格式错误(变量名应为大写字母或下划线)！","报表模板管理");
 							return;
 						}
 						if (content.text == "") 
@@ -154,7 +153,9 @@
 									if (new XML(event.result).result == "SUCCESS")
 									{
 										Alert.show("新增成功！", "报表模板管理");
-										currentOperationMethod=OperationMethod.UPDATE;
+										currentState="LIST";
+										currentOperationMethod=OperationMethod.UNKNOWN;
+										readReportTemplate();
 									}
 									else
 									{
@@ -224,7 +225,7 @@
 						   bottom="10"/>
 			</mx:AddChild>
 			<mx:SetProperty name="title"
-							value="报表模板新增"/>
+							value="报表模板编辑"/>
 		</mx:State>
 		<mx:State name="LIST">
 			<mx:AddChild position="lastChild">
