@@ -71,6 +71,7 @@
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
+						reportName.enabled = true;
 					});
 				// 更新
 				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
@@ -81,6 +82,7 @@
 					    }
 						currentState="EDIT";
 						currentOperationMethod=OperationMethod.UPDATE;
+						reportName.enabled = false;
 						HttpServiceProxy.send(LocalReportTemplateManageService.READ_SQL_TEMPLATE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
 							{
 								setValue(event);
@@ -157,6 +159,10 @@
 										currentOperationMethod=OperationMethod.UNKNOWN;
 										readReportTemplate();
 									}
+									else if (new XML(event.result).result == "WARNING")
+									{
+										Alert.show("报表名称已存在！", "报表模板管理");
+									}
 									else
 									{
 										Alert.show("新增失败！", "报表模板管理");
@@ -184,7 +190,6 @@
 									Alert.show("保存失败！", "报表模板管理");
 								});
 						}
-						currentOperationMethod=OperationMethod.UPDATE;
 					});
 				// 取消
 				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
