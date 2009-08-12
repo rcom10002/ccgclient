@@ -17,6 +17,7 @@ package info.knightrcom.event {
 
         // 应用事件类型定义开始
         public static const PLATFORM_ENVIRONMENT_INIT:String = "PLATFORM_ENVIRONMENT_INIT";
-        public static const PLATFORM_MESSAGE_BROADCASTED:String = "PLATFORM_MESSAGE_BROADCASTED";
+        public static const PLATFORM_INSTANT_MESSAGE_BROADCASTED:String = "PLATFORM_INSTANT_MESSAGE_BROADCASTED";
+        public static const PLATFORM_CONSOLE_MESSAGE_BROADCASTED:String = "PLATFORM_CONSOLE_MESSAGE_BROADCASTED";
     }
 }
