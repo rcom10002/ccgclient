@@ -27,23 +27,20 @@
 			protected function setValue(event:ResultEvent):void
 			{
 				var e4xResult:XML=new XML(event.result);
-				variableName.text=e4xResult.entity.map[CURRENT_PAGE - 1].children().localName();
-				variableValue.text=e4xResult.entity.map[CURRENT_PAGE - 1].children().toString();
-				trace(e4xResult.entity.map[CURRENT_PAGE - 1].children().localName() + ":" + e4xResult.entity.map[CURRENT_PAGE - 1].children().toString());
+				variableName.text=e4xResult.entity.name.text();
+				variableValue.text=e4xResult.entity.value.text();
+				trace(e4xResult.entity.globalconfigId.text());
 			}
 
 			protected function readServerData():void
 			{
-				HttpServiceProxy.send(LocalServerConfigureService.READ_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE}, infoService, function(event:ResultEvent):void
-					{
-						setValue(event);
-					});
+				HttpServiceProxy.send(LocalServerConfigureService.RETRIEVE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 
 
 			protected function clearEditor():void
 			{
-				for each (var thisFormItem:FormItem in Form(this.editorNew).getChildren())
+				for each (var thisFormItem:FormItem in Form(this.editor).getChildren())
 				{
 					var control:Object=thisFormItem.getChildAt(0);
 					if (control is TextInput)
@@ -64,58 +61,42 @@
 			protected function creationCompleteHandler():void
 			{
 				// 状态初始化
-				initializeEachState("EDIT");
-				// 数据加载时变量名不可编辑
-				variableName.enabled = false;
+				initializeEachState("LIST");
 				// 事件绑定
 				CURRENT_PAGE=1;
 				readServerData();
 				currentOperationMethod=OperationMethod.UPDATE; // default
-				// 保存
-				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
-					{
-						if (variableName.text == "") 
-						{
-							Alert.show("变量名不能为空！","服务器参数管理");
-							return;
-						}
-						if (variableValue.text == "") 
-						{
-							Alert.show("变量值不能为空！","服务器参数管理");
-							return;
-						}
-						if (currentOperationMethod == OperationMethod.UPDATE)
-						{
-							HttpServiceProxy.send(LocalServerConfigureService.UPDATE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text}, null, function(event:ResultEvent):void
-								{
-									if (new XML(event.result).result == "SUCCESS")
-									{
-										Alert.show("保存成功！", "服务器参数设置");
-										currentOperationMethod=OperationMethod.UPDATE;
-									}
-									else
-									{
-										Alert.show("保存失败！", "服务器参数设置");
-									}
-								}, function(event:FaultEvent):void
-								{
-									Alert.show("保存失败！", "服务器参数设置");
-								});
-						}
-						currentOperationMethod=OperationMethod.UPDATE;
-					});
+				
 				// 新增
 				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
 					{
-						currentState="ADD";
+						currentState="EDIT";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
 					});
+				// 更新
+				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
+					{
+						if (datagrid.selectedIndices.length == 0) {
+					        Alert.show("请选择要更新的数据！", "服务器参数管理");
+					        return;
+					    }
+						currentState="EDIT";
+						currentOperationMethod=OperationMethod.UPDATE;
+						HttpServiceProxy.send(LocalServerConfigureService.READ_SERVER_CONFIGURE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+							{
+								setValue(event);
+							});
+					});	
 				// 删除
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalServerConfigureService.DELETE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, VARIABLE_NAME: variableName.text}, null, function(event:ResultEvent):void
+						if (datagrid.selectedIndices.length == 0) {
+					        Alert.show("请选择要删除的数据！", "服务器参数设置");
+					        return;
+					    }
+						HttpServiceProxy.send(LocalServerConfigureService.DELETE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
 							{
 								if (new XML(event.result).result == "SUCCESS")
 								{
@@ -152,29 +133,31 @@
 				// 确定
 				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
 					{
-						if (variableNameNew.text == "") 
+						if (variableName.text == "") 
 						{
 							Alert.show("变量名不能为空！","服务器参数管理");
 							return;
 						}
-						if (!validateInput(variableNameNew.text)) 
+						if (!validateInput(variableName.text)) 
 						{
-							Alert.show("变量名格式错误！","服务器参数管理");
+							Alert.show("变量名格式错误(变量名应为字母或下划线)！","服务器参数管理");
 							return;
 						}
-						if (variableValueNew.text == "") 
+						if (variableValue.text == "") 
 						{
 							Alert.show("变量值不能为空！","服务器参数管理");
 							return;
 						}
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalServerConfigureService.CREATE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, VARIABLE_NAME: variableNameNew.text, VARIABLE_VALUE: variableValueNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalServerConfigureService.CREATE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
 										Alert.show("新增成功！", "服务器参数设置");
-										currentOperationMethod=OperationMethod.UPDATE;
+										currentState="LIST";
+										currentOperationMethod=OperationMethod.UNKNOWN;
+										readServerData();
 									}
 									else
 									{
@@ -185,48 +168,37 @@
 									Alert.show("新增失败！", "服务器参数设置");
 								});
 						}
+						else if (currentOperationMethod == OperationMethod.UPDATE)
+						{
+							HttpServiceProxy.send(LocalServerConfigureService.UPDATE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+								{
+									if (new XML(event.result).result == "SUCCESS")
+									{
+										Alert.show("保存成功！", "服务器参数设置");
+										currentOperationMethod=OperationMethod.UPDATE;
+									}
+									else
+									{
+										Alert.show("保存失败！", "服务器参数设置");
+									}
+								}, function(event:FaultEvent):void
+								{
+									Alert.show("保存失败！", "服务器参数设置");
+								});
+						}
+						currentOperationMethod=OperationMethod.UPDATE;
 					});
 				// 取消
 				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
 					{
-						currentState="EDIT";
-						currentOperationMethod=OperationMethod.UPDATE;
+						currentState="LIST";
+						currentOperationMethod=OperationMethod.UNKNOWN;
 						readServerData();
 					});
 			}
 		]]>
 	</mx:Script>
 	<states>
-		<mx:State name="ADD">
-			<mx:AddChild position="lastChild">
-				<mx:Form id="editorNew"
-						 left="0"
-						 right="0"
-						 top="0"
-						 bottom="40">
-					<mx:FormItem label="变量名">
-						<mx:TextInput id="variableNameNew"/>
-					</mx:FormItem>
-					<mx:FormItem label="变量值">
-						<mx:TextInput id="variableValueNew"/>
-					</mx:FormItem>
-				</mx:Form>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:Button label="确定"
-						   id="btnSubmit"
-						   right="66"
-						   bottom="10"/>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:Button label="返回"
-						   id="btnBack"
-						   right="10"
-						   bottom="10"/>
-			</mx:AddChild>
-			<mx:SetProperty name="title"
-							value="服务器参数新增"/>
-		</mx:State>
 		<mx:State name="EDIT">
 			<mx:AddChild position="lastChild">
 				<mx:Form id="editor"
@@ -243,14 +215,47 @@
 				</mx:Form>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="66"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="服务器参数编辑"/>
+		</mx:State>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="0"
+							 left="0"
+							 right="0"
+							 bottom="40"
+							 id="datagrid">
+					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn dataField="globalConfigId"
+										   visible="false"/>
+						<mx:DataGridColumn headerText="变量名"
+										   dataField="name"/>
+						<mx:DataGridColumn headerText="变量值"
+										   dataField="value"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
 				<mx:Button label="新增"
 						   id="btnCreate"
 						   right="130"
 						   bottom="10"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="保存"
-						   id="btnSave"
+				<mx:Button label="修改"
+						   id="btnUpdate"
 						   right="70"
 						   bottom="10"/>
 			</mx:AddChild>
@@ -280,14 +285,6 @@
 	</states>
 	<!-- 验证器 -->
     <mx:Array id="loginValidators">
-        <mx:StringValidator source="{variableNameNew}"
-                            required="true"
-                            property="text"
-                            requiredFieldError="变量名不能为空！"/>
-        <mx:StringValidator source="{variableValueNew}"
-                            required="true"
-                            property="text"
-                            requiredFieldError="变量值不能为空！"/>
 		<mx:StringValidator source="{variableName}"
                             required="true"
                             property="text"
