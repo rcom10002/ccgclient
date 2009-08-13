@@ -178,7 +178,7 @@ package info.knightrcom
 					adminApp.functionWindowArea.currentState="DYNA_REPORT";
 					break;
 				default:
-					adminApp.currentState="MAIN";
+					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");
 			}
 		}
