@@ -142,10 +142,10 @@
 							HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, 
 							        {USER_ID : playerUserId.text, 
 							         PASSWORD : playerPassword.text, 
-							         RLS_PATH : playerRlsPath.selectedItem.data, 
+							         RLS_PATH : (playerRlsPath.selectedItem.data + "!" + playerUserId.text).replace(/^!/, ""), 
 							         CURRENT_SCORE : playerCurrentScore.text, 
 							         INIT_LIMIT : playerLimit.text, 
-							         ROLE : playerRole.text, 
+							         ROLE : playerRole.selectedItem.data, 
 							         STATUS : disableGroup.selectedValue, 
 							         CURRENT_ROLE : Application.application.currentRole}, 
 							        null, 
@@ -160,7 +160,7 @@
 							        {PROFILE_ID : playerProfileId.text, 
 							         USER_ID : playerUserId.text, 
 							         PASSWORD : playerPassword.text, 
-							         ROLE : playerRole.text, 
+							         ROLE : playerRole.selectedItem.data, 
 							         STATUS : disableGroup.selectedValue, 
 							         CURRENT_ROLE : Application.application.currentRole});
 						}
