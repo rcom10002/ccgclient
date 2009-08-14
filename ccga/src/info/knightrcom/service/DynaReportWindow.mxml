@@ -2,6 +2,7 @@
 <FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="creationCompleteHandler();">
 <mx:Script>
 	<![CDATA[
+		import mx.collections.XMLListCollection;
 		import info.knightrcom.service.LocalDynaReportService;
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
@@ -19,10 +20,14 @@
 			CURRENT_PAGE = e4xResult.pagination.currentPage;
 			TOTAL_PAGE = e4xResult.pagination.totalPage;
 			lblPage.text = e4xResult.pagination.currentPage + "/" + e4xResult.pagination.totalPage;
-			var colsLen:int = e4xResult.entityList.children()[0].children().length();
+			var colsLen:int = e4xResult.entityList.map.length();
+			if (colsLen == 0) {
+				datagridResult.columns = new Array();
+				return;
+			}
 			var cols:Array = new Array();
-			for (var ind : int = 0; ind < colsLen; ind ++) {
-				cols.push(new DataGridColumn(e4xResult.entityList.children()[0].children()[ind].name()));
+			for (var ind:String in e4xResult.entityList.map[0].children()){
+				cols.push(new DataGridColumn(e4xResult.entityList.map[0].children()[ind].name()));
 			}
 			datagridResult.columns = cols;
 			datagridResult.dataProvider = e4xResult.entityList.children();
@@ -146,7 +151,7 @@
 			</mx:AddChild>
 			<mx:SetProperty name="title" value="动态报表分析器"/>
 			<mx:AddChild position="lastChild">
-				<mx:TextArea left="10" right="10" top="40" bottom="10" id="txtContent" text="from PlayerScore" enabled="false" visible="true"/>
+				<mx:TextArea left="10" right="10" top="40" bottom="10" id="txtContent" text="select * from player_score" enabled="false" visible="true"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:DataGrid left="10" right="10" top="40" bottom="10"
