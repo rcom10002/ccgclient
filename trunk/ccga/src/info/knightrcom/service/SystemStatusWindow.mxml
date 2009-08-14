@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%"
+				height="100%"
+				title="系统状态"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.StateChangeEvent;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.rpc.events.ResultEvent;
+			import info.knightrcom.util.HttpServiceProxy;
+
+			private function creationCompleteHandler():void
+			{
+				ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, enterStateHander);
+				ListenerBinder.bind(btnFresh, MouseEvent.CLICK, btnFreshClickHander);
+			}
+
+			private function enterStateHander(event:StateChangeEvent):void {
+				btnFreshClickHander(null);
+			}
+
+			private function btnFreshClickHander(event:MouseEvent):void {
+				HttpServiceProxy.send(null, null, null, function (event:ResultEvent):void {
+					var data:* = new XML(event.result);
+					var items:Array = new Array();
+					for each (var eachItem:* in data.tag) {
+						items.push({item : eachItem["item"], content : eachItem["content"]});
+					}
+					datagrid.dataProvider = items;
+				});
+			}
+		]]>
+	</mx:Script>
+	<mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="40">
+		<mx:columns>
+			<mx:DataGridColumn headerText="项目" dataField="item"/>
+			<mx:DataGridColumn headerText="内容" dataField="content"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button id="btnFresh" label="Button" right="10" bottom="10"/>
+</FunctionWindow>

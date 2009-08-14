@@ -191,6 +191,7 @@
                 }
                 var rlsPathLoad:Function = function (event:ResultEvent):void {
 			        for each (var rlsPath:* in new XML(event.result).tag.map.rlsPath) {
+			        	trace(event.result);
 			            rlsPathes.push({data: rlsPath, label: rlsPath});
 			        }
 			        playerRlsPath.dataProvider = rlsPathes;
@@ -209,10 +210,11 @@
 			            function(event:ResultEvent):void {
         			        playerRole.dataProvider = null;
         			        var roles:Array = new Array();
-        			        for each (var eachRole:String in new XML(event.result).tag.string.split(";")) {
+        			        trace(event.result);
+        			        for each (var eachRole:String in new XML(event.result).tag.string) {
         			            roles.push({data : eachRole.split("~")[0], label : eachRole.split("~")[1]});
         			        }
-        			        playerRole.dataProvider = roles;
+        			        playerRole.dataProvider = roles.sort();
 			            }
 			    );
 			}
