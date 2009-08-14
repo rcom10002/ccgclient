@@ -141,6 +141,7 @@
 					<node label="重启游戏服务器"/>
 				</node>
 				<node label="服务器参数"/>
+				<node label="日志查看"/>
 				<node label="服务器状态查看"/>
 			</node>
 			<node label="游戏管理">
