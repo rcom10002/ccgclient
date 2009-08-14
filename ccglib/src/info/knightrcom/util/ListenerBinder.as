@@ -5,6 +5,7 @@ package info.knightrcom.util
 	import flash.utils.getQualifiedClassName;
 	
 	import info.knightrcom.event.*;
+	import info.knightrcom.service.LocalErrorReportService;
 	
 	import mx.controls.Alert;
 	
@@ -72,6 +73,7 @@ package info.knightrcom.util
 					if (debug) {
 						Alert.show(e.getStackTrace(), e.message);
 					}
+					HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
 				}
 			});
 		}
