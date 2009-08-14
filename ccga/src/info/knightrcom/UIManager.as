@@ -9,6 +9,7 @@ package info.knightrcom
 	import info.knightrcom.util.HttpServiceProxy;
 	
 	import mx.controls.Alert;
+	import mx.events.CloseEvent;
 	import mx.events.ListEvent;
 	import mx.rpc.events.FaultEvent;
 	import mx.rpc.events.ResultEvent;
@@ -151,7 +152,24 @@ package info.knightrcom
 					adminApp.functionWindowArea.currentState="ABOUT_GAME_PLATFORM";
 					break;
 				case "注销登录":
-					flash.external.ExternalInterface.call("location.reload", true);
+					Alert.yesLabel = "确认";
+					Alert.noLabel = "取消";
+				    Alert.show( "确定要注销登录？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+								        flash.external.ExternalInterface.call("location.reload", true);
+								    }
+								    else if(event.detail == Alert.NO)
+								    {
+										adminApp.functionWindowArea.currentState="WELCOME";
+								    }
+								},
+								null,
+								Alert.YES);
 					break;
 				case "积分结算报表":
 					adminApp.functionWindowArea.currentState="REPORT_SCORE_EDIT";
@@ -176,6 +194,9 @@ package info.knightrcom
 					break;
 				case "动态报表分析器":
 					adminApp.functionWindowArea.currentState="DYNA_REPORT";
+					break;
+				case "服务器状态查看":
+					adminApp.functionWindowArea.currentState="SYSTEM_STATUS";
 					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";

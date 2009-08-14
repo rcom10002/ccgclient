@@ -112,5 +112,11 @@
 				</service:DynaReportWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="SYSTEM_STATUS">
+			<mx:AddChild position="lastChild">
+				<service:SystemStatusWindow>
+				</service:SystemStatusWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
