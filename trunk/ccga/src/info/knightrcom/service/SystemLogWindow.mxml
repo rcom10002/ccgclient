@@ -4,14 +4,23 @@
 				width="100%"
 				height="100%"
 				minWidth="640"
-				minHeight="480">
+				minHeight="480"
+				title="系统日志">
+<mx:XMLList id="logType">
+    <item label="常规日志"/>
+    <item label="服务器错误日志"/>
+    <item label="客户端错误日志"/>
+</mx:XMLList >
 	<mx:Label x="10" y="10" text="日志类型"/>
-	<mx:RadioButtonGroup id="radiogroup1"/>
-	<mx:Label x="171" y="8" text="标题关键字"/>
-	<mx:TextInput y="6" width="74" x="234"/>
-	<mx:Label y="12" text="起始时间" left="316" width="45"/>
+	<mx:ComboBox x="63" y="8" width="100">
+	    <mx:labelField>@label</mx:labelField>
+	    <mx:dataProvider>{logType}</mx:dataProvider>
+	</mx:ComboBox>
+	<mx:Label x="171" y="12" text="标题关键字"/>
+	<mx:TextInput y="10" width="74" x="234"/>
+	<mx:Label y="12" text="起始时间" left="316" width="54"/>
 	<mx:DateField y="10" left="520" width="90"/>
-	<mx:Label y="12" text="终止时间" left="467" width="45"/>
+	<mx:Label y="12" text="终止时间" left="467" width="54"/>
 	<mx:DateField y="10" left="369" width="90"/>
 	<mx:DataGrid left="10" right="10" top="36" bottom="114">
 		<mx:columns>
@@ -23,15 +32,13 @@
 	</mx:DataGrid>
 	<mx:HRule height="6" bottom="100" left="10" right="10"/>
 	<mx:Label text="标题：" bottom="72" left="10"/>
-	<mx:TextInput text="Caption is here" left="53" bottom="70"/>
+	<mx:TextInput text="Caption is here" left="53" bottom="70" editable="false"/>
 	<mx:Label text="类型：" bottom="42" left="10"/>
-	<mx:TextInput text="Type is here" left="53" bottom="40"/>
+	<mx:TextInput text="Type is here" left="53" bottom="40" editable="false"/>
 	<mx:Label text="日期：" bottom="10" left="10"/>
-	<mx:TextInput text="Createtime is here" left="53" bottom="10"/>
-	<mx:TextArea
-				 right="10"
+	<mx:TextInput text="Createtime is here" left="53" bottom="10" editable="false"/>
+	<mx:TextArea right="10"
 				 bottom="10"
 				 height="82"
-				 text="Column INFO is displayed here!" left="221"/>
-	<mx:ComboBox x="63" y="8" width="100"></mx:ComboBox>
+				 text="Column INFO is displayed here!" left="221" editable="false"/>
 </FunctionWindow>

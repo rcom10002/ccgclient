@@ -118,5 +118,11 @@
 				</service:SystemStatusWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="SYSTEM_LOG">
+			<mx:AddChild position="lastChild">
+				<service:SystemLogWindow>
+				</service:SystemLogWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
