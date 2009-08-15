@@ -198,6 +198,9 @@ package info.knightrcom
 				case "服务器状态查看":
 					adminApp.functionWindowArea.currentState="SYSTEM_STATUS";
 					break;
+				case "日志查看":
+					adminApp.functionWindowArea.currentState="SYSTEM_LOG";
+					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");
