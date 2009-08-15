@@ -5,6 +5,7 @@
 				height="100%"
 				minWidth="640"
 				minHeight="480"
+				title="系统日志"
 				creationComplete="creationCompleteHandler();">
 <mx:Script>
 		<![CDATA[
