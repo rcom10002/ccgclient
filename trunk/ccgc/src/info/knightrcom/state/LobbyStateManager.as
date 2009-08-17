@@ -251,6 +251,8 @@ package info.knightrcom.state {
          *
          */
         private function helpClick(event:Event):void {
+            Alert.show("该功能尚未完成！");
+            return;
         	gameClient.currentState = "CCGAMECLIENTHELP";
         }
 
