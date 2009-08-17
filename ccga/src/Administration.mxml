@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-				layout="absolute"
 				xmlns:service="info.knightrcom.service.*"
-				currentState="LOGIN"
-				xmlns:fwm="*">
-	<mx:Script>
-		<![CDATA[
-			import mx.states.State;
-			import mx.events.ListEvent;
-			import flash.events.MouseEvent;
-			import info.knightrcom.UIManager;
-			import mx.events.ItemClickEvent;
-			import info.knightrcom.util.ListenerBinder;
-		]]>
-	</mx:Script>
+				xmlns:fwm="*"
+				layout="absolute"
+				minWidth="1000"
+				minHeight="600"
+				currentState="LOGIN">
 	<mx:Style source="css/ccgaskin-ext.css"/>
 	<mx:Style source="style/style.css"/>
 	<mx:applicationComplete>
 		<![CDATA[
+		import mx.states.State;
+		import mx.events.ListEvent;
+		import flash.events.MouseEvent;
+		import info.knightrcom.UIManager;
+		import mx.events.ItemClickEvent;
+		import info.knightrcom.util.ListenerBinder;
+
 		for each (var currentState:State in this.states) {
 			trace(currentState.name);
 			this.currentState = currentState.name;
