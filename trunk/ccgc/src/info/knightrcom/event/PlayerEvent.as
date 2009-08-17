@@ -13,6 +13,7 @@ package info.knightrcom.event {
         public static const LOGIN_ERROR_USERNAME_OR_PASSWORD:String = "LOGIN_ERROR_USERNAME_OR_PASSWORD";
         public static const LOGIN_USER_ALREADY_ONLINE:String = "LOGIN_USER_ALREADY_ONLINE";
         public static const LOGIN_MAX_CONNECTION_LIMIT:String = "LOGIN_MAX_CONNECTION_LIMIT";
+        public static const LOGIN_IP_CONFLICT:String = "LOGIN_IP_CONFLICT";
         public static const LOBBY_ENTER_ROOM:String = "LOBBY_ENTER_ROOM";
         public static const LOBBY_LEAVE_ROOM:String = "LOBBY_LEAVE_ROOM";
     }

@@ -37,6 +37,7 @@ package info.knightrcom.state {
                 ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_USER_ALREADY_ONLINE, loginEventHandler);
                 ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_ERROR_USERNAME_OR_PASSWORD, loginEventHandler);
                 ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_MAX_CONNECTION_LIMIT, loginEventHandler);
+                ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_IP_CONFLICT, loginEventHandler);
                 // 可视组件
                 ListenerBinder.bind(gameClient.btnConnect, MouseEvent.CLICK, connectClick);
                 ListenerBinder.bind(gameClient.btnSubmit, MouseEvent.CLICK, submitClick);
@@ -63,6 +64,9 @@ package info.knightrcom.state {
                     break;
                 case PlayerEvent.LOGIN_MAX_CONNECTION_LIMIT:
                     Alert.show("当前服务器登录人数已满！", "警告");
+                    break;
+                case PlayerEvent.LOGIN_IP_CONFLICT:
+                    Alert.show("相同的IP地址不可以重复登录！", "警告");
                     break;
             }
         }
