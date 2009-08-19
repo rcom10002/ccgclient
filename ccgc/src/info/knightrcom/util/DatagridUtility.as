@@ -8,6 +8,17 @@ package info.knightrcom.util {
         public function DatagridUtility() {
         }
 
+//        /**
+//         * 
+//         * @param oItem
+//         * @param iCol
+//         * @return 
+//         * 
+//         */
+//        private function lfRowNum(item:Object,iCol:int):String {
+//            var iIndex:int = _acDP.getItemIndex(item) + 1;
+//            return String(iIndex);
+//        }
 
         /**
          *
