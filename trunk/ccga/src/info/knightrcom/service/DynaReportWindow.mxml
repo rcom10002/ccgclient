@@ -136,6 +136,32 @@
 					}
 					readReportTemplate();
 				});
+			// 导出
+			ListenerBinder.bind(btnCsvExport, MouseEvent.CLICK, function(event:MouseEvent):void 
+			{
+				if (TOTAL_PAGE > 0) {
+					var templateId:String = null;
+					if (mth.selectedValue == 0) {
+						templateId = datagrid.selectedItem.globalConfigId.text();
+					}
+		            HttpServiceProxy.send(LocalDynaReportService.CSV_EXPORT, {CURRENT_PAGE : CURRENT_PAGE, MTH: mth.selectedValue, TEMPLATE_ID: templateId, SQL:txtContent.text}, null, function(event:ResultEvent):void
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							Alert.show(new XML(event.result).tag, "动态报表分析器");
+						}
+						else
+						{
+							Alert.show("导出失败！", "动态报表分析器");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("导出失败！", "动态报表分析器");
+					});
+				} else {
+					Alert.show("还没有查询结果不能导出！", "动态报表分析器");
+				}
+			});
 		}
 	]]>
 </mx:Script>
@@ -180,10 +206,14 @@
 		</mx:State>
 		<mx:State name="RESULT">
 			<mx:AddChild position="lastChild">
-				<mx:Button label="返回"
-						   id="btnForward"
-						   right="10"
-						   top="10"/>
+				<mx:HBox left="10"
+						 right="10"
+						 top="10">
+					<mx:Button id="btnCsvExport"
+							   label="导出"/>
+					<mx:Button label="返回"
+							   id="btnForward"/>
+				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:DataGrid left="10" right="10" top="40" bottom="10" id="datagridResult">
