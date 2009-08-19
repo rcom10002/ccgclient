@@ -16,6 +16,7 @@
 			import mx.managers.PopUpManager;
 			import mx.events.CloseEvent;
 			import info.knightrcom.service.LocalReportBusinessService;
+			import mx.controls.Alert;
 
 			public static var CURRENT_PROFILE_ID:String;
 
@@ -48,6 +49,30 @@
 						CURRENT_PAGE++;
 					}
 					defaultSearch();
+				});
+				// 导出
+				ListenerBinder.bind(btnCsvExport, MouseEvent.CLICK, function(event:MouseEvent):void 
+				{
+					if (TOTAL_PAGE > 0) {
+						var dateFormatter:DateFormatter=new DateFormatter();
+						dateFormatter.formatString="YYYYMMDD";
+						HttpServiceProxy.send(LocalReportBusinessService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show(new XML(event.result).tag, "业务分析报表");
+							}
+							else
+							{
+								Alert.show("导出失败！", "业务分析报表");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("导出失败！", "业务分析报表");
+						});
+					} else {
+						Alert.show("还没有查询结果不能导出！", "业务分析报表");
+					}
 				});
 			}
 		]]>
@@ -93,6 +118,8 @@
 						groupName="sc"/>
 		<mx:Button id="btnSearch"
 				   label="查询"/>
+		<mx:Button id="btnCsvExport"
+				   label="导出"/>
 	</mx:HBox>
 	</mx:AddChild>
 	<!-- 查询结果 -->
