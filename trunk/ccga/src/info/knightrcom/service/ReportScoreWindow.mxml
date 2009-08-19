@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FunctionWindow xmlns="info.knightrcom.service.*"
 				xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:net="flash.net.*"
 				creationComplete="creationCompleteHandler();">
 	<mx:Script>
 		<![CDATA[
@@ -21,14 +22,32 @@
 			public static var CURRENT_PROFILE_ID:String;
 
 			public var currentOperationMethod:OperationMethod;
+			
+			private var url:String = "";
 
 			protected function defaultSearch():void
 			{
 				var dateFormatter:DateFormatter=new DateFormatter();
 				dateFormatter.formatString="YYYYMMDD";
 				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				btnDownload.visible = false;
 			}
 
+			private function onEvent(evt:Event):void {
+                Alert.show(evt.toString(), evt.type);
+            }
+            
+            private function btn_click(evt:MouseEvent):void {
+            	if (url.length == 0) {
+            		Alert.show(url);
+            		Alert.show("暂时无法下载，请重新导出！", "业务分析报表");
+            		btnDownload.visible = false;
+            		return;
+            	}
+                var urlReq:URLRequest = new URLRequest(url);
+                fileReference.download(urlReq);
+            }
+            
 			protected function creationCompleteHandler():void
 			{
 				// 状态初始化
@@ -67,7 +86,8 @@
 						{
 							if (new XML(event.result).result == "SUCCESS")
 							{
-								Alert.show(new XML(event.result).tag, "积分结算报表");
+								url = new XML(event.result).tag;
+								btnDownload.visible = true;
 							}
 							else
 							{
@@ -84,6 +104,11 @@
 			}
 		]]>
 	</mx:Script>
+	<net:FileReference id="fileReference"
+            complete="onEvent(event);"
+            cancel="onEvent(event);"
+            httpStatus="onEvent(event);"
+            ioError="onEvent(event);" />
 	<states>
 		<mx:State name="LIST">
 			<mx:AddChild position="lastChild">
@@ -107,6 +132,8 @@
 							   label="查询"/>
 					<mx:Button id="btnCsvExport"
 							   label="导出"/>
+					<mx:Button id="btnDownload"
+				               label="下载" click="btn_click(event);" visible="false"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">

@@ -50,7 +50,6 @@
 
 			protected function creationCompleteHandler():void
 			{
-				url = "";
 				// 状态初始化
 				initializeEachState("LIST");
 				// 事件绑定
