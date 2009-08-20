@@ -16,7 +16,10 @@
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.service.LocalGameConfigureService;
 			import mx.events.ItemClickEvent;
+			import mx.events.CloseEvent;
 
+			public static var adminApp:Administration;
+			
 			public var currentOperationMethod:OperationMethod;
 
 			// 验证数字
@@ -158,22 +161,36 @@
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalGameConfigureService.DELETE_RED5_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
-							{
-								if (new XML(event.result).result == "SUCCESS")
-								{
-									Alert.show("删除成功！", "红五参数设置");
-									currentOperationMethod=OperationMethod.UPDATE;
-									readData(0);
-								}
-								else
-								{
-									Alert.show("删除失败！", "红五参数设置");
-								}
-							}, function(event:FaultEvent):void
-							{
-								Alert.show("删除失败！", "红五参数设置");
-							});
+						
+						Alert.yesLabel = "确认";
+						Alert.noLabel = "取消";
+					    Alert.show( "确定要删除？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+								      HttpServiceProxy.send(LocalGameConfigureService.DELETE_RED5_ROOM_CONFIGURE, {GAME_TYPE: 0, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
+											{
+												if (new XML(event.result).result == "SUCCESS")
+												{
+													Alert.show("删除成功！", "红五参数设置");
+													currentOperationMethod=OperationMethod.UPDATE;
+													readData(0);
+												}
+												else
+												{
+													Alert.show("删除失败！", "红五参数设置");
+												}
+											}, function(event:FaultEvent):void
+											{
+												Alert.show("删除失败！", "红五参数设置");
+											});
+								    }
+								},
+								null,
+								Alert.YES);
 					});
 				// 翻页
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
