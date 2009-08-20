@@ -7,6 +7,7 @@
                 showCloseButton="true">
     <mx:Script>
     	<![CDATA[
+    		import mx.rpc.events.ResultEvent;
     		import info.knightrcom.state.BaseStateManager;
     		import mx.validators.Validator;
     		import info.knightrcom.service.LocalSystemInfoService;
@@ -22,7 +23,7 @@
     		import mx.events.MenuEvent;
 
 			private var layoutCanvas:DisplayObject = null;
-			private var menu:Menu;
+			private var gameVedioMenu:Menu;
 
             public function popUp(closeHandler:Function = null):void {
                 if (closeHandler != null) {
@@ -68,39 +69,63 @@
             	PopUpManager.centerPopUp(feedbackWindow);
             }
 
-            private function defaultSearch():void {
-            	HttpServiceProxy.send(LocalSystemInfoService.FEEDBACK_HISTORY, 
-            			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId},
-            			feedbackHistoryInfoService);
-            }
+			private function btnRefreshClickHandler(event:MouseEvent):void {
+				// 查询游戏运行时信息
+            	HttpServiceProxy.send(LocalSystemInfoService.RETRIEVE_GAME_RUNTIME_INFO, 
+            			null, 
+            			null, 
+            			function (event:ResultEvent):void {
+            			});
+			}
 
             private function btnSubmitFeeckbackClickHandler(event:MouseEvent):void {
                 if (Validator.validateAll(this.gameFeedbackValidators).length > 0) {
+                	Alert.show("信息填写不符合规范！", "警告");
                 	return;
                 }
-            	HttpServiceProxy.send(LocalSystemInfoService.SUBMIT_CHEAT,
+            	HttpServiceProxy.send(LocalSystemInfoService.COMMIT_GAME_FEEDBACK,
             			{GAME_ID : feedbackGameId.text,
-            			 CHEAT_DESC : feedbackDesc.text,
-            			 CREATE_BY : BaseStateManager.currentProfileId},
+            			 TITLE : feedbackTitle.text,
+            			 DESCRIPTION : feedbackDesc.text,
+            			 CURRENT_USER_ID : BaseStateManager.currentProfileId},
             			null,
-		            	function ():void {
-		            		Alert.show("提交完毕！");
-		            		feedbackWindow.visible = false;
+		            	function (event:ResultEvent):void {
+		            		var data:* = new XML(event.result);
+		            		if (data.result == "SUCCESS") {
+		            			Alert.show("提交成功！", "消息");
+		            			retrieveHistroyFeeckback(null);
+		            			feedbackWindow.visible = false;
+		            		} else if (data.result == "WARNING") {
+		            			Alert.show("提交失败，请检查游戏ID是否输入正确！", "警告");
+		            		} else {
+		            			Alert.show("提交失败！", "错误");
+		            		}
 		            	});
             }
 
+			private function retrieveHistroyFeeckback(event:Event):void {
+				// 查看历史反馈信息
+            	HttpServiceProxy.send(LocalSystemInfoService.RETRIEVE_FEEDBACK_HISTORY, 
+            			{CURRENT_USER_ID: BaseStateManager.currentUserId},
+            			feedbackHistoryInfoService);
+			}
         ]]>
     </mx:Script>
     <mx:creationComplete>
     	<![CDATA[
-    	    if (!menu) {
-            	menu = new Menu;
-            	menu.dataProvider = popupMenuItems;
-            	btnGameVedio.popUp = menu;
+    	    if (!gameVedioMenu) {
+    	    	// 当前窗口中游戏录像菜单
+            	gameVedioMenu = new Menu;
+            	gameVedioMenu.dataProvider = popupMenuItems;
+            	btnGameVedio.popUp = gameVedioMenu;
+            	ListenerBinder.bind(gameVedioMenu, MenuEvent.CHANGE, gameVedioClickHandler);
+            	// 当前窗口中关闭事件
                 ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-            	ListenerBinder.bind(menu, MenuEvent.CHANGE, gameVedioClickHandler);
+                // 当前窗口中反馈按钮
             	ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackClickHandler);
+            	// 当前窗口中反馈功能提交按钮
             	ListenerBinder.bind(btnSubmitFeeckback, MouseEvent.CLICK, btnSubmitFeeckbackClickHandler);
+            	// 当前窗口中反馈窗口关闭事件
             	ListenerBinder.bind(feedbackWindow, CloseEvent.CLOSE, function ():void {
                 	for each (var thisFormItem:FormItem in Form(editor).getChildren()) {
                 		var control:Object = thisFormItem.getChildAt(0);
@@ -114,24 +139,30 @@
                 	}
             		feedbackWindow.visible = false;
             	});
+            	ListenerBinder.bind(feedbackWindow, FlexEvent.SHOW, function (event:Event):void {
+            		feedbackGameId.text = "";
+            		feedbackTitle.text = "";
+            		feedbackDesc.text = "";
+            		retrieveHistroyFeeckback(event);
+            	});
         	}
     	]]>
     </mx:creationComplete>
-	<!-- 外部查询条件 -->
+
+	<!-- 操作按钮 -->
     <mx:Array id="popupMenuItems">
         <mx:Object label="大连红五" id="red5" />
         <mx:Object label="斗地主" id="fightLandlord" />
         <mx:Object label="推倒胡" id="pushdownWin" />
         <mx:Object label="穷胡" id="qiongWin" />
     </mx:Array>
-    
     <mx:HBox horizontalGap="4" top="10" left="10" right="10" id="hbox1">
         <mx:PopUpButton id="btnGameVedio" label="游戏录像" openAlways="true"/>
         <mx:Button id="btnFeedback" label="作弊举报"/>
         <mx:Button id="btnRefresh" label="刷新信息"/>
     </mx:HBox>
 	<!-- 查询结果 -->
-    <mx:DataGrid id="datagrid1" left="10" right="10" top="40" bottom="10">
+    <mx:DataGrid id="systemInfoDatagrid" left="10" right="10" top="40" bottom="10">
         <mx:columns>
             <mx:DataGridColumn headerText="编号" dataField=""/>
             <mx:DataGridColumn headerText="房间名称" dataField=""/>
@@ -141,42 +172,34 @@
             <mx:DataGridColumn headerText="房间内总计人数" dataField=""/>
         </mx:columns>
     </mx:DataGrid>
-	<!-- 查询导航 -->
-<!--
-    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
-		<mx:Label id="lblCondition" text="当前查询条件"/>
-        <mx:Label id="lblPage" text="9/12"/>
-        <mx:LinkBar>
-		    <mx:Array>
-				<mx:Object label="前页" />
-				<mx:Object label="后页" />
-			</mx:Array>
-        </mx:LinkBar>
-    </mx:ControlBar>
--->
+
+    <!-- 作弊举报 -->
 	<!-- 查询组件 -->
     <mx:HTTPService id="feedbackHistoryInfoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST"/>
-    <!-- 作弊举报 -->
-    <mx:TitleWindow layout="absolute" horizontalCenter="0" verticalCenter="0" title="作弊举报" id="feedbackWindow" showCloseButton="true" height="420">
-    	<mx:visible>false</mx:visible>
+    <mx:TitleWindow layout="absolute" horizontalCenter="0" verticalCenter="0" title="作弊举报" id="feedbackWindow" showCloseButton="true" height="374">
+    	<mx:visible>true</mx:visible>
         <mx:Form id="editor" left="10" right="10" top="10" bottom="265" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
-            <mx:FormItem label="游戏ID" required="true" width="100%">
-                <mx:TextInput id="feedbackGameId" width="100%"/>
+            <mx:FormItem label="游戏ID" required="true" width="100%" direction="horizontal">
+                <mx:TextInput id="feedbackGameId" width="100%" maxChars="100"/><mx:Label width="50" textAlign="right" text="{feedbackGameId.text.length + '/100'}" />
             </mx:FormItem>
-            <mx:FormItem label="作弊描述" required="true" width="100%">
-                <mx:TextArea id="feedbackDesc" width="100%" height="100"/>
+            <mx:FormItem label="标题" required="true" width="100%" direction="horizontal">
+                <mx:TextInput id="feedbackTitle" width="100%" maxChars="20"/><mx:Label width="50" textAlign="right" text="{feedbackTitle.text.length + '/20'}" />
+            </mx:FormItem>
+            <mx:FormItem label="描述" required="true" width="100%" direction="horizontal">
+                <mx:TextArea id="feedbackDesc" width="100%" height="80" maxChars="200"/><mx:Label width="50" textAlign="right" text="{feedbackDesc.text.length + '/200'}" />
             </mx:FormItem>
         </mx:Form>
-        <mx:Button id="btnSubmitFeeckback" label="提交举报" bottom="220" horizontalCenter="171"/>
-        <mx:HRule left="10" right="10" y="173" width="413" height="2"/>
-        <mx:Label x="10" y="180" text="历史举报记录"/>
+        <mx:Button id="btnSubmitFeeckback" label="提交举报" bottom="168" horizontalCenter="171"/>
+        <mx:HRule left="10" right="10" y="181" width="413" height="2"/>
+        <mx:Label x="10" y="182" text="历史举报记录"/>
         <mx:DataGrid minWidth="400" left="10" right="10" top="200" bottom="10">
-    		<mx:dataProvider>{feedbackHistoryInfoService.lastResult.entityList.GameFeedback}</mx:dataProvider>
+    		<mx:dataProvider>{feedbackHistoryInfoService.lastResult.tag.map}</mx:dataProvider>
             <mx:columns>
                 <mx:DataGridColumn headerText="游戏ID" dataField="gameId"/>
                 <mx:DataGridColumn headerText="游戏类别" dataField="gameType"/>
-                <mx:DataGridColumn headerText="举报时间" dataField="createTime"/>
+                <mx:DataGridColumn headerText="标题" dataField="title"/>
                 <mx:DataGridColumn headerText="当前状态" dataField="status"/>
+                <mx:DataGridColumn headerText="举报时间" dataField="createTime"/>
             </mx:columns>
         </mx:DataGrid>
     </mx:TitleWindow>
@@ -186,11 +209,17 @@
                             required="true"
                             property="text"
                             requiredFieldError="游戏ID不能为空！"/>
+        <mx:StringValidator source="{feedbackTitle}"
+                            required="true"
+                            property="text"
+                            minLength="6"
+                            maxLength="24"
+                            requiredFieldError="标题不能为空，字数必须在6-20之间！"/>
         <mx:StringValidator source="{feedbackDesc}"
                             required="true"
                             property="text"
                             minLength="20"
                             maxLength="100"
-                            requiredFieldError="请认真填写举报内容，字数必须在20-100之间。"/>
+                            requiredFieldError="请认真填写举报内容，字数必须在20-200之间！"/>
     </mx:Array>
 </mx:TitleWindow>

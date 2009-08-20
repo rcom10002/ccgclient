@@ -19,6 +19,7 @@
     		import mx.formatters.DateFormatter;
     		import mx.controls.Button;
     		import info.knightrcom.util.ListenerBinder;
+    		import info.knightrcom.state.BaseStateManager;
     		import mx.managers.PopUpManager;
     		import mx.events.CloseEvent;
 
@@ -53,7 +54,7 @@
     			var dateFormatter:DateFormatter = new DateFormatter();
     			dateFormatter.formatString = "YYYYMMDD";
             	HttpServiceProxy.send(LocalPlayerInfoService.SCORE_INFO, 
-            			{CURRENT_PROFILE_ID: CURRENT_PROFILE_ID, 
+            			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, 
             			 FROM_DATE: dateFormatter.format(dateFrom.selectedDate),
             			 TO_DATE: dateFormatter.format(dateTo.selectedDate),
             			 SHOW_CONDITION: sc.selectedValue,

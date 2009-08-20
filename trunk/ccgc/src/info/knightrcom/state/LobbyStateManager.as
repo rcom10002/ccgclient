@@ -65,7 +65,6 @@ package info.knightrcom.state {
 
             // 请求平台信息
             socketProxy.sendPlatformData(PlatformCommand.PLATFORM_REQUEST_ENVIRONMENT);
-        	PlayerInfoWindow.CURRENT_PROFILE_ID = BaseStateManager.currentProfileId;
             // TODO gameClient.loginState
             setInitialized(true);
         }
