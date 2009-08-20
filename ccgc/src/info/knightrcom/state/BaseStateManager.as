@@ -20,6 +20,8 @@ package info.knightrcom.state {
 
 		public static var currentProfileId:String;
 
+		public static var currentUserId:String;
+
         /**
          *
          * @param socketProxy

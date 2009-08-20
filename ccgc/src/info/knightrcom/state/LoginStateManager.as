@@ -54,6 +54,8 @@ package info.knightrcom.state {
             switch (event.type) {
                 case PlayerEvent.LOGIN_SUCCESS:
                 	BaseStateManager.currentProfileId = event.incomingData;
+                	// FIXME this line should get data from server
+                	BaseStateManager.currentUserId = gameClient.txtUsername.text;
                     gameClient.currentState = "LOBBY";
                     break;
                 case PlayerEvent.LOGIN_USER_ALREADY_ONLINE:
