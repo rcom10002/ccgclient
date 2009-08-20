@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%"
+				height="100%"
+				minWidth="640"
+				minHeight="480"
+				title="不良举报"
+				creationComplete="creationCompleteHandler();">
+<mx:Script>
+		<![CDATA[
+			import mx.charts.chartClasses.StackedSeries;
+			import mx.events.ListEvent;
+			import mx.events.ItemClickEvent;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import info.knightrcom.util.HttpServiceProxy;
+			import mx.core.ScrollPolicy;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.formatters.DateFormatter;
+			import mx.controls.Button;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+			import info.knightrcom.service.LocalGameFeedbackService;
+
+			public static var CURRENT_PROFILE_ID:String;
+
+			private var layoutCanvas:DisplayObject=null;
+
+			private function defaultSearch():void
+			{
+				var dateFormatter:DateFormatter=new DateFormatter();
+				dateFormatter.formatString="YYYYMMDD";
+				HttpServiceProxy.send(LocalGameFeedbackService.RETRIEVE_GAME_FEEDBACK, {CAPTION:caption.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.value, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				txtGameFeedbackId.text = "";
+				txtGameId.text = "";
+				txtHours.text = "";
+				txtName.text = "";
+				txtTitle.text = "";
+				txtGameType.text = "";
+				txtCreateTime.text = "";
+				txtDescription.text = "";
+				txtPlayerCount.text = "";
+				txtPlayerIds.text = "";
+			}
+			
+			private function auditFeedBack():void
+			{
+				if (txtGameFeedbackId.text == "") {
+					Alert.show("请选择举报信息！", "不良举报");
+					return;
+				}
+				HttpServiceProxy.send(LocalGameFeedbackService.AUDIT_GAME_FEEDBACK, {FEEDBACK_ID:txtGameFeedbackId.text, STATUS:cmbStatus.value}, null, function(event:ResultEvent):void
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							Alert.show("审核成功！", "不良举报");
+							CURRENT_PAGE = 1;
+							defaultSearch();
+						}
+						else
+						{
+							Alert.show("审核失败！", "不良举报");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("审核失败！", "不良举报");
+					});
+			}
+			
+			protected function creationCompleteHandler():void
+			{
+				// 事件绑定
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
+					CURRENT_PAGE = 1;
+					defaultSearch();
+				});
+				ListenerBinder.bind(btnAudit, MouseEvent.CLICK, function (event:MouseEvent):void {
+					auditFeedBack();
+				});
+				ListenerBinder.bind(datagird, ListEvent.ITEM_CLICK, function (event:ListEvent):void{
+					txtGameFeedbackId.text = event.itemRenderer.data.feedbackid;
+					txtGameId.text = event.itemRenderer.data.gameid;
+					txtHours.text = event.itemRenderer.data.hours;
+					txtName.text = event.itemRenderer.data.name;
+					txtTitle.text = event.itemRenderer.data.title;
+					txtGameType.text = event.itemRenderer.data.gametype;
+					txtCreateTime.text = event.itemRenderer.data.createtime;
+					txtDescription.text = event.itemRenderer.data.description;
+					cmbStatus.selectedIndex=event.itemRenderer.data.statusindex;
+					HttpServiceProxy.send(LocalGameFeedbackService.GET_JOIN_GAME_PLAYER_INFO, {GAME_ID : event.itemRenderer.data.gameid}, null, 
+						 function(event:ResultEvent):void
+    							{
+    								var e4xResult:XML=new XML(event.result);
+    								if (e4xResult.result == "SUCCESS") {
+    									var arr:Array = e4xResult.tag.text().split("~");
+    									txtPlayerIds.text = arr[0];
+    									txtPlayerCount.text = arr[1];
+    								}
+    							});
+				});
+				ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
+					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+						return;
+					}
+					if (event.index == 0) {
+						CURRENT_PAGE--;
+					} else if (event.index == 1) {
+						CURRENT_PAGE++;
+					}
+					defaultSearch();
+				});
+			}
+		]]>
+	</mx:Script>
+	<!-- 查询条件 -->
+    <mx:HBox horizontalGap="4" top="10" left="10" right="10">
+		<mx:Label text="举报状态"/>
+		<mx:ComboBox id="sc">
+			<mx:dataProvider>
+                <mx:Array>
+                    <mx:Object label="全部" data="" />
+                    <mx:Object label="未处理" data="0" />
+                    <mx:Object label="处理中" data="1" />
+                    <mx:Object label="处理毕" data="2" />
+                </mx:Array>
+            </mx:dataProvider>
+		</mx:ComboBox>
+		<mx:Label text="举报标题关键字"/>
+		<mx:TextInput id="caption"/>
+		<mx:Label text="起始时间"/>
+        <mx:DateField id="dateFrom">
+        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+        </mx:DateField>
+        <mx:Label text="终止时间"/>
+        <mx:DateField id="dateTo">
+        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+        </mx:DateField>
+		<mx:Button label="查询" id="btnSearch"/>
+	</mx:HBox>
+	<mx:DataGrid left="10" right="10" top="36" bottom="261" id="datagird">
+		<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+		<mx:columns>
+			<mx:DataGridColumn headerText="举报ID" dataField="feedbackid" visible="false"/>
+			<mx:DataGridColumn headerText="游戏ID" dataField="gameid"/>
+			<mx:DataGridColumn headerText="游戏类型" dataField="gametype"/>
+			<mx:DataGridColumn headerText="举报标题" dataField="title"/>
+			<mx:DataGridColumn headerText="当前状态" dataField="status"/>
+			<mx:DataGridColumn headerText="当前状态" dataField="statusindex" visible="false"/>
+			<mx:DataGridColumn headerText="当前时间距离举报时间（小时）" dataField="hours"/>
+			<mx:DataGridColumn headerText="举报人" dataField="name"/>
+			<mx:DataGridColumn headerText="举报时间" dataField="createtime"/>
+			<mx:DataGridColumn headerText="举报内容" dataField="description"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HRule height="6" bottom="247" left="10" right="10"/>
+	<mx:TextInput id="txtGameFeedbackId" visible="false"/>
+	<mx:Label text="游戏ID：" bottom="216" left="10"/>
+	<mx:TextInput left="215" bottom="216" id="txtGameId" enabled="false" width="256"/>
+	<mx:Label text="游戏类型：" bottom="188" left="10"/>
+	<mx:TextInput left="215" bottom="188" id="txtGameType" enabled="false" width="256"/>
+	<mx:Label text="当时玩家个数：" bottom="40" left="10"/>
+	<mx:TextInput left="215" bottom="40" id="txtPlayerCount" enabled="false" width="256"/>
+	<mx:Label text="举报标题：" bottom="216" left="500"/>
+	<mx:TextInput left="663" bottom="216" id="txtTitle" enabled="false" width="273"/>
+	<mx:Label text="所有参与游戏的玩家用户ID：" bottom="188" left="500"/>
+	<mx:TextInput left="663" bottom="188" id="txtPlayerIds" enabled="false" width="273"/>
+	<mx:Label text="举报内容：" bottom="161" left="500"/>
+	<mx:TextArea
+				 right="10"
+				 bottom="40"
+				 height="110"
+				 left="503" id="txtDescription" enabled="false"/>
+	<mx:Label text="当前状态：" bottom="68" left="10"/>
+	<mx:ComboBox id="cmbStatus" left="215" bottom="68">
+		<mx:dataProvider>
+            <mx:Array>
+                <mx:Object label="未处理" data="0" />
+                <mx:Object label="处理中" data="1" />
+                <mx:Object label="处理毕" data="2" />
+            </mx:Array>
+        </mx:dataProvider>
+	</mx:ComboBox>
+	
+	<mx:Label text="当前时间距离举报时间（小时）：" bottom="98" left="10"/>
+	<mx:TextInput left="215" bottom="98" id="txtHours" enabled="false" width="256"/>
+	<mx:Label text="举报人：" bottom="128" left="10"/>
+	<mx:TextInput left="215" bottom="128" id="txtName" enabled="false" width="256"/>
+	<mx:Label text="举报时间：" bottom="158" left="10"/>
+	<mx:TextInput left="215" bottom="158" id="txtCreateTime" enabled="false" width="256"/>
+	<mx:Button label="审核" id="btnAudit" right="10" bottom="10"/>				 
+	<!-- 查询导航 -->
+    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
+        <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
+        <mx:LinkBar id="pageRoller">
+		    <mx:Array>
+				<mx:Object label="前页"/>
+				<mx:Object label="后页"/>
+			</mx:Array>
+        </mx:LinkBar>
+    </mx:ControlBar>
+    <!-- 查询组件 -->
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

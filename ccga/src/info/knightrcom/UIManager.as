@@ -201,6 +201,9 @@ package info.knightrcom
 				case "日志查看":
 					adminApp.functionWindowArea.currentState="SYSTEM_LOG";
 					break;
+				case "不良举报":
+					adminApp.functionWindowArea.currentState="GAME_FEEDBACK";
+					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");

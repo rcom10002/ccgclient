@@ -124,5 +124,11 @@
 				</service:SystemLogWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="GAME_FEEDBACK">
+			<mx:AddChild position="lastChild">
+				<service:GameFeedbackWindow>
+				</service:GameFeedbackWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
