@@ -1,0 +1,1 @@
+http://www.random-good-stuff.com/game/game/original-japane/
