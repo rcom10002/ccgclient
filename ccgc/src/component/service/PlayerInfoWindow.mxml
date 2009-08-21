@@ -8,6 +8,7 @@
                 showCloseButton="true">
     <mx:Script>
     	<![CDATA[
+    		import mx.events.ListEvent;
     		import info.knightrcom.service.LocalPlayerInfoService;
     		import mx.events.ItemClickEvent;
     		import mx.core.Application;
@@ -22,6 +23,7 @@
     		import info.knightrcom.state.BaseStateManager;
     		import mx.managers.PopUpManager;
     		import mx.events.CloseEvent;
+    		import mx.controls.Alert;
 
 			public static var CURRENT_PROFILE_ID:String;
 
@@ -51,8 +53,18 @@
             }
             
             private function defaultSearch():void {
+            	txtGameId.text = "";
     			var dateFormatter:DateFormatter = new DateFormatter();
     			dateFormatter.formatString = "YYYYMMDD";
+    			var day:int = Math.floor((dateTo.selectedDate.time - dateFrom.selectedDate.time) / (1000 * 60 * 60 *24)); 
+    			if (day < 0) {
+    				Alert.show("查询开始日期不能晚于结束日期！", "消息");
+    				return;
+    			}
+    			if (day > 100) {
+    				Alert.show("查询时间范围限制在三个月内，即天数相差100天之内！", "消息");
+    				return;
+    			}
             	HttpServiceProxy.send(LocalPlayerInfoService.SCORE_INFO, 
             			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, 
             			 FROM_DATE: dateFormatter.format(dateFrom.selectedDate),
@@ -82,6 +94,17 @@
                 	}
                 	defaultSearch();
                 });
+                ListenerBinder.bind(datagrid1, ListEvent.ITEM_CLICK, function (event:ListEvent):void{
+					txtGameId.text = event.itemRenderer.data.gameId;
+				});
+				ListenerBinder.bind(btnClipboard, MouseEvent.CLICK, function (event:MouseEvent):void {
+					if (txtGameId.text.length == 0) {
+						Alert.show("游戏ID为空！", "消息");
+						return;
+					}
+        			System.setClipboard(txtGameId.text); 
+        			Alert.show("已成功复制游戏ID到剪切板！", "消息");
+        		});
                 isInitialized = true;
             }
     	]]>
@@ -125,8 +148,8 @@
     </mx:DataGrid>
 	<!-- 查询导航 -->
     <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
-        <mx:Button label="复制游戏ID到剪切板" />
-        <mx:TextInput/>
+        <mx:Button label="复制游戏ID到剪切板" id="btnClipboard"/>
+        <mx:TextInput id="txtGameId"/>
         <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
         <mx:LinkBar id="pageRoller">
 		    <mx:Array>
