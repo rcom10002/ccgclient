@@ -1,7 +1,6 @@
 package info.knightrcom.state.fightlandlordgame
 {
 	import info.knightrcom.util.CardReStrut;
-	import info.knightrcom.util.HashMap;
 
 	/**
 	 *
@@ -305,19 +304,19 @@ package info.knightrcom.state.fightlandlordgame
 		private static function reBuildCardArray(boutCards:String):String
 		{
 			var cardArray2:Array=boutCards.split(",");
-			var map2:HashMap=new HashMap();
+			var map2:*= new Object();
 			for each (var card2:String in cardArray2)
 			{
 				// 去花色
 				var pri2:String=card2.replace(/\b\dV/g, "V");
-				if (!map2.containsKey(pri2))
+				if (map2[pri2] === undefined)
 				{
-					map2.put(pri2, 1);
+					map2[pri2] = 1;
 				}
 				else
 				{
-					var count2:int=map2.get(pri2) as int;
-					map2.put(pri2, ++count2);
+					var count2:int=map2[pri2] as int;
+					map2[pri2] = ++count2;
 				}
 			}
 			var newCardArray2:Array=new Array();
@@ -325,7 +324,7 @@ package info.knightrcom.state.fightlandlordgame
 			{
 				// 去花色
 				var priAf2:String=cardAf2.replace(/\b\dV/g, "V");
-				newCardArray2.push(new CardReStrut(priAf2, map2.get(priAf2) as int));
+				newCardArray2.push(new CardReStrut(priAf2, map2[priAf2] as int));
 			}
 			// 重新构造按同号顺序由大到小排序后的字段串
 			var reCardArray2:Array=newCardArray2.sort(boutCardSorter);
@@ -356,7 +355,7 @@ package info.knightrcom.state.fightlandlordgame
 			var ptnDouble:RegExp=/^(V\w+)\1{2}(V\w+)\2$/;
 			var ptnSingle:RegExp=/^(V\w+)\1{2}(V\w+)$/;
 			// 用来验证三带单中单中是否包括任意两个同号的牌
-			var validateSingle:HashMap=new HashMap();
+			var validateSingle:*=new Object();
 			// 重构排序后的字符串
 			var newCardString:String=reMakeCardArray(boutCards);
 			if (newCardString == null)
@@ -394,11 +393,11 @@ package info.knightrcom.state.fightlandlordgame
 						}
 						var cardPokersSingle:String=reCardArray[four * 3] + reCardArray[four * 3 + 1] + reCardArray[four * 3 + 2] + singleCard;
 						// 验证非三同张的牌序中是否包括对牌
-						if (validateSingle.containsKey(singleCard))
+						if (!(validateSingle[singleCard] === undefined))
 						{
 							return false;
 						}
-						validateSingle.put(singleCard, singleCard);
+						validateSingle[singleCard] = singleCard;
 						// 为防止前三张与后单张或后一张相同
 						if (reCardArray[four] == singleCard)
 						{
@@ -473,25 +472,25 @@ package info.knightrcom.state.fightlandlordgame
 		private static function reMakeCardArray(boutCards:String):String
 		{
 			var cardArray:Array=boutCards.split(",");
-			var map:HashMap=new HashMap();
+			var map:*=new Object();
 			var tempFollow:String="";
 			for each (var card:String in cardArray)
 			{
 				// 去花色
 				var pri:String=card.replace(/\b\dV/g, "V");
-				if (!map.containsKey(pri))
+				if (map[pri] === undefined)
 				{
-					map.put(pri, 1);
+					map[pri] = 1;
 				}
 				else
 				{
-					var count1:int=map.get(pri) as int;
+					var count1:int=map[pri] as int;
 					// 判断是否包含4同号的牌
 					if (count1 >= 3)
 					{
 						return null;
 					}
-					map.put(pri, ++count1);
+					map[pri] = ++count1;
 					// 存储三同张的牌
 					if (count1 == 3)
 					{
@@ -504,7 +503,7 @@ package info.knightrcom.state.fightlandlordgame
 			{
 				// 去花色
 				var priAf:String=cardAf.replace(/\b\dV/g, "V");
-				newCardArray.push(new CardReStrut(priAf, map.get(priAf) as int));
+				newCardArray.push(new CardReStrut(priAf, map[priAf] as int));
 			}
 			// 对三同张的牌进行排序并判断是否是三同顺
 			tempFollow=tempFollow.replace(/,$/, "");
