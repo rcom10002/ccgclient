@@ -9,6 +9,7 @@
 				creationComplete="creationCompleteHandler();">
 <mx:Script>
 		<![CDATA[
+			import mx.messaging.channels.StreamingAMFChannel;
 			import mx.charts.chartClasses.StackedSeries;
 			import mx.events.ListEvent;
 			import mx.events.ItemClickEvent;
@@ -89,7 +90,14 @@
 					txtGameType.text = event.itemRenderer.data.gametype;
 					txtCreateTime.text = event.itemRenderer.data.createtime;
 					txtDescription.text = event.itemRenderer.data.description;
-					cmbStatus.selectedIndex=event.itemRenderer.data.statusindex;
+					var arr:* = cmbStatus.dataProvider;
+					for (var i:int=0; i < arr.length; i++) {
+						if (arr[i].data == event.itemRenderer.data.statusindex)
+						{
+							cmbStatus.selectedIndex = i;
+						}
+					}
+					
 					HttpServiceProxy.send(LocalGameFeedbackService.GET_JOIN_GAME_PLAYER_INFO, {GAME_ID : event.itemRenderer.data.gameid}, null, 
 						 function(event:ResultEvent):void
     							{
@@ -123,9 +131,9 @@
 			<mx:dataProvider>
                 <mx:Array>
                     <mx:Object label="全部" data="" />
-                    <mx:Object label="未处理" data="0" />
-                    <mx:Object label="处理中" data="1" />
-                    <mx:Object label="处理毕" data="2" />
+                    <mx:Object label="未处理" data="NEW_ARRIVAL" />
+                    <mx:Object label="处理中" data="IN_PROGRESS" />
+                    <mx:Object label="处理毕" data="DONE" />
                 </mx:Array>
             </mx:dataProvider>
 		</mx:ComboBox>
@@ -180,9 +188,9 @@
 	<mx:ComboBox id="cmbStatus" left="215" bottom="68">
 		<mx:dataProvider>
             <mx:Array>
-                <mx:Object label="未处理" data="0" />
-                <mx:Object label="处理中" data="1" />
-                <mx:Object label="处理毕" data="2" />
+                <mx:Object label="未处理" data="NEW_ARRIVAL" />
+                <mx:Object label="处理中" data="IN_PROGRESS" />
+                <mx:Object label="处理毕" data="DONE" />
             </mx:Array>
         </mx:dataProvider>
 	</mx:ComboBox>
