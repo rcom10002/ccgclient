@@ -163,7 +163,7 @@
 			<mx:DataGridColumn headerText="当前时间距离举报时间（小时）" dataField="hours"/>
 			<mx:DataGridColumn headerText="举报人" dataField="name"/>
 			<mx:DataGridColumn headerText="举报时间" dataField="createtime"/>
-			<mx:DataGridColumn headerText="举报内容" dataField="description"/>
+			<mx:DataGridColumn headerText="举报内容" dataField="description" visible="false"/>
 		</mx:columns>
 	</mx:DataGrid>
 	<mx:HRule height="6" bottom="247" left="10" right="10"/>
