@@ -16,8 +16,11 @@
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.service.LocalGameConfigureService;
 			import mx.events.ItemClickEvent;
+			import mx.events.CloseEvent;
 
 			public var currentOperationMethod:OperationMethod;
+			
+			public static var adminApp:Administration;
 			
 			// 验证数字
 			private function validateInputNum(str:String):Boolean {
@@ -139,22 +142,36 @@
 				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
 					{
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalGameConfigureService.DELETE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
-							{
-								if (new XML(event.result).result == "SUCCESS")
-								{
-									Alert.show("删除成功！", "穷胡参数设置");
-									currentOperationMethod=OperationMethod.UPDATE;
-									readData(2);
-								}
-								else
-								{
-									Alert.show("删除失败！", "穷胡参数设置");
-								}
-							}, function(event:FaultEvent):void
-							{
-								Alert.show("删除失败！", "穷胡参数设置");
-							});
+						
+						Alert.yesLabel = "确认";
+						Alert.noLabel = "取消";
+					    Alert.show( "确定要删除？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+								      HttpServiceProxy.send(LocalGameConfigureService.DELETE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
+											{
+												if (new XML(event.result).result == "SUCCESS")
+												{
+													Alert.show("删除成功！", "穷胡参数设置");
+													currentOperationMethod=OperationMethod.UPDATE;
+													readData(2);
+												}
+												else
+												{
+													Alert.show("删除失败！", "穷胡参数设置");
+												}
+											}, function(event:FaultEvent):void
+											{
+												Alert.show("删除失败！", "穷胡参数设置");
+											});
+								    }
+								},
+								null,
+								Alert.YES);
 					});
 				// 翻页
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
