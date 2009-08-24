@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-				layout="absolute"
-                width="{Application.application.screen.width}"
-                height="{Application.application.screen.height}"
-				showCloseButton="true">
+<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="斗地主游戏录像">
 	<mx:Script>
 		<![CDATA[
 			import info.knightrcom.service.LocalSystemInfoService;
@@ -13,17 +9,12 @@
 			import info.knightrcom.state.fightlandlordgame.FightLandlordGameSetting;
 			import component.PokerButton;
 			import mx.rpc.events.ResultEvent;
-			import mx.core.Application;
-			import mx.events.ResizeEvent;
+			import mx.events.CloseEvent;
 			import info.knightrcom.util.HttpServiceProxy;
 			import mx.formatters.DateFormatter;
-			import mx.managers.PopUpManager;
-			import mx.events.CloseEvent;
 			import info.knightrcom.util.ListenerBinder;
 
 			private static const DEFAULT_DELAY:int = 5000;
-
-			private var layoutCanvas:DisplayObject = null;
 
 			private var gamePlayers:String;
 
@@ -37,27 +28,6 @@
 
 			private var playingTimer:Timer
 
-            public function popUp(closeHandler:Function = null):void {
-                if (closeHandler != null) {
-                	this.addEventListener(CloseEvent.CLOSE, closeHandler);
-                }
-                if (this.layoutCanvas == null) {
-                	this.layoutCanvas = DisplayObject(this.parentApplication);
-                }
-                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
-                PopUpManager.centerPopUp(this);
-                this.isPopUp = false;
-            }
-            
-            public function set currentLayoutCanvas(obj:DisplayObject):void {
-            	this.layoutCanvas = obj;
-            }
-            
-            private function closeHandler(event:CloseEvent):void {
-                PopUpManager.removePopUp(this);
-                Button(this.mx_internal::closeButton).dispatchEvent(event);
-            }
-            
             private function btnExecuteClickHandler(event:MouseEvent):void {
 				if (btnExecute.label == "暂停") {
 					btnExecute.label = "继续";
@@ -94,7 +64,7 @@
             		eachBox.removeAllChildren();
             	}
             	// 游戏玩家
-            	HttpServiceProxy.send(LocalSystemInfoService.GAME_INFO,
+            	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
             			{GAME_ID : gameId.text}, null, function (event:ResultEvent):void {
             				var e4xResult:XML = new XML(event.result);
             				var gameType:String = e4xResult.entity.gameType.text();
@@ -298,13 +268,12 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:creationComplete>
+	<creationComplete>
 		<![CDATA[
 			// 数据初始化
 			cardsCandidatedArray = new Array(cardsCandidatedDown, cardsCandidatedRight, cardsCandidatedLeft);
 			cardsDealedArray = new Array(cardsDealedDown, cardsDealedRight, cardsDealedLeft);
 			// 事件监听初始化
-			ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
 			ListenerBinder.bind(btnSetting, MouseEvent.CLICK, function():void {
 				settingWindow.visible = !settingWindow.visible;
 			});
@@ -314,7 +283,7 @@
 			ListenerBinder.bind(btnExecute, MouseEvent.CLICK, btnExecuteClickHandler);
 			ListenerBinder.bind(btnTerminate, MouseEvent.CLICK, btnTerminateClickHandler);
 		]]>
-	</mx:creationComplete>
+	</creationComplete>
 	<mx:HBox id="cardsCandidatedUp"
 	         height="100"
 	         horizontalGap="-55"
@@ -383,4 +352,4 @@
 	<mx:Button x="10" y="40" label="播放" id="btnExecute"/>
 	<mx:Button label="停止" y="70" x="10" id="btnTerminate"/>
 	<mx:Label id="lblGameSetting" right="10" top="12"/>
-</mx:TitleWindow>
+</AbstractInfoWindow>
