@@ -67,6 +67,7 @@
     			}
             	HttpServiceProxy.send(LocalPlayerInfoService.SCORE_INFO, 
             			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, 
+            			 GAME_TYPE: gameType.value,
             			 FROM_DATE: dateFormatter.format(dateFrom.selectedDate),
             			 TO_DATE: dateFormatter.format(dateTo.selectedDate),
             			 SHOW_CONDITION: sc.selectedValue,
@@ -115,6 +116,18 @@
     <mx:HTTPService id="infoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST"/>
 	<!-- 查询条件 -->
     <mx:HBox horizontalGap="4" top="10" left="10" right="10">
+    	<mx:Label text="游戏类型"/>
+		<mx:ComboBox id="gameType">
+			<mx:dataProvider>
+                <mx:Array>
+                    <mx:Object label="全部" data="" />
+                    <mx:Object label="红五" data="Red5Game" />
+                    <mx:Object label="斗地主" data="FightLandlordGame" />
+                    <mx:Object label="推倒胡" data="PushdownWinGame" />
+                    <mx:Object label="穷胡" data="QiongWinGame" />
+                </mx:Array>
+            </mx:dataProvider>
+		</mx:ComboBox>
         <mx:Label text="从："/>
         <mx:DateField id="dateFrom">
         	<mx:selectedDate>{new Date()}</mx:selectedDate>
@@ -138,7 +151,7 @@
     	<mx:dataProvider>{infoService.lastResult.entityList.TodayInfo}</mx:dataProvider>
         <mx:columns>
             <mx:DataGridColumn width="50" resizable="false" headerText="编号"/>
-            <mx:DataGridColumn width="75" resizable="false" headerText="游戏类别"/>
+            <mx:DataGridColumn width="75" resizable="false" headerText="游戏类别" dataField="gametype"/>
             <mx:DataGridColumn width="75" resizable="false" headerText="胜败情况" dataField="winandlose"/>
             <mx:DataGridColumn width="75" resizable="false" headerText="玩家得分" dataField="score" sortCompareFunction="DatagridUtility.commonCompare('score')" />
             <mx:DataGridColumn width="75" resizable="false" headerText="系统得分" dataField="systemScore" sortCompareFunction="DatagridUtility.commonCompare('systemScore')"/>
