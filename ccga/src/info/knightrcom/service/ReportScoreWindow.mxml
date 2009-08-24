@@ -25,12 +25,50 @@
 			
 			private var url:String = "";
 
+			private var isInitialized:Boolean = false;
+			
+			private var searchPeriod:int = 2;
+			
 			protected function defaultSearch():void
 			{
 				var dateFormatter:DateFormatter=new DateFormatter();
 				dateFormatter.formatString="YYYYMMDD";
+				
+				var day:int = Math.floor((dateTo.selectedDate.time - dateFrom.selectedDate.time) / (1000 * 60 * 60 *24));
+    			if (day < 0) {
+    				Alert.show("查询开始日期不能晚于结束日期！", "消息");
+    				return;
+    			}
+    			if (day > searchPeriod * 7 - 1) {
+    				Alert.show("查询期间限制在" + searchPeriod + "个星期内！", "消息");
+    				return;
+    			}
+    			
 				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
 				btnDownload.visible = false;
+			}
+			
+			private function getSearchPeriod():void
+			{
+				dateFrom.selectedDate = new Date();
+				dateTo.selectedDate = new Date();
+				HttpServiceProxy.send(LocalReportScoreService.GET_SEARCH_PERIOD, null, null, function (event:ResultEvent) :void 
+					{
+						var rst:XML = new XML(event.result);
+						if (rst.result == "SUCCESS")
+						{
+							searchPeriod = rst.tag;
+							dateFrom.selectedDate["date"] -= rst.tag * 7 - 1;
+							dateFrom.selectedDate = dateFrom.selectedDate;
+						} 
+						else 
+						{
+							Alert.show("获取查询期间失败！", "警告");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("获取查询期间失败！", "警告");
+					});
 			}
 
 			private function onEvent(evt:Event):void {
@@ -50,57 +88,62 @@
             
 			protected function creationCompleteHandler():void
 			{
-				// 状态初始化
-				initializeEachState("LIST");
-				// 事件绑定
-				// 检索
-				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function(event:MouseEvent):void
-					{
-						CURRENT_PAGE=1;
-						defaultSearch();
-					});
-				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
-					{
-						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+				if (!isInitialized) {
+					// 状态初始化
+					initializeEachState("LIST");
+					// 获取查询期间
+					getSearchPeriod();
+					// 事件绑定
+					// 检索
+					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function(event:MouseEvent):void
 						{
-							return;
-						}
-						if (event.index == 0)
+							CURRENT_PAGE=1;
+							defaultSearch();
+						});
+					// 翻页
+					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
 						{
-							CURRENT_PAGE--;
-						}
-						else if (event.index == 1)
-						{
-							CURRENT_PAGE++;
-						}
-						defaultSearch();
-					});
-				// 导出
-				ListenerBinder.bind(btnCsvExport, MouseEvent.CLICK, function(event:MouseEvent):void 
-				{
-					if (TOTAL_PAGE > 0) {
-						var dateFormatter:DateFormatter=new DateFormatter();
-						dateFormatter.formatString="YYYYMMDD";
-						HttpServiceProxy.send(LocalReportScoreService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
-						{
-							if (new XML(event.result).result == "SUCCESS")
+							if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 							{
-								url = new XML(event.result).tag;
-								btnDownload.visible = true;
+								return;
 							}
-							else
+							if (event.index == 0)
+							{
+								CURRENT_PAGE--;
+							}
+							else if (event.index == 1)
+							{
+								CURRENT_PAGE++;
+							}
+							defaultSearch();
+						});
+					// 导出
+					ListenerBinder.bind(btnCsvExport, MouseEvent.CLICK, function(event:MouseEvent):void 
+					{
+						if (TOTAL_PAGE > 0) {
+							var dateFormatter:DateFormatter=new DateFormatter();
+							dateFormatter.formatString="YYYYMMDD";
+							HttpServiceProxy.send(LocalReportScoreService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+							{
+								if (new XML(event.result).result == "SUCCESS")
+								{
+									url = new XML(event.result).tag;
+									btnDownload.visible = true;
+								}
+								else
+								{
+									Alert.show("导出失败！", "积分结算报表");
+								}
+							}, function(event:FaultEvent):void
 							{
 								Alert.show("导出失败！", "积分结算报表");
-							}
-						}, function(event:FaultEvent):void
-						{
-							Alert.show("导出失败！", "积分结算报表");
-						});
-					} else {
-						Alert.show("还没有查询结果不能导出！", "积分结算报表");
-					}
-				});
+							});
+						} else {
+							Alert.show("还没有查询结果不能导出！", "积分结算报表");
+						}
+					});
+					isInitialized = true;
+	            }
 			}
 		]]>
 	</mx:Script>
@@ -120,12 +163,10 @@
 					</mx:FormItem>
 					<mx:Label text="从："/>
 					<mx:DateField id="dateFrom">
-						<mx:selectedDate>{new Date()}</mx:selectedDate>
 						<mx:formatString>YYYY年MM月DD日</mx:formatString>
 					</mx:DateField>
 					<mx:Label text="至："/>
 					<mx:DateField id="dateTo">
-						<mx:selectedDate>{new Date()}</mx:selectedDate>
 						<mx:formatString>YYYY年MM月DD日</mx:formatString>
 					</mx:DateField>
 					<mx:Button id="btnSearch"
