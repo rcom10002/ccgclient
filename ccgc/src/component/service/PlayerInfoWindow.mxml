@@ -154,7 +154,7 @@
             <mx:DataGridColumn width="75" resizable="false" headerText="游戏类别" dataField="gametype"/>
             <mx:DataGridColumn width="75" resizable="false" headerText="胜败情况" dataField="winandlose"/>
             <mx:DataGridColumn width="75" resizable="false" headerText="玩家得分" dataField="score" sortCompareFunction="DatagridUtility.commonCompare('score')" />
-            <mx:DataGridColumn width="75" resizable="false" headerText="系统得分" dataField="systemScore" sortCompareFunction="DatagridUtility.commonCompare('systemScore')"/>
+            <mx:DataGridColumn width="75" resizable="false" headerText="系统得分" dataField="systemscore" sortCompareFunction="DatagridUtility.commonCompare('systemscore')"/>
             <mx:DataGridColumn width="230" resizable="false" headerText="游戏ID" dataField="gameId"/>
             <mx:DataGridColumn width="170" resizable="false" headerText="游戏时间" dataField="createTime"/>
         </mx:columns>
