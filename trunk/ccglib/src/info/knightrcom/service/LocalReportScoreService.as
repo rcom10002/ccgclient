@@ -9,6 +9,8 @@ package info.knightrcom.service
 
 		public static const CSV_EXPORT:LocalAbstractService=new LocalReportScoreService("ReportScoreService", "CSV_EXPORT");
 
+		public static const GET_SEARCH_PERIOD:LocalAbstractService=new LocalPlayerInfoService("ReportScoreService", "GET_SEARCH_PERIOD");
+
 		public function LocalReportScoreService(serviceId:String, processId:String=null)
 		{
 			super(serviceId, processId);
