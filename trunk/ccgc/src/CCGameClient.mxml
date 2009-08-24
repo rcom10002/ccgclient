@@ -30,7 +30,6 @@
 	        var fightLandlordGameStateManager:FightLandlordGameStateManager = new FightLandlordGameStateManager(socketProxy, this, fightLandlordGameState);
 	        var pushdownWinGameStateManager:PushdownWinGameStateManager = new PushdownWinGameStateManager(socketProxy, this, pushdownWinGameState);
 	        baseStateManager.init();
-	        // this.setChildIndex(this.systemMessage, this.numChildren - 1);
 	        // 全屏效果
 	        // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
         ]]>
@@ -93,33 +92,39 @@
                                        top="0"/>
             </mx:AddChild>
             <mx:AddChild position="lastChild">
-                <mx:Panel id="platformLayout"
-                          layout="absolute"
-                          left="10"
-                          right="10"
-                          top="41"
-                          bottom="10"
-                          title="游戏大厅">
-                    <mx:HDividedBox width="100%"
-                                    height="100%">
-                        <mx:VBox minWidth="200"
-                                 maxWidth="300"
-                                 height="100%"
-                                 id="vboxLobbyTree">
-                            <mx:Accordion id="acdnLobbys"
-                                          width="100%"
-                                          height="100%">
-                            </mx:Accordion>
-                        </mx:VBox>
-                        <mx:VDividedBox width="100%"
-                                        height="100%">
-                            <mx:TextArea id="txtSysMessage"
-                                         width="100%"
-                                         height="100%"
-                                         editable="false"/>
-                        </mx:VDividedBox>
-                    </mx:HDividedBox>
-                </mx:Panel>
+            	<mx:Canvas id="lobbyMain"
+                           left="10"
+                           right="10"
+                           top="40"
+                           bottom="10" backgroundColor="red">
+	                <mx:Panel id="platformLayout"
+	                          layout="absolute"
+	                          left="0"
+	                          right="0"
+	                          top="0"
+	                          bottom="0"
+	                          title="游戏大厅">
+	                    <mx:HDividedBox width="100%"
+	                                    height="100%">
+	                        <mx:VBox minWidth="200"
+	                                 maxWidth="300"
+	                                 height="100%"
+	                                 id="vboxLobbyTree">
+	                            <mx:Accordion id="acdnLobbys"
+	                                          width="100%"
+	                                          height="100%">
+	                            </mx:Accordion>
+	                        </mx:VBox>
+	                        <mx:VDividedBox width="100%"
+	                                        height="100%">
+	                            <mx:TextArea id="txtSysMessage"
+	                                         width="100%"
+	                                         height="100%"
+	                                         editable="false"/>
+	                        </mx:VDividedBox>
+	                    </mx:HDividedBox>
+	                </mx:Panel>
+            	</mx:Canvas>
             </mx:AddChild>
         </mx:State>
         <!-- 红五游戏 -->
@@ -155,11 +160,13 @@
             </mx:AddChild>
         </mx:State>
     </mx:states>
-    <mx:Button width="16" height="16" id="btnScreenMode" cornerRadius="8" bottom="10" right="10"/>
+	<!-- 系统消息显示区域 -->
     <mx:Canvas id="instantMessageTip" left="0" top="0" right="0" height="40" backgroundColor="white" backgroundAlpha="0.85" visible="false">
     	<mx:Text left="10" top="10" right="40" id="txtSysNotification" color="blue" />
     	<mx:Label text="关闭" top="10" right="10" click="instantMessageTip.visible = false;" color="red" />
     </mx:Canvas>
+	<!-- 全屏显示按钮 -->
+    <mx:Button width="16" height="16" id="btnScreenMode" cornerRadius="8" bottom="10" right="10"/>
     <!-- 验证器 -->
     <mx:Array id="loginValidators">
         <mx:StringValidator source="{txtUsername}"
@@ -171,13 +178,6 @@
                             property="text"
                             requiredFieldError="密码不能为空！"/>
     </mx:Array>
-	<!-- 系统消息显示区域 -->
-	<!--
-    <mx:Canvas x="0" y="0" width="100%" height="50" backgroundColor="#0090FF" backgroundAlpha="0.5" id="systemMessage">
-        <mx:Button label="关闭" x="10" y="10" height="30"/>
-        <mx:Label x="70" y="10" text="系统消息" fontSize="24" width="720" fontWeight="normal"/>
-    </mx:Canvas>
-    -->
     <!-- 转换效果 -->
     <mx:transitions>
         <mx:Transition fromState="*"

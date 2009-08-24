@@ -210,7 +210,7 @@ package info.knightrcom.state {
          */
         private function systemInfoClick(event:Event):void {
         	var infoForm:SystemInfoWindow = new SystemInfoWindow();
-        	infoForm.currentLayoutCanvas = gameClient;
+        	infoForm.currentLayoutCanvas = gameClient.lobbyMain;
         	infoForm.popUp();
         }
 
@@ -221,7 +221,7 @@ package info.knightrcom.state {
          */
         private function playerInfoClick(event:Event):void {
         	var infoForm:PlayerInfoWindow = new PlayerInfoWindow();
-        	infoForm.currentLayoutCanvas = gameClient;
+        	infoForm.currentLayoutCanvas = gameClient.lobbyMain;
         	infoForm.popUp();
         }
 
