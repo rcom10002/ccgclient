@@ -10,6 +10,7 @@
                 showCloseButton="true">
 	<mx:Script>
 		<![CDATA[
+	        import mx.core.Application;
 			import mx.events.CloseEvent;
 			import mx.controls.Button;
 			import info.knightrcom.util.ListenerBinder;
@@ -33,6 +34,15 @@
 //                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
 //                PopUpManager.centerPopUp(this);
 //                this.isPopUp = false;
+                var thisClassName:String = flash.utils.getQualifiedClassName(this);
+                for (var i:int = 0; i < this.layoutCanvas.numChildren; i++) {
+                    var eachObj:* = this.layoutCanvas.getChildAt(i);
+                    var eachClassName:String = flash.utils.getQualifiedClassName(eachObj);
+                    if (eachClassName == thisClassName) {
+                        this.layoutCanvas.setChildIndex(eachObj, this.layoutCanvas.numChildren - 1);
+                        return;
+                    }
+                }
 				layoutCanvas.addChild(this);
 			}
 
