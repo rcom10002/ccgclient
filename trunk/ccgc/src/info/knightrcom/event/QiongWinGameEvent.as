@@ -2,7 +2,7 @@ package info.knightrcom.event {
 
     public class QiongWinGameEvent extends GameEvent {
 
-        public static const EVENT_TYPE:uint = 4;
+        public static const EVENT_TYPE:uint = 5;
 
         /**
          *

@@ -17,6 +17,7 @@
 	        import info.knightrcom.state.Red5GameStateManager;
 	        import info.knightrcom.state.FightLandlordGameStateManager;
 	        import info.knightrcom.state.PushdownWinGameStateManager;
+	        import info.knightrcom.state.QiongWinGameStateManager;
 	        import mx.controls.Alert;
 	        import info.knightrcom.GameSocketProxy;
 	        this.addEventListener(ErrorEvent.ERROR, function(errorEvent:ErrorEvent):void {
@@ -29,6 +30,7 @@
 	        var red5GameStateManager:Red5GameStateManager = new Red5GameStateManager(socketProxy, this, red5GameState);
 	        var fightLandlordGameStateManager:FightLandlordGameStateManager = new FightLandlordGameStateManager(socketProxy, this, fightLandlordGameState);
 	        var pushdownWinGameStateManager:PushdownWinGameStateManager = new PushdownWinGameStateManager(socketProxy, this, pushdownWinGameState);
+	        var qiongWinGameStateManager:QiongWinGameStateManager = new QiongWinGameStateManager(socketProxy, this, qiongWinGameState);
 	        baseStateManager.init();
 	        // 全屏效果
 	        // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
@@ -151,7 +153,15 @@
                 </ccgame:CCGamePushdownWin>
             </mx:AddChild>
         </mx:State>
-        <!-- 推倒胡游戏 -->
+        <!-- 穷胡游戏 -->
+        <mx:State id="qiongWinGameState"
+                  name="QIONGWINGAME">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGameQiongWin id="qiongWinGameModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGameQiongWin>
+            </mx:AddChild>
+        </mx:State>
+        <!-- 游戏帮助 -->
         <mx:State id="ccgameClientHelpState"
                   name="CCGAMECLIENTHELP">
             <mx:AddChild position="lastChild">

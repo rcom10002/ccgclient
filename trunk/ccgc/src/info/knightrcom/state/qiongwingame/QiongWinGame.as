@@ -1,4 +1,4 @@
-package info.knightrcom.state.pushdownwingame {
+package info.knightrcom.state.qiongwingame {
 
     import component.MahjongButton;
 
@@ -8,9 +8,9 @@ package info.knightrcom.state.pushdownwingame {
      * 并且是已经排好顺序
      *
      */
-    public class PushdownWinGame {
+    public class QiongWinGame {
 
-        public function PushdownWinGame() {
+        public function QiongWinGame() {
         }
 
         /** 优先顺序：东南西北中发白万饼条 */
@@ -133,7 +133,7 @@ package info.knightrcom.state.pushdownwingame {
 //            	}
 //				mahjongs = (mahjongOfPlayers[index] as Array).slice(0);
 //				mahjongs.push(dealedMahjong);
-//				if (/^((,\\w+)\\2){7}$/.test("," + PushdownWinGame.sortMahjongs(mahjongs.join(",")).join(","))) {
+//				if (/^((,\\w+)\\2){7}$/.test("," + QiongWinGame.sortMahjongs(mahjongs.join(",")).join(","))) {
 //            	}
 //				winCube.walkAllRoutes();
 //				winResults[index] = winCube.winningRoutes;
@@ -150,7 +150,7 @@ package info.knightrcom.state.pushdownwingame {
             		continue;
             	}
             	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",") + "," + dealedMahjong;
-				var winCube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(currentMahjongs).join(","));
+				var winCube:QiongWinningCube = new QiongWinningCube(sortMahjongs(currentMahjongs).join(","));
 				winCube.walkAllRoutes();
 				winResultsLengthes[index] = winCube.winningRoutes.length;
             }
@@ -267,7 +267,7 @@ package info.knightrcom.state.pushdownwingame {
 		public static function canWinNow(currentMahjongs:Array):Boolean {
 			// 计算所有可能胡牌的路径
 			var mahjongs:Array = currentMahjongs.slice(0);
-			var cube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(mahjongs.join(",")).join(","));
+			var cube:QiongWinningCube = new QiongWinningCube(sortMahjongs(mahjongs.join(",")).join(","));
 			cube.walkAllRoutes();
 			// 提取正确的胡牌路径
 			return cube.winningRoutes.length > 0;

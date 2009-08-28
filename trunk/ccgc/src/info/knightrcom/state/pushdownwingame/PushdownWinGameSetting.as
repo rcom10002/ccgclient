@@ -1,4 +1,4 @@
-package info.knightrcom.state.PushdownWinGame {
+package info.knightrcom.state.pushdownwingame {
     import mx.formatters.SwitchSymbolFormatter;
 
     /**

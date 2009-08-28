@@ -12,8 +12,8 @@ package info.knightrcom.state {
     import info.knightrcom.command.QiongWinGameCommand;
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.QiongWinGameEvent;
-    import info.knightrcom.state.pushdownwingame.QiongWinGame;
-    import info.knightrcom.state.pushdownwingame.QiongWinMahjongBox;
+    import info.knightrcom.state.qiongwingame.QiongWinGame;
+    import info.knightrcom.state.qiongwingame.QiongWinMahjongBox;
     import info.knightrcom.util.ListenerBinder;
     
     import mx.containers.Box;
@@ -27,7 +27,7 @@ package info.knightrcom.state {
 
     /**
      *
-     * 推倒胡游戏状态管理器
+     * 穷胡游戏状态管理器
      *
      */
     public class QiongWinGameStateManager extends AbstractGameStateManager {
@@ -154,7 +154,7 @@ package info.knightrcom.state {
             if (!isInitialized()) {
                 // 配置事件监听
                 // 非可视组件
-            	currentGame = gameClient.pushdownWinGameModule;
+            	currentGame = gameClient.qiongWinGameModule;
 				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					// DROP THIS LINE currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
@@ -828,7 +828,7 @@ package info.knightrcom.state {
             var mahjongButton:MahjongButton = null;
             if (results.length == 3) {
             	// 自摸
-            	gameClient.txtSysMessage.text += "推倒胡游戏结束，玩家#1自摸获胜！\n".replace(/#1/, currentNumber);
+            	gameClient.txtSysMessage.text += "穷胡游戏结束，玩家#1自摸获胜！\n".replace(/#1/, currentNumber);
             	if (currentNumber == localNumber) {
             	    return;
             	}
@@ -857,7 +857,7 @@ package info.knightrcom.state {
 				}
             } else if (results.length == 4) {
             	// 点炮
-            	gameClient.txtSysMessage.text += "推倒胡游戏结束，玩家#1为玩家#2点炮！\n".replace(/#1/, results[2]).replace(/#2/, results[0]);
+            	gameClient.txtSysMessage.text += "穷胡游戏结束，玩家#1为玩家#2点炮！\n".replace(/#1/, results[2]).replace(/#2/, results[0]);
             	if (currentNumber == localNumber) {
             	    return;
             	}
@@ -877,7 +877,7 @@ package info.knightrcom.state {
 					Box(mahjongsCandidatedArray[currentIndex]).addChild(mahjongButton);
 				}
             } else {
-            	gameClient.txtSysMessage.text += "推倒胡游戏结束，没有玩家获胜，流局！\n";
+            	gameClient.txtSysMessage.text += "穷胡游戏结束，没有玩家获胜，流局！\n";
             }
         }
 
@@ -916,7 +916,7 @@ package info.knightrcom.state {
             } else {
                 QiongWinGameStateManager.localNextNumber = QiongWinGameStateManager.localNumber + 1;
             }
-            gameClient.currentState = "PUSHDOWNWINGAME";
+            gameClient.currentState = "QIONGWINGAME";
         }
 
         /**

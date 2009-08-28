@@ -12,6 +12,7 @@ package info.knightrcom.state {
     import info.knightrcom.command.PlatformCommand;
     import info.knightrcom.command.PlayerCommand;
     import info.knightrcom.command.PushdownWinGameCommand;
+    import info.knightrcom.command.QiongWinGameCommand;
     import info.knightrcom.command.Red5GameCommand;
     import info.knightrcom.event.PlatformEvent;
     import info.knightrcom.event.PlayerEvent;
@@ -198,6 +199,8 @@ package info.knightrcom.state {
                 socketProxy.sendGameData(FightLandlordGameCommand.GAME_JOIN_MATCHING_QUEUE);
             } else if (roomIdFlag.indexOf("pushdownwin") > -1) {
                 socketProxy.sendGameData(PushdownWinGameCommand.GAME_JOIN_MATCHING_QUEUE);
+            } else if (roomIdFlag.indexOf("qiongwin") > -1) {
+                socketProxy.sendGameData(QiongWinGameCommand.GAME_JOIN_MATCHING_QUEUE);
             } else {
                 Alert.show("当前房间暂不开放！");
             }
