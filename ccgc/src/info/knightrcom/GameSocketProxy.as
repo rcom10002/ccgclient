@@ -13,6 +13,7 @@ package info.knightrcom {
     import info.knightrcom.event.PlatformEvent;
     import info.knightrcom.event.PlayerEvent;
     import info.knightrcom.event.PushdownWinGameEvent;
+    import info.knightrcom.event.QiongWinGameEvent;
     import info.knightrcom.event.Red5GameEvent;
     import info.knightrcom.util.ListenerBinder;
     
@@ -85,6 +86,8 @@ package info.knightrcom {
                 dispatchEvent(new FightLandlordGameEvent(msgResult, msgContent));
             } else if (msgType == PushdownWinGameEvent.EVENT_TYPE) {
                 dispatchEvent(new PushdownWinGameEvent(msgResult, msgContent));
+            } else if (msgType == QiongWinGameEvent.EVENT_TYPE) {
+                dispatchEvent(new QiongWinGameEvent(msgResult, msgContent));
             }
         }
 

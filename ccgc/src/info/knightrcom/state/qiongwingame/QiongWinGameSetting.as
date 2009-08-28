@@ -1,14 +1,14 @@
-package info.knightrcom.state.PushdownWinGame {
+package info.knightrcom.state.qiongwingame {
     import mx.formatters.SwitchSymbolFormatter;
 
     /**
      *
-     * 红五开局游戏设置
+     * 穷胡开局游戏设置
      *
      */
-    public class PushdownWinGameSetting {
+    public class QiongWinGameSetting {
 
-        public function PushdownWinGameSetting() {
+        public function QiongWinGameSetting() {
         }
 
         public static const NO_RUSH:int = 0;
@@ -19,9 +19,9 @@ package info.knightrcom.state.PushdownWinGame {
 
         public static const EXTINCT_RUSH:int = 3;
 
-        public static function getDisplayName(PushdownWinGameSetting:int):String {
+        public static function getDisplayName(QiongWinGameSetting:int):String {
             var displayName:String = null;
-            switch (PushdownWinGameSetting) {
+            switch (QiongWinGameSetting) {
                 case NO_RUSH:
                     displayName = "不独";
                     break;

@@ -1,4 +1,4 @@
-package info.knightrcom.state.QiongWingame
+package info.knightrcom.state.qiongwingame
 {
 
 	public class QiongWinMahjongBox

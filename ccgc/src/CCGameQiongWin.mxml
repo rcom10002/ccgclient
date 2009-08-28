@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600" xmlns:component="component.*">
+	<!-- 上侧区域 -->
+	<mx:HBox id="candidatedUp"
+			 height="80"
+			 horizontalGap="0"
+			 horizontalAlign="left"
+			 verticalAlign="bottom"
+			 top="0"
+			 left="170"
+			 right="150">
+	</mx:HBox>
+	<!-- 右侧区域 -->
+	<mx:VBox id="candidatedRight"
+			 width="80"
+			 top="120"
+			 bottom="80"
+			 right="0"
+			 horizontalAlign="left"
+			 verticalAlign="top"
+			 verticalGap="-20">
+	</mx:VBox>
+	<!-- 下侧区域 -->
+	<mx:HBox id="candidatedDown"
+			 height="80"
+			 horizontalGap="0"
+			 horizontalAlign="right"
+			 left="150"
+			 right="170"
+			 bottom="0"
+			 verticalAlign="top">
+	</mx:HBox>
+	<!-- 左侧区域 -->
+	<mx:VBox id="candidatedLeft"
+			 width="80"
+			 top="80"
+			 bottom="120"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="bottom"
+			 verticalGap="-20">
+	</mx:VBox>
+	<mx:Canvas left="150" right="150" top="150" bottom="187">
+		<!-- 牌桌区域 -->
+		<mx:Tile id="dealed"
+				 top="0"
+				 left="0"
+				 horizontalGap="2"
+				 verticalGap="2"
+				 verticalAlign="middle" right="0" bottom="0">
+		</mx:Tile>
+		<mx:TextArea id="testArea" height="100" left="0" right="50" bottom="0" /><mx:Button id="testFresh" width="50" height="50" right="0" bottom="0"/>
+	</mx:Canvas>
+	<!-- TODO 暂时保留 -->
+    <mx:Style>
+    	.unhighlight {
+			paddingTop : 1;
+			paddingRight : 1;
+			paddingBottom : 1;
+			paddingLeft : 1;
+    	}
+    	.highlight {
+			paddingTop : 1;
+			paddingRight : 1;
+			paddingBottom : 1;
+			paddingLeft : 1;
+            borderStyle : solid;
+            borderThickness : 1;
+            borderSides : "left right top bottom";
+			borderColor : #48b;
+    	}
+    </mx:Style>
+	<!-- TODO 暂时保留 -->
+	<!-- 操作提示区域 -->
+	<mx:HBox left="150" right="150" bottom="187" height="53" horizontalAlign="center">
+		<mx:HBox id="toolTip1" horizontalGap="0" visible="false">
+			<component:MahjongButton source="image/mahjong/down/dealed/RED.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/GREEN.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/WHITE.jpg" allowSelect="false"/>
+		</mx:HBox>
+		<mx:HBox id="toolTip2" horizontalGap="0" visible="false">
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+		</mx:HBox>
+		<mx:HBox id="toolTip3" horizontalGap="0" visible="false">
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+		</mx:HBox>
+	</mx:HBox>
+	<!-- 操作区域 -->
+	<mx:HBox horizontalAlign="center"
+			 left="200"
+			 right="200"
+			 bottom="149"
+			 height="30">
+		<mx:ButtonBar id="btnBarMahjongs" borderStyle="solid" horizontalGap="5" width="300">
+			<mx:dataProvider>
+				<mx:String>胡</mx:String>
+				<mx:String>杠</mx:String>
+				<mx:String>碰</mx:String>
+				<mx:String>吃</mx:String>
+				<mx:String>放弃</mx:String>
+				<mx:String>摸牌</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:HBox>
+	<mx:VBox id="daisLeft"
+			 top="100"
+			 bottom="100"
+			 left="88"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="0" width="53">
+	</mx:VBox>
+	<mx:VBox id="daisRight"
+			 width="53"
+			 top="100"
+			 bottom="100"
+			 right="88"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="0">
+	</mx:VBox>
+	<mx:HBox id="daisDown"
+			 height="53"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 left="175"
+			 right="175"
+			 bottom="88"
+			 verticalAlign="top">
+	</mx:HBox>
+	<mx:HBox id="daisUp"
+			 height="53"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="88"
+			 left="175"
+			 right="175">
+	</mx:HBox>
+	<mx:VBox id="randLeft"
+			 height="60"
+			 width="80"
+			 bottom="50"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="-78">
+	</mx:VBox>
+	<mx:HBox id="randDown"
+			 height="80"
+			 width="60"
+			 horizontalGap="-55"
+			 horizontalAlign="center"
+			 right="100"
+			 bottom="0"
+			 verticalAlign="top">
+	</mx:HBox>
+	<mx:HBox id="randUp"
+			 height="80"
+			 width="60"
+			 horizontalGap="-55"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="0"
+			 left="100">
+	</mx:HBox>
+	<mx:VBox id="randRight"
+			 height="60"
+			 width="80"
+			 top="50"
+			 right="1"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="-78">
+	</mx:VBox>
+	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+</mx:Module>
