@@ -16,7 +16,6 @@ package info.knightrcom.state {
     import info.knightrcom.util.PlatformAlert;
     import info.knightrcom.util.PlatformAlertEvent;
     
-    import mx.binding.utils.BindingUtils;
     import mx.containers.Box;
     import mx.containers.Tile;
     import mx.controls.Alert;
@@ -622,6 +621,64 @@ package info.knightrcom.state {
             gameClient.txtSysMessage.text += event.incomingData + "\n";
             gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
         }
+        
+        /**
+		 *
+		 * 动态比较扑克
+		 *
+		 * @param compareCurrentCardLen 当前要比较牌的张数
+		 * 
+		 * @return 返回是否有能出的牌 
+		 *
+		 */
+		private function compareCards(compareCurrentCardLen:int):Boolean
+		{
+			var times:int=0; // 计算手中牌数
+			var compareTimes:int=0; // 比较的次数做为下一次比较的索引位置
+			var selectCards:String=""; // 选择要比较的牌
+			var isSelectCard:Boolean= false; // 是否有大于当前牌的的牌
+			var cardsArr:Array = currentGame.candidatedDown.getChildren(); // 当前手中牌的集合
+			for (var i:int=0; i < cardsArr.length; ) 
+			{
+				selectCards+=cardsArr[i].value + ",";
+				times++;
+				if (times == compareCurrentCardLen) 
+				{
+					i=++compareTimes;
+					times=0;
+					selectCards=selectCards.replace(/,$/, "");
+                    // 规则验证
+                    if (Red5Game.isRuleFollowed(selectCards, currentBoutCards)) {
+                    	// 选出手中能压的牌
+                    	var tempTimes:int=0;
+						for each (var cardHand:PokerButton in currentGame.candidatedDown.getChildren())
+						{
+							var selectCardsArr:Array = selectCards.split(",");
+							for each (var selectCard:String in selectCardsArr) 
+							{
+								if(cardHand.value == selectCard)
+								{
+									tempTimes++;
+									// 排除在当前牌只有一张时将同花同号的牌重复选中
+									if (compareCurrentCardLen == 1 && tempTimes == 1)
+									{
+										cardHand.setSelected(true);
+									}
+								}
+							}
+						}
+						isSelectCard=true;
+						return isSelectCard;
+                    }
+                    selectCards="";
+	   			}
+	   			else 
+	   			{
+	   				i++;
+	   			}
+            }
+            return isSelectCard;
+		}
 
         /**
          *
@@ -681,6 +738,24 @@ package info.knightrcom.state {
                     break;
                 case 2:
                     // 提示
+                    // 1. 重选
+					for each (card in currentGame.candidatedDown.getChildren())
+					{
+						card.setSelected(false);
+					}
+					// 2. 当前为发牌玩家选择第一张牌
+					if (currentBoutCards == null || currentBoutCards.split(",").length == 0)
+					{
+						PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+						break;
+					}
+					// 3. 选择要出的牌
+                    var isSelectCard:Boolean = compareCards(currentBoutCards.split(",").length);
+                    // 4. 没有可提示的牌
+					if (!isSelectCard)
+					{
+						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
+					}
                     break;
                 case 3:
                     // 出牌
