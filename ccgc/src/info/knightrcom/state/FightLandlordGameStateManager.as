@@ -822,7 +822,7 @@ package info.knightrcom.state
 			var selectCards:String=""; // 选择要比较的牌
 			var isSelectCard:Boolean= false; // 是否有大于当前牌的的牌
 			var cardsArr:Array = currentGame.candidatedDown.getChildren(); // 当前手中牌的集合
-			for (var i:int=0; i < cardsArr.length; i++) 
+			for (var i:int=0; i < cardsArr.length; ) 
 			{
 				selectCards+=cardsArr[i].value + ",";
 				times++;
@@ -849,6 +849,10 @@ package info.knightrcom.state
 						return isSelectCard;
 					}
 					selectCards="";
+				}
+				else
+				{
+					i++;
 				}
 			}
 			return isSelectCard;
