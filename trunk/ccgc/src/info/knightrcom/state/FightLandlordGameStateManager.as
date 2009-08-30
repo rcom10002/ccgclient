@@ -131,12 +131,12 @@ package info.knightrcom.state
 		/**
 		 * 地主出牌次数
 		 */
-		private var holderOutTimes:int=0;
+		private static var holderOutTimes:int=0;
 
 		/**
 		 * 非地主玩家是否出过牌
 		 */
-		private var isHaveOut:Boolean=false;
+		private static var isHaveOut:Boolean=false;
 
 		/**
 		 * 是否翻倍积分
@@ -805,6 +805,54 @@ package info.knightrcom.state
 			gameClient.txtSysMessage.text+=event.incomingData + "\n";
 			gameClient.txtSysMessage.selectionEndIndex=gameClient.txtSysMessage.length - 1;
 		}
+		
+		/**
+		 *
+		 * 动态比较扑克
+		 *
+		 * @param compareCurrentCardLen 当前要比较牌的张数
+		 * 
+		 * @return 返回是否有能出的牌 
+		 *
+		 */
+		private function compareCards(compareCurrentCardLen:int):Boolean
+		{
+			var times:int=0; // 计算手中牌数
+			var compareTimes:int=0; // 比较的次数做为下一次比较的索引位置
+			var selectCards:String=""; // 选择要比较的牌
+			var isSelectCard:Boolean= false; // 是否有大于当前牌的的牌
+			var cardsArr:Array = currentGame.candidatedDown.getChildren(); // 当前手中牌的集合
+			for (var i:int=0; i < cardsArr.length; i++) 
+			{
+				selectCards+=cardsArr[i].value + ",";
+				times++;
+				if (times == compareCurrentCardLen) 
+				{
+					i=++compareTimes;
+					times=0;
+					selectCards=selectCards.replace(/,$/, "");
+					if (FightLandlordGame.isRuleFollowed(selectCards, currentBoutCards))
+					{
+						// 选出手中能压的牌
+						for each (var card:PokerButton in currentGame.candidatedDown.getChildren())
+						{
+							var selectCardsArr:Array = selectCards.split(",");
+							for each (var selectCard:String in selectCardsArr) 
+							{
+								if(card.value == selectCard)
+								{
+									card.setSelected(true);
+								}
+							}
+						}
+						isSelectCard=true;
+						return isSelectCard;
+					}
+					selectCards="";
+				}
+			}
+			return isSelectCard;
+		}
 
 		/**
 		 *
@@ -866,53 +914,31 @@ package info.knightrcom.state
 					break;
 				case 2:
 					// 提示
+					// 1. 重选
 					for each (card in currentGame.candidatedDown.getChildren())
 					{
 						card.setSelected(false);
 					}
-					// 选择第一张牌
+					// 2. 当前为发牌玩家选择第一张牌
 					if (currentBoutCards == null || currentBoutCards.split(",").length == 0)
 					{
 						PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
 						break;
 					}
-					// 选择要出的牌
-					var cards:String="";
-					var times:int =0;
-					var compareTimes:int =0;
-					var selectCards:String="";
-					var isSelectCard:Boolean = false;
-					var cardsArr:Array = currentGame.candidatedDown.getChildren();
-					for (var i:int=0; i < cardsArr.length; i++) 
+					// 3. 选择要出的牌
+					// 3.1 正常牌比较不包含炸弹火箭
+					var isSelectCard:Boolean = compareCards(currentBoutCards.split(",").length);
+					// 3.2 炸弹
+					if (!isSelectCard)
 					{
-						selectCards+=cardsArr[i].value + ",";
-						times++;
-						if (times == currentBoutCards.split(",").length) 
-						{
-							i=++compareTimes;
-							times=0;
-							selectCards=selectCards.replace(/,$/, "");
-							if (FightLandlordGame.isRuleFollowed(selectCards, currentBoutCards))
-							{
-								// 选出手中能压的牌
-								for each (card in currentGame.candidatedDown.getChildren())
-								{
-									var selectCardsArr:Array = selectCards.split(",");
-									for each (var selectCard:String in selectCardsArr) 
-									{
-										if(card.value == selectCard)
-										{
-											card.setSelected(true);
-										}
-									}
-								}
-								isSelectCard=true;
-								break;
-							}
-							selectCards="";
-						}
+						isSelectCard = compareCards(4);
 					}
-					// 没有可提示的牌
+					// 3.3 火箭
+					if (!isSelectCard)
+					{
+						isSelectCard = compareCards(2);
+					}
+					// 4. 没有可提示的牌
 					if (!isSelectCard)
 					{
 						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
@@ -921,36 +947,38 @@ package info.knightrcom.state
 				case 3:
 					// 出牌
 					// 选择要出的牌
-					var cards:String="";
+					var cardsBox:String="";
+					var bomb:String="";
 					for each (card in currentGame.candidatedDown.getChildren())
 					{
 						if (card.isSelected())
 						{
-							cards+=card.value + ",";
+							cardsBox+=card.value + ",";
 						}
 					}
-					cards=cards.replace(/,$/, "");
+					cardsBox=cardsBox.replace(/,$/, "");
 					// 未作任何选择时，直接退出处理
-					if (cards.length == 0)
+					if (cardsBox.length == 0)
 					{
 						return;
 					}
 					// 规则验证
-					if (!FightLandlordGame.isRuleFollowed(cards, currentBoutCards))
+					if (!FightLandlordGame.isRuleFollowed(cardsBox, currentBoutCards))
 					{
 						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
 						return;
 					}
 					// 出牌过程中出现炸弹或火箭时陪数增加
-					if (FightLandlordGame.isBombStyle(cards) || FightLandlordGame.isRocketStyle(cards))
+					bomb="";
+					if (FightLandlordGame.isBombStyle(cardsBox) || FightLandlordGame.isRocketStyle(cardsBox))
 					{
-						socketProxy.sendGameData(FightLandlordGameCommand.GAME_BOMB, localNumber + "~" + cards + "~" + localNextNumber + "~double");
+						bomb="~double";
 					}
 					// 设置出牌结果
 					// 当前剩余的牌数
 					var cardsCandicateNumber:int=currentGame.candidatedDown.getChildren().length;
 					// 即将打出的牌数
-					var cardsDealedNumber:int=cards.split(",").length;
+					var cardsDealedNumber:int=cardsBox.split(",").length;
 					// 打出后剩余牌数
 					var cardsLeftNumber:int=cardsCandicateNumber - cardsDealedNumber;
 
@@ -966,7 +994,7 @@ package info.knightrcom.state
 					}
 					if (cardsLeftNumber == 0)
 					{
-
+						bomb="";
 						// 设置游戏冠军玩家
 						if (gameFinalSettingPlayerNumber != localNumber)
 						{
@@ -974,7 +1002,7 @@ package info.knightrcom.state
 							// 两家中有一家出完牌，而地主仅仅出过一手牌，分数×2 。
 							if (holderOutTimes == 1)
 							{
-								socketProxy.sendGameData(FightLandlordGameCommand.GAME_BOMB, localNumber + "~" + cards + "~" + localNextNumber + "~double");
+								bomb="~double";
 							}
 						}
 						else
@@ -983,10 +1011,10 @@ package info.knightrcom.state
 							// 地主把牌出完，其余两家一张牌都没出，分数×2 ；
 							if (!isHaveOut)
 							{
-								socketProxy.sendGameData(FightLandlordGameCommand.GAME_BOMB, localNumber + "~" + cards + "~" + localNextNumber + "~double");
+								bomb="~double";
 							}
 						}
-						socketProxy.sendGameData(FightLandlordGameCommand.GAME_WIN_AND_END, localNumber + "~" + cards + "~" + localNextNumber);
+						socketProxy.sendGameData(FightLandlordGameCommand.GAME_WIN_AND_END, localNumber + "~" + cardsBox + "~" + localNextNumber + bomb);
 						isGameOver=true;
 					}
 					else if (cardsLeftNumber > 0)
@@ -996,13 +1024,13 @@ package info.knightrcom.state
 						{
 							// 没有独牌或天独，并且第一个获胜者牌最大
 							// 构造出牌数据，当前玩家序号~牌名,牌名...~下家玩家序号
-							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cards + "~" + localNextNumber);
+							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cardsBox + "~" + localNextNumber + bomb);
 							isWinnerFollowed=false;
 						}
 						else
 						{
 							// 构造出牌数据，当前玩家序号~牌名,牌名...~下家玩家序号
-							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cards + "~" + localNextNumber);
+							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cardsBox + "~" + localNextNumber + bomb);
 						}
 					}
 					else

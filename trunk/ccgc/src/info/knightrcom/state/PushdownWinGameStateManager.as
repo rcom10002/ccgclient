@@ -87,7 +87,7 @@ package info.knightrcom.state {
 		 */
 		// private static const MAX_CARDS_SELECT_TIME:int = 15;
 		// 测试用时间为10分钟
-		private static const MAX_CARDS_SELECT_TIME:int = 5;// * 60;
+		private static const MAX_CARDS_SELECT_TIME:int = 15;// * 60;
 
         /**
          * 待发牌区域
@@ -279,16 +279,16 @@ package info.knightrcom.state {
             mahjongBox.mahjongsOfPlayers = new Array(results[0], results[1], results[2], results[3]);
             mahjongBox.mahjongsSpared = results[4].toString().split(",");
             // FIXME TEST PART BEGIN
-            mahjongBox.mahjongsOfPlayers = new Array("EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,RED",
-                                                     "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B7,RED",
-                                                     "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T7,RED", 
-                                                     "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
-            mahjongBox.mahjongsSpared = "W8,W8,B3,RED,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,B8,B8,T8,T8,WHITE,W6,W8,GREEN,W4,W9,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
-            results[0] = mahjongBox.mahjongsOfPlayers[0];
-            results[1] = mahjongBox.mahjongsOfPlayers[1];
-            results[2] = mahjongBox.mahjongsOfPlayers[2];
-            results[3] = mahjongBox.mahjongsOfPlayers[3];
-            results[4] = mahjongBox.mahjongsSpared;
+//            mahjongBox.mahjongsOfPlayers = new Array("EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,RED",
+//                                                     "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B7,RED",
+//                                                     "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T7,RED", 
+//                                                     "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
+//            mahjongBox.mahjongsSpared = "W8,W8,B3,RED,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,B8,B8,T8,T8,WHITE,W6,W8,GREEN,W4,W9,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
+//            results[0] = mahjongBox.mahjongsOfPlayers[0];
+//            results[1] = mahjongBox.mahjongsOfPlayers[1];
+//            results[2] = mahjongBox.mahjongsOfPlayers[2];
+//            results[3] = mahjongBox.mahjongsOfPlayers[3];
+//            results[4] = mahjongBox.mahjongsSpared;
             // FIXME TEST PART END
             var mahjongSequence:String = results[localNumber - 1];
             var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
