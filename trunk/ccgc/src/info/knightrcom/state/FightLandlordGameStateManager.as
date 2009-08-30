@@ -2,12 +2,11 @@ package info.knightrcom.state
 {
 	import component.PokerButton;
 	import component.Scoreboard;
-
+	
 	import flash.events.Event;
-	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-
+	
 	import info.knightrcom.GameSocketProxy;
 	import info.knightrcom.command.FightLandlordGameCommand;
 	import info.knightrcom.event.FightLandlordGameEvent;
@@ -17,7 +16,7 @@ package info.knightrcom.state
 	import info.knightrcom.util.ListenerBinder;
 	import info.knightrcom.util.PlatformAlert;
 	import info.knightrcom.util.PlatformAlertEvent;
-
+	
 	import mx.containers.Box;
 	import mx.containers.Tile;
 	import mx.controls.Alert;
@@ -867,6 +866,57 @@ package info.knightrcom.state
 					break;
 				case 2:
 					// 提示
+					for each (card in currentGame.candidatedDown.getChildren())
+					{
+						card.setSelected(false);
+					}
+					// 选择第一张牌
+					if (currentBoutCards == null || currentBoutCards.split(",").length == 0)
+					{
+						PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+						break;
+					}
+					// 选择要出的牌
+					var cards:String="";
+					var times:int =0;
+					var compareTimes:int =0;
+					var selectCards:String="";
+					var isSelectCard:Boolean = false;
+					var cardsArr:Array = currentGame.candidatedDown.getChildren();
+					for (var i:int=0; i < cardsArr.length; i++) 
+					{
+						selectCards+=cardsArr[i].value + ",";
+						times++;
+						if (times == currentBoutCards.split(",").length) 
+						{
+							i=++compareTimes;
+							times=0;
+							selectCards=selectCards.replace(/,$/, "");
+							if (FightLandlordGame.isRuleFollowed(selectCards, currentBoutCards))
+							{
+								// 选出手中能压的牌
+								for each (card in currentGame.candidatedDown.getChildren())
+								{
+									var selectCardsArr:Array = selectCards.split(",");
+									for each (var selectCard:String in selectCardsArr) 
+									{
+										if(card.value == selectCard)
+										{
+											card.setSelected(true);
+										}
+									}
+								}
+								isSelectCard=true;
+								break;
+							}
+							selectCards="";
+						}
+					}
+					// 没有可提示的牌
+					if (!isSelectCard)
+					{
+						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
+					}
 					break;
 				case 3:
 					// 出牌
