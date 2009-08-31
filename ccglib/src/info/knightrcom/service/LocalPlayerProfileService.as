@@ -3,8 +3,8 @@ package info.knightrcom.service
 	public class LocalPlayerProfileService extends LocalAbstractService
 	{
 		public static const RETRIEVE_PLAYER_PROFILE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService");
-		public static const RETRIEVE_PLAYER_RLS_PATH:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "RETRIEVE_PLAYER_RLS_PATH");
 		public static const RETRIEVE_PLAYER_ROLE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "RETRIEVE_PLAYER_ROLE");
+		public static const SHOW_RLS_PATH:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "SHOW_RLS_PATH");
 
 		public static const CREATE_PLAYER_PROFILE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "CREATE_PLAYER_PROFILE");
 		public static const READ_PLAYER_PROFILE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "READ_PLAYER_PROFILE");
