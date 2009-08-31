@@ -18,5 +18,6 @@ package info.knightrcom.command
 		public static const GAME_BRING_OUT:FightLandlordGameCommand=new FightLandlordGameCommand(1241418459796, "GAME_BRING_OUT");
 		public static const GAME_WIN:FightLandlordGameCommand=new FightLandlordGameCommand(1241418465156, "GAME_WIN");
 		public static const GAME_WIN_AND_END:FightLandlordGameCommand=new FightLandlordGameCommand(1241418470984, "GAME_WIN_AND_END");
+		public static const GAME_BOMB:FightLandlordGameCommand=new FightLandlordGameCommand(1242181074828, "GAME_BOMB");
 	}
 }
