@@ -130,5 +130,11 @@
 				</service:GameFeedbackWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="USER_RELATIONSHIP_VIEW">
+			<mx:AddChild position="lastChild">
+				<service:UserRelationshipWindow>
+				</service:UserRelationshipWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>

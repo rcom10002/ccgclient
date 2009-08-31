@@ -90,6 +90,9 @@ package info.knightrcom
 				case "普通用户管理":
 					adminApp.functionWindowArea.currentState="SOLO_USER_EDIT";
 					break;
+				case "用户关系浏览":
+					adminApp.functionWindowArea.currentState="USER_RELATIONSHIP_VIEW";
+					break;
 				case "启动游戏服务器":
 					HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
 						{

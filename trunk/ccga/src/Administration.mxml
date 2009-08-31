@@ -129,7 +129,7 @@
 			<node label="用户管理">
 				<node label="组用户管理"/>
 				<node label="普通用户管理"/>
-				<node label="用户关系管理"/>
+				<node label="用户关系浏览"/>
 			</node>
 			<node label="系统管理">
 				<node label="即时消息发布"/>
