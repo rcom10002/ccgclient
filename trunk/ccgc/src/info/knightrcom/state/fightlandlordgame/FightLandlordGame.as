@@ -121,6 +121,11 @@ package info.knightrcom.state.fightlandlordgame
 			{
 				return true;
 			}
+			// 如果上家发牌为火箭时，不出牌
+			if (isRocketStyle(previousBout))
+			{
+				return false;
+			}
 			// 牌数不一致
 			if (previousBout.split(",").length != currentBout.split(",").length)
 			{

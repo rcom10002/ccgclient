@@ -952,7 +952,6 @@ package info.knightrcom.state
 					// 出牌
 					// 选择要出的牌
 					var cardsBox:String="";
-					var bomb:String="";
 					for each (card in currentGame.candidatedDown.getChildren())
 					{
 						if (card.isSelected())
@@ -973,10 +972,9 @@ package info.knightrcom.state
 						return;
 					}
 					// 出牌过程中出现炸弹或火箭时陪数增加
-					bomb="";
 					if (FightLandlordGame.isBombStyle(cardsBox) || FightLandlordGame.isRocketStyle(cardsBox))
 					{
-						bomb="~double";
+						socketProxy.sendGameData(FightLandlordGameCommand.GAME_BOMB, localNumber + "~" + cardsBox + "~" + localNextNumber + "~double");
 					}
 					// 设置出牌结果
 					// 当前剩余的牌数
@@ -998,7 +996,6 @@ package info.knightrcom.state
 					}
 					if (cardsLeftNumber == 0)
 					{
-						bomb="";
 						// 设置游戏冠军玩家
 						if (gameFinalSettingPlayerNumber != localNumber)
 						{
@@ -1006,7 +1003,7 @@ package info.knightrcom.state
 							// 两家中有一家出完牌，而地主仅仅出过一手牌，分数×2 。
 							if (holderOutTimes == 1)
 							{
-								bomb="~double";
+								socketProxy.sendGameData(FightLandlordGameCommand.GAME_BOMB, localNumber + "~" + cardsBox + "~" + localNextNumber + "~double");
 							}
 						}
 						else
@@ -1015,10 +1012,10 @@ package info.knightrcom.state
 							// 地主把牌出完，其余两家一张牌都没出，分数×2 ；
 							if (!isHaveOut)
 							{
-								bomb="~double";
+								socketProxy.sendGameData(FightLandlordGameCommand.GAME_BOMB, localNumber + "~" + cardsBox + "~" + localNextNumber + "~double");
 							}
 						}
-						socketProxy.sendGameData(FightLandlordGameCommand.GAME_WIN_AND_END, localNumber + "~" + cardsBox + "~" + localNextNumber + bomb);
+						socketProxy.sendGameData(FightLandlordGameCommand.GAME_WIN_AND_END, localNumber + "~" + cardsBox + "~" + localNextNumber);
 						isGameOver=true;
 					}
 					else if (cardsLeftNumber > 0)
@@ -1028,13 +1025,13 @@ package info.knightrcom.state
 						{
 							// 没有独牌或天独，并且第一个获胜者牌最大
 							// 构造出牌数据，当前玩家序号~牌名,牌名...~下家玩家序号
-							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cardsBox + "~" + localNextNumber + bomb);
+							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cardsBox + "~" + localNextNumber);
 							isWinnerFollowed=false;
 						}
 						else
 						{
 							// 构造出牌数据，当前玩家序号~牌名,牌名...~下家玩家序号
-							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cardsBox + "~" + localNextNumber + bomb);
+							socketProxy.sendGameData(FightLandlordGameCommand.GAME_BRING_OUT, localNumber + "~" + cardsBox + "~" + localNextNumber);
 						}
 					}
 					else
