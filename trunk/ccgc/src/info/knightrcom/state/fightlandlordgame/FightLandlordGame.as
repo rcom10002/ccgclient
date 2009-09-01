@@ -1,5 +1,7 @@
 package info.knightrcom.state.fightlandlordgame
 {
+	import component.PokerButton;
+	
 	import info.knightrcom.util.CardReStrut;
 
 	/**
@@ -197,7 +199,221 @@ package info.knightrcom.state.fightlandlordgame
 				return false;
 			}
 		}
-
+		
+		/**
+		 *
+		 * 将前次牌序内容与本次将要打出的牌序内容进行校验[提示]
+		 *
+		 * @param currentBout
+		 * @param previousBout
+		 * @return
+		 *
+		 */
+		public static function isPopRuleFollowed(currentBout:Array, previousBout:String):Boolean
+		{
+			// 统计同号的牌有多少张
+			var cardMap:* = new Object();
+			var times:int=0;
+			for each (var card:PokerButton in currentBout) 
+			{
+				// 去花色
+				var cardValue:String=card.value.replace(/\b\dV/g, "V");
+				if (cardMap[cardValue] === undefined)
+				{
+					cardMap[cardValue] = 1;
+				}
+				else
+				{
+					times=cardMap[cardValue] as int;
+					cardMap[cardValue] = ++times;
+				}
+			}
+			// 同号的牌放到一个数组中
+			var cardString:String="";
+			for (var key:String in cardMap)    
+			{    
+			    cardString +=key + ",";
+			}
+			cardString = cardString.replace(/,$/, "");
+//			for each(var key:String in sortPokers(cardString))   
+//			{ 
+//			    trace(key);       
+//			}
+			// 单调
+			if (isSingleStyle(previousBout)) {
+				for each(var key:String in sortPokers(cardString))   
+				{ 
+					previousBout=previousBout.replace(/^[0-4]/, "");
+					if (prioritySequence.indexOf(key) > prioritySequence.indexOf(previousBout))
+					{
+						trace("单调:" + key);
+						return true;
+					}
+				}
+				return false;
+			}
+			// 成倍且不成顺子
+			if (isSeveralFoldStyle(previousBout)) {
+				var foldTimes:int = previousBout.split(",").length;
+				for each (var key:String in sortPokers(cardString))    
+				{
+				    if (cardMap[key] >= foldTimes)
+				    {
+				    	key=key.replace(/^[0-4](V[^,]+).*$/, "$1");
+						previousBout=previousBout.replace(/^[0-4](V[^,]+).*$/, "$1");
+						if (prioritySequence.indexOf(key) > prioritySequence.indexOf(previousBout))
+						{
+							trace("成倍:" + key + "张数:" + foldTimes);
+							return true;
+						}
+				    }
+				}
+				return false;
+			}
+			// 三带单或三带对
+			if (isFollowStyle(previousBout)) {
+				var cardHandThird:String="";
+				var cardHandPair:String="";
+				var cardHandSingle:String="";
+				for each (var key:String in sortPokers(cardString))    
+				{
+				    if (cardMap[key] >= 3)
+				    {
+				    	cardHandThird+=key + ",";
+				    }
+				    else if (cardMap[key] >= 2)
+				    {
+				    	cardHandPair+=key + ",";
+				    }
+				    else
+				    {
+				    	cardHandSingle+=key + ",";
+				    }
+				}
+				cardHandThird = cardHandThird.replace(/,$/, "");
+				cardHandPair = cardHandPair.replace(/,$/, "");
+				cardHandSingle = cardHandSingle.replace(/,$/, "");
+				
+				// 取出当前三带中的三是几个
+				var preCardMap:* = new Object();
+				var preTimes:int = 0;
+				for each (var key:String in previousBout.split(",")) 
+				{
+					// 去花色
+					var cardValue:String=key.replace(/\b\dV/g, "V");
+					if (preCardMap[cardValue] === undefined)
+					{
+						preCardMap[cardValue] = 1;
+					}
+					else
+					{
+						preTimes=preCardMap[cardValue] as int;
+						preCardMap[cardValue] = ++preTimes;
+					}
+				}
+				// 同号的牌放到一个数组中
+				var third:* = new Object();
+				var pair:* = new Object();
+				var single:* = new Object();
+				for each (var key:String in previousBout.split(","))    
+				{    
+				    // 去花色
+					var cardValue:String=key.replace(/\b\dV/g, "V");
+					if (preCardMap[cardValue] == 3)
+					{
+						if (third[cardValue] === undefined)
+						{
+							third[cardValue] = 1;
+						}
+					}
+					else if (preCardMap[cardValue] == 2)
+					{
+						if (pair[cardValue] === undefined)
+						{
+							pair[cardValue] = 1;
+						}
+					}
+					else if (preCardMap[cardValue] == 1)
+					{
+						if (single[cardValue] === undefined)
+						{
+							single[cardValue] = 1;
+						}
+					}
+				}
+				var previousArr:Array = new Array();
+				previousArr.push(third);
+				previousArr.push(pair);
+				previousArr.push(single);
+				var currentArr:Array = new Array(); 
+				currentArr.push(cardHandThird);
+				currentArr.push(cardHandPair);
+				currentArr.push(cardHandSingle);
+				isChooseFollowStyle(previousArr, currentArr);
+			}
+			return false;
+		}
+		
+		
+		private static function isChooseFollowStyle(previousArr:Array, currentArr:Array):void
+		{
+			var len:int=0;
+			var lenTimes:int = 0;
+			for (var key:String in previousArr[0])
+			{
+				trace("三带" + key);
+				len++;
+			}
+			for each (var x:String in sortPokers(currentArr[0]))    
+			{
+				for (var y:String in previousArr[0])
+				{
+					if (prioritySequence.indexOf(x) > prioritySequence.indexOf(y))
+					{
+						if (++lenTimes <= len)
+						{
+							trace("克三带:" + x);
+						}
+					}
+				}
+			}
+			len=0;
+			lenTimes=0;
+			for (var key:String in previousArr[1])
+			{
+				trace("对" + key);
+				len++;
+			}
+			for each (var x:String in sortPokers(currentArr[1]))    
+			{
+				for (var y:String in previousArr[1])
+				{
+					if (++lenTimes <= len)
+					{
+						trace("克对:" + x);
+					}
+				}
+			}
+			len=0;
+			lenTimes=0;
+			for (var key:String in previousArr[2])
+			{
+				trace("单" + key);
+				len++;
+			}
+			for each (var x:String in sortPokers(currentArr[2]))    
+			{
+				for (var y:String in previousArr[2])
+				{
+					if (++lenTimes <= len)
+					{
+						trace("克单:" + x);
+					}
+				}
+			}
+			
+		}
+		
 		/**
 		 *
 		 * 单调
@@ -310,6 +526,7 @@ package info.knightrcom.state.fightlandlordgame
 		{
 			var cardArray2:Array=boutCards.split(",");
 			var map2:*= new Object();
+			var count2:int=0;
 			for each (var card2:String in cardArray2)
 			{
 				// 去花色
@@ -320,7 +537,7 @@ package info.knightrcom.state.fightlandlordgame
 				}
 				else
 				{
-					var count2:int=map2[pri2] as int;
+					count2=map2[pri2] as int;
 					map2[pri2] = ++count2;
 				}
 			}
@@ -479,6 +696,7 @@ package info.knightrcom.state.fightlandlordgame
 			var cardArray:Array=boutCards.split(",");
 			var map:*=new Object();
 			var tempFollow:String="";
+			var count1:int=0;
 			for each (var card:String in cardArray)
 			{
 				// 去花色
@@ -489,7 +707,7 @@ package info.knightrcom.state.fightlandlordgame
 				}
 				else
 				{
-					var count1:int=map[pri] as int;
+					count1=map[pri] as int;
 					// 判断是否包含4同号的牌
 					if (count1 >= 3)
 					{
