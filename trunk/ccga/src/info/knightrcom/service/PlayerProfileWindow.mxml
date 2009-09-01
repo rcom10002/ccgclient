@@ -149,9 +149,13 @@
 							         STATUS : disableGroup.selectedValue, 
 							         CURRENT_ROLE : Application.application.currentRole}, 
 							        null, 
-							        function(event:ResultEvent):void {
+							        function (event:ResultEvent):void {
     									var e4xResult:XML=new XML(event.result);
     									playerProfileId.text=e4xResult.entity.profileId.text();
+    									currentOperationMethod=OperationMethod.UPDATE;
+    								},
+    								function (event:FaultEvent):void {
+    									Alert.show("玩家信息更新失败！", "错误");
     								});
 						}
 						else if (currentOperationMethod == OperationMethod.UPDATE)
@@ -164,7 +168,7 @@
 							         STATUS : disableGroup.selectedValue, 
 							         CURRENT_ROLE : Application.application.currentRole});
 						}
-						currentOperationMethod=OperationMethod.UPDATE;
+						
 					});
 				// 取消
 				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
@@ -185,18 +189,22 @@
 
                 // 初始化玩家关系路径
                 var rlsPathes:Array = new Array();
-                if (Application.application.currentRole == "Administrator") {
-                    // 系统管理员可以添加一个顶级节点
-                    rlsPathes.push({data: "", label:""});
-                }
+//                if (Application.application.currentRole == "Administrator") {
+//                    // 系统管理员可以添加一个顶级节点
+//                    rlsPathes.push({data: "", label:""});
+//                }
                 var rlsPathLoad:Function = function (event:ResultEvent):void {
 			        for each (var rlsPath:* in new XML(event.result).tag.map.rlsPath) {
-			        	trace(event.result);
+					    // 按权限取消关系路径与角色
+					    if (Application.application.currentRole == "GameMaster" && rlsPath == "Administrator") {
+					    	// 取消Administrator路径
+				    		continue;
+					    }
 			            rlsPathes.push({data: rlsPath, label: rlsPath});
 			        }
 			        playerRlsPath.dataProvider = rlsPathes;
                 };
-                if (Application.application.currentRole == "Administrator") {
+                if (Application.application.currentRole != "GroupUser") {
 				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, rlsPathLoad);
                 } else if (Application.application.currentRole == "GroupUser") {
 				    HttpServiceProxy.send(
@@ -207,15 +215,21 @@
                 }
 			    // 初始化玩家角色
 			    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_ROLE, {CURRENT_ROLE : Application.application.currentRole}, null, 
-			            function(event:ResultEvent):void {
-        			        playerRole.dataProvider = null;
-        			        var roles:Array = new Array();
-        			        trace(event.result);
-        			        for each (var eachRole:String in new XML(event.result).tag.string) {
-        			            roles.push({data : eachRole.split("~")[0], label : eachRole.split("~")[1]});
-        			        }
-        			        playerRole.dataProvider = roles.sort();
-			            }
+		            function(event:ResultEvent):void {
+    			        playerRole.dataProvider = null;
+    			        var roles:Array = new Array();
+    			        trace(event.result);
+    			        for each (var eachRole:String in new XML(event.result).tag.string) {
+    			        	var itemData:String = eachRole.split("~")[0];
+    			        	var itemLabel:String = eachRole.split("~")[1];
+						    if (Application.application.currentRole == "GameMaster" && (itemData == "GameMaster" || itemData == "SuperGameMaster")) {
+						    	// 取消SuperGameMaster和GameMaster权限
+						    	continue;
+						    }
+    			            roles.push({data : itemData, label : itemLabel});
+    			        }
+    			        playerRole.dataProvider = roles.sort();
+		            }
 			    );
 			}
 		]]>

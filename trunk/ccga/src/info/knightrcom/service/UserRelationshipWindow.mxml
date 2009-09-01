@@ -49,12 +49,13 @@
         .relationshipStyle {
             folderClosedIcon: ClassReference(null);
             folderOpenIcon: ClassReference(null);
+            defaultLeafIcon: ClassReference(null);
         }
 	</mx:Style>
 	<states>
 		<mx:State name="CHART">
 			<mx:AddChild position="lastChild">
-				<mx:PieChart id="userChart" left="10" top="80" bottom="10" right="10">
+				<mx:PieChart id="userChart" left="10" top="80" bottom="10" right="10" showDataTips="true">
 					<mx:series>
 						<mx:PieSeries id="chartData" field="BigInteger" nameField="string" />
 					</mx:series>
