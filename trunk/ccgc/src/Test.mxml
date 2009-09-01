@@ -4,8 +4,10 @@
 
     <mx:Script>
         <![CDATA[
+        	import component.PokerButton;
         	import mx.controls.Alert;
             import flash.display.StageDisplayState;
+            import info.knightrcom.state.fightlandlordgame.FightLandlordGame;
 
             private function init(evt:Event):void {
                 /* Set up full screen handler. */
@@ -41,6 +43,18 @@
                     Alert.show("Error occurs!\n" + err.message);
                 }
             }
+            
+            private function test():void
+            {
+            	var arr:Array = new Array();
+            	for each (var s:String in currentPokers.text.split(",")){
+	            	var poker:PokerButton=new PokerButton();
+	            	poker.value=s;
+	            	arr.push(poker);
+            	}
+            	var bool:Boolean = FightLandlordGame.isPopRuleFollowed(arr,previouPokers.text);
+            	Alert.show(bool.toString());
+            }
         ]]>
     </mx:Script>
 
@@ -51,5 +65,7 @@
     <mx:Label text="displayState={dispState}" />
 
     <mx:Button label="Toggle fullscreen" click="toggleFullScreen()" />
-
+    <mx:TextArea id="currentPokers" text="3V3,3V4,2V4,1V5,3V5,2V5,1V6,2V6,3V6,3V7,3V7,3V7"/>
+	<mx:TextArea id="previouPokers"/>
+	<mx:Button label="Test" click="test()" />
 </mx:Application>
