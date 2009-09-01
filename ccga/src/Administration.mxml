@@ -123,11 +123,58 @@
 			<node label="注销登录"/>
 		</root>
 	</mx:XML>
+    <!-- GM界面菜单配置 -->
+	<mx:XML id="GameMasterMenuXML">
+		<root label="nodegraphs">
+			<node label="用户管理">
+				<node label="普通用户管理"/>
+				<node label="用户关系浏览"/>
+			</node>
+			<node label="系统管理">
+				<node label="即时消息发布"/>
+				<node label="平台信息发布"/>
+				<node label="服务器参数"/>
+				<node label="日志查看"/>
+				<node label="服务器状态查看"/>
+			</node>
+			<node label="报表管理">
+				<node label="业务分析报表"/>
+				<node label="积分结算报表"/>
+			</node>
+			<node label="帮助">
+				<node label="关于管理平台"/>
+			</node>
+			<node label="注销登录"/>
+		</root>
+	</mx:XML>
+    <!-- 超级GM界面菜单配置 -->
+	<mx:XML id="SuperGameMasterMenuXML">
+		<root label="nodegraphs">
+			<node label="用户管理">
+				<node label="普通用户管理"/>
+				<node label="用户关系浏览"/>
+			</node>
+			<node label="系统管理">
+				<node label="即时消息发布"/>
+				<node label="平台信息发布"/>
+				<node label="服务器参数"/>
+				<node label="日志查看"/>
+				<node label="服务器状态查看"/>
+			</node>
+			<node label="报表管理">
+				<node label="业务分析报表"/>
+				<node label="积分结算报表"/>
+			</node>
+			<node label="帮助">
+				<node label="关于管理平台"/>
+			</node>
+			<node label="注销登录"/>
+		</root>
+	</mx:XML>
     <!-- 管理员界面菜单配置 -->
 	<mx:XML id="AdministratorMenuXML">
 		<root label="nodegraphs">
 			<node label="用户管理">
-				<node label="组用户管理"/>
 				<node label="普通用户管理"/>
 				<node label="用户关系浏览"/>
 			</node>
@@ -145,6 +192,7 @@
 			</node>
 			<node label="游戏管理">
 				<node label="游戏大厅"/>
+				<node label="不良举报"/>
 				<node label="扑克游戏">
 					<node label="大连红五"/>
 					<node label="斗地主"/>
@@ -154,10 +202,6 @@
 					<node label="推倒胡"/>
 				</node>
 			</node>
-			<node label="反馈信息管理">
-				<node label="游戏反馈"/><!-- 改进游戏的建议 -->
-				<node label="不良举报"/><!-- 作弊玩家举报 -->
-			</node>
 			<node label="报表管理">
 				<node label="业务分析报表"/>
 				<node label="积分结算报表"/>
@@ -165,9 +209,6 @@
 				<node label="报表模板"><!-- 可以动态创建报表，其实就是一条sql，保存在global_config，key=报表名称，value=sql，在报表查询中可以利用这些sql输出结果。类似于SQL Server的查询分析器，利用SQL跑结果 -->
 					<node label="报表模板管理"/>
 					<node label="动态报表分析器"/>
-				    <node label="创建报表模板"/><!-- 将创建出来的报表进行修改 -->
-    				<node label="修改报表模板"/><!-- 将创建出来的报表进行修改 -->
-    				<node label="删除报表模板"/><!-- 将不需要的报表sql禁用，不用做物理删除 -->
 				</node>
 			</node>
 			<node label="帮助">
