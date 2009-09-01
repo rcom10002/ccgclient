@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%"
+				height="100%"
+				title="用户关系浏览"
+				currentState="TREE"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.charts.series.PieSeries;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+	        import mx.controls.Alert;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.util.HttpServiceProxy;
+
+			private function creationCompleteHandler():void
+			{
+				ListenerBinder.bind(btnUserTree, MouseEvent.CLICK, btnUserTreeClickHander);
+				ListenerBinder.bind(btnUserChart, MouseEvent.CLICK, btnUserChartClickHander);
+			}
+
+			private function btnUserTreeClickHander(event:MouseEvent):void {
+				this.currentState = "TREE";
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler);
+			}
+
+			private function btnUserChartClickHander(event:MouseEvent):void {
+				this.currentState = "CHART";
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_CHART, null, null, freshChartResultHandler, freshFaultHandler);
+			}
+
+			private function freshTreeResultHandler(event:ResultEvent):void {
+				var data:XML = new XML(event.result);
+				userTree.dataProvider = data;
+			}
+
+			private function freshChartResultHandler(event:ResultEvent):void {
+				chartData.dataProvider = new XML(event.result).tag.Object;
+			}
+
+			private function freshFaultHandler(event:FaultEvent):void {
+				Alert.show("数据通信失败！", "错误");
+			}
+		]]>
+	</mx:Script>
+	<mx:Style>
+        .relationshipStyle {
+            folderClosedIcon: ClassReference(null);
+            folderOpenIcon: ClassReference(null);
+        }
+	</mx:Style>
+	<states>
+		<mx:State name="CHART">
+			<mx:AddChild position="lastChild">
+				<mx:PieChart id="userChart" left="10" top="80" bottom="10" right="10">
+					<mx:series>
+						<mx:PieSeries id="chartData" field="BigInteger" nameField="string" />
+					</mx:series>
+				</mx:PieChart>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Legend dataProvider="{userChart}" left="10" top="40" right="10" height="30"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="TREE">
+			<mx:AddChild position="lastChild">
+				<mx:Tree id="userTree"
+						 labelField="@key"
+						 showRoot="false"
+						 wordWrap="false"
+						 variableRowHeight="true"
+						 styleName="relationshipStyle"
+						 top="40"
+						 bottom="0"
+						 left="0"
+						 right="0"
+						 horizontalScrollPolicy="{mx.core.ScrollPolicy.ON}"
+						 verticalScrollPolicy="{mx.core.ScrollPolicy.ON}"/>
+			</mx:AddChild>
+		</mx:State>
+	</states>
+	<mx:Button x="10" y="10" label="关系树" id="btnUserTree"/>
+	<mx:Button x="83" y="10" label="比例图" id="btnUserChart"/>
+</FunctionWindow>
