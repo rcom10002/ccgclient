@@ -26,10 +26,14 @@ package info.knightrcom.state {
     import mx.controls.Alert;
     import mx.controls.Button;
     import mx.core.Container;
+    import mx.events.CloseEvent;
     import mx.events.FlexEvent;
     import mx.states.State;
 
     public class LobbyStateManager extends AbstractStateManager {
+    	
+    	public static var userApp:CCGameClient;
+    	
         public static const platform:Model = new Model();
 
         /**
@@ -244,7 +248,21 @@ package info.knightrcom.state {
         private function logoutClick(event:Event):void {
         	// FIXME This line is not necessary if the statement below works! socketProxy.disconnect();
         	// FIXME This line is not necessary if the statement below works! gameClient.currentState = "LOGIN";
-			flash.external.ExternalInterface.call("location.reload", true);
+        	Alert.yesLabel = "确认";
+			Alert.noLabel = "取消";
+		    Alert.show( "确定要注销登录？",
+						"消息", 
+						Alert.YES | Alert.NO,
+						userApp,
+						function handleAlert(event:CloseEvent):void {
+						    if(event.detail == Alert.YES)
+						    {
+						        flash.external.ExternalInterface.call("location.reload", true);
+						    }
+						},
+						null,
+						Alert.YES);
+			
         }
 
         /**
