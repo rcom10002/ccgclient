@@ -94,41 +94,80 @@ package info.knightrcom
 					adminApp.functionWindowArea.currentState="USER_RELATIONSHIP_VIEW";
 					break;
 				case "启动游戏服务器":
-					HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
-						{
-							var result:XML = new XML(event.result);
-							if (result.entity == "UPDATE_WARNING") {
-								Alert.show("游戏服务器已经是启动状态，该操作被中止！");
-							} else {
-								Alert.show("游戏服务器启动成功！");
-							}
-						}, function():void
-						{
-							Alert.show("游戏服务器启动失败！");
-						});
+					Alert.yesLabel = "确认";
+					Alert.noLabel = "取消";
+				    Alert.show( "确定要启动游戏服务器？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+										HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
+											{
+												var result:XML = new XML(event.result);
+												if (result.entity == "UPDATE_WARNING") {
+													Alert.show("游戏服务器已经是启动状态，该操作被中止！");
+												} else {
+													Alert.show("游戏服务器启动成功！");
+												}
+											}, function():void
+											{
+												Alert.show("游戏服务器启动失败！");
+											});
+									}
+								},
+								null,
+								Alert.YES);
 					break;
 				case "关闭游戏服务器":
-					HttpServiceProxy.send(LocalApplicationServerOperationService.STOP_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
-						{
-							var result:XML = new XML(event.result);
-							if (result.entity == "UPDATE_WARNING") {
-								Alert.show("游戏服务器已经是关闭状态，该操作被中止！");
-							} else {
-								Alert.show("游戏服务器关闭成功！");
-							}
-						}, function():void
-						{
-							Alert.show("游戏服务器关闭失败！");
-						});
+					Alert.yesLabel = "确认";
+					Alert.noLabel = "取消";
+				    Alert.show( "确定要关闭游戏服务器？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+										HttpServiceProxy.send(LocalApplicationServerOperationService.STOP_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
+											{
+												var result:XML = new XML(event.result);
+												if (result.entity == "UPDATE_WARNING") {
+													Alert.show("游戏服务器已经是关闭状态，该操作被中止！");
+												} else {
+													Alert.show("游戏服务器关闭成功！");
+												}
+											}, function():void
+											{
+												Alert.show("游戏服务器关闭失败！");
+											});
+									}
+								},
+								null,
+								Alert.YES);
 					break;
 				case "重启游戏服务器":
-					HttpServiceProxy.send(LocalApplicationServerOperationService.RESTART_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
-						{
-							Alert.show("游戏服务器重新启动成功！");
-						}, function():void
-						{
-							Alert.show("游戏服务器重新启动失败！");
-						});
+					Alert.yesLabel = "确认";
+					Alert.noLabel = "取消";
+				    Alert.show( "确定要重启游戏服务器？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+										HttpServiceProxy.send(LocalApplicationServerOperationService.RESTART_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
+											{
+												Alert.show("游戏服务器重新启动成功！");
+											}, function():void
+											{
+												Alert.show("游戏服务器重新启动失败！");
+											});
+									}
+								},
+								null,
+								Alert.YES);
 					break;
 				case "服务器参数":
 					adminApp.functionWindowArea.currentState="SERVER_PARAM_EDIT";
