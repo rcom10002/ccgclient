@@ -23,8 +23,11 @@
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.service.LocalPlayerProfileService;
 			import mx.events.ItemClickEvent;
+			import mx.events.CloseEvent;
 
 			public var currentOperationMethod:OperationMethod;
+			
+			public static var adminApp:Administration;
 
 			protected function defaultSearch():void
 			{
@@ -123,18 +126,36 @@
 					        return;
 					    }
 						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
-						        function():void
-    							{
-    								defaultSearch();
-    							}
-    					);
+						Alert.yesLabel = "确认";
+						Alert.noLabel = "取消";
+					    Alert.show( "确定要删除？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+										HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
+										        function (event:ResultEvent):void 
+				    							{
+				    								Alert.show("删除玩家信息成功！", "消息");
+				    								defaultSearch();
+				    							},
+				    							function (event:FaultEvent):void {
+			    									Alert.show("删除玩家信息失败！", "错误");
+			    								}
+				    					);
+    					 			}
+								},
+								null,
+								Alert.YES);
 						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
 				// 确定
 				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
 					{
                         if (Validator.validateAll(submitValidators).length != 0) {
+                        	Alert.show("数据验证未通过！", "错误");
                             return;
                         }
 						if (currentOperationMethod == OperationMethod.CREATE)
@@ -153,6 +174,7 @@
     									var e4xResult:XML=new XML(event.result);
     									playerProfileId.text=e4xResult.entity.profileId.text();
     									currentOperationMethod=OperationMethod.UPDATE;
+    									Alert.show("玩家信息更新成功！", "消息");
     								},
     								function (event:FaultEvent):void {
     									Alert.show("玩家信息更新失败！", "错误");
@@ -166,7 +188,17 @@
 							         PASSWORD : playerPassword.text, 
 							         ROLE : playerRole.selectedItem.data, 
 							         STATUS : disableGroup.selectedValue, 
-							         CURRENT_ROLE : Application.application.currentRole});
+							         CURRENT_ROLE : Application.application.currentRole},
+							      	null, 
+							        function (event:ResultEvent):void {
+    									var e4xResult:XML=new XML(event.result);
+    									playerProfileId.text=e4xResult.entity.profileId.text();
+    									currentOperationMethod=OperationMethod.UPDATE;
+    									Alert.show("玩家信息更新成功！", "消息");
+    								},
+    								function (event:FaultEvent):void {
+    									Alert.show("玩家信息更新失败！", "错误");
+    								});
 						}
 						
 					});
@@ -175,6 +207,7 @@
 					{
 						currentState="LIST";
 						currentOperationMethod=OperationMethod.UNKNOWN;
+						defaultSearch();
 					}
 				);
 				// 绑定监听

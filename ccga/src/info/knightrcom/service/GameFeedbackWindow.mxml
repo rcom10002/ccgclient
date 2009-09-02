@@ -78,6 +78,10 @@
 					CURRENT_PAGE = 1;
 					defaultSearch();
 				});
+				// 开始日期为 当前日期 - 3天
+				dateFrom.selectedDate["date"] -= 2;
+				dateFrom.selectedDate = dateFrom.selectedDate;
+				
 				ListenerBinder.bind(btnAudit, MouseEvent.CLICK, function (event:MouseEvent):void {
 					auditFeedBack();
 				});
