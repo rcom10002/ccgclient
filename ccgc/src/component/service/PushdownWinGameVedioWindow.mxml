@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="红五游戏录像">
+<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="红五游戏录像" height="600" width="800">
 	<mx:Script>
 		<![CDATA[
 			import info.knightrcom.service.LocalSystemInfoService;
-			import info.knightrcom.state.red5game.Red5Game;
+			import info.knightrcom.state.pushdownwingame.PushdownWinGame;
 			import mx.controls.Alert;
 			import mx.containers.Box;
-			import info.knightrcom.state.red5game.Red5GameSetting;
+			import info.knightrcom.state.pushdownwingame.PushdownWinGameSetting;
 			import component.PokerButton;
 			import mx.rpc.events.ResultEvent;
 			import mx.events.CloseEvent;
@@ -20,9 +20,11 @@
 
 			private var gameRecord:String;
 
-			private var cardsCandidatedArray:Array;
+			private var candidatedArray:Array;
 
-			private var cardsDealedArray:Array;
+			private var daisArray:Array;
+
+			private var randArray:Array;
 
 			private var settingTimer:Timer;
 
@@ -57,12 +59,16 @@
             	lblGameSetting.text = "";
             	// 清除历史录像播放信息
             	var eachBox:Box = null;
-            	for each (eachBox in cardsCandidatedArray) {
+            	for each (eachBox in candidatedArray) {
             		eachBox.removeAllChildren();
             	}
-            	for each (eachBox in cardsDealedArray) {
+            	for each (eachBox in daisArray) {
             		eachBox.removeAllChildren();
             	}
+            	for each (eachBox in randArray) {
+            		eachBox.removeAllChildren();
+            	}
+            	dealed.removeAllChildren();
             	// 游戏玩家
             	// 1~user4~2~user3~3~user2~4~user1~
             	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
@@ -71,16 +77,16 @@
             				var gameType:String = e4xResult.entity.gameType.text();
             				gamePlayers = e4xResult.entity.players.text();
             				gameRecord = e4xResult.entity.record.text();
-            				lblGameSetting.text = Red5GameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
+            				lblGameSetting.text = PushdownWinGameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
 							// 确定游戏名称
-							if (gameType == "Red5Game") {
+							if (gameType == "PushdownWinGame") {
 								var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
 								gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
 								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
 								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
 								var part3:String = removeBothSides(gameRecord, ";");
 								btnExecute.enabled = false;
-								playRed5Game(part1, part2, part3);
+								playPushdownWinGame(part1, part2, part3);
 							} else {
 								throw Error("未知游戏类型！无法播放游戏历史录像！");
 							}
@@ -100,7 +106,8 @@
 				btnExecute.enabled = true;
 			}
 
-			private function playRed5Game(part1:String, part2:String, part3:String):void {
+			private function playPushdownWinGame(part1:String, part2:String, part3:String):void {
+			    // T6,W2,W5,T2,T7,SOUTH,WHITE,W4,W5,T4,T4,W6,T3~W6,GREEN,WEST,WEST,B6,B7,T8,W9,T1,T9,W8,W9,T5~T3,W1,T2,T9,W2,B3,B3,W4,WHITE,W8,RED,W6,W8~WEST,T1,W9,B5,B2,B4,B8,NORTH,T1,T6,B8,T6,T8~T5,B9,T9,NORTH,T3,SOUTH,RED,B2,W1,T4,B7,T2,B9,B3,W4,W3,T9,T7,B8,B8,WHITE,W7,W3,GREEN,SOUTH,NORTH,B7,W3,B2,B7,EAST,W7,T7,W9,W2,EAST,W8,W6,T8,T6,B5,T1,B9,W5,B6,B6,T3,RED,B1,B5,SOUTH,W5,B4,B5,B4,T2,W7,B3,GREEN,B9,GREEN,EAST,T7,T4,B1,WEST,W1,T8,B1,T5,B4,W4,RED,T5,W1,WHITE,B6,EAST,W2,B2,W3,NORTH,W7,B1;1~W8;1~W8~2;2~W8;2~W8~3;3~B3;3~RED~4;3~RED~4~0;3~RED~4~01;4~RED;4~RED~1;1~NORTH;1~NORTH~2;1~NORTH~2~013;2~B4;2~B4~3;3~W5;3~W5~4;4~W3,W4,W5~1~3~W5~3;4~NORTH~1;1~B6;1~B6~2;2~W2;2~RED~3;1~RED~2;
             	// 完整的记录
             	// 4V2,3V2,2V2,1V2,2V5~0=5,1=5,2=5,3=5;1V5,0VY,4V5,0VY,3V5~0=5,1=5,2=5,3=5;1V5,1V2,3V5,0VX,3V2~0=5,1=5,2=5,3=5;4V2,4V5,2V5,0VX,2V2~0=5,1=5,2=5,3=5;2~1~3;2~1~4;2~1~1;1~2~2;1~1V2,2V2,3V2,4V2~2;1~1V2,2V2,3V2,4V2~3~pass;1~1V2,2V2,3V2,4V2~4~pass;1~1V2,2V2,3V2,4V2~1~pass;1~2V5~2;
             	// 记录第一部分：游戏初始时各个玩家手中的牌以及牌数
@@ -114,12 +121,12 @@
 				for (var eachPokersIndex:String in initPokers) {
 					// eachPokers样式：4V2,3V2,2V2,1V2,2V5
 					// 为每位玩家进行发牌，并对已发的牌进行排序
-					var pokers:Array = Red5Game.sortPokers(initPokers[eachPokersIndex].toString().replace(/~.*/, "").split(","));
+					var pokers:Array = PushdownWinGame.sortMahjongs(initPokers[eachPokersIndex].toString().replace(/~.*/, "").split(","));
 					for each (var eachPokerName:String in pokers) {
 		                var poker:PokerButton = new PokerButton();
 		                poker.source = "image/poker/" + eachPokerName + ".png";
 		                poker.allowSelect = false;
-		                cardsCandidatedArray[eachPokersIndex].addChild(poker);
+		                candidatedArray[eachPokersIndex].addChild(poker);
 					}
 				}
 				// 录像播放
@@ -135,9 +142,10 @@
 						itrIndex = 0;
 						playerIndex = -1;
 						initPokers = part3.split(";");
-						for each (var eachBox:Box in cardsDealedArray) {
-							eachBox.removeAllChildren();
-						}
+//						for each (var eachBox:Box in cardsDealedArray) {
+//							eachBox.removeAllChildren();
+//						}
+						dealed.removeAllChildren();
 						btnExecute.enabled = true;
 						playingTimer.start();
 						return;
@@ -153,14 +161,14 @@
 						playerIndex = currentNumber - 1;
 					} else {
 						playerIndex++;
-						if (playerIndex == cardsDealedArray.length) {
+						if (playerIndex == candidatedArray.length) {
 							playerIndex = 0;
 						}
 					}
 					// 显示设置内容
 					var content:Label = new Label();
-					content.text = Red5GameSetting.getDisplayName(currentSetting);
-					Box(cardsDealedArray[playerIndex]).addChild(content);
+					content.text = PushdownWinGameSetting.getDisplayName(currentSetting);
+					dealed.addChild(content);
 				});
 				// 游戏过程回放
 				playingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
@@ -182,28 +190,26 @@
 						playerIndex = currentNumber - 1;
 					} else {
 						playerIndex++;
-						if (playerIndex == cardsDealedArray.length) {
+						if (playerIndex == candidatedArray.length) {
 							playerIndex = 0;
 						}
 					}
-					var currentCardsCandidated:Box = cardsCandidatedArray[playerIndex];
+					var currentCardsCandidated:Box = candidatedArray[playerIndex];
 					if (currentCardsCandidated.getChildren().length == 0) {
 						// 当前玩家已经胜出，没有历史记录，不做任何处理
 						itrIndex--;
 						return;
 					}
 					// 移除所有已经出牌或pass的内容
-					Box(cardsDealedArray[playerIndex]).removeAllChildren();
+					dealed.removeAllChildren();
 					if (currentTurn.length == 4 && currentTurn[3].toString().indexOf("pass") > -1) {
 						// 当前玩家不出牌，现实pass字样
 						var passLabel:Label = new Label();
 						passLabel.text = "不要";
-						Box(cardsDealedArray[playerIndex]).addChild(passLabel);
+						dealed.addChild(passLabel);
 							if (currentNumber == nextNumber) {
 								setTimeout(function ():void {
-									for each (var eachBox:Box in cardsDealedArray) {
-										eachBox.removeAllChildren();
-									}
+									dealed.removeAllChildren();
 								}, 500);
 							}
 						return;
@@ -217,8 +223,8 @@
 						}
 					}
 					for each (poker in cardsToDealArray) {
-						Box(cardsCandidatedArray[playerIndex]).removeChild(poker);
-						Box(cardsDealedArray[playerIndex]).addChild(poker);
+						Box(candidatedArray[playerIndex]).removeChild(poker);
+						dealed.addChild(poker);
 					}
 				});
 				// 游戏录像开始
@@ -233,8 +239,9 @@
 	<creationComplete>
 		<![CDATA[
 			// 数据初始化
-			cardsCandidatedArray = new Array(cardsCandidatedDown, cardsCandidatedRight, cardsCandidatedUp, cardsCandidatedLeft);
-			cardsDealedArray = new Array(cardsDealedDown, cardsDealedRight, cardsDealedUp, cardsDealedLeft);
+			candidatedArray = new Array(candidatedDown, candidatedRight, candidatedUp, candidatedLeft);
+			daisArray = new Array(daisDown, daisRight, daisUp, daisLeft);
+			randArray = new Array(randDown, randRight, randUp, randLeft);
 			// 事件监听初始化
 			ListenerBinder.bind(btnSetting, MouseEvent.CLICK, function():void {
 				settingWindow.visible = !settingWindow.visible;
@@ -246,71 +253,135 @@
 			ListenerBinder.bind(btnTerminate, MouseEvent.CLICK, btnTerminateClickHandler);
 		]]>
 	</creationComplete>
-	<mx:HBox id="cardsCandidatedUp"
-	         height="100"
-	         horizontalGap="-55"
-	         horizontalAlign="center"
-	         verticalAlign="bottom"
-	         top="10"
-	         left="125"
-	         right="125">
+	<!-- 游戏录像播放区域 -->
+	<!-- 上侧区域 -->
+	<mx:HBox id="candidatedUp"
+			 height="80"
+			 horizontalGap="0"
+			 horizontalAlign="left"
+			 verticalAlign="bottom"
+			 top="0"
+			 left="170"
+			 right="150">
 	</mx:HBox>
-	<mx:VBox id="cardsCandidatedRight"
-	         width="100"
-	         top="108"
-	         bottom="92"
-	         right="10"
-	         horizontalAlign="left"
-	         verticalAlign="middle"
-	         verticalGap="-78">
+	<!-- 右侧区域 -->
+	<mx:VBox id="candidatedRight"
+			 width="80"
+			 top="120"
+			 bottom="80"
+			 right="0"
+			 horizontalAlign="left"
+			 verticalAlign="top"
+			 verticalGap="-20">
 	</mx:VBox>
-	<mx:HBox id="cardsCandidatedDown"
-	         height="100"
-	         horizontalGap="-55"
-	         horizontalAlign="center"
-	         left="125"
-	         right="125"
-	         bottom="18"
-	         verticalAlign="top">
+	<!-- 下侧区域 -->
+	<mx:HBox id="candidatedDown"
+			 height="80"
+			 horizontalGap="0"
+			 horizontalAlign="right"
+			 left="150"
+			 right="170"
+			 bottom="0"
+			 verticalAlign="top">
 	</mx:HBox>
-	<mx:VBox id="cardsCandidatedLeft"
-	         width="100"
-	         top="108"
-	         bottom="92"
-	         left="10"
-	         horizontalAlign="right"
-	         verticalAlign="middle"
-	         verticalGap="-78">
+	<!-- 左侧区域 -->
+	<mx:VBox id="candidatedLeft"
+			 width="80"
+			 top="80"
+			 bottom="120"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="bottom"
+			 verticalGap="-20">
 	</mx:VBox>
-	<mx:HBox id="cardsDealedUp"
-	         height="100"
-	         horizontalGap="-55"
-	         horizontalAlign="center"
-	         verticalAlign="bottom"
-	         left="190"
-	         right="190" verticalCenter="-112">
+	<mx:Canvas left="150" right="150" top="150" bottom="150">
+		<!-- 牌桌区域 -->
+		<mx:Tile id="dealed"
+				 top="0"
+				 left="0"
+				 right="0"
+				 bottom="0"
+				 horizontalGap="2"
+				 verticalGap="2"
+				 verticalAlign="middle">
+		</mx:Tile>
+	</mx:Canvas>
+	<mx:VBox id="daisLeft"
+			 top="100"
+			 bottom="100"
+			 left="88"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="0" width="53">
+	</mx:VBox>
+	<mx:VBox id="daisRight"
+			 width="53"
+			 top="100"
+			 bottom="100"
+			 right="88"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="0">
+	</mx:VBox>
+	<mx:HBox id="daisDown"
+			 height="53"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 left="175"
+			 right="175"
+			 bottom="88"
+			 verticalAlign="top">
 	</mx:HBox>
-	<mx:HBox id="cardsDealedDown"
-	         height="100"
-	         horizontalGap="-55"
-	         horizontalAlign="center"
-	         verticalAlign="top" left="190" right="190" verticalCenter="104">
+	<mx:HBox id="daisUp"
+			 height="53"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="88"
+			 left="175"
+			 right="175">
 	</mx:HBox>
-	<mx:HBox id="cardsDealedLeft"
-	         width="240"
-	         horizontalAlign="right"
-	         verticalAlign="middle"
-	         verticalGap="-78" height="100" verticalCenter="-4" left="125" horizontalGap="-55">
+	<mx:VBox id="randLeft"
+			 height="60"
+			 width="80"
+			 bottom="50"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="-78">
+	</mx:VBox>
+	<mx:HBox id="randDown"
+			 height="80"
+			 width="60"
+			 horizontalGap="-55"
+			 horizontalAlign="center"
+			 right="100"
+			 bottom="0"
+			 verticalAlign="top">
 	</mx:HBox>
-	<mx:HBox id="cardsDealedRight"
-	         width="240"
-	         horizontalAlign="left"
-	         verticalAlign="middle"
-	         verticalGap="-78" height="100" right="125" verticalCenter="-4" horizontalGap="-55">
+	<mx:HBox id="randUp"
+			 height="80"
+			 width="60"
+			 horizontalGap="-55"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="0"
+			 left="100">
 	</mx:HBox>
+	<mx:VBox id="randRight"
+			 height="60"
+			 width="80"
+			 top="50"
+			 right="1"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="-78">
+	</mx:VBox>
+	<!-- 游戏录像设置区域 -->
 	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0">
 	    <mx:title>游戏录像设置</mx:title>
 	    <mx:showCloseButton>true</mx:showCloseButton>
+	    <mx:visible>false</mx:visible>
 		<mx:Form x="10" y="10">
 			<mx:FormItem label="游戏ID" required="true">
 				<mx:TextInput id="gameId" text="61c1f628-1450-4e34-bbb3-9a71c4258504"/>
@@ -320,6 +391,7 @@
 			</mx:FormItem>
 		</mx:Form>
 	</mx:TitleWindow>
+	<!-- 游戏录像操作区域 -->
 	<mx:Button id="btnSetting" x="10" y="10" label="设置"/>
 	<mx:Button x="10" y="40" label="播放" id="btnExecute"/>
 	<mx:Button label="停止" y="70" x="10" id="btnTerminate"/>
