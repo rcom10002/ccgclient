@@ -808,58 +808,6 @@ package info.knightrcom.state
 		
 		/**
 		 *
-		 * 动态比较扑克
-		 *
-		 * @param compareCurrentCardLen 当前要比较牌的张数
-		 * 
-		 * @return 返回是否有能出的牌 
-		 *
-		 */
-		private function compareCards(compareCurrentCardLen:int):Boolean
-		{
-			var times:int=0; // 计算手中牌数
-			var compareTimes:int=0; // 比较的次数做为下一次比较的索引位置
-			var selectCards:String=""; // 选择要比较的牌
-			var isSelectCard:Boolean= false; // 是否有大于当前牌的的牌
-			var cardsArr:Array = currentGame.candidatedDown.getChildren(); // 当前手中牌的集合
-			for (var i:int=0; i < cardsArr.length; ) 
-			{
-				selectCards+=cardsArr[i].value + ",";
-				times++;
-				if (times == compareCurrentCardLen) 
-				{
-					i=++compareTimes;
-					times=0;
-					selectCards=selectCards.replace(/,$/, "");
-					if (FightLandlordGame.isRuleFollowed(selectCards, currentBoutCards))
-					{
-						// 选出手中能压的牌
-						for each (var card:PokerButton in currentGame.candidatedDown.getChildren())
-						{
-							var selectCardsArr:Array = selectCards.split(",");
-							for each (var selectCard:String in selectCardsArr) 
-							{
-								if(card.value == selectCard)
-								{
-									card.setSelected(true);
-								}
-							}
-						}
-						isSelectCard=true;
-						return isSelectCard;
-					}
-					selectCards="";
-				}
-				else
-				{
-					i++;
-				}
-			}
-			return isSelectCard;
-		}
-
-		/**
-		 *
 		 * 扑克操作
 		 *
 		 * 1#cardSeq#2#cardSeq#3#cardSeq#4#cardSeq#
@@ -931,17 +879,17 @@ package info.knightrcom.state
 					}
 					// 3. 选择要出的牌
 					// 3.1 正常牌比较不包含炸弹火箭
-					var isSelectCard:Boolean = compareCards(currentBoutCards.split(",").length);
-					// 3.2 炸弹
-					if (!isSelectCard)
-					{
-						isSelectCard = compareCards(4);
-					}
-					// 3.3 火箭
-					if (!isSelectCard)
-					{
-						isSelectCard = compareCards(2);
-					}
+					var isSelectCard:Boolean = FightLandlordGame.isPopRuleFollowed(currentGame.candidatedDown.getChildren(), currentBoutCards);
+//					// 3.2 炸弹
+//					if (!isSelectCard)
+//					{
+//						isSelectCard = compareCards(4);
+//					}
+//					// 3.3 火箭
+//					if (!isSelectCard)
+//					{
+//						isSelectCard = compareCards(2);
+//					}
 					// 4. 没有可提示的牌
 					if (!isSelectCard)
 					{
