@@ -211,207 +211,151 @@ package info.knightrcom.state.fightlandlordgame
 		 */
 		public static function isPopRuleFollowed(currentBout:Array, previousBout:String):Boolean
 		{
-			// 统计同号的牌有多少张
-			var cardMap:* = new Object();
-			var times:int=0;
-			for each (var card:PokerButton in currentBout) 
-			{
-				// 去花色
-				var cardValue:String=card.value.replace(/\b\dV/g, "V");
-				if (cardMap[cardValue] === undefined)
-				{
-					cardMap[cardValue] = 1;
-				}
-				else
-				{
-					times=cardMap[cardValue] as int;
-					cardMap[cardValue] = ++times;
-				}
-			}
-			// 同号的牌放到一个数组中
-			var cardString:String="";
-			for (var key:String in cardMap)    
-			{    
-			    cardString +=key + ",";
-			}
-			cardString = cardString.replace(/,$/, "");
-//			for each(var key:String in sortPokers(cardString))   
-//			{ 
-//			    trace(key);       
-//			}
 			// 单调
 			if (isSingleStyle(previousBout)) {
-				for each(var key:String in sortPokers(cardString))   
+				for each(var card:PokerButton in currentBout)   
 				{ 
-					previousBout=previousBout.replace(/^[0-4]/, "");
-					if (prioritySequence.indexOf(key) > prioritySequence.indexOf(previousBout))
+					if (prioritySequence.indexOf(card.value.replace(/^[0-4]/, "")) > prioritySequence.indexOf(previousBout.replace(/^[0-4]/, "")))
 					{
-						trace("单调:" + key);
+						card.setSelected(true);
 						return true;
 					}
 				}
 				return false;
 			}
 			// 成倍且不成顺子
-			if (isSeveralFoldStyle(previousBout)) {
-				var foldTimes:int = previousBout.split(",").length;
-				for each (var key:String in sortPokers(cardString))    
-				{
-				    if (cardMap[key] >= foldTimes)
-				    {
-				    	key=key.replace(/^[0-4](V[^,]+).*$/, "$1");
-						previousBout=previousBout.replace(/^[0-4](V[^,]+).*$/, "$1");
-						if (prioritySequence.indexOf(key) > prioritySequence.indexOf(previousBout))
+			if (isSeveralFoldStyle(previousBout))
+			{
+				// 取得倍数
+				var len:int = getMultiple(previousBout);
+				var times:int = 0; // 计数
+				var currentCards:* = new Object(); // 累计牌型
+				var cardString:String = "";
+				var tempTimes:int = 0;
+				for each(var card:PokerButton in currentBout)   
+				{ 
+					cardString = card.value.replace(/^[0-4]/, "");
+					if (prioritySequence.indexOf(cardString) > prioritySequence.indexOf(previousBout.split(",")[0].replace(/^[0-4]/, "")))
+					{
+						if (currentCards[cardString] === undefined)
 						{
-							trace("成倍:" + key + "张数:" + foldTimes);
-							return true;
+							currentCards[cardString] = 0;
 						}
-				    }
+						currentCards[cardString] += 1;
+						if (currentCards[cardString] ==  len)
+						{
+							for each(var card:PokerButton in currentBout)   
+							{ 
+								if (card.value.toString().replace(/^[0-4]/,"") == cardString && ++tempTimes <= len)
+								{
+									trace(card.value);
+									card.setSelected(true);
+								}
+								if (tempTimes == len)
+								{
+									return true;
+								}
+							}  
+							break;
+						}
+					}
 				}
 				return false;
 			}
-			// 三带单或三带对
-			if (isFollowStyle(previousBout)) {
-				var cardHandThird:String="";
-				var cardHandPair:String="";
-				var cardHandSingle:String="";
-				for each (var key:String in sortPokers(cardString))    
+			
+			// 顺子
+			if (isStraightStyle(previousBout))
+			{
+				// 去花色
+				var resultCards:String=(previousBout + ",").replace(/\b\dV/g, "V");
+				var singleCardStr:String="";
+				var currentResultCards:String="";
+				var currentCompCards:String="";
+				var currentCompCardsTimes:int=0;
+				// 去重复项目
+				resultCards=(resultCards).replace(/(V[^,]+,)\1*/g, "$1");
+				// 倍数验证，防止个别牌的倍数与其他牌的倍数不一致
+				if ((previousBout + ",").replace(/\b\dV/g, "V").length % resultCards.length == 0)
 				{
-				    if (cardMap[key] >= 3)
-				    {
-				    	cardHandThird+=key + ",";
-				    }
-				    else if (cardMap[key] >= 2)
-				    {
-				    	cardHandPair+=key + ",";
-				    }
-				    else
-				    {
-				    	cardHandSingle+=key + ",";
-				    }
-				}
-				cardHandThird = cardHandThird.replace(/,$/, "");
-				cardHandPair = cardHandPair.replace(/,$/, "");
-				cardHandSingle = cardHandSingle.replace(/,$/, "");
-				
-				// 取出当前三带中的三是几个
-				var preCardMap:* = new Object();
-				var preTimes:int = 0;
-				for each (var key:String in previousBout.split(",")) 
-				{
-					// 去花色
-					var cardValue:String=key.replace(/\b\dV/g, "V");
-					if (preCardMap[cardValue] === undefined)
+					// 倍数全相同时，判断是否满足最小序列的条件，比如JQKA单倍时，至少要四张
+					// 比如JQK双倍时，至少要三张；比如JQ三倍时，至少要两张
+					var multiple:int=(previousBout + ",").replace(/\b\dV/g, "V").length / resultCards.length;
+					if (multiple == 1)
 					{
-						preCardMap[cardValue] = 1;
-					}
-					else
-					{
-						preTimes=preCardMap[cardValue] as int;
-						preCardMap[cardValue] = ++preTimes;
-					}
-				}
-				// 同号的牌放到一个数组中
-				var third:* = new Object();
-				var pair:* = new Object();
-				var single:* = new Object();
-				for each (var key:String in previousBout.split(","))    
-				{    
-				    // 去花色
-					var cardValue:String=key.replace(/\b\dV/g, "V");
-					if (preCardMap[cardValue] == 3)
-					{
-						if (third[cardValue] === undefined)
-						{
-							third[cardValue] = 1;
+						// 单牌顺子
+						for each(var card:PokerButton in currentBout)   
+						{ 
+							if (prioritySequence.indexOf(card.value.replace(/\b\dV/g, "V")) > prioritySequence.indexOf(resultCards.split(",")[0]))
+							{
+								singleCardStr += card.value + ",";
+							}
 						}
-					}
-					else if (preCardMap[cardValue] == 2)
-					{
-						if (pair[cardValue] === undefined)
+						for each(var singCard:String in singleCardStr.replace(/,$/,"").split(","))   
 						{
-							pair[cardValue] = 1;
+							currentResultCards += singCard.replace(/^[0-4]/, "") + ",";
+							currentResultCards=(currentResultCards).replace(/(V[^,]+,)\1*/g, "$1");
 						}
-					}
-					else if (preCardMap[cardValue] == 1)
-					{
-						if (single[cardValue] === undefined)
+						if (currentResultCards.length >= resultCards.length)
 						{
-							single[cardValue] = 1;
+							var times:int=0;
+							var currentyRCArray:Array = currentResultCards.replace(/,$/,"").split(",");
+							for (var i:int = 0; i < currentyRCArray.length;)   
+							{
+								currentCompCards += currentyRCArray[i] + ",";
+								if (++times == resultCards.replace(/,$/,"").split(",").length)
+								{
+									i = ++currentCompCardsTimes;
+									times = 0;
+									if (prioritySequence.indexOf(currentCompCards) > -1)
+									{
+										var ptn:RegExp=/^.*V[2XY].*$/;
+										if (ptn.test(currentCompCards))
+										{
+											return false;
+										}
+										else
+										{
+											var usedObj:String = "";
+											for each(var card:PokerButton in currentBout)   
+											{ 
+												for each(var selectStr:String in currentCompCards.replace(/,$/, "").split(","))   
+												{	
+													if (card.value.toString().replace(/^[0-4]/,"") == selectStr)
+													{
+														if (usedObj != card.value.toString().replace(/^[0-4]/,""))
+														{
+															usedObj = selectStr;
+															card.setSelected(true);
+														}
+													}
+												}
+											}
+											return true;  
+										}
+									}
+									currentCompCards="";
+								}
+								else
+								{
+									i++;
+								}
+							}
 						}
+						
 					}
+					else if (multiple == 2)
+					{
+						// 双顺
+					}
+					else if (multiple > 2)
+					{
+						// 三顺
+					}
+					// 间隔值判断，相邻的牌必须连续
+					return prioritySequence.indexOf(resultCards) > -1;
 				}
-				var previousArr:Array = new Array();
-				previousArr.push(third);
-				previousArr.push(pair);
-				previousArr.push(single);
-				var currentArr:Array = new Array(); 
-				currentArr.push(cardHandThird);
-				currentArr.push(cardHandPair);
-				currentArr.push(cardHandSingle);
-				isChooseFollowStyle(previousArr, currentArr);
 			}
 			return false;
-		}
-		
-		
-		private static function isChooseFollowStyle(previousArr:Array, currentArr:Array):void
-		{
-			var len:int=0;
-			var lenTimes:int = 0;
-			for (var key:String in previousArr[0])
-			{
-				trace("三带" + key);
-				len++;
-			}
-			for each (var x:String in sortPokers(currentArr[0]))    
-			{
-				for (var y:String in previousArr[0])
-				{
-					if (prioritySequence.indexOf(x) > prioritySequence.indexOf(y))
-					{
-						if (++lenTimes <= len)
-						{
-							trace("克三带:" + x);
-						}
-					}
-				}
-			}
-			len=0;
-			lenTimes=0;
-			for (var key:String in previousArr[1])
-			{
-				trace("对" + key);
-				len++;
-			}
-			for each (var x:String in sortPokers(currentArr[1]))    
-			{
-				for (var y:String in previousArr[1])
-				{
-					if (++lenTimes <= len)
-					{
-						trace("克对:" + x);
-					}
-				}
-			}
-			len=0;
-			lenTimes=0;
-			for (var key:String in previousArr[2])
-			{
-				trace("单" + key);
-				len++;
-			}
-			for each (var x:String in sortPokers(currentArr[2]))    
-			{
-				for (var y:String in previousArr[2])
-				{
-					if (++lenTimes <= len)
-					{
-						trace("克单:" + x);
-					}
-				}
-			}
-			
 		}
 		
 		/**
@@ -876,6 +820,5 @@ package info.knightrcom.state.fightlandlordgame
 			resultCards=(resultCards).replace(/(V[^,]+,)\1*/g, "$1");
 			return (boutCards + ",").replace(/\b\dV/g, "V").length / resultCards.length;
 		}
-
 	}
 }
