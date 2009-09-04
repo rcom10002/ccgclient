@@ -18,6 +18,16 @@ package info.knightrcom.state.fightlandlordgame
 		}
 
 		private static const prioritySequence:String="V3,V4,V5,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,VX,VY";
+		
+		/** 操作动作名称  */
+		/** 重选 */
+		public static const OPTR_RESELECT:int = 0;
+		/** 不要 */
+		public static const OPTR_GIVEUP:int = 1;
+		/** 提示 */
+		public static const OPTR_HINT:int = 2;
+		/** 出牌 */
+		public static const OPTR_DISCARD:int = 3;
 
 		// 三带单中三同顺的连续个数 333444-》2 333444555-》3
 		private static var followStyleCount:int=0;
@@ -351,8 +361,6 @@ package info.knightrcom.state.fightlandlordgame
 					{
 						// 三顺
 					}
-					// 间隔值判断，相邻的牌必须连续
-					return prioritySequence.indexOf(resultCards) > -1;
 				}
 			}
 			return false;

@@ -15,6 +15,16 @@ package info.knightrcom.state.red5game {
         private static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
         private static const RED5:String = "1V5";
         private static const RED5_PAIR:String = "1V5,1V5";
+        
+        /** 操作动作名称  */
+		/** 重选 */
+		public static const OPTR_RESELECT:int = 0;
+		/** 不要 */
+		public static const OPTR_GIVEUP:int = 1;
+		/** 提示 */
+		public static const OPTR_HINT:int = 2;
+		/** 出牌 */
+		public static const OPTR_DISCARD:int = 3;
 
         /**
          * 对服务器端洗牌后分配的尚未排序过的扑克进行排序
