@@ -177,14 +177,14 @@ package info.knightrcom.state {
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					// currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (timer.currentCount == MAX_CARDS_SELECT_TIME) {
-						if (Button(currentGame.btnBarPokers.getChildAt(1)).enabled) {
+						if (Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
 							// 可以选择不要按钮时，则进行不要操作
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
 						} else {
 							// 重选
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
 	                        // 选择第一张牌
-	                        PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+	                        PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
 							// 出牌
 	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
 						}
@@ -305,7 +305,7 @@ package info.knightrcom.state {
                     // 准备出牌
                     currentGame.btnBarPokers.visible = true;
                     // 首次出牌需要禁用"不要"按键
-                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
             } else if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 当前玩家为最后一个玩家时，马上可以开始游戏
@@ -318,7 +318,7 @@ package info.knightrcom.state {
                     // 准备出牌
                     currentGame.btnBarPokers.visible = true;
                     // 首次出牌需要禁用"不要"按键
-                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 } else {
                     // 游戏设置为不独时
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
@@ -341,7 +341,7 @@ package info.knightrcom.state {
                 // 准备出牌
                 currentGame.btnBarPokers.visible = true;
                 // 首次出牌需要禁用"不要"按键
-                Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
+                Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
             }
         }
 
@@ -367,7 +367,7 @@ package info.knightrcom.state {
                     // 游戏设置结束，准备出牌
                     currentGame.btnBarPokers.visible = true;
                     // 首次出牌需要禁用"不要"按键
-                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
             } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH) {
                 // 游戏设置途中有天外天时，等候天独玩家发牌
@@ -463,12 +463,12 @@ package info.knightrcom.state {
             if (currentNextNumber == localNumber) {
                 // 轮到当前玩家出牌时
                 currentGame.btnBarPokers.visible = true;
-                Button(currentGame.btnBarPokers.getChildAt(1)).enabled = true;
+                Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = true;
                 if (currentNumber == currentNextNumber) {
                     // 如果消息中指定的发牌玩家序号与下家序号都等于当前玩家，
                     // 即当前玩家最后一次出的牌，在回合中最大，本回合从当前玩家开始
                     currentBoutCards = null;
-                    Button(currentGame.btnBarPokers.getChildAt(1)).enabled = false;
+                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
             }
         }
@@ -746,7 +746,7 @@ package info.knightrcom.state {
 					// 2. 当前为发牌玩家选择第一张牌
 					if (currentBoutCards == null || currentBoutCards.split(",").length == 0)
 					{
-						PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+						PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
 						break;
 					}
 					// 3. 选择要出的牌
