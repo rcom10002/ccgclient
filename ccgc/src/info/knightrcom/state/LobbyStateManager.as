@@ -90,8 +90,22 @@ package info.knightrcom.state {
             var roomKeys:Array = new Array();
             // 构造排序函数
             var sort:Function = function(container:Container):void {
-                for each (var child:DisplayObject in container.getChildren()) {
-                    container.setChildIndex(child, child["data"]);
+            	// 构造临时数组
+                var children:Array = new Array();
+                var eachChild:DisplayObject = null;
+                for each (eachChild in container.getChildren()) {
+                	children.push(eachChild);
+                }
+                // 将临时数组排序
+                children.sort(function (obj1:*, obj2:*):Number {
+                	var displayIndex1:Number = Number(obj1["data"]);
+                	var displayIndex2:Number = Number(obj2["data"]);
+                	return displayIndex1 == displayIndex2 ? 0 : (displayIndex1 > displayIndex2 ? 1 : -1);
+                });
+                // 重新制定显示位置
+                container.removeAllChildren();
+                for each (eachChild in children) {
+                	container.addChild(eachChild);
                 }
             };
             // 构造游戏平台
