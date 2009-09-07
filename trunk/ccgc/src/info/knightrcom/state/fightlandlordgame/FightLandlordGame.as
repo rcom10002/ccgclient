@@ -242,9 +242,9 @@ package info.knightrcom.state.fightlandlordgame
 				var currentCards:* = new Object(); // 累计牌型
 				var cardString:String = "";
 				var tempTimes:int = 0;
-				for each(var card:PokerButton in currentBout)   
+				for each(var cardPB:PokerButton in currentBout)   
 				{ 
-					cardString = card.value.replace(/^[0-4]/, "");
+					cardString = cardPB.value.replace(/^[0-4]/, "");
 					if (prioritySequence.indexOf(cardString) > prioritySequence.indexOf(previousBout.split(",")[0].replace(/^[0-4]/, "")))
 					{
 						if (currentCards[cardString] === undefined)
@@ -254,12 +254,12 @@ package info.knightrcom.state.fightlandlordgame
 						currentCards[cardString] += 1;
 						if (currentCards[cardString] ==  len)
 						{
-							for each(var card:PokerButton in currentBout)   
+							for each(var cardP:PokerButton in currentBout)   
 							{ 
-								if (card.value.toString().replace(/^[0-4]/,"") == cardString && ++tempTimes <= len)
+								if (cardP.value.toString().replace(/^[0-4]/,"") == cardString && ++tempTimes <= len)
 								{
-									trace(card.value);
-									card.setSelected(true);
+									trace(cardP.value);
+									cardP.setSelected(true);
 								}
 								if (tempTimes == len)
 								{
@@ -268,98 +268,6 @@ package info.knightrcom.state.fightlandlordgame
 							}  
 							break;
 						}
-					}
-				}
-				return false;
-			}
-			
-			// 顺子
-			if (isStraightStyle(previousBout))
-			{
-				// 去花色
-				var resultCards:String=(previousBout + ",").replace(/\b\dV/g, "V");
-				var singleCardStr:String="";
-				var currentResultCards:String="";
-				var currentCompCards:String="";
-				var currentCompCardsTimes:int=0;
-				// 去重复项目
-				resultCards=(resultCards).replace(/(V[^,]+,)\1*/g, "$1");
-				// 倍数验证，防止个别牌的倍数与其他牌的倍数不一致
-				if ((previousBout + ",").replace(/\b\dV/g, "V").length % resultCards.length == 0)
-				{
-					// 倍数全相同时，判断是否满足最小序列的条件，比如JQKA单倍时，至少要四张
-					// 比如JQK双倍时，至少要三张；比如JQ三倍时，至少要两张
-					var multiple:int=(previousBout + ",").replace(/\b\dV/g, "V").length / resultCards.length;
-					if (multiple == 1)
-					{
-						// 单牌顺子
-						for each(var card:PokerButton in currentBout)   
-						{ 
-							if (prioritySequence.indexOf(card.value.replace(/\b\dV/g, "V")) > prioritySequence.indexOf(resultCards.split(",")[0]))
-							{
-								singleCardStr += card.value + ",";
-							}
-						}
-						for each(var singCard:String in singleCardStr.replace(/,$/,"").split(","))   
-						{
-							currentResultCards += singCard.replace(/^[0-4]/, "") + ",";
-							currentResultCards=(currentResultCards).replace(/(V[^,]+,)\1*/g, "$1");
-						}
-						if (currentResultCards.length >= resultCards.length)
-						{
-							var times:int=0;
-							var currentyRCArray:Array = currentResultCards.replace(/,$/,"").split(",");
-							for (var i:int = 0; i < currentyRCArray.length;)   
-							{
-								currentCompCards += currentyRCArray[i] + ",";
-								if (++times == resultCards.replace(/,$/,"").split(",").length)
-								{
-									i = ++currentCompCardsTimes;
-									times = 0;
-									if (prioritySequence.indexOf(currentCompCards) > -1)
-									{
-										var ptn:RegExp=/^.*V[2XY].*$/;
-										if (ptn.test(currentCompCards))
-										{
-											return false;
-										}
-										else
-										{
-											var usedObj:String = "";
-											for each(var card:PokerButton in currentBout)   
-											{ 
-												for each(var selectStr:String in currentCompCards.replace(/,$/, "").split(","))   
-												{	
-													if (card.value.toString().replace(/^[0-4]/,"") == selectStr)
-													{
-														if (usedObj != card.value.toString().replace(/^[0-4]/,""))
-														{
-															usedObj = selectStr;
-															card.setSelected(true);
-														}
-													}
-												}
-											}
-											return true;  
-										}
-									}
-									currentCompCards="";
-								}
-								else
-								{
-									i++;
-								}
-							}
-						}
-						
-					}
-					else if (multiple == 2)
-					{
-						// 双顺
-					}
-					else if (multiple > 2)
-					{
-						// 三顺
 					}
 				}
 			}
