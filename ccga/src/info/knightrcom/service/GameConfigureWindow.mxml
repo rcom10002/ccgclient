@@ -32,8 +32,8 @@
 				lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
 				lobbyDisplayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
 				lobbyRoomCount.text=e4xResult.entity.map[CURRENT_PAGE - 1].roomcount.text();
-				lobbyStatus.text=e4xResult.entity.map[CURRENT_PAGE - 1].status.text();
-				btnStatus.label = lobbyStatus.text == "启用" ? "禁用" : "启用";
+				lobbyDisabled.text=e4xResult.entity.map[CURRENT_PAGE - 1].disabled.text() == "true" ? "禁用" : "启用";
+				btnDisabled.label = lobbyDisabled.text == "启用" ? "禁用" : "启用";
 				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
 			}
 
@@ -86,12 +86,13 @@
 						}
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, STATUS: lobbyStatus.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (lobbyDisabled.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
 										Alert.show("保存成功！", "游戏大厅参数设置");
 										currentOperationMethod=OperationMethod.UPDATE;
+										readData();
 									}
 									else
 									{
@@ -103,7 +104,6 @@
 								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
-						readData();
 					});
 				// 新增
 				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
@@ -111,10 +111,10 @@
 						currentState="ADD";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
-						lobbyStatusNew.text = "禁用";
+						lobbyDisabledNew.text = "禁用";
 					});
 				// 状态
-				ListenerBinder.bind(btnStatus, MouseEvent.CLICK, function():void
+				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, function():void
 					{
 						if (lobbyName.text == "") 
 						{
@@ -123,7 +123,7 @@
 						}
 						Alert.yesLabel = "确认";
 						Alert.noLabel = "取消";
-					    Alert.show( "确定要" + btnStatus.label + "？",
+					    Alert.show( "确定要" + btnDisabled.label + "？",
 								"消息", 
 								Alert.YES | Alert.NO,
 								adminApp,
@@ -132,21 +132,21 @@
 								    {
 										if (currentOperationMethod == OperationMethod.UPDATE)
 										{
-											HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, STATUS: btnStatus.label}, null, function(event:ResultEvent):void
+											HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (btnDisabled.label == "禁用" ? true : false)}, null, function(event:ResultEvent):void
 												{
 													if (new XML(event.result).result == "SUCCESS")
 													{
-														Alert.show(btnStatus.label + "成功！", "游戏大厅参数设置");
+														Alert.show(btnDisabled.label + "成功！", "游戏大厅参数设置");
 														currentOperationMethod=OperationMethod.UPDATE;
 														readData();
 													}
 													else
 													{
-														Alert.show(btnStatus.label + "失败！", "游戏大厅参数设置");
+														Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
 													}
 												}, function(event:FaultEvent):void
 												{
-													Alert.show(btnStatus.label + "失败！", "游戏大厅参数设置");
+													Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
 												});
 										}
 										currentOperationMethod=OperationMethod.UPDATE;
@@ -183,7 +183,7 @@
 					{
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text, STATUS: lobbyStatusNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text, DISABLED: lobbyDisabledNew.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -233,7 +233,7 @@
 						<mx:TextInput id="lobbyDisplayIndexNew"/>
 					</mx:FormItem>
 					<mx:FormItem label="状态">
-						<mx:TextInput id="lobbyStatusNew"/>
+						<mx:TextInput id="lobbyDisabledNew"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
@@ -276,7 +276,7 @@
 						<mx:TextInput id="lobbyRoomCount"/>
 					</mx:FormItem>
 					<mx:FormItem label="状态">
-						<mx:TextInput id="lobbyStatus" enabled="false"/>
+						<mx:TextInput id="lobbyDisabled" enabled="false"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
@@ -293,7 +293,7 @@
 						   bottom="10"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button id="btnStatus"
+				<mx:Button id="btnDisabled"
 						   right="10"
 						   bottom="10"/>
 			</mx:AddChild>
