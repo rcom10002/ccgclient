@@ -16,8 +16,11 @@
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.service.LocalGameConfigureService;
 			import mx.events.ItemClickEvent;
+			import mx.events.CloseEvent;
 
 			public var currentOperationMethod:OperationMethod;
+			
+			public static var adminApp:Administration;
 
 			protected function setValue(event:ResultEvent):void
 			{
@@ -29,6 +32,8 @@
 				lobbyName.text=e4xResult.entity.map[CURRENT_PAGE - 1].name.text();
 				lobbyDisplayIndex.text=e4xResult.entity.map[CURRENT_PAGE - 1].displayindex.text();
 				lobbyRoomCount.text=e4xResult.entity.map[CURRENT_PAGE - 1].roomcount.text();
+				lobbyStatus.text=e4xResult.entity.map[CURRENT_PAGE - 1].status.text();
+				btnStatus.label = lobbyStatus.text == "启用" ? "禁用" : "启用";
 				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
 			}
 
@@ -70,7 +75,6 @@
 				readData();
 				// 隐藏
 				btnCreate.visible=false;
-				btnDelete.visible=false;
 				currentOperationMethod=OperationMethod.UPDATE; // default
 				// 保存
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, function():void
@@ -82,7 +86,7 @@
 						}
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, STATUS: lobbyStatus.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -99,6 +103,7 @@
 								});
 						}
 						currentOperationMethod=OperationMethod.UPDATE;
+						readData();
 					});
 				// 新增
 				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
@@ -106,16 +111,55 @@
 						currentState="ADD";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
+						lobbyStatusNew.text = "禁用";
 					});
-				// 删除
-				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
+				// 状态
+				ListenerBinder.bind(btnStatus, MouseEvent.CLICK, function():void
 					{
-						currentOperationMethod=OperationMethod.DELETE;
-						HttpServiceProxy.send(LocalGameConfigureService.DELETE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text}, infoService, function(event:ResultEvent):void
-							{
-								setValue(event);
-							});
-						currentOperationMethod=OperationMethod.UNKNOWN;
+						if (lobbyName.text == "") 
+						{
+							Alert.show("游戏大厅名不能为空！","游戏参数管理");
+							return;
+						}
+						Alert.yesLabel = "确认";
+						Alert.noLabel = "取消";
+					    Alert.show( "确定要" + btnStatus.label + "？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+										if (currentOperationMethod == OperationMethod.UPDATE)
+										{
+											HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, STATUS: btnStatus.label}, null, function(event:ResultEvent):void
+												{
+													if (new XML(event.result).result == "SUCCESS")
+													{
+														Alert.show(btnStatus.label + "成功！", "游戏大厅参数设置");
+														currentOperationMethod=OperationMethod.UPDATE;
+														readData();
+													}
+													else
+													{
+														Alert.show(btnStatus.label + "失败！", "游戏大厅参数设置");
+													}
+												}, function(event:FaultEvent):void
+												{
+													Alert.show(btnStatus.label + "失败！", "游戏大厅参数设置");
+												});
+										}
+										currentOperationMethod=OperationMethod.UPDATE;
+									}
+								},
+								null,
+								Alert.YES);
+//						currentOperationMethod=OperationMethod.DELETE;
+//						HttpServiceProxy.send(LocalGameConfigureService.DELETE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text}, infoService, function(event:ResultEvent):void
+//							{
+//								setValue(event);
+//							});
+//						currentOperationMethod=OperationMethod.UNKNOWN;
 					});
 				// 翻页
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
@@ -139,7 +183,7 @@
 					{
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text, STATUS: lobbyStatusNew.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -155,6 +199,7 @@
 									Alert.show("新增失败！", "游戏大厅参数设置");
 								});
 						}
+						readData();
 					});
 				// 取消
 				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
@@ -186,6 +231,9 @@
 					</mx:FormItem>
 					<mx:FormItem label="游戏大厅位置">
 						<mx:TextInput id="lobbyDisplayIndexNew"/>
+					</mx:FormItem>
+					<mx:FormItem label="状态">
+						<mx:TextInput id="lobbyStatusNew"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
@@ -227,6 +275,9 @@
 					<mx:FormItem label="游戏房间数量">
 						<mx:TextInput id="lobbyRoomCount"/>
 					</mx:FormItem>
+					<mx:FormItem label="状态">
+						<mx:TextInput id="lobbyStatus" enabled="false"/>
+					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
@@ -242,8 +293,7 @@
 						   bottom="10"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="删除"
-						   id="btnDelete"
+				<mx:Button id="btnStatus"
 						   right="10"
 						   bottom="10"/>
 			</mx:AddChild>

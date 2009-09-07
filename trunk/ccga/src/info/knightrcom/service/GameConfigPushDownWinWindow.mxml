@@ -40,6 +40,8 @@
 				roundMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].roundmark.text();
 				pointMark.text=e4xResult.entity.map[CURRENT_PAGE - 1].pointmark.text();
 				minMarks.text=e4xResult.entity.map[CURRENT_PAGE - 1].minmarks.text();
+				gameStatus.text=e4xResult.entity.map[CURRENT_PAGE - 1].status.text();
+				btnStatus.label = gameStatus.text == "启用" ? "禁用" : "启用";
 				trace(e4xResult.entity.map[CURRENT_PAGE - 1].name.text());
 			}
 
@@ -114,11 +116,12 @@
 						currentOperationMethod=OperationMethod.UPDATE;
 						if (currentOperationMethod == OperationMethod.UPDATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text)}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text), STATUS: gameStatus.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
 										Alert.show("保存成功！", "推倒胡参数设置");
+										readData(3);
 									}
 									else
 									{
@@ -137,36 +140,37 @@
 						currentState="ADD";
 						currentOperationMethod=OperationMethod.CREATE;
 						clearEditor();
+						gameStatusNew.text = "禁用";
 					});
-				// 删除
-				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
+				// 状态
+				ListenerBinder.bind(btnStatus, MouseEvent.CLICK, function():void
 					{
-						currentOperationMethod=OperationMethod.DELETE;
+						currentOperationMethod=OperationMethod.UPDATE;
 						
 						Alert.yesLabel = "确认";
 						Alert.noLabel = "取消";
-					    Alert.show( "确定要删除？",
+					    Alert.show( "确定要" + btnStatus.label + "？",
 								"消息", 
 								Alert.YES | Alert.NO,
 								adminApp,
 								function handleAlert(event:CloseEvent):void {
 								    if(event.detail == Alert.YES)
 								    {
-								      	HttpServiceProxy.send(LocalGameConfigureService.DELETE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameId.text}, null, function(event:ResultEvent):void
+								      	HttpServiceProxy.send(LocalGameConfigureService.UPDATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text), STATUS: btnStatus.label}, null, function(event:ResultEvent):void
 											{
 												if (new XML(event.result).result == "SUCCESS")
 												{
-													Alert.show("删除成功！", "推倒胡参数设置");
+													Alert.show(btnStatus.label + "成功！", "推倒胡参数设置");
 													currentOperationMethod=OperationMethod.UPDATE;
 													readData(3);
 												}
 												else
 												{
-													Alert.show("删除失败！", "推倒胡参数设置");
+													Alert.show(btnStatus.label + "失败！", "推倒胡参数设置");
 												}
 											}, function(event:FaultEvent):void
 											{
-												Alert.show("删除失败！", "推倒胡参数设置");
+												Alert.show(btnStatus.label + "失败！", "推倒胡参数设置");
 											});
 								    }
 								},
@@ -228,7 +232,7 @@
 						}
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
-							HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), POINT_MARK: Number(pointMarkNew.text), MIN_MARKS: Number(minMarksNew.text)}, null, function(event:ResultEvent):void
+							HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), POINT_MARK: Number(pointMarkNew.text), MIN_MARKS: Number(minMarksNew.text), STATUS: gameStatusNew.text}, null, function(event:ResultEvent):void
 								{
 									if (new XML(event.result).result == "SUCCESS")
 									{
@@ -282,6 +286,9 @@
 					<mx:FormItem label="最少底分">
 						<mx:TextInput id="minMarksNew"/>
 					</mx:FormItem>
+					<mx:FormItem label="状态">
+						<mx:TextInput id="gameStatusNew" enabled="false" text="禁用"/>
+					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
@@ -328,6 +335,9 @@
 					<mx:FormItem label="最少底分">
 						<mx:TextInput id="minMarks"/>
 					</mx:FormItem>
+					<mx:FormItem label="状态">
+						<mx:TextInput id="gameStatus" enabled="false"/>
+					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
@@ -343,8 +353,7 @@
 						   bottom="10"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="删除"
-						   id="btnDelete"
+				<mx:Button id="btnStatus"
 						   right="10"
 						   bottom="10"/>
 			</mx:AddChild>
