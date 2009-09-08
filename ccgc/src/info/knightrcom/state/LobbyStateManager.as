@@ -113,9 +113,11 @@ package info.knightrcom.state {
             platform.name = e4xData.platform.name.toString();
             platform.modelCategory = e4xData.platform.modelCategory.toString();
             platform.data = e4xData.platform.displayIndex;
-            // TODO 内存问题
             // 构造游戏大厅
             for (index in lobbys) {
+            	if (lobbys[index].disabled.toString().toLowerCase() == "true") {
+            		continue;
+            	}
                 lobby = new Model();
                 lobby.id = lobbys[index].id.toString();
                 lobby.name = lobbys[index].name.toString();
@@ -127,6 +129,9 @@ package info.knightrcom.state {
             }
             // 构造游戏房间
             for (index in rooms) {
+            	if (rooms[index].disabled.toString().toLowerCase() == "true") {
+            		continue;
+            	}
                 room = new Model();
                 room.id = rooms[index].id.toString();
                 room.name = rooms[index].name.toString();
