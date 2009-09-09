@@ -35,11 +35,15 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="40">
+	<mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="100">
 		<mx:columns>
 			<mx:DataGridColumn headerText="项目" dataField="item" width="180"/>
 			<mx:DataGridColumn headerText="内容" dataField="content"/>
 		</mx:columns>
 	</mx:DataGrid>
-	<mx:Button id="btnFresh" label="刷新" right="10" bottom="10"/>
+	<mx:Button id="btnFresh" label="刷新" right="10" bottom="70"/>
+	<mx:Label text="键" bottom="70" left="10"/>
+	<mx:TextArea bottom="10" left="50" right="10" height="50" text="{datagrid.selectedItem.content}"/>
+	<mx:Label text="值" left="10" bottom="40"/>
+	<mx:TextInput bottom="70" left="50" right="64" text="{datagrid.selectedItem.item}"/>
 </FunctionWindow>
