@@ -20,7 +20,6 @@
 			import mx.controls.Button;
 			import info.knightrcom.util.ListenerBinder;
 			import mx.managers.PopUpManager;
-			import mx.events.CloseEvent;
 			import info.knightrcom.service.LocalSystemLogService;
 
 			public static var CURRENT_PROFILE_ID:String;
@@ -34,31 +33,36 @@
 				HttpServiceProxy.send(LocalSystemLogService.SYSTEM_INFO, {CAPTION:caption.text,FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.value, CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 			
+			private function datagridClickHandler(event:ListEvent):void{
+				txtCaption.text = event.itemRenderer.data.caption;
+				txtType.text = event.itemRenderer.data.type;
+				txtCreateTime.text = event.itemRenderer.data.createtime;
+				txtInfo.text = event.itemRenderer.data.info;
+			}
+			
+			private function pageChangeSystemLogClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+					return;
+				}
+				if (event.index == 0) {
+					CURRENT_PAGE--;
+				} else if (event.index == 1) {
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+			
+			private function btnSearchSystemLogClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE = 1;
+				defaultSearch();
+			}
+			
 			protected function creationCompleteHandler():void
 			{
 				// 事件绑定
-				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
-					CURRENT_PAGE = 1;
-					defaultSearch();
-				});
-				ListenerBinder.bind(datagird, ListEvent.ITEM_CLICK, function (event:ListEvent):void{
-					txtCaption.text = event.itemRenderer.data.caption;
-					txtType.text = event.itemRenderer.data.type;
-					txtCreateTime.text = event.itemRenderer.data.createtime;
-					txtInfo.text = event.itemRenderer.data.info;
-				});
-				ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
-					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
-						return;
-					}
-					if (event.index == 0) {
-						CURRENT_PAGE--;
-					} else if (event.index == 1) {
-						CURRENT_PAGE++;
-					}
-					defaultSearch();
-				});
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchSystemLogClickHandler);
+				ListenerBinder.bind(datagird, ListEvent.ITEM_CLICK, datagridClickHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeSystemLogClickHandler);
 			}
 		]]>
 	</mx:Script>
