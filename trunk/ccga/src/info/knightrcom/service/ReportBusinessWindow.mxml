@@ -22,9 +22,9 @@
 			public static var CURRENT_PROFILE_ID:String;
 
 			private var layoutCanvas:DisplayObject=null;
-
-			private var url:String = "";
 			
+			public static var adminApp:Administration;
+
 			private var isInitialized:Boolean = false;
 			
 			private var searchPeriod:int = 2;
@@ -45,7 +45,6 @@
     			}
 				
 				HttpServiceProxy.send(LocalReportBusinessService.BUSINESS_INFO, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, infoService);
-				btnDownload.visible = false;
 			}
 			
 			private function getSearchPeriod():void
@@ -71,21 +70,70 @@
 					});
 			}
 			
-			private function onEvent(evt:Event):void {
-                Alert.show(evt.toString(), evt.type);
-            }
-            
-            private function btn_click(evt:MouseEvent):void {
-            	if (url.length == 0) {
-            		Alert.show(url);
-            		Alert.show("暂时无法下载，请重新导出！", "业务分析报表");
-            		btnDownload.visible = false;
-            		return;
-            	}
-                var urlReq:URLRequest = new URLRequest(url);
+            private function btnSearchReportBusinessClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE = 1;
+				defaultSearch();
+			}
+			
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+					return;
+				}
+				if (event.index == 0) {
+					CURRENT_PAGE--;
+				} else if (event.index == 1) {
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+			
+			private function showDownloadDialog(url:String):void {
+				var urlReq:URLRequest = new URLRequest(url);
                 fileReference.download(urlReq);
-            }
-
+			}
+			
+			private function btnDownloadClickHandler(event:MouseEvent):void {
+				if (TOTAL_PAGE > 0) {
+					var dateFormatter:DateFormatter=new DateFormatter();
+					dateFormatter.formatString="YYYYMMDD";
+					HttpServiceProxy.send(LocalReportBusinessService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+					{
+						var xml:XML = new XML(event.result);
+						var url:String = xml.tag;
+						if (xml.result == "SUCCESS")
+						{
+							if (url.length == 0) {
+			            		Alert.show("暂时无法下载，请重新导出！", "业务分析报表");
+			            		return;
+			            	}
+			            	Alert.yesLabel = "确认";
+							Alert.noLabel = "取消";
+						    Alert.show( "确定要下载吗？",
+										"消息", 
+										Alert.YES | Alert.NO,
+										adminApp,
+										function handleAlert(event:CloseEvent):void {
+										    if(event.detail == Alert.YES)
+										    {
+										        showDownloadDialog(url);
+										    }
+										},
+										null,
+										Alert.YES);
+						}
+						else
+						{
+							Alert.show("导出失败！", "业务分析报表");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("导出失败！", "业务分析报表");
+					});
+				} else {
+					Alert.show("还没有查询结果不能导出！", "业务分析报表");
+				}
+			}
+			
 			protected function creationCompleteHandler():void
 			{
 				if (!isInitialized) {
@@ -94,58 +142,17 @@
 					// 获取查询期间
 					getSearchPeriod();
 					// 事件绑定
-					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
-						CURRENT_PAGE = 1;
-						defaultSearch();
-					});
-					ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
-						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
-							return;
-						}
-						if (event.index == 0) {
-							CURRENT_PAGE--;
-						} else if (event.index == 1) {
-							CURRENT_PAGE++;
-						}
-						defaultSearch();
-					});
+					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportBusinessClickHandler);
+					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 					// 导出
-					ListenerBinder.bind(btnCsvExport, MouseEvent.CLICK, function(event:MouseEvent):void 
-					{
-						if (TOTAL_PAGE > 0) {
-							var dateFormatter:DateFormatter=new DateFormatter();
-							dateFormatter.formatString="YYYYMMDD";
-							HttpServiceProxy.send(LocalReportBusinessService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
-							{
-								if (new XML(event.result).result == "SUCCESS")
-								{
-									url = new XML(event.result).tag;
-									btnDownload.visible = true;
-								}
-								else
-								{
-									Alert.show("导出失败！", "业务分析报表");
-								}
-							}, function(event:FaultEvent):void
-							{
-								Alert.show("导出失败！", "业务分析报表");
-							});
-						} else {
-							Alert.show("还没有查询结果不能导出！", "业务分析报表");
-						}
-					});
+					ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
 					isInitialized = true;
 	            }
 			}
 		]]>
 	</mx:Script>
 	
-	<net:FileReference id="fileReference"
-            complete="onEvent(event);"
-            cancel="onEvent(event);"
-            httpStatus="onEvent(event);"
-            ioError="onEvent(event);" />
+	<net:FileReference id="fileReference"/>
 	<states>
 		<mx:State name="LIST">
 	<!-- 查询条件 -->
@@ -185,10 +192,8 @@
 						groupName="sc"/>
 		<mx:Button id="btnSearch"
 				   label="查询"/>
-		<mx:Button id="btnCsvExport"
-				   label="导出"/>
 		<mx:Button id="btnDownload"
-				   label="下载" click="btn_click(event);" visible="false"/>
+				   label="下载"/>
 	</mx:HBox>
 	</mx:AddChild>
 	<!-- 查询结果 -->

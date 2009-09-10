@@ -71,12 +71,12 @@
 					});
 			}
 
-            private function btnSearchReportScoreClientHandler(event:MouseEvent):void {
+            private function btnSearchReportScoreClickHandler(event:MouseEvent):void {
 				CURRENT_PAGE=1;
 				defaultSearch();
 			}
 			
-			private function pageChangeClientHandler(event:ItemClickEvent):void {
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 				{
 					return;
@@ -108,7 +108,7 @@
 						if (xml.result == "SUCCESS")
 						{
 							if (url.length == 0) {
-			            		Alert.show("暂时无法下载，请重新导出！", "业务分析报表");
+			            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
 			            		return;
 			            	}
 			            	Alert.yesLabel = "确认";
@@ -148,9 +148,9 @@
 					getSearchPeriod();
 					// 事件绑定
 					// 检索
-					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportScoreClientHandler);
+					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportScoreClickHandler);
 					// 翻页
-					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClientHandler);
+					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 					// 下载
 					ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
 					isInitialized = true;

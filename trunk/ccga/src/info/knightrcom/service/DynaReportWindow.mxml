@@ -10,9 +10,10 @@
 		import info.knightrcom.util.HttpServiceProxy;
 		import info.knightrcom.util.ListenerBinder;
 		import mx.events.ItemClickEvent;
+		import mx.events.CloseEvent;
 		
-		private var url:String = "";
-		
+		public static var adminApp:Administration;
+			
 		protected function clearEditor():void
 		{
 			txtError.text = "";
@@ -59,47 +60,130 @@
 				{
 					Alert.show("查询失败！", "动态报表分析器");
 				});
-			btnDownload.visible = false;
 		}
 
-		private function onEvent(evt:Event):void {
-            Alert.show(evt.toString(), evt.type);
-        }
-        
-        private function btn_click(evt:MouseEvent):void {
-        	if (url.length == 0) {
-        		Alert.show(url);
-        		Alert.show("暂时无法下载，请重新导出！", "业务分析报表");
-        		btnDownload.visible = false;
-        		return;
-        	}
-            var urlReq:URLRequest = new URLRequest(url);
-            fileReference.download(urlReq);
-        }
-        
 		protected function readReportTemplate():void
 		{
 			HttpServiceProxy.send(LocalReportTemplateManageService.RETRIEVE_SQL_TEMPLATE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
 		}
-			
+		
+		private function rdoTemplateDynaReportClickHandler(event:MouseEvent):void {
+			txtContent.enabled = false;
+			txtContent.visible = false;
+			datagrid.visible = true;
+			barTemplate.visible = true;
+			readReportTemplate();
+		}
+		
+		private function rdoInputDynaReportClickHandler(event:MouseEvent):void {
+			txtContent.enabled = true;
+			txtContent.visible = true;
+			datagrid.visible = false;
+			barTemplate.visible = false;
+		}
+		
+		private function btnSearchDynaReportClickHandler(event:MouseEvent):void {
+			if (mth.selectedValue == 1 && txtContent.text == "") 
+			{
+				Alert.show("查询SQL不能为空！","动态报表分析器");
+				return;
+			}
+			if (mth.selectedValue == 0 && datagrid.selectedIndices.length == 0)
+			{
+				Alert.show("请选择报表模板！","动态报表分析器");
+				return;
+			}
+			defaultSearch();
+		}
+		
+		private function pageChangeClickHandler(event:ItemClickEvent):void {
+			if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+			{
+				return;
+			}
+			if (event.index == 0)
+			{
+				CURRENT_PAGE--;
+			}
+			else if (event.index == 1)
+			{
+				CURRENT_PAGE++;
+			}
+			defaultSearch();
+		}
+		
+		private function pageChangeTemplateClickHandler(event:ItemClickEvent):void {
+			if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+			{
+				return;
+			}
+			if (event.index == 0)
+			{
+				CURRENT_PAGE--;
+			}
+			else if (event.index == 1)
+			{
+				CURRENT_PAGE++;
+			}
+			readReportTemplate();
+		}
+		
+		private function showDownloadDialog(url:String):void {
+			var urlReq:URLRequest = new URLRequest(url);
+            fileReference.download(urlReq);
+		}
+		
+		private function btnDownloadClickHandler(event:MouseEvent):void {
+			if (TOTAL_PAGE > 0) {
+				var templateId:String = null;
+				if (mth.selectedValue == 0) {
+					templateId = datagrid.selectedItem.globalConfigId.text();
+				}
+	            HttpServiceProxy.send(LocalDynaReportService.CSV_EXPORT, {CURRENT_PAGE : CURRENT_PAGE, MTH: mth.selectedValue, TEMPLATE_ID: templateId, SQL:txtContent.text}, null, function(event:ResultEvent):void
+				{
+					var xml:XML = new XML(event.result);
+					var url:String = xml.tag;
+					if (xml.result == "SUCCESS")
+					{
+						if (url.length == 0) {
+		            		Alert.show("暂时无法下载，请重新导出！", "动态报表分析器");
+		            		return;
+		            	}
+		            	Alert.yesLabel = "确认";
+						Alert.noLabel = "取消";
+					    Alert.show( "确定要下载吗？",
+									"消息", 
+									Alert.YES | Alert.NO,
+									adminApp,
+									function handleAlert(event:CloseEvent):void {
+									    if(event.detail == Alert.YES)
+									    {
+									        showDownloadDialog(url);
+									    }
+									},
+									null,
+									Alert.YES);
+					}
+					else
+					{
+						Alert.show("导出失败！", "动态报表分析器");
+					}
+				}, function(event:FaultEvent):void
+				{
+					Alert.show("导出失败！", "动态报表分析器");
+				});
+			} else {
+				Alert.show("还没有查询结果不能导出！", "动态报表分析器");
+			}
+		}
+				
 		protected function creationCompleteHandler():void {
 			// 状态初始化
 			initializeEachState("LIST");
 			readReportTemplate();
 			// 单选按钮
-			ListenerBinder.bind(radioTemplate, MouseEvent.CLICK, function():void {
-				txtContent.enabled = false;
-				txtContent.visible = false;
-				datagrid.visible = true;
-				barTemplate.visible = true;
-				readReportTemplate();
-			});
-			ListenerBinder.bind(radioInput, MouseEvent.CLICK, function():void {
-				txtContent.enabled = true;
-				txtContent.visible = true;
-				datagrid.visible = false;
-				barTemplate.visible = false;
-			});
+			ListenerBinder.bind(radioTemplate, MouseEvent.CLICK, rdoTemplateDynaReportClickHandler);
+			ListenerBinder.bind(radioInput, MouseEvent.CLICK, rdoInputDynaReportClickHandler);
 			// 返回按钮
 			ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void {
 				currentState="LIST";
@@ -108,88 +192,17 @@
 				currentState="LIST";
 			});
 			// 查询按钮 
-			ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
-					if (mth.selectedValue == 1 && txtContent.text == "") 
-					{
-						Alert.show("查询SQL不能为空！","动态报表分析器");
-						return;
-					}
-					if (mth.selectedValue == 0 && datagrid.selectedIndices.length == 0)
-					{
-						Alert.show("请选择报表模板！","动态报表分析器");
-						return;
-					}
-        			defaultSearch();
-        		});
+			ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchDynaReportClickHandler);
         	// 翻页
-			ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
-				{
-					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
-					{
-						return;
-					}
-					if (event.index == 0)
-					{
-						CURRENT_PAGE--;
-					}
-					else if (event.index == 1)
-					{
-						CURRENT_PAGE++;
-					}
-					defaultSearch();
-				});
+			ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 			// 模板翻页
-			ListenerBinder.bind(pageRollerTemplate, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
-				{
-					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
-					{
-						return;
-					}
-					if (event.index == 0)
-					{
-						CURRENT_PAGE--;
-					}
-					else if (event.index == 1)
-					{
-						CURRENT_PAGE++;
-					}
-					readReportTemplate();
-				});
+			ListenerBinder.bind(pageRollerTemplate, ItemClickEvent.ITEM_CLICK, pageChangeTemplateClickHandler);
 			// 导出
-			ListenerBinder.bind(btnCsvExport, MouseEvent.CLICK, function(event:MouseEvent):void 
-			{
-				if (TOTAL_PAGE > 0) {
-					var templateId:String = null;
-					if (mth.selectedValue == 0) {
-						templateId = datagrid.selectedItem.globalConfigId.text();
-					}
-		            HttpServiceProxy.send(LocalDynaReportService.CSV_EXPORT, {CURRENT_PAGE : CURRENT_PAGE, MTH: mth.selectedValue, TEMPLATE_ID: templateId, SQL:txtContent.text}, null, function(event:ResultEvent):void
-					{
-						if (new XML(event.result).result == "SUCCESS")
-						{
-							url = new XML(event.result).tag;
-							btnDownload.visible = true;
-						}
-						else
-						{
-							Alert.show("导出失败！", "动态报表分析器");
-						}
-					}, function(event:FaultEvent):void
-					{
-						Alert.show("导出失败！", "动态报表分析器");
-					});
-				} else {
-					Alert.show("还没有查询结果不能导出！", "动态报表分析器");
-				}
-			});
+			ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
 		}
 	]]>
 </mx:Script>
-	<net:FileReference id="fileReference"
-            complete="onEvent(event);"
-            cancel="onEvent(event);"
-            httpStatus="onEvent(event);"
-            ioError="onEvent(event);" />
+	<net:FileReference id="fileReference" />
 	<states>
 		<mx:State name="LIST">
 			<mx:AddChild position="lastChild">
@@ -234,10 +247,8 @@
 				<mx:HBox left="10"
 						 right="10"
 						 top="10">
-					<mx:Button id="btnCsvExport"
-							   label="导出"/>
 					<mx:Button id="btnDownload"
-				               label="下载" click="btn_click(event);" visible="false"/>
+				               label="下载"/>
 					<mx:Button label="返回"
 							   id="btnForward"/>
 				</mx:HBox>

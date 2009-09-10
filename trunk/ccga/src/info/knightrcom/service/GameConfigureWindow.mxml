@@ -66,13 +66,13 @@
 				}
 			}
 			
-			private function btnBackGameConfigClientHandler(event:MouseEvent):void {
+			private function btnBackGameConfigClickHandler(event:MouseEvent):void {
 				currentState="EDIT";
 				currentOperationMethod=OperationMethod.UPDATE;
 				readData();
 			}
 					
-			private function pageChangeClientHandler(event:ItemClickEvent):void {
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 				{
 					return;
@@ -88,7 +88,7 @@
 				readData();
 			}
 			
-			private function btnSubmitGameConfigClientHandler(event:MouseEvent):void {
+			private function btnSubmitGameConfigClickHandler(event:MouseEvent):void {
 				if (currentOperationMethod == OperationMethod.CREATE)
 				{
 					HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text, DISABLED: lobbyDisabledNew.text}, null, function(event:ResultEvent):void
@@ -110,14 +110,14 @@
 				readData();
 			}
 					
-			private function btnAddGameConfigClientHandler(event:MouseEvent):void {
+			private function btnAddGameConfigClickHandler(event:MouseEvent):void {
 				currentState="ADD";
 				currentOperationMethod=OperationMethod.CREATE;
 				clearEditor();
 				lobbyDisabledNew.text = "禁用";
 			}
 			
-			private function btnDisabledGameConfigClientHandler(event:MouseEvent):void
+			private function btnDisabledGameConfigClickHandler(event:MouseEvent):void
 			{
 				if (Validator.validateAll(this.gameConfigValidators).length > 0)
 				{
@@ -202,15 +202,15 @@
 				// 保存
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveGameConfigClickHandler);
 				// 新增
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddGameConfigClientHandler);
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddGameConfigClickHandler);
 				// 状态
-				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledGameConfigClientHandler);
+				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledGameConfigClickHandler);
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClientHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitGameConfigClientHandler);
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitGameConfigClickHandler);
 				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackGameConfigClientHandler);
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackGameConfigClickHandler);
 			}
 		]]>
 	</mx:Script>
