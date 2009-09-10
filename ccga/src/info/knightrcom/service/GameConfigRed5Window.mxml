@@ -69,7 +69,7 @@
 				}
 			}
 			
-			private function pageChangeClientHandler(event:ItemClickEvent):void {
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 				{
 					return;
@@ -86,13 +86,13 @@
 				readData(0);
 			}
 			
-			private function btnBackRed5ClientHandler(event:MouseEvent):void {
+			private function btnBackRed5ClickHandler(event:MouseEvent):void {
 				currentState="EDIT";
 				currentOperationMethod=OperationMethod.UPDATE;
 				readData(0);
 			}
 			
-			private function btnSubmitRed5ClientHandler(event:MouseEvent):void {
+			private function btnSubmitRed5ClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.red5AddValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -123,7 +123,7 @@
 				}
 			}
 					
-			private function btnDisabledRed5ClientHandler(event:MouseEvent):void {
+			private function btnDisabledRed5ClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.red5SaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -167,14 +167,14 @@
 						Alert.YES);
 			}
 			
-			private function btnAddRed5ClientHandler(event:MouseEvent):void {
+			private function btnAddRed5ClickHandler(event:MouseEvent):void {
 				currentState="ADD";
 				currentOperationMethod=OperationMethod.CREATE;
 				clearEditor();
 				gameDisabledNew.text = "禁用";
 			}
 			
-			private function btnSaveRed5ClientHandler(event:MouseEvent):void {
+			private function btnSaveRed5ClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.red5SaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -215,17 +215,17 @@
 				// param 0: red5
 				readData(0);
 				// 保存
-				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveRed5ClientHandler);
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveRed5ClickHandler);
 				// 新增
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddRed5ClientHandler);
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddRed5ClickHandler);
 				// 状态
-				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledRed5ClientHandler);
+				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledRed5ClickHandler);
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClientHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitRed5ClientHandler);
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitRed5ClickHandler);
 				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackRed5ClientHandler);
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackRed5ClickHandler);
 			}
 		]]>
 	</mx:Script>

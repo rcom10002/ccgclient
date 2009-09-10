@@ -23,7 +23,6 @@
 			import mx.controls.Button;
 			import info.knightrcom.util.ListenerBinder;
 			import mx.managers.PopUpManager;
-			import mx.events.CloseEvent;
 			import info.knightrcom.service.LocalGameFeedbackService;
 
 			public static var CURRENT_PROFILE_ID:String;
@@ -71,60 +70,66 @@
 					});
 			}
 			
+			private function btnSearchGameFeedbackClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE = 1;
+				defaultSearch();
+			}
+			
+			private function btnAuditGameFeedbackClickHandler(event:MouseEvent):void {
+				auditFeedBack();
+			}
+			
+			private function dataGridGameFeedbackClickHandler(event:ListEvent):void{
+				txtGameFeedbackId.text = event.itemRenderer.data.feedbackid;
+				txtGameId.text = event.itemRenderer.data.gameid;
+				txtHours.text = event.itemRenderer.data.hours;
+				txtName.text = event.itemRenderer.data.name;
+				txtTitle.text = event.itemRenderer.data.title;
+				txtGameType.text = event.itemRenderer.data.gametype;
+				txtCreateTime.text = event.itemRenderer.data.createtime;
+				txtDescription.text = event.itemRenderer.data.description;
+				var arr:* = cmbStatus.dataProvider;
+				for (var i:int=0; i < arr.length; i++) {
+					if (arr[i].data == event.itemRenderer.data.statusindex)
+					{
+						cmbStatus.selectedIndex = i;
+					}
+				}
+				
+				HttpServiceProxy.send(LocalGameFeedbackService.GET_JOIN_GAME_PLAYER_INFO, {GAME_ID : event.itemRenderer.data.gameid}, null, 
+					 function(event:ResultEvent):void
+							{
+								var e4xResult:XML=new XML(event.result);
+								if (e4xResult.result == "SUCCESS") {
+									var arr:Array = e4xResult.tag.text().split("~");
+									txtPlayerIds.text = arr[0];
+									txtPlayerCount.text = arr[1];
+								}
+							});
+			}
+				
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+					return;
+				}
+				if (event.index == 0) {
+					CURRENT_PAGE--;
+				} else if (event.index == 1) {
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+				
 			protected function creationCompleteHandler():void
 			{
 				// 事件绑定
-				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function (event:MouseEvent):void {
-					CURRENT_PAGE = 1;
-					defaultSearch();
-				});
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchGameFeedbackClickHandler);
 				// 开始日期为 当前日期 - 3天
 				dateFrom.selectedDate["date"] -= 2;
 				dateFrom.selectedDate = dateFrom.selectedDate;
-				
-				ListenerBinder.bind(btnAudit, MouseEvent.CLICK, function (event:MouseEvent):void {
-					auditFeedBack();
-				});
-				ListenerBinder.bind(datagird, ListEvent.ITEM_CLICK, function (event:ListEvent):void{
-					txtGameFeedbackId.text = event.itemRenderer.data.feedbackid;
-					txtGameId.text = event.itemRenderer.data.gameid;
-					txtHours.text = event.itemRenderer.data.hours;
-					txtName.text = event.itemRenderer.data.name;
-					txtTitle.text = event.itemRenderer.data.title;
-					txtGameType.text = event.itemRenderer.data.gametype;
-					txtCreateTime.text = event.itemRenderer.data.createtime;
-					txtDescription.text = event.itemRenderer.data.description;
-					var arr:* = cmbStatus.dataProvider;
-					for (var i:int=0; i < arr.length; i++) {
-						if (arr[i].data == event.itemRenderer.data.statusindex)
-						{
-							cmbStatus.selectedIndex = i;
-						}
-					}
-					
-					HttpServiceProxy.send(LocalGameFeedbackService.GET_JOIN_GAME_PLAYER_INFO, {GAME_ID : event.itemRenderer.data.gameid}, null, 
-						 function(event:ResultEvent):void
-    							{
-    								var e4xResult:XML=new XML(event.result);
-    								if (e4xResult.result == "SUCCESS") {
-    									var arr:Array = e4xResult.tag.text().split("~");
-    									txtPlayerIds.text = arr[0];
-    									txtPlayerCount.text = arr[1];
-    								}
-    							});
-				});
-				ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
-					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
-						return;
-					}
-					if (event.index == 0) {
-						CURRENT_PAGE--;
-					} else if (event.index == 1) {
-						CURRENT_PAGE++;
-					}
-					defaultSearch();
-				});
+				ListenerBinder.bind(btnAudit, MouseEvent.CLICK, btnAuditGameFeedbackClickHandler);
+				ListenerBinder.bind(datagird, ListEvent.ITEM_CLICK, dataGridGameFeedbackClickHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 			}
 		]]>
 	</mx:Script>

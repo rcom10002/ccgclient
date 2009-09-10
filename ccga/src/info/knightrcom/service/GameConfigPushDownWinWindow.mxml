@@ -68,7 +68,7 @@
 				}
 			}
 			
-			private function btnSavePushdownWinClientHandler(event:MouseEvent):void {
+			private function btnSavePushdownWinClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.pushdownWinSaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -101,14 +101,14 @@
 				currentOperationMethod=OperationMethod.UPDATE;
 			}
 			
-			private function btnAddPushdownWinClientHandler(event:MouseEvent):void {
+			private function btnAddPushdownWinClickHandler(event:MouseEvent):void {
 				currentState="ADD";
 				currentOperationMethod=OperationMethod.CREATE;
 				clearEditor();
 				gameDisabledNew.text = "禁用";
 			}
 			
-			private function btnDisabledPushdownWinClientHandler(event:MouseEvent):void {
+			private function btnDisabledPushdownWinClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.pushdownWinSaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -151,7 +151,7 @@
 						Alert.YES);
 			}
 			
-			private function pageChangeClientHandler(event:ItemClickEvent):void {
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 				{
 					return;
@@ -168,7 +168,7 @@
 				readData(3);
 			}
 			
-			private function btnSubmitPushdownWinClientHandler(event:MouseEvent):void {
+			private function btnSubmitPushdownWinClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.pushdownWinAddValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -198,7 +198,7 @@
 				}
 			}
 
-			private function btnBackPushdownWinClientHandler(event:MouseEvent):void {
+			private function btnBackPushdownWinClickHandler(event:MouseEvent):void {
 				currentState="EDIT";
 				currentOperationMethod=OperationMethod.UPDATE;
 				readData(3);
@@ -213,17 +213,17 @@
 				// param 3: PushDownWin
 				readData(3);
 				// 保存
-				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSavePushdownWinClientHandler);
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSavePushdownWinClickHandler);
 				// 新增
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddPushdownWinClientHandler);
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddPushdownWinClickHandler);
 				// 状态
-				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledPushdownWinClientHandler);
+				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledPushdownWinClickHandler);
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClientHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitPushdownWinClientHandler);
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitPushdownWinClickHandler);
 				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackPushdownWinClientHandler);
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackPushdownWinClickHandler);
 			}
 		]]>
 	</mx:Script>

@@ -70,7 +70,7 @@
 				}
 			}
 			
-			private function btnSaveFightLandlordClientHandler(event:MouseEvent):void {
+			private function btnSaveFightLandlordClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.fightLandlordSaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -104,14 +104,14 @@
 				currentOperationMethod=OperationMethod.UPDATE;
 			}
 			
-			private function btnAddFightLandlordClientHandler(event:MouseEvent):void {
+			private function btnAddFightLandlordClickHandler(event:MouseEvent):void {
 				currentState="ADD";
 				currentOperationMethod=OperationMethod.CREATE;
 				clearEditor();
 				gameDisabledNew.text = "禁用";
 			}
 			
-			private function btnDisabledFightLandlordClientHandler(event:MouseEvent):void {
+			private function btnDisabledFightLandlordClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.fightLandlordSaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -157,7 +157,7 @@
 				
 			}
 			
-			private function pageChangeClientHandler(event:ItemClickEvent):void {
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 				{
 					return;
@@ -174,7 +174,7 @@
 				readData(1);
 			}
 			
-			private function btnSubmitFightLandlordClientHandler(event:MouseEvent):void {
+			private function btnSubmitFightLandlordClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.fightLandlordAddValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -206,7 +206,7 @@
 				}
 			}
 			
-			private function btnBackFightLandlordClientHandler(event:MouseEvent):void {
+			private function btnBackFightLandlordClickHandler(event:MouseEvent):void {
 				currentState="EDIT";
 				currentOperationMethod=OperationMethod.UPDATE;
 				readData(1);
@@ -221,17 +221,17 @@
 				// param 1: FightLandlord
 				readData(1);
 				// 保存
-				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveFightLandlordClientHandler);
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveFightLandlordClickHandler);
 				// 新增
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddFightLandlordClientHandler);
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddFightLandlordClickHandler);
 				// 状态
-				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledFightLandlordClientHandler);
+				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledFightLandlordClickHandler);
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClientHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitFightLandlordClientHandler);
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitFightLandlordClickHandler);
 				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackFightLandlordClientHandler);
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackFightLandlordClickHandler);
 			}
 		]]>
 	</mx:Script>

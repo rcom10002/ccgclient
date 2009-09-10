@@ -16,7 +16,11 @@
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.service.LocalServerConfigureService;
 			import mx.events.ItemClickEvent;
+			import mx.validators.Validator;
+			import mx.events.CloseEvent;
 
+			public static var adminApp:Administration;
+			
 			public var currentOperationMethod:OperationMethod;
 			// 验证字母数字和下划线组合
 			private function validateInput(str:String):Boolean {
@@ -57,6 +61,141 @@
 					}
 				}
 			}
+			
+			private function btnCreateServerConfigureClickHandler(event:MouseEvent):void {
+				currentState="EDIT";
+				currentOperationMethod=OperationMethod.CREATE;
+				clearEditor();
+				variableName.enabled = true;
+			}
+			
+			private function btnUpdateServerConfigureClickHandler(event:MouseEvent):void {
+				if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要更新的数据！", "服务器参数管理");
+			        return;
+			    }
+				currentState="EDIT";
+				currentOperationMethod=OperationMethod.UPDATE;
+				variableName.enabled = false;
+				HttpServiceProxy.send(LocalServerConfigureService.READ_SERVER_CONFIGURE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+					{
+						setValue(event);
+					});
+			}
+			
+			private function btnDeleteServerConfigureClickHandler(event:MouseEvent):void {
+				currentOperationMethod=OperationMethod.DELETE;
+				if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要删除的数据！", "服务器参数设置");
+			        return;
+			    }
+			    Alert.yesLabel = "确认";
+				Alert.noLabel = "取消";
+			    Alert.show( "确定要删除？",
+						"消息", 
+						Alert.YES | Alert.NO,
+						adminApp,
+						function handleAlert(event:CloseEvent):void {
+						    if(event.detail == Alert.YES)
+						    {
+						    	HttpServiceProxy.send(LocalServerConfigureService.DELETE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+									{
+										if (new XML(event.result).result == "SUCCESS")
+										{
+											Alert.show("删除成功！", "服务器参数设置");
+											currentOperationMethod=OperationMethod.UPDATE;
+											readServerData();
+										}
+										else
+										{
+											Alert.show("删除失败！", "服务器参数设置");
+										}
+									}, function(event:FaultEvent):void
+									{
+										Alert.show("删除失败！", "服务器参数设置");
+									});
+						    }
+						},
+						null,
+						Alert.YES);
+			}
+			
+			private function pageChangeServerConfigureClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+				{
+					return;
+				}
+				if (event.index == 0)
+				{
+					CURRENT_PAGE--;
+				}
+				else if (event.index == 1)
+				{
+					CURRENT_PAGE++;
+				}
+				readServerData();
+			}
+			
+			private function btnSubmitServerConfigureClickHandler(event:MouseEvent):void {
+				if (Validator.validateAll(this.serverConfigureValidators).length > 0)
+				{
+					Alert.show("信息填写不符合规范！", "警告");
+					return;
+				}
+				if (!validateInput(variableName.text)) 
+				{
+					Alert.show("变量名格式错误(变量名应为字母或下划线)！","服务器参数管理");
+					return;
+				}
+				if (currentOperationMethod == OperationMethod.CREATE)
+				{
+					HttpServiceProxy.send(LocalServerConfigureService.CREATE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show("新增成功！", "服务器参数设置");
+								currentState="LIST";
+								currentOperationMethod=OperationMethod.UNKNOWN;
+								readServerData();
+							} 
+							else if (new XML(event.result).result == "WARNING")
+							{
+								Alert.show("变量名已存在！", "服务器参数设置");
+							}
+							else
+							{
+								Alert.show("新增失败！", "服务器参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("新增失败！", "服务器参数设置");
+						});
+				}
+				else if (currentOperationMethod == OperationMethod.UPDATE)
+				{
+					HttpServiceProxy.send(LocalServerConfigureService.UPDATE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show("保存成功！", "服务器参数设置");
+								currentOperationMethod=OperationMethod.UPDATE;
+							}
+							else
+							{
+								Alert.show("保存失败！", "服务器参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("保存失败！", "服务器参数设置");
+						});
+				}
+			}
+			
+			private function btnBackServerConfigureClickHandler(event:MouseEvent):void {
+				currentState="LIST";
+				currentOperationMethod=OperationMethod.UNKNOWN;
+				readServerData();
+			}
 
 			protected function creationCompleteHandler():void
 			{
@@ -68,138 +207,17 @@
 				currentOperationMethod=OperationMethod.UPDATE; // default
 				
 				// 新增
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
-					{
-						currentState="EDIT";
-						currentOperationMethod=OperationMethod.CREATE;
-						clearEditor();
-						variableName.enabled = true;
-					});
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnCreateServerConfigureClickHandler);
 				// 更新
-				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
-					{
-						if (datagrid.selectedIndices.length == 0) {
-					        Alert.show("请选择要更新的数据！", "服务器参数管理");
-					        return;
-					    }
-						currentState="EDIT";
-						currentOperationMethod=OperationMethod.UPDATE;
-						variableName.enabled = false;
-						HttpServiceProxy.send(LocalServerConfigureService.READ_SERVER_CONFIGURE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
-							{
-								setValue(event);
-							});
-					});	
+				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, btnUpdateServerConfigureClickHandler);	
 				// 删除
-				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
-					{
-						currentOperationMethod=OperationMethod.DELETE;
-						if (datagrid.selectedIndices.length == 0) {
-					        Alert.show("请选择要删除的数据！", "服务器参数设置");
-					        return;
-					    }
-						HttpServiceProxy.send(LocalServerConfigureService.DELETE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
-							{
-								if (new XML(event.result).result == "SUCCESS")
-								{
-									Alert.show("删除成功！", "服务器参数设置");
-									currentOperationMethod=OperationMethod.UPDATE;
-									readServerData();
-								}
-								else
-								{
-									Alert.show("删除失败！", "服务器参数设置");
-								}
-							}, function(event:FaultEvent):void
-							{
-								Alert.show("删除失败！", "服务器参数设置");
-							});
-					});
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, btnDeleteServerConfigureClickHandler);
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
-					{
-						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
-						{
-							return;
-						}
-						if (event.index == 0)
-						{
-							CURRENT_PAGE--;
-						}
-						else if (event.index == 1)
-						{
-							CURRENT_PAGE++;
-						}
-						readServerData();
-					});
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeServerConfigureClickHandler);
 				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
-					{
-						if (variableName.text == "") 
-						{
-							Alert.show("变量名不能为空！","服务器参数管理");
-							return;
-						}
-						if (!validateInput(variableName.text)) 
-						{
-							Alert.show("变量名格式错误(变量名应为字母或下划线)！","服务器参数管理");
-							return;
-						}
-						if (variableValue.text == "") 
-						{
-							Alert.show("变量值不能为空！","服务器参数管理");
-							return;
-						}
-						if (currentOperationMethod == OperationMethod.CREATE)
-						{
-							HttpServiceProxy.send(LocalServerConfigureService.CREATE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text}, null, function(event:ResultEvent):void
-								{
-									if (new XML(event.result).result == "SUCCESS")
-									{
-										Alert.show("新增成功！", "服务器参数设置");
-										currentState="LIST";
-										currentOperationMethod=OperationMethod.UNKNOWN;
-										readServerData();
-									} 
-									else if (new XML(event.result).result == "WARNING")
-									{
-										Alert.show("变量名已存在！", "服务器参数设置");
-									}
-									else
-									{
-										Alert.show("新增失败！", "服务器参数设置");
-									}
-								}, function(event:FaultEvent):void
-								{
-									Alert.show("新增失败！", "服务器参数设置");
-								});
-						}
-						else if (currentOperationMethod == OperationMethod.UPDATE)
-						{
-							HttpServiceProxy.send(LocalServerConfigureService.UPDATE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
-								{
-									if (new XML(event.result).result == "SUCCESS")
-									{
-										Alert.show("保存成功！", "服务器参数设置");
-										currentOperationMethod=OperationMethod.UPDATE;
-									}
-									else
-									{
-										Alert.show("保存失败！", "服务器参数设置");
-									}
-								}, function(event:FaultEvent):void
-								{
-									Alert.show("保存失败！", "服务器参数设置");
-								});
-						}
-					});
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitServerConfigureClickHandler);
 				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
-					{
-						currentState="LIST";
-						currentOperationMethod=OperationMethod.UNKNOWN;
-						readServerData();
-					});
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackServerConfigureClickHandler);
 			}
 		]]>
 	</mx:Script>
@@ -289,14 +307,20 @@
 		</mx:State>
 	</states>
 	<!-- 验证器 -->
-    <mx:Array id="loginValidators">
+    <mx:Array id="serverConfigureValidators">
 		<mx:StringValidator source="{variableName}"
                             required="true"
                             property="text"
+                            minLength="4" maxLength="20"  
+					    	tooShortError="变量名字数最少4个字符！"
+					    	tooLongError="变量名字数最多20个字符！"
                             requiredFieldError="变量名不能为空！"/>
         <mx:StringValidator source="{variableValue}"
                             required="true"
                             property="text"
+                            minLength="4" maxLength="20"  
+					    	tooShortError="变量值字数最少4个字符！"
+					    	tooLongError="变量值字数最多20个字符！"
                             requiredFieldError="变量值不能为空！"/>
     </mx:Array>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>

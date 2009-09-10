@@ -68,7 +68,7 @@
 				}
 			}
 
-			private function btnSaveQiongWinClientHandler(event:MouseEvent):void {
+			private function btnSaveQiongWinClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.qiongWinSaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -100,14 +100,14 @@
 				currentOperationMethod=OperationMethod.UPDATE;
 			}
 			
-			private function btnAddQiongWinClientHandler(event:MouseEvent):void {
+			private function btnAddQiongWinClickHandler(event:MouseEvent):void {
 				currentState="ADD";
 				currentOperationMethod=OperationMethod.CREATE;
 				clearEditor();
 				gameDisabledNew.text="禁用";
 			}
 			
-			private function btnDisabledQiongWinClientHandler(event:MouseEvent):void {
+			private function btnDisabledQiongWinClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.qiongWinSaveValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -150,7 +150,7 @@
 						Alert.YES);
 			}
 					
-			private function pageChangeClientHandler(event:ItemClickEvent):void {
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 				{
 					return;
@@ -167,7 +167,7 @@
 				readData(2);
 			}
 			
-			private function btnSubmitQiongWinClientHandler(event:MouseEvent):void {
+			private function btnSubmitQiongWinClickHandler(event:MouseEvent):void {
 				if (Validator.validateAll(this.qiongWinAddValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
@@ -197,7 +197,7 @@
 				}
 			}
 			
-			private function btnBackQiongWinClientHandler(event:MouseEvent):void {
+			private function btnBackQiongWinClickHandler(event:MouseEvent):void {
 				currentState="EDIT";
 				currentOperationMethod=OperationMethod.UPDATE;
 				readData(2);
@@ -212,17 +212,17 @@
 				// param 2: QiongWin
 				readData(2);
 				// 保存
-				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveQiongWinClientHandler);
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveQiongWinClickHandler);
 				// 新增
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddQiongWinClientHandler);
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnAddQiongWinClickHandler);
 				// 状态
-				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledQiongWinClientHandler);
+				ListenerBinder.bind(btnDisabled, MouseEvent.CLICK, btnDisabledQiongWinClickHandler);
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClientHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
 				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitQiongWinClientHandler);
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitQiongWinClickHandler);
 				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackQiongWinClientHandler);
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackQiongWinClickHandler);
 			}
 		]]>
 	</mx:Script>
