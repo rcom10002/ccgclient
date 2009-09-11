@@ -17,6 +17,10 @@
 
 			private function creationCompleteHandler():void
 			{
+				initializeEachState();
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler);
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_CHART, null, null, freshChartResultHandler, freshFaultHandler);
+
 				ListenerBinder.bind(btnUserTree, MouseEvent.CLICK, btnUserTreeClickHander);
 				ListenerBinder.bind(btnUserChart, MouseEvent.CLICK, btnUserChartClickHander);
 			}
