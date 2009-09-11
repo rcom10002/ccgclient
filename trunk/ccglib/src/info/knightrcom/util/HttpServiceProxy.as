@@ -60,42 +60,10 @@ package info.knightrcom.util
             service.url = localService.remoteServerURI;
             service.method = method;
             // 发送请求
+            CursorManager.removeAllCursors();
             CursorManager.setBusyCursor();
         	service.send(params);
         	trace(params);
         }
-//
-//        /**
-//         * 
-//         * @param localService
-//         * @param params
-//         * @param httpResultHandler
-//         * @param httpFaultHandler
-//         * @param method
-//         * 
-//         */
-//        public static function send(
-//        		localService:LocalAbstractService, 
-//        		params:Object = null, 
-//        		httpResultHandler:Function = null, 
-//        		httpFaultHandler:Function = null, 
-//        		method:String = "POST"):void {
-//    		var service:HTTPService = new HTTPService();
-//    		service.useProxy = false;
-//    		service.resultFormat = "e4x";
-//    		service.method = method;
-//        	// 配置内部参数
-//        	if (params == null) {
-//            	params = new Object();
-//         	}
-//         	if (localService.process != null) {
-//            	params.PROCESS = localService.process;
-//          	}
-//			// 配置HTTPService
-//            service.url = localService.remoteServerURI;
-//            // 发送请求
-//        	service.send(params);
-//        	trace(params);
-//        }
 	}
 }
