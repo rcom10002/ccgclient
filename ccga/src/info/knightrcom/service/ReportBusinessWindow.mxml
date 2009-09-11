@@ -149,10 +149,14 @@
 					isInitialized = true;
 	            }
 			}
+			
+			private function onEvent(evt:Event):void {
+	            Alert.show(evt.toString(), evt.type);
+	        }
 		]]>
 	</mx:Script>
 	
-	<net:FileReference id="fileReference"/>
+	<net:FileReference id="fileReference" ioError="onEvent(event);"/>
 	<states>
 		<mx:State name="LIST">
 	<!-- 查询条件 -->

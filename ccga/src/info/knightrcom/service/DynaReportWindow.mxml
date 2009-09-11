@@ -176,6 +176,10 @@
 				Alert.show("还没有查询结果不能导出！", "动态报表分析器");
 			}
 		}
+		
+		private function onEvent(evt:Event):void {
+            Alert.show(evt.toString(), evt.type);
+        }
 				
 		protected function creationCompleteHandler():void {
 			// 状态初始化
@@ -202,7 +206,7 @@
 		}
 	]]>
 </mx:Script>
-	<net:FileReference id="fileReference" />
+	<net:FileReference id="fileReference" ioError="onEvent(event);"/>
 	<states>
 		<mx:State name="LIST">
 			<mx:AddChild position="lastChild">
