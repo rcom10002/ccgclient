@@ -3,6 +3,8 @@
 	<mx:layout>absolute</mx:layout>
 	<mx:width>100%</mx:width>
 	<mx:height>100%</mx:height>
+	<mx:minWidth>480</mx:minWidth>
+	<mx:minHeight>360</mx:minHeight>
 	<mx:Script>
 		<![CDATA[
 			import mx.states.State;
