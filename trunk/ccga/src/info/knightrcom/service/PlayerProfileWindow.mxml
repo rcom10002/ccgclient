@@ -218,6 +218,11 @@
                                 playerLimit.text = playerCurrentScore.text;
                             }
                         });
+                        if (currentOperationMethod == OperationMethod.CREATE) {
+                        	playerCurrentScore.enabled = true;
+                        } else {
+                        	playerCurrentScore.enabled = false;
+                        }
                     });
 
                 // 初始化玩家关系路径
