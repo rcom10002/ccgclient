@@ -74,11 +74,6 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				displayIndex.text = numberFormatter.format(displayIndex.text);
-				pointMark.text = numberFormatter.format(pointMark.text);
-				roundMark.text = numberFormatter.format(roundMark.text);
-				minMarks.text = numberFormatter.format(minMarks.text);
-				
 				currentOperationMethod=OperationMethod.UPDATE;
 				if (currentOperationMethod == OperationMethod.UPDATE)
 				{
@@ -114,11 +109,6 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				displayIndex.text = numberFormatter.format(displayIndex.text);
-				pointMark.text = numberFormatter.format(pointMark.text);
-				roundMark.text = numberFormatter.format(roundMark.text);
-				minMarks.text = numberFormatter.format(minMarks.text);
-				
 				currentOperationMethod=OperationMethod.UPDATE;
 				Alert.yesLabel = "确认";
 				Alert.noLabel = "取消";
@@ -174,10 +164,6 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				pointMarkNew.text = numberFormatter.format(pointMarkNew.text);
-				roundMarkNew.text = numberFormatter.format(roundMarkNew.text);
-				minMarksNew.text = numberFormatter.format(minMarksNew.text);
-				
 				if (currentOperationMethod == OperationMethod.CREATE)
 				{
 					HttpServiceProxy.send(LocalGameConfigureService.CREATE_PUSHDOWN_WIN_ROOM_CONFIGURE, {GAME_TYPE: 3, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), POINT_MARK: Number(pointMarkNew.text), MIN_MARKS: Number(minMarksNew.text), DISABLED: (gameDisabledNew.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
@@ -354,38 +340,24 @@
                             requiredFieldError="游戏名不能为空！"/>
         <mx:NumberValidator source="{displayIndex}" 
 							property="text" 
-        					minValue="0" maxValue="100" domain="int"
+        					domain="int"
         					integerError="游戏房间位置必须是整数！"
         					invalidCharError="游戏房间位置必须是整数！"
-        					lowerThanMinError="游戏房间位置最小为0！"
-        					exceedsMaxError="游戏房间位置最大为100！"
 					    	requiredFieldError="游戏房间位置不能为空！"/>  
         <mx:NumberValidator source="{roundMark}"
                             required="true"
                             property="text"
-                            minValue="0" maxValue="100" domain="int"
-        					integerError="底分必须是整数！"
-        					invalidCharError="底分必须是整数！"
-        					lowerThanMinError="底分最小为0！"
-        					exceedsMaxError="底分最大为100！"
+        					invalidCharError="底分必须是数字！"
                             requiredFieldError="底分不能为空！"/>
 		<mx:NumberValidator source="{pointMark}"
                             required="true"
                             property="text"
-                            minValue="0" maxValue="100" domain="int"
-        					integerError="番分必须是整数！"
-        					invalidCharError="番分必须是整数！"
-        					lowerThanMinError="番分最小为0！"
-        					exceedsMaxError="番分最大为100！"
+        					invalidCharError="番分必须是数字！"
                             requiredFieldError="番分不能为空！"/>
 		<mx:NumberValidator source="{minMarks}"
                             required="true"
                             property="text"
-                            minValue="0" maxValue="100" domain="int"
-        					integerError="最少底分必须是整数！"
-        					invalidCharError="最少底分必须是整数！"
-        					lowerThanMinError="最少底分最小为0！"
-        					exceedsMaxError="最少底分最大为100！"
+        					invalidCharError="最少底分必须是数字！"
                             requiredFieldError="最少底分不能为空！"/>
 	</mx:Array>
 	<mx:Array id="pushdownWinAddValidators">
@@ -406,33 +378,19 @@
         <mx:NumberValidator source="{roundMarkNew}"
                             required="true"
                             property="text"
-                            minValue="0" maxValue="100" domain="int"
-        					integerError="底分必须是整数！"
-        					invalidCharError="底分必须是整数！"
-        					lowerThanMinError="底分最小为0！"
-        					exceedsMaxError="底分最大为100！"
+        					invalidCharError="底分必须是数字！"
                             requiredFieldError="底分不能为空！"/>
 		<mx:NumberValidator source="{pointMarkNew}"
                             required="true"
                             property="text"
-                            minValue="0" maxValue="100" domain="int"
-        					integerError="番分必须是整数！"
-        					invalidCharError="番分必须是整数！"
-        					lowerThanMinError="番分最小为0！"
-        					exceedsMaxError="番分最大为100！"
+        					invalidCharError="番分必须是数字！"
                             requiredFieldError="番分不能为空！"/>
 		<mx:NumberValidator source="{minMarksNew}"
                             required="true"
                             property="text"
-                            minValue="0" maxValue="100" domain="int"
-        					integerError="最少底分必须是整数！"
-        					invalidCharError="最少底分必须是整数！"
-        					lowerThanMinError="最少底分最小为0！"
-        					exceedsMaxError="最少底分最大为100！"
+        					invalidCharError="最少底分必须是数字！"
                             requiredFieldError="最少底分不能为空！"/>
     </mx:Array>
-    <mx:NumberFormatter id="numberFormatter" precision="0" 
-        useThousandsSeparator="true" useNegativeSign="true"/>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
 </FunctionWindow>

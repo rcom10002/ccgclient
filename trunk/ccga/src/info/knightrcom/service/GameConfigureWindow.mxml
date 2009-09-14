@@ -124,7 +124,6 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				lobbyDisplayIndex.text = numberFormatter.format(lobbyDisplayIndex.text);
 				Alert.yesLabel = "确认";
 				Alert.noLabel = "取消";
 			    Alert.show( "确定要" + btnDisabled.label + "？",
@@ -166,7 +165,6 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				lobbyDisplayIndex.text = numberFormatter.format(lobbyDisplayIndex.text);
 				if (currentOperationMethod == OperationMethod.UPDATE)
 				{
 					HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (lobbyDisabled.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
@@ -330,15 +328,11 @@
 					    	trigger="{btnSave}" triggerEvent="click"/>
 		<mx:NumberValidator id="lobbyDisplayIndexValidator" source="{lobbyDisplayIndex}" 
 							property="text" 
-        					minValue="0" maxValue="100" domain="int"
+        					domain="int"
         					integerError="游戏大厅位置必须是整数！"
         					invalidCharError="游戏大厅位置必须是整数！"
-        					lowerThanMinError="游戏大厅位置最小为0！"
-        					exceedsMaxError="游戏大厅位置最大为100！"
 					    	requiredFieldError="游戏大厅位置不能为空！"/>
     </mx:Array>
-    <mx:NumberFormatter id="numberFormatter" precision="0" 
-        useThousandsSeparator="true" useNegativeSign="true"/>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
 	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
 </FunctionWindow>
