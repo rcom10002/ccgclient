@@ -40,10 +40,10 @@
     				Alert.show("查询开始日期不能晚于结束日期！", "消息");
     				return;
     			}
-    			if (day > searchPeriod * 7 - 1) {
-    				Alert.show("查询期间限制在" + searchPeriod + "个星期内！", "消息");
-    				return;
-    			}
+//    			if (day > searchPeriod * 7 - 1) {
+//    				Alert.show("查询期间限制在" + searchPeriod + "个星期内！", "消息");
+//    				return;
+//    			}
     			
 				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
@@ -52,23 +52,23 @@
 			{
 				dateFrom.selectedDate = new Date();
 				dateTo.selectedDate = new Date();
-				HttpServiceProxy.send(LocalReportScoreService.GET_SEARCH_PERIOD, null, null, function (event:ResultEvent) :void 
-					{
-						var rst:XML = new XML(event.result);
-						if (rst.result == "SUCCESS")
-						{
-							searchPeriod = rst.tag;
-							dateFrom.selectedDate["date"] -= rst.tag * 7 - 1;
-							dateFrom.selectedDate = dateFrom.selectedDate;
-						} 
-						else 
-						{
-							Alert.show("获取查询期间失败！", "警告");
-						}
-					}, function(event:FaultEvent):void
-					{
-						Alert.show("获取查询期间失败！", "警告");
-					});
+//				HttpServiceProxy.send(LocalReportScoreService.GET_SEARCH_PERIOD, null, null, function (event:ResultEvent) :void 
+//					{
+//						var rst:XML = new XML(event.result);
+//						if (rst.result == "SUCCESS")
+//						{
+//							searchPeriod = rst.tag;
+//							dateFrom.selectedDate["date"] -= rst.tag * 7 - 1;
+//							dateFrom.selectedDate = dateFrom.selectedDate;
+//						} 
+//						else 
+//						{
+//							Alert.show("获取查询期间失败！", "警告");
+//						}
+//					}, function(event:FaultEvent):void
+//					{
+//						Alert.show("获取查询期间失败！", "警告");
+//					});
 			}
 
             private function btnSearchReportScoreClickHandler(event:MouseEvent):void {
@@ -101,39 +101,52 @@
 				if (TOTAL_PAGE > 0) {
 					var dateFormatter:DateFormatter=new DateFormatter();
 					dateFormatter.formatString="YYYYMMDD";
-					HttpServiceProxy.send(LocalReportScoreService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
-					{
-						var xml:XML = new XML(event.result);
-						var url:String = xml.tag;
-						if (xml.result == "SUCCESS")
-						{
-							if (url.length == 0) {
-			            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
-			            		return;
-			            	}
-			            	Alert.yesLabel = "确认";
-							Alert.noLabel = "取消";
-						    Alert.show( "确定要下载吗？",
-										"消息", 
-										Alert.YES | Alert.NO,
-										adminApp,
-										function handleAlert(event:CloseEvent):void {
-										    if(event.detail == Alert.YES)
-										    {
-										        showDownloadDialog(url);
-										    }
-										},
-										null,
-										Alert.YES);
-						}
-						else
-						{
-							Alert.show("导出失败！", "积分结算报表");
-						}
-					}, function(event:FaultEvent):void
-					{
-						Alert.show("导出失败！", "积分结算报表");
-					});
+					Alert.yesLabel = "确认";
+					Alert.noLabel = "取消";
+				    Alert.show( "确定要下载" + dateFormatter.format(dateFrom.selectedDate) + "-" + dateFormatter.format(dateTo.selectedDate) + "时间段的数据吗？",
+								"消息", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+								    if(event.detail == Alert.YES)
+								    {
+										HttpServiceProxy.send(LocalReportScoreService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+										{
+											var xml:XML = new XML(event.result);
+											var url:String = xml.tag;
+											if (xml.result == "SUCCESS")
+											{
+												if (url.length == 0) {
+								            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
+								            		return;
+								            	}
+								            	Alert.yesLabel = "确认";
+												Alert.noLabel = "取消";
+											    Alert.show( "确定要下载吗？",
+															"消息", 
+															Alert.YES | Alert.NO,
+															adminApp,
+															function handleAlert(event:CloseEvent):void {
+															    if(event.detail == Alert.YES)
+															    {
+															        showDownloadDialog(url);
+															    }
+															},
+															null,
+															Alert.YES);
+											}
+											else
+											{
+												Alert.show("导出失败！", "积分结算报表");
+											}
+										}, function(event:FaultEvent):void
+										{
+											Alert.show("导出失败！", "积分结算报表");
+										});
+									}
+								},
+							null,
+							Alert.YES);
 				} else {
 					Alert.show("还没有查询结果不能导出！", "积分结算报表");
 				}
