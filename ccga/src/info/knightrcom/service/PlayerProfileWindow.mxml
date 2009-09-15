@@ -31,7 +31,14 @@
 
 			protected function defaultSearch():void
 			{
-				HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_PROFILE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				HttpServiceProxy.send(
+						LocalPlayerProfileService.RETRIEVE_PLAYER_PROFILE, 
+						{CURRENT_PAGE : CURRENT_PAGE,
+						 ROLE : role.selectedIndex == 0 ? null : role.value,
+						 USER_ID : userId.text.length == 0 ? null : userId.text,
+						 CURRENT_USER_ID : Application.application.currentRole == "GroupUser" ? Application.application.currentUserId : null 
+						}, 
+						infoService);
 			}
 
 			protected function clearEditor():void
@@ -112,8 +119,11 @@
     								var e4xResult:XML=new XML(event.result);
     								playerProfileId.text=e4xResult.entity.profileId.text();
     								playerUserId.text=e4xResult.entity.userId.text();
-    								playerPassword.text=e4xResult.entity.password.text();
-    								playerPasswordConfirm.text=e4xResult.entity.password.text();
+    								// FIXME DROP THE FOLLOWING LINES
+    								// playerPassword.text=e4xResult.entity.password.text();
+    								// playerPasswordConfirm.text=e4xResult.entity.password.text();
+    								playerPassword.text="******";
+    								playerPasswordConfirm.text="******";
     								trace(e4xResult.entity.profileId.text());
     							}
 						);
@@ -337,11 +347,17 @@
 						 right="10"
 						 top="10">
 					<mx:Label text="用户ID"/>
-					<mx:TextInput/>
-					<mx:Label text="用户组"/>
-					<mx:TextInput/>
-					<mx:Label text="用户额度"/>
-					<mx:TextInput/>
+					<mx:TextInput id="userId"/>
+					<mx:Label text="角色"/>
+					<mx:ComboBox id="role">
+						<mx:dataProvider>
+			                <mx:Array>
+			                    <mx:Object label="全部" />
+			                    <mx:Object label="组用户" data="GroupUser" />
+			                    <mx:Object label="普通组用户" data="User" />
+			                </mx:Array>
+			            </mx:dataProvider>
+					</mx:ComboBox>
 					<mx:Button id="btnSearch"
 							   label="查询"/>
 				</mx:HBox>
