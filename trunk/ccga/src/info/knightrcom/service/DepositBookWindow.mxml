@@ -3,26 +3,27 @@
 				xmlns="info.knightrcom.service.*"
 				width="100%"
 				height="100%"
-				creationComplete="" title="用户充值" currentState="EDIT">
+				title="用户充值"
+				currentState="EDIT">
 	<states>
 		<mx:State name="EDIT">
 			<mx:AddChild>
 				<mx:Canvas left="0" top="0" right="0" bottom="0">
 					<mx:Label text="玩家ID：" width="60" left="10" top="10"/>
 					<mx:ComboBox left="78" top="8"></mx:ComboBox>
-					<mx:Label text="关系路径：" width="60" left="10" top="36"/>
+					<mx:Label text="关系路径：" width="70" left="10" top="36"/>
 					<mx:Label text="Label" left="78" top="36"/>
-					<mx:Label text="玩家当前积分：" width="80" left="10" top="62"/>
+					<mx:Label text="玩家当前积分：" width="90" left="10" top="62"/>
 					<mx:TextInput left="98" top="60" width="80"/>
-					<mx:Label text="我的当前积分：" width="80" left="10" top="88"/>
+					<mx:Label text="我的当前积分：" width="90" left="10" top="88"/>
 					<mx:TextInput left="98" top="86" width="80"/>
-					<mx:Label text="充值积分：" width="60" left="186" top="62"/>
+					<mx:Label text="充值积分：" width="70" left="186" top="62"/>
 					<mx:TextInput left="254" top="60" width="80"/>
-					<mx:Label text="充值积分：" width="60" left="185" top="88"/>
+					<mx:Label text="充值积分：" width="70" left="185" top="88"/>
 					<mx:TextInput left="253" top="86" width="80"/>
-					<mx:Label text="充值后积分：" width="65" left="342" top="62"/>
+					<mx:Label text="充值后积分：" width="80" left="342" top="62"/>
 					<mx:TextInput left="415" top="60" width="80"/>
-					<mx:Label text="充值后积分：" width="65" left="342" top="88"/>
+					<mx:Label text="充值后积分：" width="80" left="342" top="88"/>
 					<mx:TextInput left="415" top="86" width="80"/>
 					<!-- 只显示从当前日期开始，向前推40天的数据，不需要分页 -->
 					<mx:Label text="历史充值记录" left="10" top="114"/>

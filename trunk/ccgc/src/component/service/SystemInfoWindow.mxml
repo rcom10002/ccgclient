@@ -43,10 +43,16 @@
 
 			private function btnFeedbackClickHandler(event:MouseEvent):void
 			{
-				feedbackWindow.visible=true;
-				PopUpManager.removePopUp(feedbackWindow);
-				PopUpManager.addPopUp(feedbackWindow, this, true);
-				PopUpManager.centerPopUp(feedbackWindow);
+			    try {
+    				feedbackWindow.visible=true;
+    				// mx.managers::PopUpManagerImpl 可能有bug，删除不存在的对象时会引起空指针错误
+    				// mx.managers::PopUpManagerImpl/findPopupInfoByOwner()[C:\autobuild\3.x\frameworks\projects\framework\src\mx\managers\PopUpManagerImpl.as:1091]
+    				PopUpManager.removePopUp(feedbackWindow);
+    				PopUpManager.addPopUp(feedbackWindow, this, true);
+    				PopUpManager.centerPopUp(feedbackWindow);
+			    }
+			    catch (e:*) {
+			    }
 			}
 
 			private function btnRefreshClickHandler(event:MouseEvent):void
@@ -226,15 +232,15 @@
 				 paddingBottom="0"
 				 paddingLeft="0">
 			<mx:FormItem label="游戏ID" required="true" width="100%" direction="horizontal">
-				<mx:TextInput id="feedbackGameId" width="100%" maxChars="100"/>
+				<mx:TextInput id="feedbackGameId" width="100%"/>
 				<mx:Label width="50" textAlign="right" text="{feedbackGameId.text.length + '/100'}"/>
 			</mx:FormItem>
 			<mx:FormItem label="标题" required="true" width="100%" direction="horizontal">
-				<mx:TextInput id="feedbackTitle" width="100%" maxChars="20"/>
-				<mx:Label width="50" textAlign="right" text="{feedbackTitle.text.length + '/20'}"/>
+				<mx:TextInput id="feedbackTitle" width="100%"/>
+				<mx:Label width="50" textAlign="right" text="{feedbackTitle.text.length + '/50'}"/>
 			</mx:FormItem>
 			<mx:FormItem label="描述" required="true" width="100%" direction="horizontal">
-				<mx:TextArea id="feedbackDesc" width="100%" height="80" maxChars="200"/>
+				<mx:TextArea id="feedbackDesc" width="100%" height="80"/>
 				<mx:Label width="50" textAlign="right" text="{feedbackDesc.text.length + '/200'}"/>
 			</mx:FormItem>
 		</mx:Form>
@@ -266,14 +272,18 @@
 		<mx:StringValidator source="{feedbackTitle}"
 							required="true"
 							property="text"
-							minLength="6"
-							maxLength="24"
-							requiredFieldError="标题不能为空，字数必须在6-20之间！"/>
+							minLength="1"
+							maxLength="50"
+							tooShortError="标题不能为空，字数必须在1-50之间！"
+							tooLongError="标题不能为空，字数必须在1-50之间！"
+							requiredFieldError="标题不能为空，字数必须在1-50之间！"/>
 		<mx:StringValidator source="{feedbackDesc}"
 							required="true"
 							property="text"
 							minLength="20"
 							maxLength="100"
+							tooShortError="请认真填写举报内容，字数必须在20-200之间！"
+							tooLongError="请认真填写举报内容，字数必须在20-200之间！"
 							requiredFieldError="请认真填写举报内容，字数必须在20-200之间！"/>
 	</mx:Array>
 </AbstractInfoWindow>

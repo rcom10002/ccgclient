@@ -4,6 +4,8 @@
 				creationComplete="creationCompleteHandler();">
 	<mx:Script>
 		<![CDATA[
+	        import mx.collections.ArrayCollection;
+	        import mx.utils.ArrayUtil;
 	        import mx.validators.Validator;
 	        import mx.events.StateChangeEvent;
 	        import mx.binding.utils.ChangeWatcher;
@@ -66,6 +68,7 @@
 					{
 						throw Error("无法为当前控件进行初始化");
 					}
+					control["enabled"] = true;
 				}
 			}
 
@@ -124,7 +127,27 @@
     								// playerPasswordConfirm.text=e4xResult.entity.password.text();
     								playerPassword.text="******";
     								playerPasswordConfirm.text="******";
-    								trace(e4xResult.entity.profileId.text());
+    								var dataProvider:ArrayCollection = ArrayCollection(playerRlsPath.dataProvider);
+    								for (var i:int = 0; i < dataProvider.length; i++) {
+    								    if (e4xResult.entity.rlsPath == dataProvider.getItemAt(i).data) {
+    								        playerRlsPath.selectedIndex = i;
+    								        break;
+    								    }
+    								}
+    								playerCurrentScore.text = e4xResult.entity.currentScore;
+    								playerLimit.text = e4xResult.entity.initLimit;
+    								dataProvider = ArrayCollection(playerRole.dataProvider);
+    								for (i = 0; playerRole != null && i < dataProvider.length; i++) {
+    								    if (e4xResult.entity.role == dataProvider.getItemAt(i).data) {
+    								        playerRole.selectedIndex = i;
+    								        break;
+    								    }
+    								}
+    								if (e4xResult.entity.status == "1") {
+    								    disableGroup.getRadioButtonAt(0).selected = true;
+    								} else {
+    								    disableGroup.getRadioButtonAt(1).selected = true;
+    								}
     							}
 						);
 					});
@@ -280,6 +303,10 @@
 		            }
 			    );
 			}
+
+			private function statusLabelFunction(item:Object, column:DataGridColumn):String {
+                return item.status == "0" ? "禁用" : "启用";
+            }
 		]]>
 	</mx:Script>
 	<states>
@@ -321,8 +348,8 @@
 					</mx:FormItem>
 					<mx:FormItem label="状态">
     					<mx:RadioButtonGroup id="disableGroup"/>
-    					<mx:RadioButton label="启用" value="true" group="{disableGroup}"/>
-    					<mx:RadioButton label="禁用" value="false" group="{disableGroup}"/>
+    					<mx:RadioButton label="启用" value="1" group="{disableGroup}"/>
+    					<mx:RadioButton label="禁用" value="0" group="{disableGroup}"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
@@ -389,11 +416,13 @@
 						<mx:DataGridColumn headerText="用户ID"
 										   dataField="userId"/>
 						<mx:DataGridColumn headerText="所属用户组"
-										   dataField=""/>
+										   dataField="rlsPath"/>
 						<mx:DataGridColumn headerText="用户额度"
-										   dataField=""/>
+										   dataField="currentScore"/>
 						<mx:DataGridColumn headerText="角色"
 										   dataField="role"/>
+						<mx:DataGridColumn headerText="当前状态"
+										   dataField="status" labelFunction="statusLabelFunction"/>
 						<mx:DataGridColumn headerText="创建日期"
 										   dataField="createTime"/>
 						<mx:DataGridColumn headerText="创建人"

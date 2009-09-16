@@ -87,7 +87,7 @@ package info.knightrcom.state {
 		 */
 		// private static const MAX_CARDS_SELECT_TIME:int = 15;
 		// 测试用时间为10分钟
-		private static const MAX_CARDS_SELECT_TIME:int = 15;// * 60;
+		private static const MAX_CARDS_SELECT_TIME:int = 15 * 60;
 
         /**
          * 待发牌区域

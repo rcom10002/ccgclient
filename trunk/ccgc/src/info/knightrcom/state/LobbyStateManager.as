@@ -137,9 +137,11 @@ package info.knightrcom.state {
                 room.name = rooms[index].name.toString();
                 room.data = rooms[index].displayIndex.toString();
                 room.modelCategory = rooms[index].modelCategory.toString();
-                var currentRoomParentId:String = rooms[index].parentId.toString();
-                room.parentId = currentRoomParentId;
-                lobby = platform.childContainer[currentRoomParentId];
+                room.parentId = rooms[index].parentId.toString();
+                lobby = platform.childContainer[room.parentId];
+                if (!lobby) {
+                    continue;
+                }
                 room.parent = lobby;
                 lobby.childContainer[room.id] = room;
             }

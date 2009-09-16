@@ -33,13 +33,6 @@
 				HttpServiceProxy.send(LocalSystemLogService.SYSTEM_INFO, {CAPTION:caption.text,FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.value, CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 			
-			private function datagridClickHandler(event:ListEvent):void{
-				txtCaption.text = event.itemRenderer.data.caption;
-				txtType.text = event.itemRenderer.data.type;
-				txtCreateTime.text = event.itemRenderer.data.createtime;
-				txtInfo.text = event.itemRenderer.data.info;
-			}
-			
 			private function pageChangeSystemLogClickHandler(event:ItemClickEvent):void {
 				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
 					return;
@@ -61,7 +54,6 @@
 			{
 				// 事件绑定
 				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchSystemLogClickHandler);
-				ListenerBinder.bind(datagird, ListEvent.ITEM_CLICK, datagridClickHandler);
 				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeSystemLogClickHandler);
 			}
 		]]>
@@ -69,13 +61,14 @@
 	<!-- 查询条件 -->
     <mx:HBox horizontalGap="4" top="10" left="10" right="10">
 		<mx:Label text="日志类型"/>
-		<mx:ComboBox id="sc">
+		<mx:ComboBox id="sc" selectedIndex="1">
 			<mx:dataProvider>
                 <mx:Array>
                     <mx:Object label="全部" data="" />
-                    <mx:Object label="系统错误" data="SYSTEM_ERROR" />
-                    <mx:Object label="客户端错误" data="CLIENT_ERROR" />
                     <mx:Object label="系统日志" data="SYSTEM_LOG" />
+                    <mx:Object label="应用服务器错误日志" data="SYSTEM_ERROR" />
+                    <mx:Object label="Web服务器错误日志" data="WEB_ERROR" />
+                    <mx:Object label="客户端错误日志" data="CLIENT_ERROR" />
                 </mx:Array>
             </mx:dataProvider>
 		</mx:ComboBox>
@@ -104,16 +97,15 @@
 	</mx:DataGrid>
 	<mx:HRule height="6" bottom="100" left="10" right="10"/>
 	<mx:Label text="标题：" bottom="72" left="10"/>
-	<mx:TextInput left="53" bottom="70" id="txtCaption" enabled="false"/>
+	<mx:TextInput left="53" bottom="70" id="txtCaption" editable="false" width="200" text="{datagird.selectedItem.caption}"/>
 	<mx:Label text="类型：" bottom="42" left="10"/>
-	<mx:TextInput left="53" bottom="40" id="txtType" enabled="false"/>
+	<mx:TextInput left="53" bottom="40" id="txtType" editable="false" width="200" text="{datagird.selectedItem.type}"/>
 	<mx:Label text="日期：" bottom="10" left="10"/>
-	<mx:TextInput left="53" bottom="10" id="txtCreateTime" enabled="false"/>
-	<mx:TextArea
-				 right="10"
+	<mx:TextInput left="53" bottom="10" id="txtCreateTime" editable="false" width="200" text="{datagird.selectedItem.createtime}"/>
+	<mx:TextArea right="10"
 				 bottom="10"
 				 height="82"
-				 left="221" id="txtInfo" enabled="false"/>
+				 left="262" id="txtInfo" editable="false" text="{datagird.selectedItem.info}"/>
 	<!-- 查询导航 -->
     <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
         <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
