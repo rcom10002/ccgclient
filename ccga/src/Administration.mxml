@@ -108,13 +108,14 @@
 							  top="0"
 							  id="applicationControlBar"
 							  horizontalAlign="center">
-		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.6)"/>
+		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.8)"/>
 	</mx:ApplicationControlBar>
     <!-- 高级用户界面菜单配置 -->
 	<mx:XML id="GroupUserMenuXML">
 		<root label="nodegraphs">
 			<node label="用户管理">
 				<node label="普通用户管理"/>
+				<node label="积分充值"/>
 			</node>
 			<node label="报表管理">
 				<node label="业务分析报表"/>
@@ -153,6 +154,7 @@
 			<node label="用户管理">
 				<node label="普通用户管理"/>
 				<node label="用户关系浏览"/>
+				<node label="积分充值"/>
 			</node>
 			<node label="系统管理">
 				<node label="即时消息发布"/>
@@ -177,6 +179,7 @@
 			<node label="用户管理">
 				<node label="普通用户管理"/>
 				<node label="用户关系浏览"/>
+				<node label="积分充值"/>
 			</node>
 			<node label="系统管理">
 				<node label="即时消息发布"/>

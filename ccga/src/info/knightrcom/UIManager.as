@@ -84,14 +84,14 @@ package info.knightrcom
 			var label:String=item.@label;
 			switch (label)
 			{
-				case "组用户管理":
-					adminApp.functionWindowArea.currentState="GROUP_USER_EDIT";
-					break;
 				case "普通用户管理":
 					adminApp.functionWindowArea.currentState="SOLO_USER_EDIT";
 					break;
 				case "用户关系浏览":
 					adminApp.functionWindowArea.currentState="USER_RELATIONSHIP_VIEW";
+					break;
+				case "积分充值":
+					adminApp.functionWindowArea.currentState="RECHARGE_VIEW";
 					break;
 				case "启动游戏服务器":
 					Alert.yesLabel = "确认";
