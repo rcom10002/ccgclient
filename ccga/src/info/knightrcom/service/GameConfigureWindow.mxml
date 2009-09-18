@@ -321,8 +321,8 @@
         <mx:StringValidator id="lobbyNameValidator" source="{lobbyName}"
         					property="text" 
         					required="true"
-					    	minLength="4" maxLength="20"  
-					    	tooShortError="游戏大厅名字数最少4个字符！"
+					    	minLength="1" maxLength="20"  
+					    	tooShortError="游戏大厅名字数最少1个字符！"
 					    	tooLongError="游戏大厅名字数最多20个字符！"
 					    	requiredFieldError="游戏大厅名不能为空！"
 					    	trigger="{btnSave}" triggerEvent="click"/>
