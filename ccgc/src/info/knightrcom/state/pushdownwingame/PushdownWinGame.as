@@ -199,7 +199,7 @@ package info.knightrcom.state.pushdownwingame {
             		continue;
             	}
             	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
-            	if (currentMahjongs.indexOf(dealedMahjong + "," + dealedMahjong + "," + dealedMahjong) > -1) {
+            	if (sortMahjongs(currentMahjongs).join(",").indexOf(dealedMahjong + "," + dealedMahjong + "," + dealedMahjong) > -1) {
             		return index + OPTR_KONG * 10;
             	}
             }
@@ -222,7 +222,7 @@ package info.knightrcom.state.pushdownwingame {
             		continue;
             	}
             	var currentMahjongs:String = (mahjongOfPlayers[index] as Array).join(",");
-            	if (currentMahjongs.indexOf(dealedMahjong + "," + dealedMahjong) > -1) {
+            	if (sortMahjongs(currentMahjongs).join(",").indexOf(dealedMahjong + "," + dealedMahjong) > -1) {
             		return index + OPTR_KONG * 20;
             	}
             }
