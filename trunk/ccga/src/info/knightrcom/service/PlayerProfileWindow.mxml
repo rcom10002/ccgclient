@@ -462,10 +462,14 @@
         <mx:StringValidator source="{playerPassword}"
                             required="true"
                             property="text"
+                            tooShortError="密码最小长度为6！"
+                            tooLongError="密码最大长度为16！"
                             requiredFieldError="密码不能为空！"/>
         <mx:StringValidator source="{playerPasswordConfirm}"
                             required="true"
                             property="text"
+                            tooShortError="密码最小长度为6！"
+                            tooLongError="密码最大长度为16！"
                             requiredFieldError="密码确认不能为空！"/>
         <mx:StringValidator source="{playerCurrentScore}"
                             required="true"
