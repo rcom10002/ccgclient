@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="玩家信息">
+<AbstractInfoWindow 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns="component.service.*" 
+		title="玩家信息" 
+		currentState="PLAYER_PROFILE">
 	<mx:Script>
 		<![CDATA[
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
 			import mx.events.ListEvent;
 			import info.knightrcom.service.LocalPlayerInfoService;
 			import mx.events.ItemClickEvent;
@@ -59,7 +65,7 @@
             	}
             	defaultSearch();
             });
-            ListenerBinder.bind(datagrid1, ListEvent.ITEM_CLICK, function (event:ListEvent):void{
+            ListenerBinder.bind(historyRecordDatagrid, ListEvent.ITEM_CLICK, function (event:ListEvent):void{
 				txtGameId.text = event.itemRenderer.data.gameId;
 			});
 			ListenerBinder.bind(btnClipboard, MouseEvent.CLICK, function (event:MouseEvent):void {
@@ -69,6 +75,26 @@
 				}
     			System.setClipboard(txtGameId.text); 
     			Alert.show("已成功复制游戏ID到剪切板！", "消息");
+    		});
+    		ListenerBinder.bind(btnChangePasswd, MouseEvent.CLICK, function (event:MouseEvent):void {
+    			if (btnChangePasswd.label == "修改密码") {
+    			} else if (btnChangePasswd.label == "修改密码") {
+    			}
+    			HttpServiceProxy.send(
+    					LocalPlayerInfoService.CHANGE_PASSWORD, 
+    					{PASSWORD : txtNewPwd.text}, 
+    					null, 
+    					function resultHandler(e:ResultEvent):void {
+    						if (new XML(e.result).entity.result == "SUCCESS") {
+    							Alert.show("密码更新成功！");
+    						} else {
+    							Alert.show("密码更新失败！");
+    						}
+						},
+    					function faultHandler(e:FaultEvent):void {
+    						Alert.show("通信失败！");
+						}
+				);
     		});
     	]]>
 	</creationComplete>
@@ -80,78 +106,124 @@
 					useProxy="false"
 					resultFormat="e4x"
 					method="POST"/>
-	<!-- 查询条件 -->
-	<mx:HBox horizontalGap="4" top="10" left="10" right="10">
-		<mx:Label text="游戏类型"/>
-		<mx:ComboBox id="gameType">
-			<mx:dataProvider>
-				<mx:Array>
-					<mx:Object label="全部" data=""/>
-					<mx:Object label="红五" data="Red5Game"/>
-					<mx:Object label="斗地主" data="FightLandlordGame"/>
-					<mx:Object label="推倒胡" data="PushdownWinGame"/>
-					<mx:Object label="穷胡" data="QiongWinGame"/>
-				</mx:Array>
-			</mx:dataProvider>
-		</mx:ComboBox>
-		<mx:Label text="从："/>
-		<mx:DateField id="dateFrom">
-			<mx:selectedDate>{new Date()}</mx:selectedDate>
-			<mx:formatString>YYYY年MM月DD日</mx:formatString>
-		</mx:DateField>
-		<mx:Label text="至："/>
-		<mx:DateField id="dateTo">
-			<mx:selectedDate>{new Date()}</mx:selectedDate>
-			<mx:formatString>YYYY年MM月DD日</mx:formatString>
-		</mx:DateField>
-		<mx:Label text="显示："/>
-		<mx:RadioButtonGroup id="sc"/>
-		<mx:RadioButton id="radioShowAll"
-						label="全部"
-						value="999"
-						groupName="sc"
-						selected="true"/>
-		<mx:RadioButton id="radioShowWin" label="获胜" value="1" groupName="sc"/>
-		<mx:RadioButton id="radioShowLose" label="失败" value="-1" groupName="sc"/>
-		<mx:RadioButton id="radioShowDraw" label="平局" value="0" groupName="sc"/>
-		<mx:Button id="btnSearch" label="查询"/>
-	</mx:HBox>
-	<!-- 查询结果 -->
-	<mx:DataGrid id="datagrid1"
-				 left="10"
-				 right="10"
-				 top="40"
-				 bottom="10"
-				 horizontalScrollPolicy="{ScrollPolicy.ON}">
-		<mx:dataProvider>{infoService.lastResult.entityList.TodayInfo}</mx:dataProvider>
-		<mx:columns>
-			<mx:DataGridColumn width="50" resizable="false" headerText="编号"/>
-			<mx:DataGridColumn width="75" resizable="false" headerText="游戏类别" dataField="gametype"/>
-			<mx:DataGridColumn width="75" resizable="false" headerText="胜败情况" dataField="winandlose"/>
-			<mx:DataGridColumn width="75"
-							   resizable="false"
-							   headerText="玩家得分"
-							   dataField="score"
-							   sortCompareFunction="DatagridUtility.commonCompare('score')"/>
-			<mx:DataGridColumn width="75"
-							   resizable="false"
-							   headerText="系统得分"
-							   dataField="systemscore"
-							   sortCompareFunction="DatagridUtility.commonCompare('systemscore')"/>
-			<mx:DataGridColumn width="230" resizable="false" headerText="游戏ID" dataField="gameId"/>
-			<mx:DataGridColumn width="170" resizable="false" headerText="游戏时间" dataField="createTime"/>
-		</mx:columns>
-	</mx:DataGrid>
-	<!-- 查询导航 -->
-	<mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
-		<mx:Button label="复制游戏ID到剪切板" id="btnClipboard"/>
-		<mx:TextInput id="txtGameId"/>
-		<mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
-		<mx:LinkBar id="pageRoller">
-			<mx:Array>
-				<mx:Object label="前页"/>
-				<mx:Object label="后页"/>
-			</mx:Array>
-		</mx:LinkBar>
-	</mx:ControlBar>
+	<mx:TabNavigator top="0" left="0" right="0" bottom="0">
+		<mx:Canvas label="积分查询" width="100%" height="100%">
+			<!-- 查询条件 -->
+			<mx:HBox horizontalGap="4" top="10" left="10" right="10">
+				<mx:Label text="游戏类型"/>
+				<mx:ComboBox id="gameType">
+					<mx:dataProvider>
+						<mx:Array>
+							<mx:Object label="全部" data=""/>
+							<mx:Object label="红五" data="Red5Game"/>
+							<mx:Object label="斗地主" data="FightLandlordGame"/>
+							<mx:Object label="推倒胡" data="PushdownWinGame"/>
+							<mx:Object label="穷胡" data="QiongWinGame"/>
+						</mx:Array>
+					</mx:dataProvider>
+				</mx:ComboBox>
+				<mx:Label text="从："/>
+				<mx:DateField id="dateFrom">
+					<mx:selectedDate>{new Date()}</mx:selectedDate>
+					<mx:formatString>YYYY年MM月DD日</mx:formatString>
+				</mx:DateField>
+				<mx:Label text="至："/>
+				<mx:DateField id="dateTo">
+					<mx:selectedDate>{new Date()}</mx:selectedDate>
+					<mx:formatString>YYYY年MM月DD日</mx:formatString>
+				</mx:DateField>
+				<mx:Label text="显示："/>
+				<mx:RadioButtonGroup id="sc"/>
+				<mx:RadioButton id="radioShowAll"
+								label="全部"
+								value="999"
+								groupName="sc"
+								selected="true"/>
+				<mx:RadioButton id="radioShowWin" label="获胜" value="1" groupName="sc"/>
+				<mx:RadioButton id="radioShowLose" label="失败" value="-1" groupName="sc"/>
+				<mx:RadioButton id="radioShowDraw" label="平局" value="0" groupName="sc"/>
+				<mx:Button id="btnSearch" label="查询"/>
+			</mx:HBox>
+			<!-- 查询结果 -->
+			<mx:DataGrid id="historyRecordDatagrid"
+						 left="10"
+						 right="10"
+						 top="40"
+						 bottom="38"
+						 horizontalScrollPolicy="{ScrollPolicy.ON}">
+				<mx:dataProvider>{infoService.lastResult.entityList.TodayInfo}</mx:dataProvider>
+				<mx:columns>
+					<mx:DataGridColumn width="50" resizable="false" headerText="编号"/>
+					<mx:DataGridColumn width="75" resizable="false" headerText="游戏类别" dataField="gametype"/>
+					<mx:DataGridColumn width="75" resizable="false" headerText="胜败情况" dataField="winandlose"/>
+					<mx:DataGridColumn width="75"
+									   resizable="false"
+									   headerText="玩家得分"
+									   dataField="score"
+									   sortCompareFunction="DatagridUtility.commonCompare('score')"/>
+					<mx:DataGridColumn width="75"
+									   resizable="false"
+									   headerText="系统得分"
+									   dataField="systemscore"
+									   sortCompareFunction="DatagridUtility.commonCompare('systemscore')"/>
+					<mx:DataGridColumn width="230" resizable="false" headerText="游戏ID" dataField="gameId"/>
+					<mx:DataGridColumn width="170" resizable="false" headerText="游戏时间" dataField="createTime"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<!-- 查询导航 -->
+			<mx:HBox paddingTop="0" paddingBottom="0" horizontalAlign="right" right="10" bottom="4" left="10">
+				<mx:Button label="复制游戏ID到剪切板" id="btnClipboard"/>
+				<mx:TextInput id="txtGameId"/>
+				<mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+				<mx:LinkBar id="pageRoller">
+					<mx:Array>
+						<mx:Object label="前页"/>
+						<mx:Object label="后页"/>
+					</mx:Array>
+				</mx:LinkBar>
+			</mx:HBox>
+		</mx:Canvas>
+		<mx:Canvas label="个人信息" width="100%" height="100%">
+			<mx:Label text="用户ID" left="10" top="10"/>
+			<mx:TextInput left="63" top="8" width="100" id="txtUserId" editable="false"/>
+			<mx:Label text="当前积分" left="10" top="40"/>
+			<mx:TextInput left="63" top="38" width="100" id="txtCurScores" editable="false"/>
+			<mx:Label text="原始密码" left="10" top="70"/>
+			<mx:TextInput left="63" top="68" width="100" id="txtOldPwd" editable="false"/>
+			<mx:Label text="新设密码" left="171" top="70"/>
+			<mx:TextInput left="224" top="68" width="100" id="txtNewPwd" editable="false"/>
+			<mx:Label text="重复密码" left="332" top="70"/>
+			<mx:TextInput left="385" top="68" width="100" id="txtNewPwd2" editable="false"/>
+			<mx:Button label="修改密码" id="btnChangePasswd" top="68" height="22" left="493" width="80"/>
+			<mx:Button label="取消修改" id="btnCancelChange" top="68" height="22" left="581" width="80"/>
+			<mx:Label text="历史充值记录" left="10" top="96"/>
+			<mx:Button label="刷新" id="btnRefresh" width="60" bottom="10" height="22" right="10"/>
+			<mx:DataGrid id="personalInfoDatagrid" left="10" right="10" top="122" bottom="40">
+				<mx:columns>
+					<mx:DataGridColumn headerText="充值积分" dataField="col1"/>
+					<mx:DataGridColumn headerText="充值时间" dataField="col2"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:Canvas>
+	</mx:TabNavigator>
+	<mx:Array id="submitValidators">
+        <mx:StringValidator source="{txtOldPwd}"
+                            required="true"
+                            property="text"
+                            tooShortError="密码最小长度为6！"
+                            tooLongError="密码最大长度为16！"
+                            requiredFieldError="密码确认不能为空！"/>
+        <mx:StringValidator source="{txtNewPwd}"
+                            required="true"
+                            property="text"
+                            tooShortError="密码最小长度为6！"
+                            tooLongError="密码最大长度为16！"
+                            requiredFieldError="密码确认不能为空！"/>
+        <mx:StringValidator source="{txtNewPwd2}"
+                            required="true"
+                            property="text"
+                            tooShortError="密码最小长度为6！"
+                            tooLongError="密码最大长度为16！"
+                            requiredFieldError="密码确认不能为空！"/>
+	</mx:Array>
 </AbstractInfoWindow>
