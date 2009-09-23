@@ -2,12 +2,13 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="红五游戏录像" height="600" width="800">
 	<mx:Script>
 		<![CDATA[
+			import com.rubenswieringa.book.Book;
 			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.pushdownwingame.PushdownWinGame;
 			import mx.controls.Alert;
 			import mx.containers.Box;
 			import info.knightrcom.state.pushdownwingame.PushdownWinGameSetting;
-			import component.PokerButton;
+			import component.MahjongButton;
 			import mx.rpc.events.ResultEvent;
 			import mx.events.CloseEvent;
 			import info.knightrcom.util.HttpServiceProxy;
@@ -20,11 +21,13 @@
 
 			private var gameRecord:String;
 
-			private var candidatedArray:Array;
+			private var candidatedArray:Array = new Array(candidatedDown, candidatedRight, candidatedUp, candidatedLeft);
 
-			private var daisArray:Array;
+			private var daisArray:Array = new Array(daisDown, daisRight, daisUp, daisLeft);
 
-			private var randArray:Array;
+			private var randArray:Array = new Array(randDown, randRight, randUp, randLeft);
+
+			private var directionArray:Array = new Array("down", "right", "up", "left");
 
 			private var settingTimer:Timer;
 
@@ -78,13 +81,15 @@
             				gamePlayers = e4xResult.entity.players.text();
             				gameRecord = e4xResult.entity.record.text();
             				lblGameSetting.text = PushdownWinGameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
+            				gameRecord = "T5,W5,NORTH,B4,W5,RED,W6,W2,SOUTH,RED,EAST,W9,B7~W9,B3,B1,T3,T1,B7,B4,W3,W2,B1,B1,SOUTH,B2~B3,W1,T7,W3,W2,T4,NORTH,W9,B9,T7,T9,W1,EAST~B6,T7,T6,W8,W6,W4,NORTH,T1,T9,W4,T3,T1,W7~B8,WEST,B5,B4,B7,T8,EAST,W7,W3,T3,B6,B2,B9,WEST,W8,WHITE,W7,B5,T8,W6,T8,GREEN,B6,T3,WHITE,T4,T2,T2,NORTH,W5,B5,W1,B1,GREEN,W1,W8,RED,SOUTH,B9,GREEN,T8,W2,W6,GREEN,T1,SOUTH,W7,B9,W8,B8,B5,W5,W9,T9,RED,T2,WEST,T2,T7,T5,T4,WHITE,WEST,B2,B3,B2,B3,B6,B4,T5,W3,B8,T6,T6,B7,WHITE,B8,T4,T9,EAST,W4,T5,W4,T6;1~B8;1~EAST~2;2~WEST;2~WEST~3;3~B5;3~EAST~4;4~B4;4~NORTH~1;1~B7;1~NORTH~2;2~T8;2~SOUTH~3;3~EAST;3~EAST~4;4~W7;4~T9~1;1~W3;1~SOUTH~2;2~T3;2~W9~3;3~B6;3~NORTH~4;4~B2;4~B4~1;1~B9;1~B4~2;2~WEST;2~WEST~3;3~W8;3~B9~4;4~WHITE;4~WHITE~1;1~W7;1~T5~2;2~B5;2~T8~3;3~T7,T8,T9~4~2~T8~3;3~T4~4;4~T8;4~T3~1;1~W6;1~B7~2;2~T8;2~T8~3;3~GREEN;3~GREEN~4;4~B6;4~B2~1;1~T3;1~T3~2;2~WHITE;2~WHITE~3;3~T4;3~T4~4;4~T2;4~T2~1;1~T2;1~T2~2;2~T1,T2,T3~3~1~T2~3;2~T3~3;3~NORTH;3~NORTH~4;4~W5;4~W4~1;1~B5;1~B5~2;2~W1;2~W1~3;3~W1,W2,W3~4~2~W1~3;3~T7~4;4~T6,T7,T8~1~3~T7~3;4~T7~1;1~B1;1~B1~2;2~GREEN;2~GREEN~3;3~W1;3~W1~4;4~W8;4~W8~1;1~RED;1~RED~2;2~SOUTH;2~SOUTH~3;3~B9;3~B9~4;4~GREEN;4~GREEN~1;1~T8;1~T8~2;2~W2;2~W2~3;3~W6;3~W6~4;4~GREEN;4~GREEN~1;1~T1;1~T1~2;2~SOUTH;2~SOUTH~3;3~W7;3~B3~4;4~B9;4~B9~1;1~W8;1~W5~2;2~B8;2~W3~3;3~B5;3~B6~4;4~W5;4~W7~1;1~W7,W8,W9~2~4~W7~3;1~W6~2;2~W9;2~W9~3;3~T9;3~T9~4;4~RED;4~RED~1;1~T2;1~T2~2;2~WEST;2~WEST~3;3~T2;3~T2~4;4~T7;4~T7~1;1~T5;1~T5~2;2~T4;2~W2~3;3~WHITE;3~WHITE~4;4~WEST;4~WEST~1;1~B2;1~B2~2;2~B3;2~B3~3;3~B2;3~B2~4;4~B3;4~B3~1;1~B6;1~B6~2;2~B6,B7,B8~3~1~B6~3;2~T4~3;3~B4;3~B4~4;4~T5;4~T5~1;1~W3;1~W2~2;2~B8;2~B8~3;3~T6;3~T6~4;2~T6~3;"
 							// 确定游戏名称
 							if (gameType == "PushdownWinGame") {
-								var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
-								gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
-								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
-								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
-								var part3:String = removeBothSides(gameRecord, ";");
+				                var part1:String = gameRecord.replace(/^([^;]*).*$/, "$1");
+				                var part2:String = part1.replace(/^.*~([^~]*)$/, "$1");
+				                var part3:String = gameRecord.replace(/^[^;]*(.*)$/, "$1");
+				                part1 = removeBothSides(part1.replace(/^(.*~)[^~]*$/, "$1"));
+				                part2 = removeBothSides(part2);
+				                part3 = removeBothSides(part3);
 								btnExecute.enabled = false;
 								playPushdownWinGame(part1, part2, part3);
 							} else {
@@ -107,132 +112,174 @@
 			}
 
 			private function playPushdownWinGame(part1:String, part2:String, part3:String):void {
-			    // T6,W2,W5,T2,T7,SOUTH,WHITE,W4,W5,T4,T4,W6,T3~W6,GREEN,WEST,WEST,B6,B7,T8,W9,T1,T9,W8,W9,T5~T3,W1,T2,T9,W2,B3,B3,W4,WHITE,W8,RED,W6,W8~WEST,T1,W9,B5,B2,B4,B8,NORTH,T1,T6,B8,T6,T8~T5,B9,T9,NORTH,T3,SOUTH,RED,B2,W1,T4,B7,T2,B9,B3,W4,W3,T9,T7,B8,B8,WHITE,W7,W3,GREEN,SOUTH,NORTH,B7,W3,B2,B7,EAST,W7,T7,W9,W2,EAST,W8,W6,T8,T6,B5,T1,B9,W5,B6,B6,T3,RED,B1,B5,SOUTH,W5,B4,B5,B4,T2,W7,B3,GREEN,B9,GREEN,EAST,T7,T4,B1,WEST,W1,T8,B1,T5,B4,W4,RED,T5,W1,WHITE,B6,EAST,W2,B2,W3,NORTH,W7,B1;1~W8;1~W8~2;2~W8;2~W8~3;3~B3;3~RED~4;3~RED~4~0;3~RED~4~01;4~RED;4~RED~1;1~NORTH;1~NORTH~2;1~NORTH~2~013;2~B4;2~B4~3;3~W5;3~W5~4;4~W3,W4,W5~1~3~W5~3;4~NORTH~1;1~B6;1~B6~2;2~W2;2~RED~3;1~RED~2;
+			    // T5,W5,NORTH,B4,W5,RED,W6,W2,SOUTH,RED,EAST,W9,B7~W9,B3,B1,T3,T1,B7,B4,W3,W2,B1,B1,SOUTH,B2~B3,W1,T7,W3,W2,T4,NORTH,W9,B9,T7,T9,W1,EAST~B6,T7,T6,W8,W6,W4,NORTH,T1,T9,W4,T3,T1,W7~B8,WEST,B5,B4,B7,T8,EAST,W7,W3,T3,B6,B2,B9,WEST,W8,WHITE,W7,B5,T8,W6,T8,GREEN,B6,T3,WHITE,T4,T2,T2,NORTH,W5,B5,W1,B1,GREEN,W1,W8,RED,SOUTH,B9,GREEN,T8,W2,W6,GREEN,T1,SOUTH,W7,B9,W8,B8,B5,W5,W9,T9,RED,T2,WEST,T2,T7,T5,T4,WHITE,WEST,B2,B3,B2,B3,B6,B4,T5,W3,B8,T6,T6,B7,WHITE,B8,T4,T9,EAST,W4,T5,W4,T6;1~B8;1~EAST~2;2~WEST;2~WEST~3;3~B5;3~EAST~4;4~B4;4~NORTH~1;1~B7;1~NORTH~2;2~T8;2~SOUTH~3;3~EAST;3~EAST~4;4~W7;4~T9~1;1~W3;1~SOUTH~2;2~T3;2~W9~3;3~B6;3~NORTH~4;4~B2;4~B4~1;1~B9;1~B4~2;2~WEST;2~WEST~3;3~W8;3~B9~4;4~WHITE;4~WHITE~1;1~W7;1~T5~2;2~B5;2~T8~3;3~T7,T8,T9~4~2~T8~3;3~T4~4;4~T8;4~T3~1;1~W6;1~B7~2;2~T8;2~T8~3;3~GREEN;3~GREEN~4;4~B6;4~B2~1;1~T3;1~T3~2;2~WHITE;2~WHITE~3;3~T4;3~T4~4;4~T2;4~T2~1;1~T2;1~T2~2;2~T1,T2,T3~3~1~T2~3;2~T3~3;3~NORTH;3~NORTH~4;4~W5;4~W4~1;1~B5;1~B5~2;2~W1;2~W1~3;3~W1,W2,W3~4~2~W1~3;3~T7~4;4~T6,T7,T8~1~3~T7~3;4~T7~1;1~B1;1~B1~2;2~GREEN;2~GREEN~3;3~W1;3~W1~4;4~W8;4~W8~1;1~RED;1~RED~2;2~SOUTH;2~SOUTH~3;3~B9;3~B9~4;4~GREEN;4~GREEN~1;1~T8;1~T8~2;2~W2;2~W2~3;3~W6;3~W6~4;4~GREEN;4~GREEN~1;1~T1;1~T1~2;2~SOUTH;2~SOUTH~3;3~W7;3~B3~4;4~B9;4~B9~1;1~W8;1~W5~2;2~B8;2~W3~3;3~B5;3~B6~4;4~W5;4~W7~1;1~W7,W8,W9~2~4~W7~3;1~W6~2;2~W9;2~W9~3;3~T9;3~T9~4;4~RED;4~RED~1;1~T2;1~T2~2;2~WEST;2~WEST~3;3~T2;3~T2~4;4~T7;4~T7~1;1~T5;1~T5~2;2~T4;2~W2~3;3~WHITE;3~WHITE~4;4~WEST;4~WEST~1;1~B2;1~B2~2;2~B3;2~B3~3;3~B2;3~B2~4;4~B3;4~B3~1;1~B6;1~B6~2;2~B6,B7,B8~3~1~B6~3;2~T4~3;3~B4;3~B4~4;4~T5;4~T5~1;1~W3;1~W2~2;2~B8;2~B8~3;3~T6;3~T6~4;2~T6~3;
             	// 完整的记录
-            	// 4V2,3V2,2V2,1V2,2V5~0=5,1=5,2=5,3=5;1V5,0VY,4V5,0VY,3V5~0=5,1=5,2=5,3=5;1V5,1V2,3V5,0VX,3V2~0=5,1=5,2=5,3=5;4V2,4V5,2V5,0VX,2V2~0=5,1=5,2=5,3=5;2~1~3;2~1~4;2~1~1;1~2~2;1~1V2,2V2,3V2,4V2~2;1~1V2,2V2,3V2,4V2~3~pass;1~1V2,2V2,3V2,4V2~4~pass;1~1V2,2V2,3V2,4V2~1~pass;1~2V5~2;
-            	// 记录第一部分：游戏初始时各个玩家手中的牌以及牌数
-            	// 4V2,3V2,2V2,1V2,2V5~0=5,1=5,2=5,3=5;1V5,0VY,4V5,0VY,3V5~0=5,1=5,2=5,3=5;1V5,1V2,3V5,0VX,3V2~0=5,1=5,2=5,3=5;4V2,4V5,2V5,0VX,2V2~0=5,1=5,2=5,3=5;
-            	// 记录第二部分：游戏设置情况
-            	// 2~1~3;2~1~4;2~1~1;1~2~2;
+            	// T5,W5,NORTH,B4,W5,RED,W6,W2,SOUTH,RED,EAST,W9,B7~W9,B3,B1,T3,T1,B7,B4,W3,W2,B1,B1,SOUTH,B2~B3,W1,T7,W3,W2,T4,NORTH,W9,B9,T7,T9,W1,EAST~B6,T7,T6,W8,W6,W4,NORTH,T1,T9,W4,T3,T1,W7~
+            	// 记录第一部分：游戏初始时各个玩家手中的牌
+            	// B8,WEST,B5,B4,B7,T8,EAST,W7,W3,T3,B6,B2,B9,WEST,W8,WHITE,W7,B5,T8,W6,T8,GREEN,B6,T3,WHITE,T4,T2,T2,NORTH,W5,B5,W1,B1,GREEN,W1,W8,RED,SOUTH,B9,GREEN,T8,W2,W6,GREEN,T1,SOUTH,W7,B9,W8,B8,B5,W5,W9,T9,RED,T2,WEST,T2,T7,T5,T4,WHITE,WEST,B2,B3,B2,B3,B6,B4,T5,W3,B8,T6,T6,B7,WHITE,B8,T4,T9,EAST,W4,T5,W4,T6
+            	// 记录第二部分：除玩家手中牌以外，剩余可供抓取的牌
+            	// ;1~B8;1~EAST~2;2~WEST;2~WEST~3;3~B5;3~EAST~4;4~B4;4~NORTH~1;1~B7;1~NORTH~2;2~T8;2~SOUTH~3;3~EAST;3~EAST~4;4~W7;4~T9~1;1~W3;1~SOUTH~2;2~T3;2~W9~3;3~B6;3~NORTH~4;4~B2;4~B4~1;1~B9;1~B4~2;2~WEST;2~WEST~3;3~W8;3~B9~4;4~WHITE;4~WHITE~1;1~W7;1~T5~2;2~B5;2~T8~3;3~T7,T8,T9~4~2~T8~3;3~T4~4;4~T8;4~T3~1;1~W6;1~B7~2;2~T8;2~T8~3;3~GREEN;3~GREEN~4;4~B6;4~B2~1;1~T3;1~T3~2;2~WHITE;2~WHITE~3;3~T4;3~T4~4;4~T2;4~T2~1;1~T2;1~T2~2;2~T1,T2,T3~3~1~T2~3;2~T3~3;3~NORTH;3~NORTH~4;4~W5;4~W4~1;1~B5;1~B5~2;2~W1;2~W1~3;3~W1,W2,W3~4~2~W1~3;3~T7~4;4~T6,T7,T8~1~3~T7~3;4~T7~1;1~B1;1~B1~2;2~GREEN;2~GREEN~3;3~W1;3~W1~4;4~W8;4~W8~1;1~RED;1~RED~2;2~SOUTH;2~SOUTH~3;3~B9;3~B9~4;4~GREEN;4~GREEN~1;1~T8;1~T8~2;2~W2;2~W2~3;3~W6;3~W6~4;4~GREEN;4~GREEN~1;1~T1;1~T1~2;2~SOUTH;2~SOUTH~3;3~W7;3~B3~4;4~B9;4~B9~1;1~W8;1~W5~2;2~B8;2~W3~3;3~B5;3~B6~4;4~W5;4~W7~1;1~W7,W8,W9~2~4~W7~3;1~W6~2;2~W9;2~W9~3;3~T9;3~T9~4;4~RED;4~RED~1;1~T2;1~T2~2;2~WEST;2~WEST~3;3~T2;3~T2~4;4~T7;4~T7~1;1~T5;1~T5~2;2~T4;2~W2~3;3~WHITE;3~WHITE~4;4~WEST;4~WEST~1;1~B2;1~B2~2;2~B3;2~B3~3;3~B2;3~B2~4;4~B3;4~B3~1;1~B6;1~B6~2;2~B6,B7,B8~3~1~B6~3;2~T4~3;3~B4;3~B4~4;4~T5;4~T5~1;1~W3;1~W2~2;2~B8;2~B8~3;3~T6;3~T6~4;2~T6~3;
             	// 记录第三部分：游戏进行中所有的出牌记录
-            	// 1~1V2,2V2,3V2,4V2~2;1~1V2,2V2,3V2,4V2~3~pass;1~1V2,2V2,3V2,4V2~4~pass;1~1V2,2V2,3V2,4V2~1~pass;1~2V5~2;
+
 				// 开始发牌
-				var initPokers:Array = part1.split(/;/);
-				for (var eachPokersIndex:String in initPokers) {
-					// eachPokers样式：4V2,3V2,2V2,1V2,2V5
+				var initMahjongs:Array = part1.split(/~/);
+				for (var eachMahjongsIndex:String in initMahjongs) {
+					// eachMahjongs样式：4V2,3V2,2V2,1V2,2V5
 					// 为每位玩家进行发牌，并对已发的牌进行排序
-					var pokers:Array = PushdownWinGame.sortMahjongs(initPokers[eachPokersIndex].toString().replace(/~.*/, "").split(","));
-					for each (var eachPokerName:String in pokers) {
-		                var poker:PokerButton = new PokerButton();
-		                poker.source = "image/poker/" + eachPokerName + ".png";
-		                poker.allowSelect = false;
-		                candidatedArray[eachPokersIndex].addChild(poker);
+					var mahjongs:Array = PushdownWinGame.sortMahjongs(initMahjongs[eachMahjongsIndex].toString());
+					for each (var eachMahjongName:String in mahjongs) {
+		                var mahjong:MahjongButton = new MahjongButton();
+		                mahjong.source = "image/mahjong/" + directionArray[eachMahjongsIndex] + "/" + eachMahjongName + ".png";
+		                mahjong.allowSelect = false;
+		                candidatedArray[eachMahjongsIndex].addChild(mahjong);
 					}
 				}
 				// 录像播放
 				// 进行游戏设置
 				var itrIndex:int = 0;
-				var initSetting:Array = part2.split(";");
-				var playerIndex:int = -1;
-				settingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
-				ListenerBinder.bind(settingTimer, TimerEvent.TIMER, function ():void {
-					if (itrIndex == initSetting.length) {
-						// 当设置过程结束时，终止游戏设置过程的演示，并开始游戏过程的回放
-						settingTimer.stop();
-						itrIndex = 0;
-						playerIndex = -1;
-						initPokers = part3.split(";");
-//						for each (var eachBox:Box in cardsDealedArray) {
-//							eachBox.removeAllChildren();
-//						}
-						dealed.removeAllChildren();
-						btnExecute.enabled = true;
-						playingTimer.start();
-						return;
-					}
-					// 取得当前玩家出牌内容
-					var currentTurn:Array = initSetting[itrIndex++].split("~");
-					// 设置当前玩家编号、当前牌序、当前玩家下家编号
-					var currentNumber:int = int(currentTurn[0]);
-					var currentSetting:int = int(currentTurn[1]);
-					var nextNumber:int = int(currentTurn[2]);
-					// 取得当前玩家索引号
-					if (playerIndex < 0) {
-						playerIndex = currentNumber - 1;
-					} else {
-						playerIndex++;
-						if (playerIndex == candidatedArray.length) {
-							playerIndex = 0;
-						}
-					}
-					// 显示设置内容
-					var content:Label = new Label();
-					content.text = PushdownWinGameSetting.getDisplayName(currentSetting);
-					dealed.addChild(content);
-				});
 				// 游戏过程回放
+				initMahjongs = part3.split(/;/);
 				playingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
-				ListenerBinder.bind(playingTimer, TimerEvent.TIMER, function ():void {
-					if (itrIndex == initPokers.length) {
+				ListenerBinder.bind(playingTimer, TimerEvent.TIMER, function (event:TimerEvent):void {
+					if (itrIndex == initMahjongs.length) {
 						playingTimer.stop();
 						Alert.show("录像回放完毕！");
 						btnExecute.label = "播放";
 						return;
 					}
 					// 取得当前玩家出牌内容
-					var currentTurn:Array = initPokers[itrIndex++].split("~");
-					// 设置当前玩家编号、当前牌序、当前玩家下家编号
-					var currentNumber:int = int(currentTurn[0]);
-					var currentBouts:String = String(currentTurn[1]) + ",";
-					var nextNumber:int = int(currentTurn[2]);
+					var currentTurn:Array = initMahjongs[itrIndex++].split("~");
+					// 设置当前玩家编号、当前牌、当前玩家下家编号
+		            var currentNumber:int = currentTurn[0];
+		            var currentBoutMahjong:String = currentTurn[1];
+		            if (currentTurn.length > 2) {
+		                var currentNextNumber:int = currentTurn[2];
+		            }
+    				var playerIndex:int = currentNumber - 1;
+		            switch (currentTurn.length) {
+		                case 2:
+		                	// 摸牌
+		                	addMahjong2Rand(directionArray[playerIndex], currentBoutMahjong);
+		                    break;
+		                case 3:
+		                	// 出牌
+		                	removeMahjongFromCandidatedAndRand(directionArray[playerIndex], currentBoutMahjong);
+		                	addMahjong2Dealed(currentBoutMahjong);
+		                    break;
+		                case 6:
+		                	// 吃碰杠
+		                	var operatedNumber:int = currentTurn[3];
+ 							var operatedMahjong:String = currentTurn[4];
+		                	var operationIndex:int = currentTurn[5];
+				        	if (operationIndex == PushdownWinGame.OPTR_KONG) {
+				            	if (currentNumber == operatedNumber) {
+				            		// 暗杠
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            	} else {
+				            		// 明杠
+				            		removeMahjongFromDealed();
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            		addMahjong2Dais(directionArray[playerIndex], operatedMahjong, true);
+				            	}
+				            } else if (operationIndex == PushdownWinGame.OPTR_PONG) {
+				            	removeMahjongFromDealed();
+				            	removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            	removeMahjongFromCandidatedAndRand(directionArray[playerIndex], operatedMahjong);
+				            	addMahjong2Dais(directionArray[playerIndex], operatedMahjong);
+				            	addMahjong2Dais(directionArray[playerIndex], operatedMahjong);
+				            	addMahjong2Dais(directionArray[playerIndex], operatedMahjong);
+				        	} else if (operationIndex == PushdownWinGame.OPTR_CHOW) {
+			            		removeMahjongFromDealed();
+				        		for each (var eachMahjongValue:String in currentBoutMahjong.split(",")) {
+				        			if (eachMahjongValue != operatedMahjong) {
+				        				removeMahjongFromCandidatedAndRand(directionArray[playerIndex], eachMahjongValue);
+				        			}
+				        			addMahjong2Dais(directionArray[playerIndex], eachMahjongValue);
+				        		}
+				        	} else {
+				        		throw Error("无法处理当前动作类型！");
+				        	}
+		                    break;
+		                case 4:
+		                	// 放弃
+		                	// var currentGiveupIndice = currentTurn[3];
+		                	// handleBoutGiveup();
+		                	var passLabel:Label = new Label();
+		                	passLabel.text = currentNumber + " Pass!";
+		                	dealed.addChild(passLabel);
+		                    break;
+		                default:
+		                    throw Error("其他无法预测的接牌动作！");
+		            }
 					// 取得当前玩家索引号
-					if (playerIndex < 0) {
-						playerIndex = currentNumber - 1;
-					} else {
-						playerIndex++;
-						if (playerIndex == candidatedArray.length) {
-							playerIndex = 0;
-						}
-					}
-					var currentCardsCandidated:Box = candidatedArray[playerIndex];
-					if (currentCardsCandidated.getChildren().length == 0) {
-						// 当前玩家已经胜出，没有历史记录，不做任何处理
-						itrIndex--;
-						return;
-					}
-					// 移除所有已经出牌或pass的内容
-					dealed.removeAllChildren();
-					if (currentTurn.length == 4 && currentTurn[3].toString().indexOf("pass") > -1) {
-						// 当前玩家不出牌，现实pass字样
-						var passLabel:Label = new Label();
-						passLabel.text = "不要";
-						dealed.addChild(passLabel);
-							if (currentNumber == nextNumber) {
-								setTimeout(function ():void {
-									dealed.removeAllChildren();
-								}, 500);
-							}
-						return;
-					}
-					// 开始出牌
-					var cardsToDealArray:Array = new Array();
-					for each (var poker:PokerButton in currentCardsCandidated.getChildren()) {
-						if (currentBouts.indexOf(poker.value) > -1) {
-							currentBouts = currentBouts.replace(new RegExp("^(.*?)" + poker.value), "$1");
-							cardsToDealArray.push(poker);
-						}
-					}
-					for each (poker in cardsToDealArray) {
-						Box(candidatedArray[playerIndex]).removeChild(poker);
-						dealed.addChild(poker);
-					}
+
 				});
 				// 游戏录像开始
 				settingTimer.start();
 			}
 
-			private function removeBothSides(target:String, tokenChar:String):String {
-				return target.replace(/^;|;$/, "");
+			private function createMahjongButton(direction:String, mahjongName:String, style:String = null):MahjongButton {
+                var mahjong:MahjongButton = new MahjongButton();
+                if (!style) {
+                	style = "dealed";
+                }
+                mahjong.source = "image/mahjong/" + direction + "/" + style + "/" + mahjongName + ".jpg";
+                mahjong.allowSelect = false;
+                return mahjong;
+			}
+
+			private function addMahjong2Rand(direction:String, mahjongName:String):void {
+				Box(randArray[direction]).addChild(createMahjongButton(direction, mahjongName));
+			}
+
+			private function addMahjong2Dais(direction:String, mahjongName:String, useBack:Boolean = false):void {
+				if (useBack) {
+					Box(daisArray[direction]).addChild(createMahjongButton(direction, "DEFAULT"));
+				} else {
+					Box(daisArray[direction]).addChild(createMahjongButton(direction, mahjongName));
+				}
+			}
+
+			private function addMahjong2Dealed(mahjongName:String):void {
+				dealed.addChild(createMahjongButton("down", mahjongName));
+			}
+
+			private function removeMahjongFromDealed():void {
+				dealed.removeChildAt(dealed.numChildren - 1);
+			}
+
+			private function removeMahjongFromCandidatedAndRand(direction:String, mahjongName:String):void {
+				if (Box(randArray[direction]).numChildren > 0) {
+					Box(candidatedArray[direction]).addChild(Box(randArray[direction]).getChildAt(0));
+					Box(randArray[direction]).removeAllChildren();
+				}
+				for each (var eachMahjongButton:MahjongButton in Box(candidatedArray[direction]).getChildren()) {
+					if (mahjongName == eachMahjongButton.value) {
+						Box(candidatedArray[direction]).removeChild(eachMahjongButton);
+						break;
+					}
+				}
+				var mahjongButtons:Array = Box(candidatedArray[direction]).getChildren();
+				Box(candidatedArray[direction]).removeAllChildren();
+				for each (eachMahjongButton in PushdownWinGame.sortMahjongButtons(mahjongButtons)) {
+					Box(candidatedArray[direction]).addChild(eachMahjongButton);
+				}
+			}
+
+			private function removeBothSides(target:String):String {
+				return target.replace(/^[;~]|[;~]$/, "");
 			}
 		]]>
 	</mx:Script>
@@ -254,7 +301,7 @@
 		]]>
 	</creationComplete>
 	<!-- 游戏录像播放区域 -->
-	<!-- 上侧区域 -->
+	<!-- 待出牌区域 -->
 	<mx:HBox id="candidatedUp"
 			 height="80"
 			 horizontalGap="0"
@@ -264,7 +311,6 @@
 			 left="170"
 			 right="150">
 	</mx:HBox>
-	<!-- 右侧区域 -->
 	<mx:VBox id="candidatedRight"
 			 width="80"
 			 top="120"
@@ -274,7 +320,6 @@
 			 verticalAlign="top"
 			 verticalGap="-20">
 	</mx:VBox>
-	<!-- 下侧区域 -->
 	<mx:HBox id="candidatedDown"
 			 height="80"
 			 horizontalGap="0"
@@ -284,7 +329,6 @@
 			 bottom="0"
 			 verticalAlign="top">
 	</mx:HBox>
-	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
 			 width="80"
 			 top="80"
@@ -294,18 +338,7 @@
 			 verticalAlign="bottom"
 			 verticalGap="-20">
 	</mx:VBox>
-	<mx:Canvas left="150" right="150" top="150" bottom="150">
-		<!-- 牌桌区域 -->
-		<mx:Tile id="dealed"
-				 top="0"
-				 left="0"
-				 right="0"
-				 bottom="0"
-				 horizontalGap="2"
-				 verticalGap="2"
-				 verticalAlign="middle">
-		</mx:Tile>
-	</mx:Canvas>
+	<!-- 亮牌区域 -->
 	<mx:VBox id="daisLeft"
 			 top="100"
 			 bottom="100"
@@ -341,6 +374,7 @@
 			 left="175"
 			 right="175">
 	</mx:HBox>
+	<!-- 摸牌区域 -->
 	<mx:VBox id="randLeft"
 			 height="60"
 			 width="80"
@@ -377,6 +411,18 @@
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
+	<!-- 牌桌区域 -->
+	<mx:Canvas left="150" right="150" top="150" bottom="150">
+		<mx:Tile id="dealed"
+				 top="0"
+				 left="0"
+				 right="0"
+				 bottom="0"
+				 horizontalGap="2"
+				 verticalGap="2"
+				 verticalAlign="middle">
+		</mx:Tile>
+	</mx:Canvas>
 	<!-- 游戏录像设置区域 -->
 	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0">
 	    <mx:title>游戏录像设置</mx:title>
