@@ -250,9 +250,9 @@ package info.knightrcom.state.pushdownwingame {
         	var tailDealedMahjong:String = color + (value + 1);
         	var tailTailDealedMahjong:String = color + (value + 2);
         	var result:Boolean = false;
-        	result ||= (currentMahjongs.indexOf(headDealedMahjong) > 0 && currentMahjongs.indexOf(tailDealedMahjong) > 0); // 中间吃
-        	result ||= (currentMahjongs.indexOf(headHeadDealedMahjong) > 0 && currentMahjongs.indexOf(headDealedMahjong) > 0); // 右侧吃
-        	result ||= (currentMahjongs.indexOf(tailDealedMahjong) > 0 && currentMahjongs.indexOf(tailTailDealedMahjong) > 0); // 左侧吃
+        	result ||= (currentMahjongs.indexOf(headDealedMahjong) > -1 && currentMahjongs.indexOf(tailDealedMahjong) > -1); // 中间吃
+        	result ||= (currentMahjongs.indexOf(headHeadDealedMahjong) > -1 && currentMahjongs.indexOf(headDealedMahjong) > -1); // 右侧吃
+        	result ||= (currentMahjongs.indexOf(tailDealedMahjong) > -1 && currentMahjongs.indexOf(tailTailDealedMahjong) > -1); // 左侧吃
             return result;
         }
 
@@ -275,17 +275,23 @@ package info.knightrcom.state.pushdownwingame {
 
 		/**
 		 * 
-		 * 在摸牌过程中，判断是否可以暗杠
+		 * 在摸牌过程中，判断是否可以杠
 		 * 
-		 * @param randMahjong
-		 * @param currentMahjongs
+		 * @param randMahjong 当前玩家摸到的牌
+		 * @param currentMahjongs 当前玩家手中的牌
+		 * @param daisMahjongs 当前玩家亮出的牌，包括杠、碰、吃牌型
 		 * @return 
 		 * 
 		 */
-		public static function canKongNow(randMahjong:String, currentMahjongs:Array):Boolean {
+		public static function canKongNow(randMahjong:String, currentMahjongs:Array, daisMahjongs:String):Boolean {
+		    var canKong:Boolean = false;
+		    // 明杠
 			var oldLength:int = currentMahjongs.join(",").length;
 			var newLength:int = currentMahjongs.join(",").replace(new RegExp(randMahjong, "g"), "").length;
-			return (oldLength - newLength) == randMahjong.length * 4;
+			canKong ||= ((oldLength - newLength) == randMahjong.length * 4);
+			// 暗杠
+			canKong ||= (daisMahjongs.indexOf(new String("#,#,#").replace(/#/g, "")) > -1);
+			return canKong;
 		}
     }
 }
