@@ -205,7 +205,8 @@ package info.knightrcom.state {
                                   mahjongBox.mahjongsOfPlayers[3].length,
                                   mahjongBox.mahjongsOfDais[3].join(","),
                                   mahjongBox.mahjongsOfDais[3].length).join("\t"),
-                        mahjongBox.mahjongsOnTable.join(",")).join("\n");
+                        mahjongBox.mahjongsOnTable.join(","),
+                        "Current Number: " + currentNumber).join("\n");
                 });
 // TEST SIMULATION CODE IS END
                 for each (var eachToolTip:Box in new Array(currentGame.toolTip1, currentGame.toolTip2, currentGame.toolTip3)) {
@@ -493,7 +494,7 @@ package info.knightrcom.state {
 			if (canPong) {
 			    pongMixedIndex = indexPong;
 			}
-			// 确定优先级最高的玩家混合索引值
+			// 确定优先级最高的玩家混合索引值，混合值的构成为：玩家索引 × 10 + 动作编号
 			if (canWin) {
 			    finalMixedIndex = indexWin;
 			} else if (canKong) {
@@ -514,19 +515,19 @@ package info.knightrcom.state {
 				// 更改操作按钮状态
 	  			var operationList:Array = new Array(
 		  			function ():void {
-						if (canWin && playerIndex == localNumber - 1) {
+						if (canWin/* && playerIndex == localNumber - 1*/) {
 							// 胡牌，为出牌玩家设置麻将操作按钮外观
 							Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
 						}
 		  			},
 		  			function ():void {
-						if (canKong && playerIndex == localNumber - 1) {
+						if (canKong/* && playerIndex == localNumber - 1*/) {
 							// 杠牌，为出牌玩家设置麻将操作按钮外观
 							Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled = true;
 						}
 		  			},
 		  			function ():void {
-						if (canPong && playerIndex == localNumber - 1) {
+						if (canPong/* && playerIndex == localNumber - 1*/) {
 							// 碰牌，为出牌玩家设置麻将操作按钮外观
 							Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_PONG)).enabled = true;
 						}
@@ -582,14 +583,14 @@ package info.knightrcom.state {
 		     		Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled = true;
                 	// 为出牌玩家设置麻将操作按钮外观
                     currentGame.btnBarMahjongs.visible = true;
-		     		return;
-		     	}
-            	// 为出牌玩家设置麻将操作按钮外观
-                currentGame.btnBarMahjongs.visible = true;
-                // 自动摸牌
-	            var dummyEvent:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
-	            dummyEvent.index = PushdownWinGame.OPTR_RAND;
-	            itemClick(dummyEvent);
+		     	} else {
+                	// 为出牌玩家设置麻将操作按钮外观
+                    currentGame.btnBarMahjongs.visible = true;
+                    // 自动摸牌
+    	            var dummyEvent:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+    	            dummyEvent.index = PushdownWinGame.OPTR_RAND;
+    	            itemClick(dummyEvent);
+	            }
             }
 		}
 
@@ -1193,7 +1194,7 @@ package info.knightrcom.state {
                     	isNarrowWin = true;
                     	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_WIN)).enabled = true;
                     }
-                    if (PushdownWinGame.canKongNow(mahjongRandValue, mahjongBox.mahjongsOfPlayers[localNumber - 1])) {
+                    if (PushdownWinGame.canKongNow(mahjongRandValue, mahjongBox.mahjongsOfPlayers[localNumber - 1], currentGame.daisDown.getChildren().join(","))) {
                     	// 杠
                     	Button(currentGame.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_KONG)).enabled = true;
                     }
@@ -1249,7 +1250,7 @@ package info.knightrcom.state {
 			    // 添加吃牌区域内容
 				var daisMahjongButton:MahjongButton = new MahjongButton();
 				daisMahjongButton.allowSelect = false;
-				daisMahjongButton.source = eachMahjongButton.source.toString().replace("standard", "dais");
+				daisMahjongButton.source = eachMahjongButton.source.toString().replace("dealed", "dais");
 				currentGame.daisDown.addChild(daisMahjongButton);
 			}
 
