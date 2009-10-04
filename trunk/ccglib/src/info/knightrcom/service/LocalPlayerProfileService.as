@@ -12,7 +12,8 @@ package info.knightrcom.service
 		public static const READ_PLAYER_PROFILE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "READ_PLAYER_PROFILE");
 		public static const UPDATE_PLAYER_PROFILE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "UPDATE_PLAYER_PROFILE");
 		public static const DELETE_PLAYER_PROFILE:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "DELETE_PLAYER_PROFILE");
-
+		
+		public static const READ_PLAYER_PROFILE_BY_USER_ID:LocalAbstractService = new LocalPlayerProfileService("PlayerProfileService", "READ_PLAYER_PROFILE_BY_USER_ID");
 		public function LocalPlayerProfileService(serviceId:String, processId:String = null)
 		{
 			super(serviceId, processId);
