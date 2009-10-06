@@ -18,6 +18,7 @@ package info.knightrcom.util
 		public static const debug:Boolean = true;
 
 		/**
+		 * 特定游戏类型绑定
 		 * 
 		 * @param target 要进行事件绑定的对象
 		 * @param gameType 游戏类型
@@ -47,6 +48,7 @@ package info.knightrcom.util
 		}
 
 		/**
+		 * 事件绑定
 		 * 
 		 * @param target 要进行事件绑定的对象
 		 * @param type 事件类型

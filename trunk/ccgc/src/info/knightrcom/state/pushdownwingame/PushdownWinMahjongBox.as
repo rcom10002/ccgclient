@@ -102,7 +102,7 @@ package info.knightrcom.state.pushdownwingame
 
 		/**
 		 * 
-		 * 随机出牌
+		 * 从备选牌中随机出牌
 		 * 
 		 */
 		public function randomMahjong():String {
@@ -115,9 +115,9 @@ package info.knightrcom.state.pushdownwingame
 
 		/**
 		 * 
-		 * 将玩家操作过的牌移除()
+		 * 按照玩家指定的牌序，将牌从玩家待发牌区域移到玩家亮牌区域
 		 * 
-		 * @param index
+		 * @param index 玩家索引值
 		 * @param mahjongValues 吃碰杠牌的组合
 		 * @return 
 		 * 

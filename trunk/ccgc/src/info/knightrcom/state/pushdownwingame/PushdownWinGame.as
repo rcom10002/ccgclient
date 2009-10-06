@@ -290,7 +290,7 @@ package info.knightrcom.state.pushdownwingame {
 			var newLength:int = currentMahjongs.join(",").replace(new RegExp(randMahjong, "g"), "").length;
 			canKong ||= ((oldLength - newLength) == randMahjong.length * 4);
 			// 暗杠
-			canKong ||= (daisMahjongs.indexOf(new String("#,#,#").replace(/#/g, "")) > -1);
+			canKong ||= (daisMahjongs.indexOf("#,#,#".replace(/#/g, randMahjong)) > -1);
 			return canKong;
 		}
     }

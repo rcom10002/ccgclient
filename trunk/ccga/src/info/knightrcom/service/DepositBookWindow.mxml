@@ -68,23 +68,23 @@
 			
             private function btnResetClickHandler(event:MouseEvent):void {
             	// 清空我的充值积分
-            	txtMyCurScore.text = "";
+            	txtMyCurScore.text = "0";
 			}
 			
 			private function btnSubmitClickHandler(event:MouseEvent):void {
+				if (comboUserIds.selectedLabel.toString() == Application.application.currentUserId) {
+					Alert.show("不能为自己充值，只能为自己下属用户充值！", "警告");
+					return;
+				}
+				if (parseInt(txtMyOverScore.text) < 0) {
+					Alert.show("我的当前积分不足，无法为玩家充值！", "警告");
+					return;
+				}
 				if (Validator.validateAll(this.depositBookValidators).length > 0)
 				{
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				if (parseInt(txtMyOverScore.text) < 0) {
-					Alert.show("我的当前积分不足，暂无法为玩家充值！", "警告");
-					return;
-				} 
-				if (comboUserIds.selectedLabel.toString() == Application.application.currentUserId) {
-					Alert.show("不能为自己充值，只能为自己下属用户充值！", "警告");
-					return;
-				} 
 				Alert.yesLabel = "确认";
 				Alert.noLabel = "取消";
 			    Alert.show( "确定要充值吗？",
@@ -300,9 +300,8 @@
         <mx:NumberValidator source="{txtMyCurScore}"
                             required="true"
                             property="text"
-                            minValue="0"
-                            lowerThanMinError="充值必须大于零！"
-                            invalidCharError="充值必须是数字！"
-                            requiredFieldError="充值不能为空！"/>
+                            minValue="1"
+                            lowerThanMinError="充值积分必须大于零！"
+                            requiredFieldError="充值积分不能为空！"/>
      </mx:Array>
 </FunctionWindow>

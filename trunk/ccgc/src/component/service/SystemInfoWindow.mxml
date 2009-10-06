@@ -36,6 +36,7 @@
 						var pushdownWinGameVedio:PushdownWinGameVedioWindow = new PushdownWinGameVedioWindow();
 						pushdownWinGameVedio.currentLayoutCanvas=this.layoutCanvas;
 						pushdownWinGameVedio.popUp();
+						break;
 					default:
 						Alert.show("功能尚未实现！", "消息");
 				}

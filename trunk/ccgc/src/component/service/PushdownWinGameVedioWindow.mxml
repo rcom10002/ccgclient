@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="红五游戏录像" height="600" width="800">
+<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="推到胡游戏录像" minHeight="600" minWidth="800">
 	<mx:Script>
 		<![CDATA[
-			import com.rubenswieringa.book.Book;
 			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.pushdownwingame.PushdownWinGame;
 			import mx.controls.Alert;
@@ -74,6 +73,7 @@
             	dealed.removeAllChildren();
             	// 游戏玩家
             	// 1~user4~2~user3~3~user2~4~user1~
+            	lblGameSetting.text = "数据加载中……";
             	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
             			{GAME_ID : gameId.text}, null, function (event:ResultEvent):void {
             				var e4xResult:XML = new XML(event.result);
