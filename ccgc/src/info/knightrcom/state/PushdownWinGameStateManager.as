@@ -280,22 +280,22 @@ package info.knightrcom.state {
             mahjongBox.mahjongsOfPlayers = new Array(results[0], results[1], results[2], results[3]);
             mahjongBox.mahjongsSpared = results[4].toString().split(",");
             // FIXME TEST PART BEGIN
-            mahjongBox.mahjongsOfPlayers = new Array("EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,RED",
-                                                     "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B7,RED",
-                                                     "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T7,RED", 
-                                                     "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
-            mahjongBox.mahjongsSpared = "W8,W8,B3,RED,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,B8,B8,T8,T8,WHITE,W6,W8,GREEN,W4,W9,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
-
-            results[0] = mahjongBox.mahjongsOfPlayers[0];
-            results[1] = mahjongBox.mahjongsOfPlayers[1];
-            results[2] = mahjongBox.mahjongsOfPlayers[2];
-            results[3] = mahjongBox.mahjongsOfPlayers[3];
-            results[4] = mahjongBox.mahjongsSpared;
-            
-            mahjongBox.mahjongsOfPlayers[0] = "EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,B6".split(/,/);
-            mahjongBox.mahjongsOfPlayers[1] = "B5,B4,W1,B3,W3,B4,B6,W2,B6,W1,T5,T7,T8,T9".split(/,/);
-            results[0] = mahjongBox.mahjongsOfPlayers[0].join(",");
-            results[1] = mahjongBox.mahjongsOfPlayers[1].join(",");
+//            mahjongBox.mahjongsOfPlayers = new Array("EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,RED",
+//                                                     "SOUTH,SOUTH,SOUTH,B1,B1,B1,B3,B4,B5,B7,B7,B7,RED",
+//                                                     "WEST,WEST,WEST,T1,T1,T1,T3,T4,T5,T7,T7,T7,RED", 
+//                                                     "NORTH,NORTH,NORTH,W2,W3,W4,B2,B3,B4,T2,T3,T4,T4");
+//            mahjongBox.mahjongsSpared = "W8,W8,B3,RED,NORTH,B4,W5,B6,W2,T5,W6,T4,T3,W6,B5,W3,WEST,B8,B8,T8,T8,WHITE,W6,W8,GREEN,W4,W9,W2,WHITE,T5,W2,T7,W5,W1,T9,W5,W4,GREEN,W7,T8,W8,W9,GREEN,W9,B5,B7,B2,B2,B1,B8,W9,B6,B2,B6,B6,B5,B4,B8,B9,B9,B9,B9,T9,T2,T2,T5,T3,B3,T9,WHITE,W3,T6,T1,T6,T6,T6,T8,WHITE,W6,GREEN,EAST,T2,T9,SOUTH".split(",");
+//
+//            results[0] = mahjongBox.mahjongsOfPlayers[0];
+//            results[1] = mahjongBox.mahjongsOfPlayers[1];
+//            results[2] = mahjongBox.mahjongsOfPlayers[2];
+//            results[3] = mahjongBox.mahjongsOfPlayers[3];
+//            results[4] = mahjongBox.mahjongsSpared;
+//            
+//            mahjongBox.mahjongsOfPlayers[0] = "EAST,EAST,EAST,W1,W1,W1,W3,W4,W5,W7,W7,W7,B6".split(/,/);
+//            mahjongBox.mahjongsOfPlayers[1] = "B5,B4,W1,B3,W3,B4,B6,W2,B6,W1,T5,T7,T8,T9".split(/,/);
+//            results[0] = mahjongBox.mahjongsOfPlayers[0].join(",");
+//            results[1] = mahjongBox.mahjongsOfPlayers[1].join(",");
             // FIXME TEST PART END
             var mahjongSequence:String = results[localNumber - 1];
             var mahjongNames:Array = PushdownWinGame.sortMahjongs(mahjongSequence);
@@ -611,17 +611,38 @@ package info.knightrcom.state {
         	var removedCount:int = -1;
         	if (operationIndex == PushdownWinGame.OPTR_KONG) {
         		// 杠牌时
-                // 更新模型与布局
+        		// 基于碰牌的杠牌，更新模型与布局
+        		if (currentNumber == operatedNumber && 
+        		        Box(mahjongsDaisArray[currentNumber - 1]).getChildren().join(",").indexOf(operatedMahjong + "," + operatedMahjong + "," + operatedMahjong) > -1) {
+        		    mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong);
+        		    // 移除玩家摸牌区域的牌
+		            Box(mahjongsRandArray[currentNumber - 1]).removeAllChildren();
+        		    // 为亮牌区域添加杠牌
+                	boutMahjongButton = new MahjongButton();
+		            boutMahjongButton.allowSelect = false;
+		            boutMahjongButton.source = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + operatedMahjong + ".jpg";
+		            for (var i:int = 0; i < Box(mahjongsDaisArray[currentNumber - 1]).getChildren().length; i++) {
+        			    if (boutMahjongButton.value == Box(mahjongsDaisArray[currentNumber - 1]).getChildAt(i).toString()) {
+        			        Box(mahjongsDaisArray[currentNumber - 1]).addChildAt(boutMahjongButton, i);
+        			        break;
+        			    }
+        			    
+		            }
+		            return;
+        		}
+                // 普通明杠和暗杠，更新模型与布局
             	if (currentNumber == operatedNumber) {
 	                // 玩家暗杠时
                     mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong);
-		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/DEFAULT.jpg"
+		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/DEFAULT.jpg";
+		            // 移除玩家摸牌区域的牌
+		            Box(mahjongsRandArray[currentNumber - 1]).removeAllChildren();
             	} else {
 	                // 玩家明杠时
 	                mahjongBox.mahjongsOnTable.pop();
                     mahjongBox.importMahjong(currentNumber - 1, operatedMahjong);
                     mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong);
-		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + operatedMahjong + ".jpg"
+		            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + operatedMahjong + ".jpg";
                     // 移除桌面中最后一张打出的牌
                     currentGame.dealed.removeChildAt(currentGame.dealed.numChildren - 1);
             	}
@@ -644,7 +665,7 @@ package info.knightrcom.state {
                 mahjongBox.importMahjong(currentNumber - 1, operatedMahjong);
                 mahjongBox.moveMahjongToDais(currentNumber - 1, currentBoutMahjong);
                 // 更新布局
-	            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + operatedMahjong + ".jpg"
+	            sourcePath = "image/mahjong/" + playerDirectionArray[currentNumber - 1] + "/dealed/" + operatedMahjong + ".jpg";
                 for each (eachMahjongValue in currentBoutMahjong.split(",")) {
                 	boutMahjongButton = new MahjongButton();
 		            boutMahjongButton.allowSelect = false;
@@ -966,72 +987,91 @@ package info.knightrcom.state {
                     break;
                 case 1:
                     // 杠
-                    // 更新内存模型与外观
-                    if (currentGame.randDown.numChildren > 0) {
-                        // 暗杠时
-                        var randValueForKong:String = MahjongButton(currentGame.randDown.getChildAt(0)).value;
-                        mahjongBox.moveMahjongToDais(localNumber - 1, new Array(randValueForKong, 
-                                                                                randValueForKong, 
-                                                                                randValueForKong, 
-                                                                                randValueForKong).join(","));
-                        for (i = 0; i < currentGame.candidatedDown.getChildren().length; i++) {
-                            if (randValueForKong == MahjongButton(currentGame.candidatedDown.getChildAt(i)).value) {
+                    var randValueForKong:String = currentGame.randDown.numChildren > 0 ? currentGame.randDown.getChildAt(0).toString() : null;
+                    // 基于碰牌的杠，更新内存模型与外观
+                    if (randValueForKong && 
+                            currentGame.daisDown.getChildren().join(",").indexOf(randValueForKong + "," + randValueForKong + "," + randValueForKong) > -1) {
+                        mahjongBox.moveMahjongToDais(localNumber - 1, randValueForKong);
+                        var randMahjongButton:MahjongButton = MahjongButton(currentGame.randDown.getChildAt(0));
+                        randMahjongButton.source = randMahjongButton.source.toString().replace("standard", "dais");
+                        for (i = 0; i < currentGame.daisDown.getChildren().length; i++) {
+                            if (currentGame.daisDown.getChildAt(i).toString() == randMahjongButton.value) {
+                                currentGame.daisDown.addChildAt(randMahjongButton, i);
                                 break;
                             }
                         }
-                    } else {
-                        // 明杠时
-                        mahjongBox.mahjongsOnTable.pop();
-                        mahjongBox.importMahjong(localNumber - 1, currentBoutMahjong);
-                        mahjongBox.moveMahjongToDais(localNumber - 1, new Array(currentBoutMahjong, 
-                                                                                currentBoutMahjong, 
-                                                                                currentBoutMahjong, 
-                                                                                currentBoutMahjong).join(","));
-                        for (i = 0; i < currentGame.candidatedDown.getChildren().length; i++) {
-                            if (currentBoutMahjong == MahjongButton(currentGame.candidatedDown.getChildAt(i)).value) {
-                                break;
-                            }
-                        }
-                    }
-                    var mahjongKong1:MahjongButton = MahjongButton(currentGame.candidatedDown.getChildAt(i + 2));
-                    var mahjongKong2:MahjongButton = MahjongButton(currentGame.candidatedDown.getChildAt(i + 1));
-                    var mahjongKong3:MahjongButton = MahjongButton(currentGame.candidatedDown.getChildAt(i));
-                    var mahjongKong4:MahjongButton = new MahjongButton();
-                    mahjongKong4.source = mahjongKong1.source.toString();
-                    mahjongKong1.allowSelect = false;
-                    mahjongKong2.allowSelect = false;
-                    mahjongKong3.allowSelect = false;
-                    mahjongKong4.allowSelect = false;
-                    mahjongKong1.source = mahjongKong1.source.toString().replace("standard", "dais");
-                    mahjongKong2.source = mahjongKong2.source.toString().replace("standard", "dais");
-                    mahjongKong3.source = mahjongKong3.source.toString().replace("standard", "dais");
-                    mahjongKong4.source = mahjongKong4.source.toString().replace("standard", "dais");
-                    if (currentGame.randDown.numChildren > 0) {
-                        // 暗杠
-                        mahjongKong1.source = mahjongKong1.source.toString().replace(mahjongKong1.value, "DEFAULT");
-                        mahjongKong4.source = mahjongKong4.source.toString().replace(mahjongKong4.value, "DEFAULT");
-                    } else {
-                        // 明杠
-                        // 移除桌面中最后一张打出的牌
-                        currentGame.dealed.removeChildAt(currentGame.dealed.numChildren - 1);
-                    }
-                    currentGame.daisDown.addChild(mahjongKong1);
-                    currentGame.daisDown.addChild(mahjongKong2);
-                    currentGame.daisDown.addChild(mahjongKong3);
-                    currentGame.daisDown.addChild(mahjongKong4);
-                    // 发送杠牌命令(吃碰杠：发牌玩家序号~牌序~发牌玩家的下家序号~被发牌玩家执行了操作的玩家序号~被操作牌~动作索引)
-                    if (currentGame.randDown.numChildren > 0) {
-                        // 暗杠
                         // 移除摸牌区域中参与杠操作的牌
                         currentGame.randDown.removeAllChildren();
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + 
-                                new Array(mahjongKong2, mahjongKong2, mahjongKong3, mahjongKong3).join(",") + "~" + 
-                                localNextNumber + "~" + localNumber + "~" + mahjongKong1.value + "~" + PushdownWinGame.OPTR_KONG);
+                                new Array(randValueForKong, randValueForKong, randValueForKong, randValueForKong).join(",") + "~" + 
+                                localNextNumber + "~" + localNumber + "~" + randValueForKong + "~" + PushdownWinGame.OPTR_KONG);
                     } else {
-                        // 明杠
-                        socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + 
-                                new Array(mahjongKong1, mahjongKong2, mahjongKong3, mahjongKong4).join(",") + "~" + 
-                                localNextNumber + "~" + currentNumber + "~" + mahjongKong1.value + "~" + PushdownWinGame.OPTR_KONG);
+                        // 直接的明杠和暗杠，更新内存模型与外观
+                        if (randValueForKong) {
+                            // 暗杠时
+                            mahjongBox.moveMahjongToDais(localNumber - 1, new Array(randValueForKong, 
+                                                                                    randValueForKong, 
+                                                                                    randValueForKong, 
+                                                                                    randValueForKong).join(","));
+                            for (i = 0; i < currentGame.candidatedDown.getChildren().length; i++) {
+                                if (randValueForKong == MahjongButton(currentGame.candidatedDown.getChildAt(i)).value) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            // 明杠时
+                            mahjongBox.mahjongsOnTable.pop();
+                            mahjongBox.importMahjong(localNumber - 1, currentBoutMahjong);
+                            mahjongBox.moveMahjongToDais(localNumber - 1, new Array(currentBoutMahjong, 
+                                                                                    currentBoutMahjong, 
+                                                                                    currentBoutMahjong, 
+                                                                                    currentBoutMahjong).join(","));
+                            for (i = 0; i < currentGame.candidatedDown.getChildren().length; i++) {
+                                if (currentBoutMahjong == MahjongButton(currentGame.candidatedDown.getChildAt(i)).value) {
+                                    break;
+                                }
+                            }
+                        }
+                        var mahjongKong1:MahjongButton = MahjongButton(currentGame.candidatedDown.getChildAt(i + 2));
+                        var mahjongKong2:MahjongButton = MahjongButton(currentGame.candidatedDown.getChildAt(i + 1));
+                        var mahjongKong3:MahjongButton = MahjongButton(currentGame.candidatedDown.getChildAt(i));
+                        var mahjongKong4:MahjongButton = new MahjongButton();
+                        mahjongKong4.source = mahjongKong1.source.toString();
+                        mahjongKong1.allowSelect = false;
+                        mahjongKong2.allowSelect = false;
+                        mahjongKong3.allowSelect = false;
+                        mahjongKong4.allowSelect = false;
+                        mahjongKong1.source = mahjongKong1.source.toString().replace("standard", "dais");
+                        mahjongKong2.source = mahjongKong2.source.toString().replace("standard", "dais");
+                        mahjongKong3.source = mahjongKong3.source.toString().replace("standard", "dais");
+                        mahjongKong4.source = mahjongKong4.source.toString().replace("standard", "dais");
+                        if (currentGame.randDown.numChildren > 0) {
+                            // 暗杠
+                            mahjongKong1.source = mahjongKong1.source.toString().replace(mahjongKong1.value, "DEFAULT");
+                            mahjongKong4.source = mahjongKong4.source.toString().replace(mahjongKong4.value, "DEFAULT");
+                        } else {
+                            // 明杠
+                            // 移除桌面中最后一张打出的牌
+                            currentGame.dealed.removeChildAt(currentGame.dealed.numChildren - 1);
+                        }
+                        currentGame.daisDown.addChild(mahjongKong1);
+                        currentGame.daisDown.addChild(mahjongKong2);
+                        currentGame.daisDown.addChild(mahjongKong3);
+                        currentGame.daisDown.addChild(mahjongKong4);
+                        // 发送杠牌命令(吃碰杠：发牌玩家序号~牌序~发牌玩家的下家序号~被发牌玩家执行了操作的玩家序号~被操作牌~动作索引)
+                        if (currentGame.randDown.numChildren > 0) {
+                            // 暗杠
+                            // 移除摸牌区域中参与杠操作的牌
+                            currentGame.randDown.removeAllChildren();
+                            socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + 
+                                    new Array(mahjongKong2, mahjongKong2, mahjongKong3, mahjongKong3).join(",") + "~" + 
+                                    localNextNumber + "~" + localNumber + "~" + mahjongKong1.value + "~" + PushdownWinGame.OPTR_KONG);
+                        } else {
+                            // 明杠
+                            socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + 
+                                    new Array(mahjongKong1, mahjongKong2, mahjongKong3, mahjongKong4).join(",") + "~" + 
+                                    localNextNumber + "~" + currentNumber + "~" + mahjongKong1.value + "~" + PushdownWinGame.OPTR_KONG);
+                        }
                     }
     		        // 开始摸牌
     		        event = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);

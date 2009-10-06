@@ -115,11 +115,15 @@
 		<root label="nodegraphs">
 			<node label="用户管理">
 				<node label="普通用户管理"/>
+				<node label="用户关系浏览"/>
 				<node label="积分充值"/>
 			</node>
 			<node label="报表管理">
 				<node label="业务分析报表"/>
 				<node label="积分结算报表"/>
+			</node>
+			<node label="帮助">
+				<node label="关于管理平台"/>
 			</node>
 			<node label="注销登录"/>
 		</root>
@@ -127,20 +131,10 @@
     <!-- GM界面菜单配置 -->
 	<mx:XML id="GameMasterMenuXML">
 		<root label="nodegraphs">
-			<node label="用户管理">
-				<node label="普通用户管理"/>
-				<node label="用户关系浏览"/>
-			</node>
 			<node label="系统管理">
 				<node label="即时消息发布"/>
 				<node label="平台信息发布"/>
-				<node label="服务器参数"/>
 				<node label="日志查看"/>
-				<node label="服务器状态查看"/>
-			</node>
-			<node label="报表管理">
-				<node label="业务分析报表"/>
-				<node label="积分结算报表"/>
 			</node>
 			<node label="帮助">
 				<node label="关于管理平台"/>
@@ -168,6 +162,7 @@
 				<node label="积分结算报表"/>
 			</node>
 			<node label="帮助">
+				<node label="管理员帮助手册"/>
 				<node label="关于管理平台"/>
 			</node>
 			<node label="注销登录"/>
@@ -179,7 +174,7 @@
 			<node label="用户管理">
 				<node label="普通用户管理"/>
 				<node label="用户关系浏览"/>
-				<node label="积分充值"/>
+				<!--node label="积分充值"/-->
 			</node>
 			<node label="系统管理">
 				<node label="即时消息发布"/>
