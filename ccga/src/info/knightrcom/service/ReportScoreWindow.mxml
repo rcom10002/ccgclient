@@ -5,6 +5,7 @@
 				creationComplete="creationCompleteHandler();">
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import mx.utils.Base64Decoder;
 			import mx.events.DragEvent;
 			import info.knightrcom.model.OperationMethod;
@@ -45,7 +46,7 @@
 //    				return;
 //    			}
     			
-				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {CURRENT_USER_ID: Application.application.currentUserId, USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 			
 			private function getSearchPeriod():void
@@ -110,7 +111,7 @@
 								function handleAlert(event:CloseEvent):void {
 								    if(event.detail == Alert.YES)
 								    {
-										HttpServiceProxy.send(LocalReportScoreService.CSV_EXPORT, {USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+										HttpServiceProxy.send(LocalReportScoreService.CSV_EXPORT, {CURRENT_USER_ID: Application.application.currentUserId, USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
 										{
 											var xml:XML = new XML(event.result);
 											var url:String = xml.tag;
