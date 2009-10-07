@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
          cornerRadius="6"
-         backgroundColor="#D7EEF6"
-         borderColor="#D7EEF6"
+         backgroundColor="#d7eef6"
+         borderColor="#d7eef6"
          borderStyle="solid"
          paddingTop="6"
          paddingRight="6"
@@ -36,7 +36,7 @@
              id="hbox0"
              paddingRight="6">
         <mx:Label id="title"
-                  width="100%"
+                  color="#0000ff"
                   textAlign="left"
                   paddingLeft="6"
                   paddingTop="2"/>
@@ -53,8 +53,8 @@
              verticalGap="0"
              width="100%">
         <mx:Text id="msg"
-                 text=""
-                 textAlign="left"
+                 color="#000000"
+                 textAlign="center"
                  paddingTop="6"
                  paddingBottom="6"
                  paddingLeft="6"
@@ -64,7 +64,6 @@
                  width="100%"
                  horizontalAlign="center"
                  paddingBottom="6">
-
         </mx:HBox>
     </mx:VBox>
 </mx:VBox>
