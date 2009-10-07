@@ -151,7 +151,7 @@
             private function btnUserRelationsShipClickHandler(event:MouseEvent):void
 			{
 			    try {
-			    	HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler);
+			    	HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, {USER_ID :Application.application.currentUserId}, null, freshTreeResultHandler, freshFaultHandler);
     				userRelationsShipWindow.visible=true;
     				PopUpManager.removePopUp(userRelationsShipWindow);
     				PopUpManager.addPopUp(userRelationsShipWindow, adminApp, true);
@@ -205,7 +205,7 @@
 		        		userRelationsShipWindow.visible = false;
 		        	});
 		        	// 读取用户关系
-					HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler);
+					HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, {USER_ID: Application.application.currentUserId}, null, freshTreeResultHandler, freshFaultHandler);
 					// 读取初始参数
 					defaultSearch();
 					isInitialized = true;
