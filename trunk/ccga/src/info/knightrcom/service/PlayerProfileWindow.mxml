@@ -398,7 +398,7 @@
 					<mx:Button label="修改"
 							   id="btnUpdate"/>
 					<mx:Button label="删除"
-							   id="btnDelete"/>
+							   id="btnDelete" visible="false"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
