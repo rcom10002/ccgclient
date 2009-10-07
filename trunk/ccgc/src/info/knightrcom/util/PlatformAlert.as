@@ -16,6 +16,8 @@ package info.knightrcom.util {
 
         private static const PLATFORM_EVENT:String = "PlatformAlertEvent"
 
+        private static var timer:Timer = null;
+
         /**
          *
          * @param msg
@@ -25,16 +27,18 @@ package info.knightrcom.util {
          *
          */
         public static function show(msg:String, title:String = null, btns:Array = null, closeHandler:Function = null, defaultFocusIndex:int = 0):void {
+            // 创建UI对象
             platformAlertUI = new PlatformAlertUI();
             platformAlertUI = PlatformAlertUI(PopUpManager.createPopUp(Application.application as DisplayObject, PlatformAlertUI, true));
             platformAlertUI.msg.text = msg
             platformAlertUI.title.text = title
-            PopUpManager.centerPopUp(platformAlertUI);
 
+            // 注册关闭事件
             if (closeHandler != null) {
                 ListenerBinder.bind(platformAlertUI, PLATFORM_EVENT, closeHandler);
             }
 
+            // 添加动作按钮
             var btn:Button = new Button();
             if (!btns || btns.length == 0) {
                 ListenerBinder.bind(btn, MouseEvent.CLICK, handleClick);
@@ -52,17 +56,23 @@ package info.knightrcom.util {
                     platformAlertUI.btns.addChild(btn)
                 }
             }
+
+            // 设置默认焦点
             Button(platformAlertUI.btns.getChildAt(defaultFocusIndex)).setFocus();
-            var timer:Timer = new Timer(500, 10);
-            timer["waitSec"] = 10;
+
+            // 设置动态标题
+            timer = new Timer(1000, 10);
             ListenerBinder.bind(timer, TimerEvent.TIMER, function (e:TimerEvent):void {
-            	timer["waitSec"] -= 1;
-            	platformAlertUI.title.text = platformAlertUI.title.text.replace(/\(\d*\)$/, "") + "(" + (timer["waitSec"]) + ")";
+            	platformAlertUI.title.text = "(" + (10 - timer.currentCount) + ")";
             });
             ListenerBinder.bind(timer, TimerEvent.TIMER_COMPLETE, function (e:TimerEvent):void {
-            	(btns[0] as Button).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-            	PopUpManager.removePopUp(platformAlertUI);
+            	(platformAlertUI.btns.getChildAt(0) as Button).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            	// PopUpManager.removePopUp(platformAlertUI);
             });
+            timer.start();
+
+            // 显示UI画面
+            PopUpManager.centerPopUp(platformAlertUI);
         }
 
         /**
@@ -71,6 +81,10 @@ package info.knightrcom.util {
          *
          */
         private static function handleClick(e:MouseEvent):void {
+            if (timer != null) {
+                timer.stop();
+                timer = null;
+            }
             PopUpManager.removePopUp(platformAlertUI);
             platformAlertUI.dispatchEvent(new PlatformAlertEvent(PLATFORM_EVENT, String(Button(e.currentTarget).data)));
         }
