@@ -311,16 +311,16 @@
 		<mx:StringValidator source="{variableName}"
                             required="true"
                             property="text"
-                            minLength="4" maxLength="20"  
-					    	tooShortError="变量名字数最少4个字符！"
-					    	tooLongError="变量名字数最多20个字符！"
+                            minLength="1" maxLength="50"  
+					    	tooShortError="变量名字数最少1个字符！"
+					    	tooLongError="变量名字数最多50个字符！"
                             requiredFieldError="变量名不能为空！"/>
         <mx:StringValidator source="{variableValue}"
                             required="true"
                             property="text"
-                            minLength="1" maxLength="20"  
+                            minLength="1" maxLength="50"  
 					    	tooShortError="变量值字数最少1个字符！"
-					    	tooLongError="变量值字数最多20个字符！"
+					    	tooLongError="变量值字数最多50个字符！"
                             requiredFieldError="变量值不能为空！"/>
     </mx:Array>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
