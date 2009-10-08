@@ -33,7 +33,7 @@ package info.knightrcom {
          * @param port
          *
          */
-        public function GameSocketProxy(host:String, port:uint) {
+        public function GameSocketProxy(host:String, port:uint, testConnection:Boolean = true) {
             try {
                 super();
                 this.port = port;
@@ -41,6 +41,9 @@ package info.knightrcom {
                 socket = new XMLSocket();
                 base64Encoder = new Base64Encoder();
                 base64Decoder = new Base64Decoder();
+                if (testConnection) {
+                    socket.connect(host, port);
+                }
             } catch (err:Error) {
                 trace(err.message);
             }
