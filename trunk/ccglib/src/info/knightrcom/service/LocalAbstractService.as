@@ -1,5 +1,7 @@
 package info.knightrcom.service
 {
+    import mx.core.Application;
+    import mx.utils.URLUtil;
 
 	/**
 	 *
@@ -15,7 +17,7 @@ package info.knightrcom.service
 
 		private var uri:String;
 
-		private static const REMOTE_SERVER_URI:String = "http://localhost:8080/f3s/#.f3s";
+		private static var REMOTE_SERVER_URI:String = "http://" + URLUtil.getServerNameWithPort(Application.application.loaderInfo.url) +  "/f3s/#.f3s"
 
 		/**
 		 *
