@@ -15,6 +15,8 @@ package info.knightrcom {
     import info.knightrcom.event.PushdownWinGameEvent;
     import info.knightrcom.event.QiongWinGameEvent;
     import info.knightrcom.event.Red5GameEvent;
+    import info.knightrcom.service.LocalErrorReportService;
+    import info.knightrcom.util.HttpServiceProxy;
     import info.knightrcom.util.ListenerBinder;
     
     import mx.controls.Alert;
@@ -139,6 +141,7 @@ package info.knightrcom {
             try {
                 socket.send(encodeForBase64String(data));
             } catch (e:Error) {
+				HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
                 Alert.show("数据发送失败！与服务器通信受阻，建议重新进入系统！", "错误");
             }
         }
