@@ -17,6 +17,7 @@ package info.knightrcom {
     import info.knightrcom.event.Red5GameEvent;
     import info.knightrcom.util.ListenerBinder;
     
+    import mx.controls.Alert;
     import mx.utils.Base64Decoder;
     import mx.utils.Base64Encoder;
 
@@ -135,7 +136,11 @@ package info.knightrcom {
         }
 
         private function sendSocket(data:String):void {
-            socket.send(encodeForBase64String(data));
+            try {
+                socket.send(encodeForBase64String(data));
+            } catch (e:Error) {
+                Alert.show("数据发送失败！与服务器通信受阻，建议重新进入系统！", "错误");
+            }
         }
 
         private function encodeForBase64String(data:String):String {
