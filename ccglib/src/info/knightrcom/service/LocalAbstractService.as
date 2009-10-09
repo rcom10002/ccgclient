@@ -17,7 +17,7 @@ package info.knightrcom.service
 
 		private var uri:String;
 
-		private static var REMOTE_SERVER_URI:String = "http://" + URLUtil.getServerNameWithPort(Application.application.loaderInfo.url) +  "/f3s/#.f3s"
+		private static var REMOTE_SERVER_URI:String = "http://127.0.0.1:8080/f3s/#.f3s"
 
 		/**
 		 *
