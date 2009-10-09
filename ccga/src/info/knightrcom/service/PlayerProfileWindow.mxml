@@ -50,7 +50,7 @@
 					var control:Object=thisFormItem.getChildAt(0);
 					if (control is ComboBox)
 					{
-						ComboBox(control).text="";
+						ComboBox(control).selectedIndex = -1;
 					}
 					else if (control is TextInput)
 					{
@@ -115,6 +115,10 @@
 					        return;
 					    }
 						currentState="EDIT";
+						playerUserId.enabled = false;
+						playerRlsPath.enabled = false;
+						playerCurrentScore.enabled = false;
+						playerRole.enabled = false;
 						currentOperationMethod=OperationMethod.UPDATE;
 						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
 						        function(event:ResultEvent):void
@@ -191,6 +195,10 @@
                         	Alert.show("数据验证未通过！", "错误");
                             return;
                         }
+                        if (playerPassword.text != playerPasswordConfirm.text) {
+                        	Alert.show("密码与确认密码不一致！", "错误");
+                            return;
+                        }
 						if (currentOperationMethod == OperationMethod.CREATE)
 						{
 							HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, 
@@ -205,9 +213,13 @@
 							        null, 
 							        function (event:ResultEvent):void {
     									var e4xResult:XML=new XML(event.result);
-    									playerProfileId.text=e4xResult.entity.profileId.text();
-    									currentOperationMethod=OperationMethod.UPDATE;
-    									Alert.show("玩家信息更新成功！", "消息");
+    									if (e4xResult.result == "WARNING") {
+    										Alert.show("用户ID已存在！", "警告");
+    									} else {
+	    									playerProfileId.text=e4xResult.entity.profileId.text();
+	    									currentOperationMethod=OperationMethod.UPDATE;
+	    									Alert.show("玩家信息更新成功！", "消息");
+    									}
     								},
     								function (event:FaultEvent):void {
     									Alert.show("玩家信息更新失败！", "错误");
@@ -216,8 +228,7 @@
 						else if (currentOperationMethod == OperationMethod.UPDATE)
 						{
 							HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE, 
-							        {PROFILE_ID : playerProfileId.text, 
-							         USER_ID : playerUserId.text, 
+							        {PROFILE_ID : playerProfileId.text,
 							         PASSWORD : playerPassword.text, 
 							         ROLE : playerRole.selectedItem.data, 
 							         STATUS : disableGroup.selectedValue, 
@@ -317,8 +328,7 @@
 						 right="0"
 						 top="0"
 						 bottom="40">
-					<mx:FormItem label="uuid"
-								 visible="false">
+					<mx:FormItem label="uuid" visible="false">
 						<mx:TextInput id="playerProfileId"/>
 					</mx:FormItem>
 					<mx:FormItem label="用户ID">
@@ -335,7 +345,7 @@
 									  maxChars="16"/>
 					</mx:FormItem>
 					<mx:FormItem label="所属用户组">
-						<mx:ComboBox id="playerRlsPath" selectedIndex="0" selectedItem=""/>
+						<mx:ComboBox id="playerRlsPath"/>
 					</mx:FormItem>
 					<mx:FormItem label="初始分值">
 						<mx:TextInput id="playerCurrentScore" maxChars="6"/>
@@ -344,7 +354,7 @@
 						<mx:TextInput id="playerLimit" maxChars="6" editable="false"/>
 					</mx:FormItem>
 					<mx:FormItem label="角色">
-						<mx:ComboBox id="playerRole" selectedIndex="0" selectedItem=""/>
+						<mx:ComboBox id="playerRole"/>
 					</mx:FormItem>
 					<mx:FormItem label="状态">
     					<mx:RadioButtonGroup id="disableGroup"/>
@@ -462,18 +472,25 @@
         <mx:StringValidator source="{playerPassword}"
                             required="true"
                             property="text"
+                            minLength="6" maxLength="16"
                             tooShortError="密码最小长度为6！"
                             tooLongError="密码最大长度为16！"
                             requiredFieldError="密码不能为空！"/>
         <mx:StringValidator source="{playerPasswordConfirm}"
                             required="true"
                             property="text"
-                            tooShortError="密码最小长度为6！"
-                            tooLongError="密码最大长度为16！"
+                            minLength="6" maxLength="16"
+                            tooShortError="确认密码最小长度为6！"
+                            tooLongError="确认密码最大长度为16！"
                             requiredFieldError="密码确认不能为空！"/>
-        <mx:StringValidator source="{playerCurrentScore}"
+        <mx:StringValidator source="{playerRlsPath}"
                             required="true"
                             property="text"
+                            requiredFieldError="所属用户组不能为空！"/>
+        <mx:NumberValidator source="{playerCurrentScore}"
+                            required="true"
+                            property="text"
+                            invalidCharError="初始分值必须是数字！"
                             requiredFieldError="初始分值不能为空！"/>
         <mx:StringValidator source="{playerRole}"
                             required="true"
