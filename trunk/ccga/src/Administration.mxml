@@ -58,10 +58,6 @@
 								  id="txtPassword"
 								  text="000000"
 								  displayAsPassword="true"/>
-					<mx:Button x="38"
-							   y="66"
-							   id="btnConnect"
-							   label="连接"/>
 					<mx:Button x="98"
 							   y="66"
 							   id="btnSubmit"
