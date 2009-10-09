@@ -98,10 +98,9 @@
 							    			{
 							    				FROM_PLAYER : Application.application.currentUserId,
 							    				FROM_ORG_SCORE : txtMyOrgScore.text,
-							    				FROM_CUR_SCORE : txtMyCurScore.text,
+							    				SCORE : txtMyCurScore.text,
 							    				TO_PLAYER : comboUserIds.selectedLabel.toString(),
-							    				TO_ORG_SCORE : txtPlayerOrgScore.text,
-							    				TO_CUR_SCORE : txtPlayerCurScore.text
+							    				TO_ORG_SCORE : txtPlayerOrgScore.text
 							    			}, null,
 							    		function(eventResult:ResultEvent):void {
 							    			if (new XML(eventResult.result).result == "SUCCESS")
@@ -132,14 +131,6 @@
 				HttpServiceProxy.send(LocalDepositBookService.GET_PLAYER_RECHARGE_RECORD, {CURRENT_USER_ID : comboUserIds.selectedLabel.toString()}, infoService);
 			}
 			
-			private function overFromScoreLabelFunction(item:Object, column:DataGridColumn):String {
-    			return (parseInt(item.fromOrgScore) - parseInt(item.fromCurScore)).toString();
-            }
-            
-            private function overToScoreLabelFunction(item:Object, column:DataGridColumn):String {
-    			return (parseInt(item.toOrgScore) + parseInt(item.toCurScore)).toString();
-            }
-            
             private function tabChangeClickHandler(event:Event):void {
     			if (tabNavigator.selectedIndex == 0) {
     				getPlayerRecord();
@@ -246,8 +237,8 @@
 								<mx:columns>
 									<mx:DataGridColumn headerText="充值积分来自用户" dataField="fromPlayer" width="80"/>
 									<mx:DataGridColumn headerText="充值前积分" dataField="toOrgScore" width="30"/>
-									<mx:DataGridColumn headerText="充值积分" dataField="toCurScore" width="30"/>
-									<mx:DataGridColumn headerText="充值后积分" labelFunction="overToScoreLabelFunction" width="30"/>
+									<mx:DataGridColumn headerText="充值积分" dataField="score" width="30"/>
+									<mx:DataGridColumn headerText="充值后积分" dataField="toCurScore" width="30"/>
 									<mx:DataGridColumn headerText="充值时间" dataField="createTime" width="120"/>
 								</mx:columns>
 							</mx:DataGrid>
@@ -258,8 +249,8 @@
 								<mx:columns>
 									<mx:DataGridColumn headerText="充值玩家" dataField="toPlayer" width="80"/>
 									<mx:DataGridColumn headerText="充值前积分" dataField="fromOrgScore" width="30"/>
-									<mx:DataGridColumn headerText="充值积分" dataField="fromCurScore" width="30"/>
-									<mx:DataGridColumn headerText="充值后积分" labelFunction="overFromScoreLabelFunction" width="30"/>
+									<mx:DataGridColumn headerText="充值积分" dataField="score" width="30"/>
+									<mx:DataGridColumn headerText="充值后积分" dataField="fromCurScore" width="30"/>
 									<mx:DataGridColumn headerText="充值时间" dataField="createTime" width="120"/>
 								</mx:columns>
 							</mx:DataGrid>
