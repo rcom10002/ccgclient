@@ -53,13 +53,13 @@
 				var data:XML = new XML(event.result);
 				userTree.dataProvider = data;
 				var userIdArray:Array = new Array();
-				userIdArray.push(null);
 				for each(var rlspath:XML in data..rlspath) {
 					with (rlspath) {
 				    	userIdArray.push({data: @key, label: @key});
 				 	}
 				}
 				comboUserIds.dataProvider = userIdArray;
+				comboUserIds.selectedIndex = -1;
 			}
 
 			private function freshFaultHandler(event:FaultEvent):void {
