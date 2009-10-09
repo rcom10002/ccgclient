@@ -118,7 +118,6 @@
 						playerUserId.enabled = false;
 						playerRlsPath.enabled = false;
 						playerCurrentScore.enabled = false;
-						playerRole.enabled = false;
 						currentOperationMethod=OperationMethod.UPDATE;
 						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
 						        function(event:ResultEvent):void
