@@ -249,7 +249,7 @@
 			<mx:columns>
 				<mx:DataGridColumn headerText="积分提供者" dataField="fromPlayer"/>
 				<mx:DataGridColumn headerText="充值前积分" dataField="toOrgScore"/>
-				<mx:DataGridColumn headerText="充值后积分" dataField="toCurSscore"/>
+				<mx:DataGridColumn headerText="充值后积分" dataField="toCurScore"/>
 				<mx:DataGridColumn headerText="充值时间" dataField="createTime"/>
 			</mx:columns>
 		</mx:DataGrid>

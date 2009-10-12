@@ -50,7 +50,8 @@
 					var control:Object=thisFormItem.getChildAt(0);
 					if (control is ComboBox)
 					{
-						ComboBox(control).selectedIndex = -1;
+						ComboBox(control).text = null;
+						ComboBox(control).data = null;
 					}
 					else if (control is TextInput)
 					{
@@ -72,246 +73,279 @@
 				}
 			}
 
+            private function btnCreateHandler(event:MouseEvent):void {
+				clearEditor();
+				currentOperationMethod=OperationMethod.CREATE;
+				currentState="EDIT";
+            }
+
+            private function btnUpdateHandler(event:MouseEvent):void {
+			    if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要更新的数据！", "警告");
+			        return;
+			    }
+				clearEditor();
+				currentOperationMethod=OperationMethod.UPDATE;
+	            currentState="EDIT";
+				HttpServiceProxy.send(
+				        LocalPlayerProfileService.READ_PLAYER_PROFILE, 
+				        {PROFILE_ID : datagrid.selectedItem.profileId.text()}, 
+				        null, 
+				        function (event:ResultEvent):void {
+						    // 将读取到的玩家信息填写到对应的控件中
+							var e4xResult:XML = new XML(event.result);
+							playerProfileId.text = e4xResult.entity.profileId.text();
+							playerUserId.text = e4xResult.entity.userId.text();
+							// 将密码长度缩短至16位长
+							playerPassword.text = e4xResult.entity.password.text();
+							playerPassword.text = playerPassword.text.substring(0, 16);
+							playerPasswordConfirm.text = e4xResult.entity.password.text();
+							playerPasswordConfirm.text = playerPasswordConfirm.text.substring(0, 16);
+							playerRlsPath.text = e4xResult.entity.rlsPath;
+							playerRlsPath.data = e4xResult.entity.rlsPath;
+							var dataProvider:ArrayCollection = ArrayCollection(playerRlsPath.dataProvider);
+							for (var i:int = 0; i < dataProvider.length; i++) {
+							    if (e4xResult.entity.rlsPath == dataProvider.getItemAt(i).data) {
+							        playerRlsPath.selectedIndex = i;
+							        break;
+							    }
+							}
+							playerCurrentScore.text = e4xResult.entity.currentScore;
+							playerLimit.text = e4xResult.entity.initLimit;
+							dataProvider = ArrayCollection(playerRole.dataProvider);
+							for (i = 0; playerRole != null && i < dataProvider.length; i++) {
+							    if (e4xResult.entity.role == dataProvider.getItemAt(i).data) {
+							        playerRole.selectedIndex = i;
+							        break;
+							    }
+							}
+							if (e4xResult.entity.status == "1") {
+							    disableGroup.getRadioButtonAt(0).selected = true;
+							} else {
+							    disableGroup.getRadioButtonAt(1).selected = true;
+							}
+						},
+						function (event:FaultEvent):void {
+						    Alert.show("通信失败！", "错误");
+						});
+            }
+
+            private function btnDeleteHandler(event:MouseEvent):void {
+			    if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要删除的数据！", "警告");
+			        return;
+			    }
+				currentOperationMethod=OperationMethod.DELETE;
+				Alert.yesLabel = "确认";
+				Alert.noLabel = "取消";
+			    Alert.show( "确定要删除？",
+						"消息", 
+						Alert.YES | Alert.NO,
+						adminApp,
+						function handleAlert(event:CloseEvent):void {
+						    if(event.detail == Alert.YES)
+						    {
+								HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
+								        function (event:ResultEvent):void 
+		    							{
+		    								Alert.show("删除玩家信息成功！", "消息");
+		    								defaultSearch();
+		    							},
+		    							function (event:FaultEvent):void {
+	    									Alert.show("删除玩家信息失败！", "错误");
+	    								}
+		    					);
+				 			}
+						},
+						null,
+						Alert.YES);
+				currentOperationMethod=OperationMethod.UNKNOWN;
+            }
+
+            private function btnSubmitHandler(event:MouseEvent):void {
+                if (Validator.validateAll(submitValidators).length != 0) {
+                	Alert.show("数据验证未通过！", "警告");
+                    return;
+                }
+                if (playerPassword.text != playerPasswordConfirm.text) {
+                	Alert.show("密码与确认密码不一致！", "警告");
+                    return;
+                }
+				if (currentOperationMethod == OperationMethod.CREATE && parseInt(playerCurrentScore.text) % 100 != 0) {
+					Alert.show("充值积分必须是100的倍数！", "警告");
+					return;
+				}
+				if (currentOperationMethod == OperationMethod.CREATE)
+				{
+					HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, 
+					        {USER_ID : playerUserId.text, 
+					         PASSWORD : playerPassword.text, 
+					         RLS_PATH : (playerRlsPath.selectedItem.data + "!" + playerUserId.text).replace(/^Administrator!/, ""), 
+					         CURRENT_SCORE : playerCurrentScore.text, 
+					         INIT_LIMIT : playerLimit.text, 
+					         ROLE : playerRole.selectedItem.data, 
+					         STATUS : disableGroup.selectedValue, 
+					         CURRENT_ROLE : Application.application.currentRole,
+					         CURRENT_USER_ID : Application.application.currentUserId}, 
+					        null, 
+					        function (event:ResultEvent):void {
+								var e4xResult:XML=new XML(event.result);
+								if (e4xResult.result == "WARNING") {
+									Alert.show("用户ID已存在！", "警告");
+								} else if (e4xResult.result == "SUCCESS") {
+									playerProfileId.text=e4xResult.entity.profileId.text();
+									Alert.show("玩家信息更新成功！", "消息", 4, null, function (e:Event):void {
+									    btnBack.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+									});
+								} else {
+								    Alert.show("玩家信息更新失败！", "错误");
+								}
+							},
+							function (event:FaultEvent):void {
+								Alert.show("通信失败！", "错误");
+							});
+				}
+				else if (currentOperationMethod == OperationMethod.UPDATE)
+				{
+					HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE, 
+					        {PROFILE_ID : playerProfileId.text,
+					         PASSWORD : playerPassword.text, 
+					         ROLE : playerRole.selectedItem.data, 
+					         STATUS : disableGroup.selectedValue, 
+					         CURRENT_ROLE : Application.application.currentRole},
+					      	null, 
+					        function (event:ResultEvent):void {
+								var e4xResult:XML=new XML(event.result);
+								playerProfileId.text=e4xResult.entity.profileId.text();
+								currentOperationMethod=OperationMethod.UPDATE;
+								Alert.show("玩家信息更新成功！", "消息");
+							},
+							function (event:FaultEvent):void {
+								Alert.show("玩家信息更新失败！", "错误");
+							});
+				}
+            }
+
+            private function btnBackHandler(event:MouseEvent):void {
+				currentOperationMethod=OperationMethod.UNKNOWN;
+				currentState="LIST";
+            }
+
+            private function stateChangeHandler(event:StateChangeEvent):void {
+                if (currentState == "LIST") {
+                    defaultSearch();
+                }
+
+                if (currentState == "EDIT" && currentOperationMethod == OperationMethod.CREATE) {
+                    // 初始化玩家关系路径
+                    var rlsPathLoad:Function = function (event:ResultEvent):void {
+                        var rlsPathes:Array = new Array();
+                        playerRlsPath.dataProvider = null;
+    			        for each (var rlsPath:* in new XML(event.result).tag.map.rlsPath) {
+    			            rlsPathes.push({data: rlsPath, label: rlsPath});
+    			        }
+    			        playerRlsPath.dataProvider = rlsPathes;
+    			        playerRlsPath.selectedItem = null;
+                    };
+                    if (Application.application.currentRole != "GroupUser") {
+                        // 取得除Administration之外的关系路径取出
+    				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, rlsPathLoad);
+                    } else if (Application.application.currentRole == "GroupUser") {
+                        // 将与组用户相关的关系路径取出
+    				    HttpServiceProxy.send(
+    				            LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, 
+    				            {CURRENT_RLS_PATH : Application.application.currentRlsPath}, 
+    				            null, 
+    				            rlsPathLoad);
+                    }
+                }
+
+                // 控件状态控制
+                if (currentOperationMethod == OperationMethod.CREATE) {
+                } else {
+    				playerUserId.enabled = false;
+    				playerRlsPath.enabled = false;
+    				playerCurrentScore.enabled = false;
+    				playerLimit.enabled = false;
+    				playerRole.enabled = false;
+                }
+            }
+
 			protected function creationCompleteHandler():void
 			{
 				// 状态初始化
 				initializeEachState("LIST");
 				// 事件绑定
 				// 检索
-				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function(event:MouseEvent):void
-					{
-						CURRENT_PAGE=1;
-						defaultSearch();
-					});
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, function(event:MouseEvent):void {
+					CURRENT_PAGE=1;
+					defaultSearch();
+				});
 				// 翻页
-				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, function(event:ItemClickEvent):void {
+					if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
 					{
-						if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
-						{
-							return;
-						}
-						if (event.index == 0)
-						{
-							CURRENT_PAGE--;
-						}
-						else if (event.index == 1)
-						{
-							CURRENT_PAGE++;
-						}
-						defaultSearch();
-					});
-				// 添加
-				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, function():void
-					{
-						currentState="EDIT";
-						currentOperationMethod=OperationMethod.CREATE;
-						clearEditor();
-					});
-				// 更新
-				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, function():void
-					{
-					    if (datagrid.selectedIndices.length == 0) {
-					        Alert.show("请选择要更新的数据！");
-					        return;
-					    }
-						currentState="EDIT";
-						playerUserId.enabled = false;
-						playerRlsPath.enabled = false;
-						playerCurrentScore.enabled = false;
-						currentOperationMethod=OperationMethod.UPDATE;
-						HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
-						        function(event:ResultEvent):void
-    							{
-    								var e4xResult:XML=new XML(event.result);
-    								playerProfileId.text=e4xResult.entity.profileId.text();
-    								playerUserId.text=e4xResult.entity.userId.text();
-    								// FIXME DROP THE FOLLOWING LINES
-    								// playerPassword.text=e4xResult.entity.password.text();
-    								// playerPasswordConfirm.text=e4xResult.entity.password.text();
-    								playerPassword.text="******";
-    								playerPasswordConfirm.text="******";
-    								var dataProvider:ArrayCollection = ArrayCollection(playerRlsPath.dataProvider);
-    								for (var i:int = 0; i < dataProvider.length; i++) {
-    								    if (e4xResult.entity.rlsPath == dataProvider.getItemAt(i).data) {
-    								        playerRlsPath.selectedIndex = i;
-    								        break;
-    								    }
-    								}
-    								playerCurrentScore.text = e4xResult.entity.currentScore;
-    								playerLimit.text = e4xResult.entity.initLimit;
-    								dataProvider = ArrayCollection(playerRole.dataProvider);
-    								for (i = 0; playerRole != null && i < dataProvider.length; i++) {
-    								    if (e4xResult.entity.role == dataProvider.getItemAt(i).data) {
-    								        playerRole.selectedIndex = i;
-    								        break;
-    								    }
-    								}
-    								if (e4xResult.entity.status == "1") {
-    								    disableGroup.getRadioButtonAt(0).selected = true;
-    								} else {
-    								    disableGroup.getRadioButtonAt(1).selected = true;
-    								}
-    							}
-						);
-					});
-				// 删除
-				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, function():void
-					{
-					    if (datagrid.selectedIndices.length == 0) {
-					        Alert.show("请选择要删除的数据！");
-					        return;
-					    }
-						currentOperationMethod=OperationMethod.DELETE;
-						Alert.yesLabel = "确认";
-						Alert.noLabel = "取消";
-					    Alert.show( "确定要删除？",
-								"消息", 
-								Alert.YES | Alert.NO,
-								adminApp,
-								function handleAlert(event:CloseEvent):void {
-								    if(event.detail == Alert.YES)
-								    {
-										HttpServiceProxy.send(LocalPlayerProfileService.DELETE_PLAYER_PROFILE, {PROFILE_ID: datagrid.selectedItem.profileId.text()}, null, 
-										        function (event:ResultEvent):void 
-				    							{
-				    								Alert.show("删除玩家信息成功！", "消息");
-				    								defaultSearch();
-				    							},
-				    							function (event:FaultEvent):void {
-			    									Alert.show("删除玩家信息失败！", "错误");
-			    								}
-				    					);
-    					 			}
-								},
-								null,
-								Alert.YES);
-						currentOperationMethod=OperationMethod.UNKNOWN;
-					});
-				// 确定
-				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, function():void
-					{
-                        if (Validator.validateAll(submitValidators).length != 0) {
-                        	Alert.show("数据验证未通过！", "错误");
-                            return;
-                        }
-                        if (playerPassword.text != playerPasswordConfirm.text) {
-                        	Alert.show("密码与确认密码不一致！", "错误");
-                            return;
-                        }
-						if (currentOperationMethod == OperationMethod.CREATE)
-						{
-							HttpServiceProxy.send(LocalPlayerProfileService.CREATE_PLAYER_PROFILE, 
-							        {USER_ID : playerUserId.text, 
-							         PASSWORD : playerPassword.text, 
-							         RLS_PATH : (playerRlsPath.selectedItem.data + "!" + playerUserId.text).replace(/^!/, ""), 
-							         CURRENT_SCORE : playerCurrentScore.text, 
-							         INIT_LIMIT : playerLimit.text, 
-							         ROLE : playerRole.selectedItem.data, 
-							         STATUS : disableGroup.selectedValue, 
-							         CURRENT_ROLE : Application.application.currentRole}, 
-							        null, 
-							        function (event:ResultEvent):void {
-    									var e4xResult:XML=new XML(event.result);
-    									if (e4xResult.result == "WARNING") {
-    										Alert.show("用户ID已存在！", "警告");
-    									} else {
-	    									playerProfileId.text=e4xResult.entity.profileId.text();
-	    									currentOperationMethod=OperationMethod.UPDATE;
-	    									Alert.show("玩家信息更新成功！", "消息");
-    									}
-    								},
-    								function (event:FaultEvent):void {
-    									Alert.show("玩家信息更新失败！", "错误");
-    								});
-						}
-						else if (currentOperationMethod == OperationMethod.UPDATE)
-						{
-							HttpServiceProxy.send(LocalPlayerProfileService.UPDATE_PLAYER_PROFILE, 
-							        {PROFILE_ID : playerProfileId.text,
-							         PASSWORD : playerPassword.text, 
-							         ROLE : playerRole.selectedItem.data, 
-							         STATUS : disableGroup.selectedValue, 
-							         CURRENT_ROLE : Application.application.currentRole},
-							      	null, 
-							        function (event:ResultEvent):void {
-    									var e4xResult:XML=new XML(event.result);
-    									playerProfileId.text=e4xResult.entity.profileId.text();
-    									currentOperationMethod=OperationMethod.UPDATE;
-    									Alert.show("玩家信息更新成功！", "消息");
-    								},
-    								function (event:FaultEvent):void {
-    									Alert.show("玩家信息更新失败！", "错误");
-    								});
-						}
-						
-					});
-				// 取消
-				ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void
-					{
-						currentState="LIST";
-						currentOperationMethod=OperationMethod.UNKNOWN;
-						defaultSearch();
+						return;
 					}
-				);
+					if (event.index == 0)
+					{
+						CURRENT_PAGE--;
+					}
+					else if (event.index == 1)
+					{
+						CURRENT_PAGE++;
+					}
+					defaultSearch();
+				});
+				// 添加
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnCreateHandler);
+				// 更新
+				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, btnUpdateHandler);
+				// 删除
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, btnDeleteHandler);
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitHandler);
+				// 取消
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackHandler);
 				// 绑定监听
-                ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, function (event:StateChangeEvent):void
-                    {
-                        ChangeWatcher.watch(playerCurrentScore, "text", function(event:Event):void {
-                            if (currentState == "EDIT") {
-                                playerLimit.text = playerCurrentScore.text;
-                            }
-                        });
-                        if (currentOperationMethod == OperationMethod.CREATE) {
-                        	playerCurrentScore.enabled = true;
-                        } else {
-                        	playerCurrentScore.enabled = false;
-                        }
-                    });
+                ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, stateChangeHandler);
 
-                // 初始化玩家关系路径
-                var rlsPathes:Array = new Array();
-//                if (Application.application.currentRole == "Administrator") {
-//                    // 系统管理员可以添加一个顶级节点
-//                    rlsPathes.push({data: "", label:""});
-//                }
-                var rlsPathLoad:Function = function (event:ResultEvent):void {
-			        for each (var rlsPath:* in new XML(event.result).tag.map.rlsPath) {
-					    // 按权限取消关系路径与角色
-					    if (Application.application.currentRole == "GameMaster" && rlsPath == "Administrator") {
-					    	// 取消Administrator路径
-				    		continue;
-					    }
-			            rlsPathes.push({data: rlsPath, label: rlsPath});
-			        }
-			        playerRlsPath.dataProvider = rlsPathes;
-                };
-                if (Application.application.currentRole != "GroupUser") {
-				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, rlsPathLoad);
-                } else if (Application.application.currentRole == "GroupUser") {
-				    HttpServiceProxy.send(
-				            LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, 
-				            {CURRENT_RLS_PATH : Application.application.currentRlsPath}, 
-				            null, 
-				            rlsPathLoad);
-                }
 			    // 初始化玩家角色
 			    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_ROLE, {CURRENT_ROLE : Application.application.currentRole}, null, 
 		            function(event:ResultEvent):void {
     			        playerRole.dataProvider = null;
     			        var roles:Array = new Array();
-    			        trace(event.result);
     			        for each (var eachRole:String in new XML(event.result).tag.string) {
+    			            // 角色值
     			        	var itemData:String = eachRole.split("~")[0];
+    			        	// 角色名称
     			        	var itemLabel:String = eachRole.split("~")[1];
-						    if (Application.application.currentRole == "GameMaster" && (itemData == "GameMaster" || itemData == "SuperGameMaster")) {
+    			        	if (itemData == "Administrator") {
+    			        	    // 禁止创建系统管理员
+    			        	    continue;
+    			        	}
+    			        	if (Application.application.currentRole == "GameMaster" && (itemData == "SuperGameMaster" || itemData == "GameMaster")) {
+    			        	    // 普通的游戏管理员不可以创建超级游戏管理员和游戏管理员
+    			        	    continue;
+    			        	} if (Application.application.currentRole == "GroupUser" && (itemData == "GameMaster" || itemData == "SuperGameMaster")) {
 						    	// 取消SuperGameMaster和GameMaster权限
 						    	continue;
 						    }
     			            roles.push({data : itemData, label : itemLabel});
     			        }
-    			        playerRole.dataProvider = roles.sort();
+    			        playerRole.dataProvider = roles;
 		            }
 			    );
+
+			    // 数据绑定
+                ChangeWatcher.watch(playerCurrentScore, "text", function(event:Event):void {
+                    if (currentState == "EDIT" && currentOperationMethod == OperationMethod.CREATE) {
+                        playerLimit.text = playerCurrentScore.text;
+                    }
+                });
+                
+                // 数据查询
+                defaultSearch();
 			}
 
 			private function statusLabelFunction(item:Object, column:DataGridColumn):String {
@@ -344,10 +378,10 @@
 									  maxChars="16"/>
 					</mx:FormItem>
 					<mx:FormItem label="所属用户组">
-						<mx:ComboBox id="playerRlsPath"/>
+						<mx:ComboBox id="playerRlsPath" rowCount="10"/>
 					</mx:FormItem>
 					<mx:FormItem label="初始分值">
-						<mx:TextInput id="playerCurrentScore" maxChars="6"/>
+						<mx:TextInput id="playerCurrentScore" restrict="0-9" maxChars="6"/>
 					</mx:FormItem>
 					<mx:FormItem label="用户额度">
 						<mx:TextInput id="playerLimit" maxChars="6" editable="false"/>

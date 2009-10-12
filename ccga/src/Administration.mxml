@@ -109,9 +109,8 @@
     <!-- 高级用户界面菜单配置 -->
 	<mx:XML id="GroupUserMenuXML">
 		<root label="nodegraphs">
-			<node label="用户管理">
-				<node label="普通用户管理"/>
-				<node label="用户关系浏览"/>
+			<node label="用户信息管理">
+				<node label="用户管理"/>
 				<node label="积分充值"/>
 			</node>
 			<node label="报表管理">
@@ -141,8 +140,8 @@
     <!-- 超级GM界面菜单配置 -->
 	<mx:XML id="SuperGameMasterMenuXML">
 		<root label="nodegraphs">
-			<node label="用户管理">
-				<node label="普通用户管理"/>
+			<node label="用户信息管理">
+				<node label="用户管理"/>
 				<node label="用户关系浏览"/>
 				<node label="积分充值"/>
 			</node>
@@ -167,10 +166,10 @@
     <!-- 管理员界面菜单配置 -->
 	<mx:XML id="AdministratorMenuXML">
 		<root label="nodegraphs">
-			<node label="用户管理">
-				<node label="普通用户管理"/>
+			<node label="用户信息管理">
+				<node label="用户管理"/>
 				<node label="用户关系浏览"/>
-				<!--node label="积分充值"/-->
+				<node label="积分充值"/>
 			</node>
 			<node label="系统管理">
 				<node label="即时消息发布"/>

@@ -84,7 +84,7 @@ package info.knightrcom
 			var label:String=item.@label;
 			switch (label)
 			{
-				case "普通用户管理":
+				case "用户管理":
 					adminApp.functionWindowArea.currentState="SOLO_USER_EDIT";
 					break;
 				case "用户关系浏览":

@@ -24,8 +24,7 @@
 	        this.addEventListener(ErrorEvent.ERROR, function(errorEvent:ErrorEvent):void {
 	        	Alert.show("APPLICATION ERROR: " + errorEvent.text);
 	        });
-	        // var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
-	        var socketProxy:GameSocketProxy = new GameSocketProxy('127.0.0.1', 2009);
+	        var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
 	        var baseStateManager:BaseStateManager = new BaseStateManager(socketProxy, this);
 	        var loginStateManager:LoginStateManager = new LoginStateManager(socketProxy, this, loginState);
 	        var lobbyStateManager:LobbyStateManager = new LobbyStateManager(socketProxy, this, lobbyState);
