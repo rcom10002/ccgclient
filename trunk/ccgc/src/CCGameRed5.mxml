@@ -2,6 +2,8 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
 	<!-- 上侧区域 -->
 	<mx:HBox id="candidatedUp"
+			 verticalScrollPolicy="off"
+			 horizontalScrollPolicy="off"
 			 height="120"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
@@ -12,6 +14,8 @@
 	</mx:HBox>
 	<!-- 右侧区域 -->
 	<mx:VBox id="candidatedRight"
+			 verticalScrollPolicy="off"
+			 horizontalScrollPolicy="off"
 			 width="120"
 			 top="128"
 			 bottom="156"
@@ -22,6 +26,8 @@
 	</mx:VBox>
 	<!-- 下侧区域 -->
 	<mx:HBox id="candidatedDown"
+			 verticalScrollPolicy="off"
+			 horizontalScrollPolicy="off"
 			 height="120"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
@@ -32,6 +38,8 @@
 	</mx:HBox>
 	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
+			 verticalScrollPolicy="off"
+			 horizontalScrollPolicy="off"
 			 width="120"
 			 top="128"
 			 bottom="156"
@@ -90,6 +98,8 @@
 				 verticalAlign="middle">
 			<mx:Button label="按钮"/>
 		</mx:Tile>
+		<!-- 提示区域 -->
+		<mx:Label id="arrowTip" horizontalCenter="0" verticalCenter="0"/>
 	</mx:Canvas>
 	<!-- 操作区域 -->
 	<mx:HBox horizontalAlign="center"

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml" title="业务汇总报表">
+	<mx:Label text="起始日期" left="10" top="10"/>
+	<mx:DateField left="63" top="8" width="120"/>
+	<mx:Label text="结束日期" left="191" top="10"/>
+	<mx:DateField left="244" top="8" width="120"/>
+	<mx:Button label="查询" left="372" top="8"/>
+	<mx:Button label="下载" left="428" top="8"/>
+	<mx:DataGrid left="10" top="36" bottom="10" right="10">
+		<mx:columns>
+			<mx:DataGridColumn headerText="被充值玩家" dataField="col2"/>
+			<mx:DataGridColumn headerText="累计充值积分" dataField="col1"/>
+			<mx:DataGridColumn headerText="累计游戏积分" dataField="col1"/>
+			<mx:DataGridColumn headerText="累计系统积分" dataField="col1"/>
+			<mx:DataGridColumn headerText="有效剩余积分" dataField="col1"/>
+		</mx:columns>
+	</mx:DataGrid>
+</FunctionWindow>

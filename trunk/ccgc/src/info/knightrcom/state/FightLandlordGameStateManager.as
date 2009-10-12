@@ -686,7 +686,7 @@ package info.knightrcom.state
 			 */
 			firstPlaceNumber=currentNumber;
 			// 显示记分牌
-			new Scoreboard().popUp(gameClient, scoreboardInfo, function():void
+			new Scoreboard().popUp(localNumber, scoreboardInfo, function():void
 				{
 					gameClient.currentState='LOBBY';
 				});

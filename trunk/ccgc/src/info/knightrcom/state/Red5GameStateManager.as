@@ -433,7 +433,7 @@ package info.knightrcom.state {
                 Tile(cardsDealedArray[previousIndex]).removeAllChildren();
                 Tile(cardsDealedArray[previousIndex]).addChild(passLabel);
             } else {
-                if (isOrderNeighbor(currentNumber, currentNextNumber)) {
+                if (isOrderNeighbor(currentNumber, currentNextNumber)) { // TODO THIS METHOD MAY BE USELESS
                     // 如果牌序中的两个玩家为邻座的两个人，并且上下家顺序为逆时针，则为正常出牌
                     count = cardNames.length;
                     while (count-- > 0) {
@@ -441,7 +441,7 @@ package info.knightrcom.state {
                         cardsCandidated.removeChildAt(0);
                     }
                 }
-                // 上家出牌时，从已发牌中移除所有牌
+                // 上家出牌或是首次发牌时，从已发牌中移除所有牌
                 cardsDealed.removeAllChildren();
                 for each (var cardName:String in cardNames) {
                     // 向已发牌中添加牌
@@ -471,6 +471,29 @@ package info.knightrcom.state {
                     Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
             }
+
+			// 显示游戏提示
+			var tipString:String = "当前准备出牌玩家：#，\n刚才已经出牌玩家：#。";
+            var playerDirection:Array = new Array("下", "右", "上", "左")
+            var index:int = 0;
+            while (index != localNumber - 1) {
+                var temp:Object = null;
+                temp = playerDirection.pop();
+                playerDirection.unshift(temp);
+                index++;
+            }
+			// 显示游戏提示：指示当前要出牌的玩家
+			tipString = tipString.replace(/#/, playerDirection[Number(currentNextNumber) - 1]);
+			// 显示游戏提示：指示刚刚出了牌的玩家
+			tipString = tipString.replace(/#/, playerDirection[Number(currentNumber) - 1]);
+
+			if (gameSetting == Red5GameSetting.NO_RUSH) {
+				currentGame.arrowTip.text = "游戏没有人独牌！\n" + tipString;
+			} else {
+				currentGame.arrowTip.text = "游戏#方玩家#！\n".replace(/#/, playerDirection[Number(currentNumber) - 1]);
+				currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, Red5GameSetting.getDisplayName(gameSetting));
+				currentGame.arrowTip.text += tipString;
+			}
         }
 
         /**
@@ -528,7 +551,7 @@ package info.knightrcom.state {
                 firstPlaceNumber = currentNumber;
             }
             // 显示记分牌
-            new Scoreboard().popUp(gameClient, scoreboardInfo, function():void {
+            new Scoreboard().popUp(localNumber, scoreboardInfo, function():void {
             	gameClient.currentState = 'LOBBY';
             });
             // 显示游戏积分
@@ -583,9 +606,6 @@ package info.knightrcom.state {
                 var placeNumberPattern:RegExp = new RegExp("[" + firstPlaceNumber + secondPlaceNumber + thirdPlaceNumber + "]", "g");
                 forthPlaceNumber = Number("1234".replace(placeNumberPattern, ""));
             }
-            // TODO DROP THE FOLLOWING DEBUG INFO
-//            var placeNumbers:Array = new Array(firstPlaceNumber, secondPlaceNumber, thirdPlaceNumber, forthPlaceNumber);
-//            Alert.show("玩家[" + placeNumbers.join(",") + "]胜出！", "消息");
         }
 
         /**
