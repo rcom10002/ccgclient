@@ -55,7 +55,7 @@
 
 			private function btnChangePasswdHandler(event:MouseEvent):void {
 				txtOldPwd.enabled = !txtOldPwd.enabled;
-				if (!txtOldPwd.enabled && Validator.validateAll(updatePasswordValidators).length == 0) {
+				if (!txtOldPwd.enabled && Validator.validateAll(this.updatePasswordValidators).length == 0) {
 					if (txtNewPwd.text == txtNewPwd2.text) {
 						HttpServiceProxy.send(
 							LocalPlayerInfoService.CHANGE_PASSWORD,
@@ -63,8 +63,17 @@
 							 OLD_PWD : txtOldPwd.text,
 							 NEW_PWD : txtNewPwd.text},
 							null,
-							function (e:ResultEvent):void {
-								
+							function (eventResult:ResultEvent):void {
+								if (new XML(eventResult.result).result == "SUCCESS")
+								{
+									Alert.show("密码修改成功！", "消息");
+									txtOldPwd.enabled = !txtOldPwd.enabled;
+				    				defaultSearch();
+								}
+								else
+								{
+									Alert.show("原始密码不正确！", "消息");
+								}
 							},
 							function (e:FaultEvent):void {
 								Alert.show("通信失败！", "错误");
@@ -73,6 +82,7 @@
 						Alert.show("新密码和密码确认必须一致！", "警告");
 					}
 				}
+				txtOldPwd.enabled = true;
 			}
 
 			private function btnCancelChangeHandler(event:MouseEvent):void {
@@ -94,7 +104,7 @@
 						// 更新PROFILE
 						txtUserId.text = e4x.tag.profile.userId;
 						txtCurScores.text = e4x.tag.profile.currentScore;
-						txtOldPwd.text = e4x.tag.profile.password;
+//						txtOldPwd.text = e4x.tag.profile.password;
 						// 更新充值记录
 						personalInfoDatagrid.dataProvider = e4x.tag.historyRecharges.map;
 					},
@@ -258,18 +268,21 @@
         <mx:StringValidator source="{txtOldPwd}"
                             required="true"
                             property="text"
-                            tooShortError="密码最小长度为6！"
-                            tooLongError="密码最大长度为16！"
-                            requiredFieldError="密码确认不能为空！"/>
+                            minLength="6" maxLength="16"
+                            tooShortError="原始密码最小长度为6！"
+                            tooLongError="原始密码最大长度为16！"
+                            requiredFieldError="原始密码不能为空！"/>
         <mx:StringValidator source="{txtNewPwd}"
                             required="true"
                             property="text"
-                            tooShortError="密码最小长度为6！"
-                            tooLongError="密码最大长度为16！"
-                            requiredFieldError="密码确认不能为空！"/>
+                            minLength="6" maxLength="16"
+                            tooShortError="新密码最小长度为6！"
+                            tooLongError="新密码最大长度为16！"
+                            requiredFieldError="新密码不能为空！"/>
         <mx:StringValidator source="{txtNewPwd2}"
                             required="true"
                             property="text"
+                            minLength="6" maxLength="16"
                             tooShortError="密码最小长度为6！"
                             tooLongError="密码最大长度为16！"
                             requiredFieldError="密码确认不能为空！"/>
