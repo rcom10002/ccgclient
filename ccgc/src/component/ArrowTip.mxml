@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml" source="http://www.helpexamples.com/flash/images/logo.png" click="button_click(event);">
+	<mx:Script>
+		<![CDATA[
+			private static var directions:Array = new Arrya(0, 90, 180, 270);
+			private static var currentPos = 0;
+            private function button_click(evt:Event):void {
+                var direction:int = directions[currentPos++];
+                var radians:Number = degreesToRadians(direction);
+                var offsetWidth:Number = img.width / 2;
+                var offsetHeight:Number = img.height / 2;
+                var tempMatrix:Matrix = img.transform.matrix;
+                tempMatrix.translate(-offsetWidth, -offsetHeight);
+                tempMatrix.rotate(radians);
+                tempMatrix.translate(+offsetWidth, +offsetHeight);
+
+                img.transform.matrix = tempMatrix;
+
+                rotateDeg = img.rotation;
+            }
+
+            private function degreesToRadians(degrees:Number):Number {
+                var radians:Number = degrees * (Math.PI / 180);
+                return radians;
+            }
+		]]>
+	</mx:Script>
+</mx:Image>

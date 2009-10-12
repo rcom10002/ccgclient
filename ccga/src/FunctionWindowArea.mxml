@@ -142,5 +142,17 @@
 				</service:DepositBookWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="REPORT_RECHARGE_HISTORY">
+			<mx:AddChild position="lastChild">
+				<service:ReportRechageHistory>
+				</service:ReportRechageHistory>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="REPORT_BIZ_MATRIX">
+			<mx:AddChild position="lastChild">
+				<service:ReportBizMatrix>
+				</service:ReportBizMatrix>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>

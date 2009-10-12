@@ -812,7 +812,7 @@ package info.knightrcom.state {
             var scoreboardInfo:Array = String(results[results.length - 1]).split(/;/);
             // 显示记分牌
             if ((results.length == 3) || (results.length == 4)) {
-	            new Scoreboard().popUp(currentGame, scoreboardInfo, function():void {
+	            new Scoreboard().popUp(localNumber, scoreboardInfo, function():void {
 	            	gameClient.currentState = 'LOBBY';
 	            });
 	            currentNumber = results[0];

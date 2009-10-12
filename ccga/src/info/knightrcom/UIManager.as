@@ -246,6 +246,12 @@ package info.knightrcom
 				case "不良举报":
 					adminApp.functionWindowArea.currentState="GAME_FEEDBACK";
 					break;
+				case "充值历史报表":
+					adminApp.functionWindowArea.currentState="REPORT_RECHARGE_HISTORY";
+					break;
+				case "业务汇总报表":
+					adminApp.functionWindowArea.currentState="REPORT_BIZ_MATRIX";
+					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");
