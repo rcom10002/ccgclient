@@ -76,13 +76,16 @@
 					Alert.show("不能为自己充值，只能为自己下属用户充值！", "警告");
 					return;
 				}
-				if (parseInt(txtMyOverScore.text) < 0) {
+				if (Application.application.currentRole == "GroupUser" && parseInt(txtMyOverScore.text) < 0) {
 					Alert.show("我的当前积分不足，无法为玩家充值！", "警告");
 					return;
 				}
-				if (Validator.validateAll(this.depositBookValidators).length > 0)
-				{
+				if (Validator.validateAll(this.depositBookValidators).length > 0) {
 					Alert.show("信息填写不符合规范！", "警告");
+					return;
+				}
+				if (parseInt(txtMyCurScore.text) % 100 != 0) {
+					Alert.show("充值积分必须是100的倍数！", "警告");
 					return;
 				}
 				Alert.yesLabel = "确认";
@@ -221,7 +224,7 @@
 					<mx:Label text="充值积分：" width="70" left="186" top="62"/>
 					<mx:TextInput left="254" top="60" width="80" id="txtPlayerCurScore" text="{txtMyCurScore.text}"/>
 					<mx:Label text="充值积分：" width="70" left="185" top="88"/>
-					<mx:TextInput left="253" top="86" width="80" id="txtMyCurScore"/>
+					<mx:TextInput left="253" top="86" width="80" id="txtMyCurScore" restrict="0-9"/>
 					<mx:Label text="充值后积分：" width="80" left="342" top="62"/>
 					<mx:TextInput left="415" top="60" width="80" id="txtPlayerOverScore" text="{(parseInt(txtPlayerOrgScore.text) + parseInt(txtPlayerCurScore.text)).toString() == 'NaN' ? '' : (parseInt(txtPlayerOrgScore.text) + parseInt(txtPlayerCurScore.text)).toString()}"/>
 					<mx:Label text="充值后积分：" width="80" left="342" top="88"/>
@@ -291,8 +294,8 @@
         <mx:NumberValidator source="{txtMyCurScore}"
                             required="true"
                             property="text"
-                            minValue="1"
-                            lowerThanMinError="充值积分必须大于零！"
+                            minValue="100"
+                            lowerThanMinError="充值积分至少为100！"
                             requiredFieldError="充值积分不能为空！"/>
      </mx:Array>
 </FunctionWindow>

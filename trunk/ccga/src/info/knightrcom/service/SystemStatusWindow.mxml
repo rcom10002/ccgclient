@@ -13,16 +13,6 @@
 			import mx.rpc.events.ResultEvent;
 			import info.knightrcom.util.HttpServiceProxy;
 
-			private function creationCompleteHandler():void
-			{
-				ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, enterStateHander);
-				ListenerBinder.bind(btnFresh, MouseEvent.CLICK, btnFreshClickHander);
-			}
-
-			private function enterStateHander(event:StateChangeEvent):void {
-				btnFreshClickHander(null);
-			}
-
 			private function btnFreshClickHander(event:MouseEvent):void {
 				HttpServiceProxy.send(LocalServerConfigureService.RETRIEVE_SERVER_STATUS, null, null, function (event:ResultEvent):void {
 					var data:* = new XML(event.result);
@@ -35,6 +25,10 @@
 			}
 		]]>
 	</mx:Script>
+	<creationComplete>
+		ListenerBinder.bind(btnFresh, MouseEvent.CLICK, btnFreshClickHander);
+		btnFresh.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+	</creationComplete>
 	<mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="100">
 		<mx:columns>
 			<mx:DataGridColumn headerText="项目" dataField="item" width="180"/>
