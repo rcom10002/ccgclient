@@ -67,12 +67,12 @@
 						if (xml.result == "SUCCESS")
 						{
 							if (url.length == 0) {
-			            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
+			            		Alert.show("暂时无法下载，请重新导出！", "充值历史报表");
 			            		return;
 			            	}
 			            	Alert.yesLabel = "确认";
 							Alert.noLabel = "取消";
-						    Alert.show( "确定要下载吗？",
+						    Alert.show( "确定要下载充值月份为" + createMonth.text + "的数据吗？",
 										"消息", 
 										Alert.YES | Alert.NO,
 										adminApp,
@@ -87,14 +87,14 @@
 						}
 						else
 						{
-							Alert.show("导出失败！", "积分结算报表");
+							Alert.show("导出失败！", "充值历史报表");
 						}
 					}, function(event:FaultEvent):void
 					{
-						Alert.show("导出失败！", "积分结算报表");
+						Alert.show("导出失败！", "充值历史报表");
 					});
 				} else {
-					Alert.show("还没有查询结果不能导出！", "积分结算报表");
+					Alert.show("还没有查询结果不能导出！", "充值历史报表");
 				}
 			}
 			
@@ -103,6 +103,7 @@
 				if (!isInitialized) {
 					// 状态初始化
 					initializeEachState("LIST");
+					createMonth.selectedDate = new Date();
 					// 事件绑定
 					// 检索
 					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportRechargeHistoryClickHandler);

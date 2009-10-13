@@ -76,12 +76,12 @@
 						if (xml.result == "SUCCESS")
 						{
 							if (url.length == 0) {
-			            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
+			            		Alert.show("暂时无法下载，请重新导出！", "业务汇总报表");
 			            		return;
 			            	}
 			            	Alert.yesLabel = "确认";
 							Alert.noLabel = "取消";
-						    Alert.show( "确定要下载" + dateFormatter.format(dateFrom.selectedDate) + "-" + dateFormatter.format(dateTo.selectedDate) + "时间段的数据吗？",
+						    Alert.show( "确定要下载" + dateFrom.text + "-" + dateTo.text + "时间段的数据吗？",
 										"消息", 
 										Alert.YES | Alert.NO,
 										adminApp,
@@ -96,14 +96,14 @@
 						}
 						else
 						{
-							Alert.show("导出失败！", "积分结算报表");
+							Alert.show("导出失败！", "业务汇总报表");
 						}
 					}, function(event:FaultEvent):void
 					{
-						Alert.show("导出失败！", "积分结算报表");
+						Alert.show("导出失败！", "业务汇总报表");
 					});
 				} else {
-					Alert.show("还没有查询结果不能导出！", "积分结算报表");
+					Alert.show("还没有查询结果不能导出！", "业务汇总报表");
 				}
 			}
 			
