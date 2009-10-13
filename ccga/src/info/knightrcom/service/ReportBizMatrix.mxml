@@ -31,6 +31,11 @@
 			{
 				var dateFormatter:DateFormatter=new DateFormatter();
 				dateFormatter.formatString="YYYYMMDD";
+				var day:int = Math.floor((dateTo.selectedDate.time - dateFrom.selectedDate.time) / (1000 * 60 * 60 *24));
+    			if (day < 0) {
+    				Alert.show("查询开始日期不能晚于结束日期！", "消息");
+    				return;
+    			}
 				HttpServiceProxy.send(LocalReportBizMatrixService.RETRIEVE_REPORT_BIZ_MATRIX, {FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
 			}
 			
@@ -107,6 +112,8 @@
 				if (!isInitialized) {
 					// 状态初始化
 					initializeEachState("LIST");
+					dateFrom.selectedDate = new Date();
+					dateTo.selectedDate = new Date();
 					// 事件绑定
 					// 检索
 					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportRechargeHistoryClickHandler);
