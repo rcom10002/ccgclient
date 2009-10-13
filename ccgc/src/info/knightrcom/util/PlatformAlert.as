@@ -53,6 +53,7 @@ package info.knightrcom.util {
                     ListenerBinder.bind(btn, MouseEvent.CLICK, handleClick);
                     btn.label = btns[i];
                     btn.data = i;
+                    btn.setStyle("textRollOverColor", "#000000");
                     platformAlertUI.btns.addChild(btn)
                 }
             }

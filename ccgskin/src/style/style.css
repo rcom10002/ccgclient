@@ -1182,4 +1182,17 @@ PlatformAlertUI {
     /*modalTransparencyColor: #FF0000;*/
     /*modalTransparencyDuration: 1000;*/
 }
+
+
+/*
+//------------------------------
+//  Scoreboard
+//------------------------------
+*/
+Scoreboard {
+    modalTransparencyBlur: 0;
+    modalTransparency: 0;
+    /*modalTransparencyColor: #FF0000;*/
+    /*modalTransparencyDuration: 1000;*/
+}
 /* End */

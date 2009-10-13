@@ -11,6 +11,7 @@ package info.knightrcom.state {
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.Red5GameEvent;
     import info.knightrcom.state.red5game.Red5Game;
+    import info.knightrcom.state.red5game.Red5GameBox;
     import info.knightrcom.state.red5game.Red5GameSetting;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.PlatformAlert;
@@ -61,6 +62,11 @@ package info.knightrcom.state {
          * 当前游戏id
          */
         public static var currentGameId:String;
+
+        /**
+         * 当前玩家序号
+         */
+        public static var firstPlayerNumber:int;
 
         /**
          * 当前玩家序号
@@ -146,6 +152,11 @@ package info.knightrcom.state {
          * 当前游戏模块
          */
 		private static var currentGame:CCGameRed5 = null;
+
+		/**
+		 * 游戏内存模型
+		 */
+		private static var pokerBox:Red5GameBox;
 
         /**
          *
@@ -286,7 +297,24 @@ package info.knightrcom.state {
          *
          */
         private function gameFirstPlayHandler(event:Red5GameEvent):void {
-            PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect);
+            var results:Array = new Array(event.incomingData.substr(0, 1), event.incomingData.substring(2));
+            firstPlayerNumber = parseInt(results[0]);
+            results[1] = results[1].toString().replace(/~[^~]+;$/, "");
+            var initCardsOfPlayers:Array = results[1].toString().split(/~[^~]+;/g);
+        	if (firstPlayerNumber == localNumber) {
+            	PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect);
+        	}
+        	pokerBox = new Red5GameBox();
+        	pokerBox.cardsOfPlayers = initCardsOfPlayers;
+            var playerDirection:Array = new Array("下", "右", "上", "左");
+            var index:int = 0;
+            while (index != localNumber - 1) {
+                var temp:Object = null;
+                temp = playerDirection.pop();
+                playerDirection.unshift(temp);
+                index++;
+            }
+        	currentGame.arrowTip.text = "首次发牌玩家: " + playerDirection[firstPlayerNumber - 1];
         }
 
         /**
@@ -343,7 +371,7 @@ package info.knightrcom.state {
                 gameSetting = setting;
                 gameFinalSettingPlayerNumber = localNumber;
             } else if (setting == Red5GameSetting.EXTINCT_RUSH) {
-                socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + gameSetting);
+                socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                 // 非首次和末次，天外天时，发送本次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
                 gameSetting = setting;
@@ -449,6 +477,8 @@ package info.knightrcom.state {
                     while (count-- > 0) {
                         // 从待发牌中移除牌
                         cardsCandidated.removeChildAt(0);
+                        // 更新内存模型
+                        pokerBox.exportMahjong(currentNumber - 1, cardNames[count]);
                     }
                 }
                 // 上家出牌或是首次发牌时，从已发牌中移除所有牌
@@ -496,6 +526,7 @@ package info.knightrcom.state {
         private function gameInterruptedHandler(event:Red5GameEvent):void {
             gameClient.currentState = "LOBBY";
             gameClient.txtSysMessage.text += "游戏中断！请重新加入游戏！\n";
+            CursorManager.removeBusyCursor();
         }
 
         /**
@@ -539,6 +570,21 @@ package info.knightrcom.state {
             } else if (gameSetting != Red5GameSetting.NO_RUSH) {
                 // 设置独牌时的排名
                 firstPlaceNumber = currentNumber;
+            }
+            // 开始亮牌，并从当前玩家的下家开始
+            var startIndex:int = localNumber;
+            for (var i:int = 1; i < playerCogameNumber; i++) {
+            	if (startIndex == playerCogameNumber) {
+            		startIndex == 0;
+            	}
+            	(cardsCandidatedArray[i] as Box).removeAllChildren();
+            	for each (var eachPoker:String in pokerBox.cardsOfPlayers[startIndex]) {
+                    var pokerInHand:PokerButton = new PokerButton();
+                    pokerInHand.source = "image/poker/" + eachPoker + ".png";
+                    pokerInHand.allowSelect = false;
+            		(cardsCandidatedArray[i] as Box).addChild(pokerInHand);
+            	}
+            	startIndex++;
             }
             // 显示记分牌
             new Scoreboard().popUp(localNumber, scoreboardInfo, function():void {
@@ -796,6 +842,11 @@ package info.knightrcom.state {
                     var cardsDealedNumber:int = cards.split(",").length;
                     // 打出后剩余牌数
                     var cardsLeftNumber:int = cardsCandicateNumber - cardsDealedNumber;
+                    // 更新内存模型
+                    for each (var eachCard:String in cards.split(/,/g)) {
+                    	pokerBox.exportMahjong(localNumber - 1, eachCard);
+                    }
+                    // 发送出牌消息
                     if (gameSetting > Red5GameSetting.RUSH && gameFinalSettingPlayerNumber != localNumber) {
                         // 设置游戏冠军玩家
                         firstPlaceNumber = localNumber;
@@ -924,6 +975,7 @@ package info.knightrcom.state {
                 currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, Red5GameSetting.getDisplayName(gameSetting));
                 currentGame.arrowTip.text = currentGame.arrowTip.text + tipString;
             }
+        	currentGame.arrowTip.text = "首次发牌玩家: " + playerDirection[firstPlayerNumber - 1] + "\n" + currentGame.arrowTip.text;
             if (showOtherTime) {
                 // 非当前玩家出牌时，显示动态提示
                 currentGame.arrowTip.text = currentGame.arrowTip.text + "\n等待其他玩家出牌" + MAX_CARDS_SELECT_TIME + "秒！";
@@ -977,6 +1029,7 @@ package info.knightrcom.state {
             gameFinalSettingPlayerNumber = -1;
             gameSettingUpdateTimes = 0;
             currentGameId = null;
+            firstPlayerNumber = 0;
             localNumber = 0;
             localNextNumber = 0;
             currentNumber = 0;
