@@ -144,8 +144,8 @@
 		</mx:State>
 		<mx:State name="REPORT_RECHARGE_HISTORY">
 			<mx:AddChild position="lastChild">
-				<service:ReportRechageHistory>
-				</service:ReportRechageHistory>
+				<service:ReportRechargeHistory>
+				</service:ReportRechargeHistory>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="REPORT_BIZ_MATRIX">
