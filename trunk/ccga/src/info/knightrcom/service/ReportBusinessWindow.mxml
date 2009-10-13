@@ -108,7 +108,7 @@
 					            	}
 					            	Alert.yesLabel = "确认";
 									Alert.noLabel = "取消";
-								    Alert.show( "确定要下载" + dateFormatter.format(dateFrom.selectedDate) + "-" + dateFormatter.format(dateTo.selectedDate) + "时间段的数据吗？",
+								    Alert.show( "确定要下载" + dateFrom.text + "-" + dateTo.text + "时间段的数据吗？",
 								     			"消息", 
 												Alert.YES | Alert.NO,
 												adminApp,
