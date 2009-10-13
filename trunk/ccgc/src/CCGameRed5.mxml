@@ -98,8 +98,6 @@
 				 verticalAlign="middle">
 			<mx:Button label="按钮"/>
 		</mx:Tile>
-		<!-- 提示区域 -->
-		<mx:Label id="arrowTip" horizontalCenter="0" verticalCenter="0"/>
 	</mx:Canvas>
 	<!-- 操作区域 -->
 	<mx:HBox horizontalAlign="center"
@@ -116,5 +114,7 @@
 			</mx:dataProvider>
 		</mx:ButtonBar>
 	</mx:HBox>
-	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+    <!-- 提示区域 -->
+    <mx:ProgressBar id="timerTip" x="10" y="10" visible="false"/>
+    <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>
 </mx:Module>

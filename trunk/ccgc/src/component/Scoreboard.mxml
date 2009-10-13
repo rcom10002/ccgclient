@@ -9,12 +9,15 @@
     <mx:Script>
         <![CDATA[
         	import info.knightrcom.util.ListenerBinder;
-            import mx.core.Application;
-            import mx.controls.Alert;
-            import mx.events.CloseEvent;
-            import mx.managers.PopUpManager;
+        	
+        	import mx.core.Application;
+        	import mx.events.CloseEvent;
+        	import mx.managers.PopUpManager;
+
+            private var _currentPlayerNumber:int = -1;
 
             public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, closeHandler:Function = null):void {
+                this._currentPlayerNumber = currentPlayerNumber;
                 scoreboardDataArray = new Array();
                 for each (var recordDesc:String in scoreboardInfo) {
                     var recordDetailDesc:Array = recordDesc.split(/,/);
@@ -36,12 +39,11 @@
 	            		return 0;
 	            	}
 	            });
-	            // 设置高亮显示行
-	            scoreboardGrid.selectedIndex = currentPlayerNumber - 1;
 	            // 设置关闭回调函数
                 if (closeHandler != null) {
                 	this.addEventListener(CloseEvent.CLOSE, closeHandler);
                 }
+                // 模态显示
                 PopUpManager.addPopUp(this, (Application.application as CCGameClient), true) as Scoreboard;
                 PopUpManager.centerPopUp(this);
             }
@@ -55,12 +57,17 @@
     <mx:creationComplete>
     	<![CDATA[
             ListenerBinder.bind(btnClose, MouseEvent.CLICK, closeHandler);
+            // 设置高亮显示行
+            scoreboardGrid.selectedIndex = _currentPlayerNumber - 1;
+            scoreboardGrid.enabled = false;
+            scoreboardGrid.setStyle("backgroundDisabledColor", "#333333");
+            // 设置焦点
+            btnClose.setFocus();
     	]]>
     </mx:creationComplete>
     <!-- 数据源与数据显示表格 -->
     <mx:Array id="scoreboardDataArray"/>
     <mx:DataGrid id="scoreboardGrid"
-                 selectable="false"
                  dataProvider="{scoreboardDataArray}"
                  height="125"
                  right="10"
