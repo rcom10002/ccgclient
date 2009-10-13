@@ -60,52 +60,39 @@
 			
 			private function btnDownloadClickHandler(event:MouseEvent):void {
 				if (TOTAL_PAGE > 0) {
-					Alert.yesLabel = "确认";
-					Alert.noLabel = "取消";
-				    Alert.show( "确定要下载数据吗？",
-								"消息", 
-								Alert.YES | Alert.NO,
-								adminApp,
-								function handleAlert(event:CloseEvent):void {
-								    if(event.detail == Alert.YES)
-								    {
-										HttpServiceProxy.send(LocalReportRechargeHistoryService.CSV_EXPORT, {FROM_PLAYER: fromPlayer.text, TO_PLAYER: toPlayer.text, CREATE_MONTH: createMonth.text, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
-										{
-											var xml:XML = new XML(event.result);
-											var url:String = xml.tag;
-											if (xml.result == "SUCCESS")
-											{
-												if (url.length == 0) {
-								            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
-								            		return;
-								            	}
-								            	Alert.yesLabel = "确认";
-												Alert.noLabel = "取消";
-											    Alert.show( "确定要下载吗？",
-															"消息", 
-															Alert.YES | Alert.NO,
-															adminApp,
-															function handleAlert(event:CloseEvent):void {
-															    if(event.detail == Alert.YES)
-															    {
-															        showDownloadDialog(url);
-															    }
-															},
-															null,
-															Alert.YES);
-											}
-											else
-											{
-												Alert.show("导出失败！", "积分结算报表");
-											}
-										}, function(event:FaultEvent):void
-										{
-											Alert.show("导出失败！", "积分结算报表");
-										});
-									}
-								},
-							null,
-							Alert.YES);
+					HttpServiceProxy.send(LocalReportRechargeHistoryService.CSV_EXPORT, {FROM_PLAYER: fromPlayer.text, TO_PLAYER: toPlayer.text, CREATE_MONTH: createMonth.text, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+					{
+						var xml:XML = new XML(event.result);
+						var url:String = xml.tag;
+						if (xml.result == "SUCCESS")
+						{
+							if (url.length == 0) {
+			            		Alert.show("暂时无法下载，请重新导出！", "积分结算报表");
+			            		return;
+			            	}
+			            	Alert.yesLabel = "确认";
+							Alert.noLabel = "取消";
+						    Alert.show( "确定要下载吗？",
+										"消息", 
+										Alert.YES | Alert.NO,
+										adminApp,
+										function handleAlert(event:CloseEvent):void {
+										    if(event.detail == Alert.YES)
+										    {
+										        showDownloadDialog(url);
+										    }
+										},
+										null,
+										Alert.YES);
+						}
+						else
+						{
+							Alert.show("导出失败！", "积分结算报表");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("导出失败！", "积分结算报表");
+					});
 				} else {
 					Alert.show("还没有查询结果不能导出！", "积分结算报表");
 				}
