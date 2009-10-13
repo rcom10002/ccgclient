@@ -144,7 +144,7 @@
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:DataGrid top="40" left="10" right="10" bottom="10" id="datagrid">
-				<mx:dataProvider>{infoService.lastResult.entityList.RechargeHistorynfo}</mx:dataProvider>
+				<mx:dataProvider>{infoService.lastResult.entityList.RechargeHistoryInfo}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn dataField="rechargeId" visible="false"/>
 						<mx:DataGridColumn headerText="充值玩家" dataField="fromPlayer"/>
