@@ -1,4 +1,6 @@
 package info.knightrcom.state.red5game {
+	import info.knightrcom.util.Model;
+	
 
     /**
      *
@@ -256,6 +258,187 @@ package info.knightrcom.state.red5game {
             resultCards = (resultCards).replace(/(V[^,]+,)\1*/g, "$1");
             return (boutCards + ",").replace(/\b\dV/g, "V").length / resultCards.length;
         }
+
+		/**
+		 * 对子、三同张、四同张 …… N同张
+		 * 
+		 * @param multiple >= 2
+		 * @param myCards
+		 * @param boutCards
+		 * 
+		 * @return an array of an array
+		 * 
+		 */
+		public static function grabMultiple(multiple:int, myCards:Array, boutCards:Array = null):Array {
+			var resultArrayArray:Array = new Array();
+			// 去花色，并在结尾添加一个逗号
+			var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
+			var matchedCardsArray:Array = myCardsString.match(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + "}", "g"));
+			for each (var eachCardsString:String in matchedCardsArray) {
+				eachCardsString = eachCardsString.replace(/,$/, "");
+				var eachCardsArray:Array = eachCardsString.split(",");
+				resultArrayArray.push(eachCardsArray);
+			}
+			return resultArrayArray;
+		}
+
+		/**
+		 * 四连顺、五连顺
+		 * 对子三连顺、对子四连顺、对子五连顺
+		 * 三同张三连顺、三同张四连顺、三同张五连顺
+		 * 四同张三连顺
+		 * 
+		 * @param multiple >= 1
+		 * @param numSeq >= 3
+		 * @param myCards
+		 * @param boutCards
+		 * 
+		 * @return an array of an array
+		 * 
+		 */
+		public static function grabSequence(multiple:int, numSeq:int, myCards:Array, boutCards:Array = null):Array {
+			var resultArrayArray:Array = new Array();
+			var i:int = 0;
+			// 1.去花色，并在结尾添加一个逗号
+			var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
+			// 2.去除无效数据"2 5 X Y"
+			myCardsString = myCardsString.replace(/V[25XY],/g, "");
+			// 3.去除重复项
+			myCardsString = myCardsString.replace(/(V[^,]*,)\1{1,}/g, "$1");
+			if (myCardsString.replace(/,$/, "").split(",").length < numSeq) {
+				// 牌值样式的个数比要求的序列个数少
+				return resultArrayArray;
+			}
+			// 确定组合样式
+			var testStyleArray:Array = new Array();
+			switch (numSeq) {
+				case 5:
+					// 五张连
+					testStyleArray.push("V10,VJ,VQ,VK,VA,");
+					break;
+				case 4:
+					testStyleArray.push("V10,VJ,VQ,VK,", "VJ,VQ,VK,VA,");
+					// 四张连
+					break;
+				case 3:
+					testStyleArray.push("V10,VJ,VQ,", "VJ,VQ,VK,", "VQ,VK,VA,");
+					// 三张连
+					break;
+			}
+			// 按照给定的序列倍数扩大确定下来的样式
+			var extStyle:String = "";
+			while (multiple-- > 0) {
+				extStyle += "$1";
+			}
+			multiple = extStyle.length / 2;
+			for (i = 0; i < testStyleArray.length; i++) {
+				var testStyle:String = testStyleArray[i].toString().replace(/(V[^,]*,)/g, extStyle);
+				testStyleArray[i] = testStyle;
+			}
+			// 将已经构造出来的，可能出现的样式，应用到玩家手中的牌中
+			// 去花色去无效数据"2 5 X Y"
+			myCardsString = (myCards.join(",") + ",").replace(/\dV/g, "V").replace(/V[25XY],/g, "");
+			// 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
+			myCardsString = myCardsString.replace(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + ",}", "g"), extStyle);
+			for (i = 0; i < testStyleArray.length; i++) {
+				if (myCardsString.indexOf(testStyleArray[i]) > -1) {
+				} else {
+					// 去除不满足条件
+					testStyleArray[i] = null;
+				}
+			}
+			// 整理数据，将null内容过滤掉
+			for each (var eachStyle:String in testStyleArray) {
+				if (eachStyle) {
+					resultArrayArray.push(eachStyle.replace(/,$/, "").split(","));
+				}
+			}
+			return resultArrayArray;
+		}
+
+		/** 对子 */
+		public static const TIPA_MUTIPLE2:int = 101;
+		/** 三同张 */
+		public static const TIPA_MUTIPLE3:int = 102;
+		/** 四同张 */
+		public static const TIPA_MUTIPLE4:int = 103;
+		/** 五同张 */
+		public static const TIPA_MUTIPLE5:int = 104;
+		/** 六同张 */
+		public static const TIPA_MUTIPLE6:int = 105;
+		/** 七同张 */
+		public static const TIPA_MUTIPLE7:int = 106;
+		/** 八同张 */
+		public static const TIPA_MUTIPLE8:int = 107;
+
+		/** 四连顺 */
+		public static const TIPB_SEQ4:int = 201;
+		/** 五连顺 */
+		public static const TIPB_SEQ5:int = 202;
+		/** 对子三连顺 */
+		public static const TIPB_DOUBLE_SEQ3:int = 203;
+		/** 对子四连顺 */
+		public static const TIPB_DOUBLE_SEQ4:int = 204;
+		/** 对子五连顺 */
+		public static const TIPB_DOUBLE_SEQ5:int = 205;
+
+		/** 三同张三连顺 */
+		public static const TIPC_TRIPLE_SEQ3:int = 301;
+		/** 三同张四连顺 */
+		public static const TIPC_TRIPLE_SEQ4:int = 302;
+		/** 三同张五连顺 */
+		public static const TIPC_TRIPLE_SEQ5:int = 303;
+		/** 四同张三连顺 */
+		public static const TIPC_FOURFOLD_SEQ3:int = 304;
+
+		private static var tipsHolder:Model = null;
+
+		/**
+		 * 
+		 * @param myCards
+		 * 
+		 */
+		public static function refreshTips(myCards:String):void {
+			// 构造提示对象
+			tipsHolder = new Model();
+
+			tipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
+			tipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
+			tipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
+			tipsHolder[TIPA_MUTIPLE5] = {STATUS : -1, TIPS : grabMultiple(5, myCards.split(","))};
+			tipsHolder[TIPA_MUTIPLE6] = {STATUS : -1, TIPS : grabMultiple(6, myCards.split(","))};
+			tipsHolder[TIPA_MUTIPLE7] = {STATUS : -1, TIPS : grabMultiple(7, myCards.split(","))};
+			tipsHolder[TIPA_MUTIPLE8] = {STATUS : -1, TIPS : grabMultiple(8, myCards.split(","))};
+
+			tipsHolder[TIPB_SEQ4] = {STATUS : -1, TIPS : grabSequence(1, 4, myCards.split(","))};
+			tipsHolder[TIPB_SEQ5] = {STATUS : -1, TIPS : grabSequence(1, 5, myCards.split(","))};
+			tipsHolder[TIPB_DOUBLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(2, 3, myCards.split(","))};
+			tipsHolder[TIPB_DOUBLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(2, 4, myCards.split(","))};
+			tipsHolder[TIPB_DOUBLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(2, 5, myCards.split(","))};
+
+			tipsHolder[TIPC_TRIPLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(3, 3, myCards.split(","))};
+			tipsHolder[TIPC_TRIPLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(3, 4, myCards.split(","))};
+			tipsHolder[TIPC_TRIPLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(3, 5, myCards.split(","))};
+			tipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+		}
+
+		/**
+		 * 
+		 * @param optrIndex
+		 * @return 
+		 * 
+		 */
+		public static function nextTipCards(optrIndex:int):Array {
+			if (tipHolder.TIPS.length == 0) {
+				return null;
+			}
+			var tipHolder:Object = tipsHolder[optrIndex];
+			tipHolder.STATUS = tipHolder.STATUS + 1;
+			if (tipHolder.STATUS == tipHolder.TIPS.length) {
+				tipHolder.STATUS = 0;
+			}
+			return (tipHolder.TIPS as Array)[tipHolder.STATUS].toString().split(",");
+		}
 
     }
 }

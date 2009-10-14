@@ -100,12 +100,12 @@
 		</mx:Tile>
 	</mx:Canvas>
 	<!-- 操作区域 -->
-	<mx:HBox horizontalAlign="center"
-			 left="200"
-			 right="200"
-			 bottom="119"
-			 height="30">
-		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5" width="300">
+	<mx:VBox horizontalAlign="center"
+			 left="128"
+			 right="128"
+			 bottom="120"
+			 height="95" verticalGap="2">
+		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
 			<mx:dataProvider>
 				<mx:String>重选</mx:String>
 				<mx:String>不要</mx:String>
@@ -113,7 +113,35 @@
 				<mx:String>出牌</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
-	</mx:HBox>
+		<mx:ButtonBar id="btnBarPokersTipA" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>对子</mx:String>
+				<mx:String>三同张</mx:String>
+				<mx:String>四同张</mx:String>
+				<mx:String>五同张</mx:String>
+				<mx:String>六同张</mx:String>
+				<mx:String>七同张</mx:String>
+				<mx:String>八同张</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipB" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>四连顺</mx:String>
+				<mx:String>五连顺</mx:String>
+				<mx:String>对子三连顺</mx:String>
+				<mx:String>对子四连顺</mx:String>
+				<mx:String>对子五连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipC" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>三同张三连顺</mx:String>
+				<mx:String>三同张四连顺</mx:String>
+				<mx:String>三同张五连顺</mx:String>
+				<mx:String>四同张三连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:VBox>
     <!-- 提示区域 -->
     <mx:ProgressBar id="timerTip" x="10" y="10" visible="false"/>
     <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>

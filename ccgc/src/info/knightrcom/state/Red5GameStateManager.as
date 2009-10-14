@@ -212,6 +212,9 @@ package info.knightrcom.state {
                     currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/\d+/g, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount));
                 });
                 // 可视组件
+                ListenerBinder.bind(currentGame.btnBarPokersTipA, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
+                ListenerBinder.bind(currentGame.btnBarPokersTipB, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
+                ListenerBinder.bind(currentGame.btnBarPokersTipC, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
                 ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
                 ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.HIDE, hide);
@@ -919,6 +922,51 @@ package info.knightrcom.state {
 
 		/**
 		 * 
+		 * 响应用户自主选牌提示
+		 * 
+		 * @param event
+		 * 
+		 */
+		private function btnBarPokersTipHandler(event:ItemClickEvent):void {
+            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
+			var tipArray:Array = null;
+			if (event.currentTarget == currentGame.btnBarPokersTipA) {
+//				对子
+//				三同张
+//				四同张
+//				五同张
+//				六同张
+//				七同张
+//				八同张
+				tipArray = Red5Game.nextTipCards(event.index + 100);
+			} else if (event.currentTarget == currentGame.btnBarPokersTipB) {
+//				四连顺
+//				五连顺
+//				对子三连顺
+//				对子四连顺
+//				对子五连顺
+				tipArray = Red5Game.nextTipCards(event.index + 200);
+			} else if (event.currentTarget == currentGame.btnBarPokersTipC) {
+//				三同张三连顺
+//				三同张四连顺
+//				三同张五连顺
+//				四同张三连顺
+				tipArray = Red5Game.nextTipCards(event.index + 300);
+			}
+			var i:int = 0;
+			if (tipArray) {
+				for each (var eachPokerButton:PokerButton in currentGame.candidatedDown.getChildren()) {
+					// 不计花色比较
+					if (eachPokerButton.value.replace(/\d/, "") == tipArray[i]) {
+						eachPokerButton.setSelected(true);
+						i++;
+					}
+				}
+			}
+		}
+
+		/**
+		 * 
 		 * 轮到当前玩家出牌时，开始倒计时，时间到则自动进行pass，若为首发牌，打出最小的一张牌
 		 * 
 		 */
@@ -929,6 +977,8 @@ package info.knightrcom.state {
 			currentGame.timerTip.visible = true;
 			timer.start();
             CursorManager.removeBusyCursor();
+            // 计算提示
+            Red5Game.refreshTips(currentGame.candidatedDown.getChildren().join(","));
 		}
 
 		/**
