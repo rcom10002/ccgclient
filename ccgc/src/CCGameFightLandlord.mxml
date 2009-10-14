@@ -93,4 +93,5 @@
 		</mx:ButtonBar>
 	</mx:HBox>
 	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+    <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>
 </mx:Module>
