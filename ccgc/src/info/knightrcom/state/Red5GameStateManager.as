@@ -220,6 +220,9 @@ package info.knightrcom.state {
 				});
                 ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
                     currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
+                    if (Tile(cardsDealedArray[currentNextNumber - 1]).numChildren > 0 && Tile(cardsDealedArray[currentNextNumber - 1]).getChildAt(0) is Label) {
+                    	Label(Tile(cardsDealedArray[currentNextNumber - 1]).getChildAt(0)).text = Label(Tile(cardsDealedArray[currentNextNumber - 1]).getChildAt(0)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
+                    }
                 });
                 // 可视组件
                 ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
@@ -342,8 +345,9 @@ package info.knightrcom.state {
                 playerDirection.unshift(temp);
                 index++;
             }
-        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
-        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
+//        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
+//        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
+            updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber, true);
         }
 
         /**
@@ -459,8 +463,9 @@ package info.knightrcom.state {
                 }
                 PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect);
             }
+            updateTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
         }
-        
+
         /**
          *
          * 响应游戏设置结束事件
@@ -472,7 +477,7 @@ package info.knightrcom.state {
             var results:Array = event.incomingData.split("~");
             gameFinalSettingPlayerNumber = results[0];
             gameSetting = results[1];
-            updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
+            // updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber, true);
         }
 
         /**
@@ -632,9 +637,13 @@ package info.knightrcom.state {
             	startIndex++;
             }
             // 显示记分牌
+            var misc:Object = {GAME_TYPE : "Red5Game",
+            		GAME_SETTING : gameSetting, 
+            		GAME_FINAL_SETTING_PLAYER_NUMBER : gameFinalSettingPlayerNumber,
+            		TITLE : Red5GameSetting.getDisplayName(gameSetting)}; 
             new Scoreboard().popUp(localNumber, scoreboardInfo, function():void {
             	gameClient.currentState = 'LOBBY';
-            });
+            }, misc);
             // 显示游戏积分
             if (gameSetting != Red5GameSetting.NO_RUSH) {
                 var rushResult:String = null;
@@ -1041,7 +1050,7 @@ package info.knightrcom.state {
          * @param nextNumber 准备出牌的玩家编号
          * 
          */
-        private function updateTip(lastBoutedNumber:int, nextNumber:int, showOtherTime:Boolean = true):void {
+        private function updateTip(lastBoutedNumber:int, nextNumber:int, showOtherTime:Boolean = true, firstRound:Boolean = false):void {
             // 参数初始化
             // 显示游戏提示
             var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
@@ -1073,6 +1082,14 @@ package info.knightrcom.state {
                 if (otherTimer.running) {
                     otherTimer.stop();
                 }
+                // 将出牌玩家出牌区域清空并添加倒计时提示
+                var timeTipLabel:Label = new Label();
+                timeTipLabel.text = "【" + MAX_CARDS_SELECT_TIME + "】";
+                if (firstRound) {
+                	currentNextNumber = gameFinalSettingPlayerNumber;
+                }
+                Tile(cardsDealedArray[currentNextNumber - 1]).removeAllChildren();
+                Tile(cardsDealedArray[currentNextNumber - 1]).addChild(timeTipLabel);
                 otherTimer.reset();
                 otherTimer.start();
             }

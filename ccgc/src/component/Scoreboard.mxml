@@ -8,6 +8,7 @@
                 title="本局得分明细">
     <mx:Script>
         <![CDATA[
+        	import info.knightrcom.state.red5game.Red5GameSetting;
         	import info.knightrcom.util.ListenerBinder;
         	
         	import mx.core.Application;
@@ -16,7 +17,7 @@
 
             private var _currentPlayerNumber:int = -1;
 
-            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, closeHandler:Function = null):void {
+            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, closeHandler:Function = null, misc:Object = null):void {
                 this._currentPlayerNumber = currentPlayerNumber;
                 scoreboardDataArray = new Array();
                 for each (var recordDesc:String in scoreboardInfo) {
@@ -27,6 +28,39 @@
                     record.systemScore = recordDetailDesc[2];
                     scoreboardDataArray.push(record);
                 }
+	            // 调整显示顺序，按照分值排序
+				scoreboardDataArray.sort(function (a:Object, b:Object):int {
+	            	var valueA:int = int(a.score);
+	            	var valueB:int = int(b.score);
+	            	if (valueA > valueB) {
+	            		return 1;
+	            	} else if (valueA < valueB) {
+	            		return -1;
+	            	} else {
+	            		return 0;
+	            	}
+	            });
+	            scoreboardDataArray = scoreboardDataArray.reverse();
+	            if (misc) {
+	            	if ("Red5Game" == misc.GAME_TYPE) {
+	            		this.title += " - " + misc.TITLE;
+	            		scoreboardGrid.columns[1]["visable"] = true;
+	            		if (misc.GAME_SETTING == Red5GameSetting.NO_RUSH) {
+	            			var red5Characters:Array = new Array("大皇上", "二皇上", "大娘娘", "二娘娘");
+	            			for (var i:int = 0; i < red5Characters.length; i++) {
+	            				scoreboardDataArray[i]["character"] = red5Characters[i];
+	            			}
+	            		} else {
+	            			for each (var dataRow:Object in scoreboardDataArray) {
+	            				if (dataRow.currentNumber == misc.GAME_FINAL_SETTING_PLAYER_NUMBER) {
+	            					dataRow["character"] = "独牌玩家";
+	            				} else {
+	            					dataRow["character"] = "普通玩家";
+	            				}
+	            			}
+	            		}
+	            	}
+	            }
 	            // 调整显示顺序
 				scoreboardDataArray.sort(function (a:Object, b:Object):int {
 	            	var valueA:int = int(a.currentNumber);
@@ -76,6 +110,8 @@
         <mx:columns>
             <mx:DataGridColumn headerText="序号"
                                dataField="currentNumber"/>
+            <mx:DataGridColumn headerText="角色"
+                               dataField="character" visible="false"/>
             <mx:DataGridColumn headerText="得分"
                                dataField="score"/>
             <mx:DataGridColumn headerText="系统分"
