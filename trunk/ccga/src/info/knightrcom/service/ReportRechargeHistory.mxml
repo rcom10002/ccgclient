@@ -148,13 +148,13 @@
 				<mx:dataProvider>{infoService.lastResult.entityList.RechargeHistoryInfo}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn dataField="rechargeId" visible="false"/>
-						<mx:DataGridColumn headerText="充值玩家" dataField="fromPlayer"/>
+						<mx:DataGridColumn headerText="充值玩家" dataField="toPlayer"/>
 						<mx:DataGridColumn headerText="充值前积分" dataField="toOrgScore"/>
 						<mx:DataGridColumn headerText="充值后积分" dataField="toCurScore"/>
 						<mx:DataGridColumn headerText="充值积分" dataField="score"/>
-						<mx:DataGridColumn headerText="被充值玩家" dataField="toPlayer"/>
+						<mx:DataGridColumn headerText="被充值玩家" dataField="fromPlayer"/>
 						<mx:DataGridColumn headerText="被充值前积分" dataField="fromOrgScore"/>
-						<mx:DataGridColumn headerText="被充值后积分" dataField="toCurScore"/>
+						<mx:DataGridColumn headerText="被充值后积分" dataField="fromCurScore"/>
 						<mx:DataGridColumn headerText="充值时间" dataField="createTime"/>
 					</mx:columns>
 				</mx:DataGrid>
