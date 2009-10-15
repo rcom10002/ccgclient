@@ -59,8 +59,6 @@
             ListenerBinder.bind(btnClose, MouseEvent.CLICK, closeHandler);
             // 设置高亮显示行
             scoreboardGrid.selectedIndex = _currentPlayerNumber - 1;
-            scoreboardGrid.enabled = false;
-            scoreboardGrid.setStyle("backgroundDisabledColor", "#333333");
             // 设置焦点
             btnClose.setFocus();
     	]]>
@@ -69,6 +67,8 @@
     <mx:Array id="scoreboardDataArray"/>
     <mx:DataGrid id="scoreboardGrid"
                  dataProvider="{scoreboardDataArray}"
+                 selectionDisabledColor="#663366"
+                 enabled="false"
                  height="125"
                  right="10"
                  left="10"
