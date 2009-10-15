@@ -2,21 +2,23 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
 	<!-- 上侧区域 -->
 	<mx:HBox id="candidatedUp"
+			 verticalScrollPolicy="off"
 			 horizontalScrollPolicy="off"
-			 height="150"
+			 height="120"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
 			 verticalAlign="bottom"
 			 top="0"
-			 left="200"
-			 right="200">
+			 left="128"
+			 right="128">
 	</mx:HBox>
 	<!-- 右侧区域 -->
 	<mx:VBox id="candidatedRight"
 			 verticalScrollPolicy="off"
-			 width="200"
-			 top="150"
-			 bottom="150"
+			 horizontalScrollPolicy="off"
+			 width="120"
+			 top="128"
+			 bottom="156"
 			 right="0"
 			 horizontalAlign="left"
 			 verticalAlign="middle"
@@ -24,66 +26,88 @@
 	</mx:VBox>
 	<!-- 下侧区域 -->
 	<mx:HBox id="candidatedDown"
+			 verticalScrollPolicy="off"
 			 horizontalScrollPolicy="off"
-			 height="150"
+			 height="120"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
-			 left="200"
-			 right="200"
+			 left="128"
+			 right="128"
 			 bottom="0"
 			 verticalAlign="top">
 	</mx:HBox>
 	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
 			 verticalScrollPolicy="off"
-			 width="200"
-			 top="150"
-			 bottom="150"
+			 horizontalScrollPolicy="off"
+			 width="120"
+			 top="128"
+			 bottom="156"
 			 left="0"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
 			 verticalGap="-78">
 	</mx:VBox>
-	<mx:Canvas left="208" right="208" top="158" bottom="187">
+	<mx:Canvas left="128" right="128" top="128" bottom="157">
 		<!-- 牌桌区域 -->
-		<mx:Tile id="dealedRight"
-				 horizontalScrollPolicy="off"
-				 width="190"
-				 height="125"
-				 right="0"
+		<mx:Tile id="dealedUp"
+				 height="100"
 				 top="0"
+				 left="160"
 				 horizontalGap="-55"
 				 verticalGap="-78"
+				 right="160"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
 				 verticalAlign="middle">
+			<mx:Button label="按钮" visible="false"/>
+		</mx:Tile>
+		<mx:Tile id="dealedRight"
+				 right="0"
+				 top="117"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 bottom="114"
+				 width="240"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+            <mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 		<mx:Tile id="dealedDown"
-				 horizontalScrollPolicy="off"
-				 height="125"
-				 right="100"
+				 height="100"
+				 right="160"
 				 bottom="0"
 				 horizontalGap="-55"
 				 verticalGap="-78"
-				 verticalAlign="middle"
-				 left="100">
+				 left="160"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+            <mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 		<mx:Tile id="dealedLeft"
-				 horizontalScrollPolicy="off"
-				 width="190"
+				 bottom="114"
 				 left="0"
 				 horizontalGap="-55"
 				 verticalGap="-78"
-				 verticalAlign="middle"
-				 top="0"
-				 height="125">
+				 top="117"
+				 width="240"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+            <mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 	</mx:Canvas>
 	<!-- 操作区域 -->
-	<mx:HBox horizontalAlign="center"
-			 left="200"
-			 right="200"
-			 bottom="149"
-			 height="30">
-		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5" width="300">
+	<mx:VBox horizontalAlign="center"
+			 left="128"
+			 right="128"
+			 bottom="120"
+			 height="110"
+             verticalGap="2"
+             verticalScrollPolicy="off">
+		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
 			<mx:dataProvider>
 				<mx:String>重选</mx:String>
 				<mx:String>不要</mx:String>
@@ -91,7 +115,36 @@
 				<mx:String>出牌</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
-	</mx:HBox>
-	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+		<mx:ButtonBar id="btnBarPokersTipA" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>对子</mx:String>
+				<mx:String>三同张</mx:String>
+				<mx:String>四同张</mx:String>
+				<mx:String>五同张</mx:String>
+				<mx:String>六同张</mx:String>
+				<mx:String>七同张</mx:String>
+				<mx:String>八同张</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipB" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>四连顺</mx:String>
+				<mx:String>五连顺</mx:String>
+				<mx:String>对子三连顺</mx:String>
+				<mx:String>对子四连顺</mx:String>
+				<mx:String>对子五连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipC" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>三同张三连顺</mx:String>
+				<mx:String>三同张四连顺</mx:String>
+				<mx:String>三同张五连顺</mx:String>
+				<mx:String>四同张三连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:VBox>
+    <!-- 提示区域 -->
+    <mx:ProgressBar id="timerTip" x="10" y="10" visible="false"/>
     <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>
 </mx:Module>
