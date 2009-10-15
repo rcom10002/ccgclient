@@ -60,7 +60,7 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-			<mx:Button label="按钮"/>
+			<mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 		<mx:Tile id="dealedRight"
 				 right="0"
@@ -72,7 +72,7 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-			<mx:Button label="按钮"/>
+            <mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 		<mx:Tile id="dealedDown"
 				 height="100"
@@ -84,7 +84,7 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-			<mx:Button label="按钮"/>
+            <mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 		<mx:Tile id="dealedLeft"
 				 bottom="114"
@@ -96,7 +96,7 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-			<mx:Button label="按钮"/>
+            <mx:Button label="按钮" visible="false"/>
 		</mx:Tile>
 	</mx:Canvas>
 	<!-- 操作区域 -->
@@ -104,7 +104,9 @@
 			 left="128"
 			 right="128"
 			 bottom="120"
-			 height="95" verticalGap="2">
+			 height="110"
+             verticalGap="2"
+             verticalScrollPolicy="off">
 		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
 			<mx:dataProvider>
 				<mx:String>重选</mx:String>
