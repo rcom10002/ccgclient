@@ -10,9 +10,11 @@ package info.knightrcom.state {
     import info.knightrcom.command.Red5GameCommand;
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.Red5GameEvent;
+    import info.knightrcom.service.LocalPlayerProfileService;
     import info.knightrcom.state.red5game.Red5Game;
     import info.knightrcom.state.red5game.Red5GameBox;
     import info.knightrcom.state.red5game.Red5GameSetting;
+    import info.knightrcom.util.HttpServiceProxy;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.PlatformAlert;
     import info.knightrcom.util.PlatformAlertEvent;
@@ -26,6 +28,7 @@ package info.knightrcom.state {
     import mx.events.FlexEvent;
     import mx.events.ItemClickEvent;
     import mx.managers.CursorManager;
+    import mx.rpc.events.ResultEvent;
     import mx.states.State;
 
     /**
@@ -159,6 +162,11 @@ package info.knightrcom.state {
 		 */
 		private static var pokerBox:Red5GameBox;
 
+		/**
+		 * 玩家当前的游戏积分
+		 */
+		private static var myScore:int = 0;
+
         /**
          *
          * @param socketProxy
@@ -211,7 +219,7 @@ package info.knightrcom.state {
 					}
 				});
                 ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
-                    currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/\d+/g, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount));
+                    currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                 });
                 // 可视组件
                 ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
@@ -296,6 +304,17 @@ package info.knightrcom.state {
                 }
                 index++;
             }
+            // 显示当前玩家积分
+            HttpServiceProxy.send(
+        			LocalPlayerProfileService.READ_PLAYER_PROFILE, 
+            		{PROFILE_ID : BaseStateManager.currentProfileId}, 
+            		null, 
+            		function (e:ResultEvent):void {
+		            	var e4x:XML = new XML(e.result);
+		            	myScore = e4x.entity.currentScore;
+		            	currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/我的当前积分：\d*/, "我的当前积分：" + myScore);
+            		}
+            );
         }
 
         /**
@@ -323,7 +342,8 @@ package info.knightrcom.state {
                 playerDirection.unshift(temp);
                 index++;
             }
-        	currentGame.arrowTip.text = "首次发牌玩家: " + playerDirection[firstPlayerNumber - 1];
+        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
+        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
         }
 
         /**
@@ -511,7 +531,7 @@ package info.knightrcom.state {
                     poker.source = "image/poker/" + cardName + ".png";
                     cardsDealed.addChild(poker);
                     // 更新内存模型
-                    pokerBox.exportMahjong(currentNumber - 1, cardName);
+                    pokerBox.exportPoker(currentNumber - 1, cardName);
                 }
             }
 // 2009/10/13 该功能可能需要保留
@@ -584,7 +604,7 @@ package info.knightrcom.state {
                     // 从待发牌区域移除已经发出的牌
                     cardsCandidated.removeChildAt(0);
                     // 更新内存
-                    pokerBox.exportMahjong(currentNumber - 1, cardName);
+                    pokerBox.exportPoker(currentNumber - 1, cardName);
                 }
             }
             // 设置游戏排名
@@ -873,7 +893,7 @@ package info.knightrcom.state {
                     var cardsLeftNumber:int = cardsCandicateNumber - cardsDealedNumber;
                     // 更新内存模型
                     for each (var eachCard:String in cards.split(/,/g)) {
-                    	pokerBox.exportMahjong(localNumber - 1, eachCard);
+                    	pokerBox.exportPoker(localNumber - 1, eachCard);
                     }
                     // 发送出牌消息
                     if (gameSetting > Red5GameSetting.RUSH && gameFinalSettingPlayerNumber != localNumber) {
@@ -1045,10 +1065,11 @@ package info.knightrcom.state {
                 currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, Red5GameSetting.getDisplayName(gameSetting));
                 currentGame.arrowTip.text = currentGame.arrowTip.text + tipString;
             }
-        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "\n" + currentGame.arrowTip.text;
+        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
+        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             if (showOtherTime) {
                 // 非当前玩家出牌时，显示动态提示
-                currentGame.arrowTip.text = currentGame.arrowTip.text + "\n等待其他玩家出牌" + MAX_CARDS_SELECT_TIME + "秒！";
+                currentGame.arrowTip.text = currentGame.arrowTip.text + "\n其他玩家出牌，剩余【" + MAX_CARDS_SELECT_TIME + "】秒！";
                 if (otherTimer.running) {
                     otherTimer.stop();
                 }
