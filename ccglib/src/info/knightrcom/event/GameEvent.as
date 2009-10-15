@@ -12,6 +12,7 @@ package info.knightrcom.event {
         public static const GAME_WAIT:String = "GAME_WAIT";
         public static const GAME_CREATE:String = "GAME_CREATE";
         public static const GAME_SETTING_UPDATE:String = "GAME_SETTING_UPDATE";
+        public static const GAME_SETTING_OVER:String = "GAME_SETTING_OVER";
         public static const GAME_BRING_OUT:String = "GAME_BRING_OUT";
         public static const GAME_INTERRUPTED:String = "GAME_INTERRUPTED";
         public static const GAME_WINNER_PRODUCED:String = "GAME_WINNER_PRODUCED";
