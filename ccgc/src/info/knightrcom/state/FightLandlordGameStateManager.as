@@ -1085,7 +1085,7 @@ package info.knightrcom.state
             // 参数初始化
             // 显示游戏提示
             var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
-            var playerDirection:Array = new Array("下", "右", "上", "左");
+            var playerDirection:Array = new Array("下", "右", "左");
             var index:int = 0;
             while (index != localNumber - 1) {
                 var temp:Object = null;
