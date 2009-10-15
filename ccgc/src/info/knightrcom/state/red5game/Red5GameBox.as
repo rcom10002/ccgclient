@@ -42,7 +42,7 @@ package info.knightrcom.state.red5game
 		 * @return 
 		 * 
 		 */
-		public function exportMahjong(index:int, cardValue:String):Array {
+		public function exportPoker(index:int, cardValue:String):Array {
 			// 从玩家手中的牌删除打出的牌
 			var targetPos:int = (_cardsOfPlayers[index] as Array).indexOf(cardValue);
 			if (targetPos < 0) {
