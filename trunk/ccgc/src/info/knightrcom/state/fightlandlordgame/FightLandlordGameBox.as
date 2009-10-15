@@ -9,7 +9,7 @@ package info.knightrcom.state.fightlandlordgame
 		/**
 		 * 当前玩家们手中的牌
 		 */
-		private var _cardsOfPlayers:Array = new Array(4);
+		private var _cardsOfPlayers:Array = new Array(3);
 
 		/**
 		 *
@@ -19,7 +19,7 @@ package info.knightrcom.state.fightlandlordgame
 		public function set cardsOfPlayers(initCardsOfPlayers:Array):void
 		{
 			for (var i:int = 0; i < initCardsOfPlayers.length; i++) {
-			    this._cardsOfPlayers[i] = initCardsOfPlayers[i].toString().split(",");
+			     this._cardsOfPlayers[i] = FightLandlordGame.sortPokers(initCardsOfPlayers[i].toString());
 			}
 		}
 
