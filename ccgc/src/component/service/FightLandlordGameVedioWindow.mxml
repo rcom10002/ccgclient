@@ -338,7 +338,9 @@
 	         verticalAlign="middle"
 	         verticalGap="-78" height="100" right="125" verticalCenter="-4" horizontalGap="-55">
 	</mx:HBox>
-	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0" showCloseButton="true" visible="false">
+	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0">
+		<mx:title>游戏录像设置</mx:title>
+	    <mx:showCloseButton>true</mx:showCloseButton>
 		<mx:Form x="10" y="10">
 			<mx:FormItem label="游戏ID" required="true">
 				<mx:TextInput id="gameId" text="64c9c36f-e201-4a18-9527-49044c1dbd30"/>
