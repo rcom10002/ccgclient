@@ -1,5 +1,5 @@
 package info.knightrcom.state.red5game {
-	import info.knightrcom.util.Model;
+	
 	
 
     /**
@@ -271,14 +271,49 @@ package info.knightrcom.state.red5game {
 		 */
 		public static function grabMultiple(multiple:int, myCards:Array, boutCards:Array = null):Array {
 			var resultArrayArray:Array = new Array();
-			// 去花色，并在结尾添加一个逗号
-			var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
+            // 按照给定的序列倍数扩大确定下来的样式
+            var extStyle:String = "";
+            while (multiple-- > 0) {
+                extStyle += "$1";
+            }
+            multiple = extStyle.length / 2;
+            // 去花色，并在结尾添加一个逗号
+            var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
+            // 去除特殊数据"5 X Y"
+            myCardsString = myCardsString.replace(/V[5XY],/g, "");
+            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
+            myCardsString = myCardsString.replace(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + ",}", "g"), extStyle);
 			var matchedCardsArray:Array = myCardsString.match(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + "}", "g"));
 			for each (var eachCardsString:String in matchedCardsArray) {
 				eachCardsString = eachCardsString.replace(/,$/, "");
 				var eachCardsArray:Array = eachCardsString.split(",");
 				resultArrayArray.push(eachCardsArray);
 			}
+            // 处理草五
+            myCardsString = (myCards.join(",") + ",").replace(/\dV[^5,]*,/g, ""); // 去除五以外的牌
+            myCardsString = myCardsString.replace(/1V5,/g, ""); // 去除红五
+            if (myCardsString.replace(/,$/, "").split(",").length >= multiple) {
+                var my5seqWithoutHeart5:Array = new Array(multiple);
+                for (var i:int = 0; i < multiple; i++) {
+                    my5seqWithoutHeart5[i] = "V5";
+                }
+                resultArrayArray.push(my5seqWithoutHeart5);
+            }
+            // 处理大小王与红五
+            if (multiple == 2) {
+                if (myCards.join(",").indexOf("0VX,0VX") > -1) {
+                    // 小王
+                    resultArrayArray.push(new Array("0VX", "0VX"));
+                }
+                if (myCards.join(",").indexOf("0VY,0VY") > -1) {
+                    // 大王
+                    resultArrayArray.push(new Array("0VY", "0VY"));
+                }
+                if (myCards.join(",").indexOf("1V5,1V5") > -1) {
+                    // 红五
+                    resultArrayArray.push(new Array("1V5", "1V5"));
+                }
+            }
 			return resultArrayArray;
 		}
 
@@ -391,7 +426,10 @@ package info.knightrcom.state.red5game {
 		/** 四同张三连顺 */
 		public static const TIPC_FOURFOLD_SEQ3:int = 304;
 
-		private static var tipsHolder:Model = null;
+        /**
+         * 提示容器
+         */
+		private static var tipsHolder:Object = new Object();
 
 		/**
 		 * 
@@ -399,9 +437,6 @@ package info.knightrcom.state.red5game {
 		 * 
 		 */
 		public static function refreshTips(myCards:String):void {
-			// 构造提示对象
-			tipsHolder = new Model();
-
 			tipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
 			tipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
 			tipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
@@ -429,10 +464,10 @@ package info.knightrcom.state.red5game {
 		 * 
 		 */
 		public static function nextTipCards(optrIndex:int):Array {
+            var tipHolder:Object = tipsHolder[optrIndex];
 			if (tipHolder.TIPS.length == 0) {
 				return null;
 			}
-			var tipHolder:Object = tipsHolder[optrIndex];
 			tipHolder.STATUS = tipHolder.STATUS + 1;
 			if (tipHolder.STATUS == tipHolder.TIPS.length) {
 				tipHolder.STATUS = 0;
