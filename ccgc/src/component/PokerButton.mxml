@@ -10,16 +10,19 @@
 	<mx:Script>
 		<![CDATA[
 			private var selected:Boolean = false;
-			private function toggleSelect(event:MouseEvent):void {
+
+            private function toggleSelect(event:MouseEvent):void {
 				if (!allowSelect) {
 					return;
 				}
 				setSelected(!this.selected);
 			}
-			public function isSelected():Boolean {
+
+            public function isSelected():Boolean {
 				return this.selected;
 			}
-			public function setSelected(selectedFlag:Boolean):void {
+
+            public function setSelected(selectedFlag:Boolean):void {
 				if (!allowSelect || this.selected == selectedFlag) {
 					return;
 				}
@@ -30,6 +33,10 @@
 					this.y += 10;
 				}
 			}
+
+            public override function toString():String {
+                return value;
+            }
 		]]>
 	</mx:Script>
 </mx:Image>
