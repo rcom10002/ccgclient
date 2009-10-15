@@ -45,8 +45,9 @@ package info.knightrcom.state
 		/**
 		 * 游戏设置：
 		 * 0、不叫
-		 * 1、1分
-		 * 2、2分
+		 * 1、1分 青龙
+		 * 2、2分 白虎
+		 * 3、3分 朱雀
 		 */
 		public static var gameSetting:int=-1;
 
@@ -191,7 +192,8 @@ package info.knightrcom.state
 					GameEvent.GAME_STARTED, gameStartedHandler, 
 					GameEvent.GAME_FIRST_PLAY, gameFirstPlayHandler, 
 					GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler, 
-					FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler, 
+					GameEvent.GAME_SETTING_OVER, gameSettingOverHandler,
+            		FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler, 
 					GameEvent.GAME_BRING_OUT, gameBringOutHandler, GameEvent.GAME_INTERRUPTED, 
 					gameInterruptedHandler, GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler, 
 					GameEvent.GAME_OVER, gameOverHandler));
@@ -236,8 +238,11 @@ package info.knightrcom.state
                 });
 				// 可视组件
 				ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
-				ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
-				ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.HIDE, hide);
+                ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
+                ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.HIDE, hide);
+                ListenerBinder.bind(currentGame.btnBarPokersTipA, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
+                ListenerBinder.bind(currentGame.btnBarPokersTipB, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
+                ListenerBinder.bind(currentGame.btnBarPokersTipC, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
 				setInitialized(true);
 			}
 
@@ -266,6 +271,9 @@ package info.knightrcom.state
 				cardsCandidatedArray[index]=tempCardsCandidated[index];
 			}
 			currentGame.btnBarPokers.visible=false;
+            currentGame.btnBarPokersTipA.visible = false;
+            currentGame.btnBarPokersTipB.visible = false;
+            currentGame.btnBarPokersTipC.visible = false;
 			currentGame.timerTip.label="剩余时间：";
 			currentGame.timerTip.minimum=0;
 			currentGame.timerTip.maximum=MAX_CARDS_SELECT_TIME;
@@ -572,6 +580,20 @@ package info.knightrcom.state
 				index++;
 			}
 		}
+		
+		/**
+         *
+         * 响应游戏设置结束事件
+         *
+         * @param event
+         *
+         */
+        private function gameSettingOverHandler(event:FightLandlordGameEvent):void {
+            var results:Array = event.incomingData.split("~");
+            gameFinalSettingPlayerNumber = results[0];
+            gameSetting = results[1];
+            updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
+        }
 
 		/**
 		 *
@@ -625,8 +647,6 @@ package info.knightrcom.state
 					{
 						// 从待发牌中移除牌
 						cardsCandidated.removeChildAt(0);
-						 // 更新内存模型
-                        pokerBox.exportPoker(currentNumber - 1, cardNames[count]);
 					}
 				}
 				// 上家出牌时，从已发牌中移除所有牌
@@ -638,6 +658,8 @@ package info.knightrcom.state
 					poker.allowSelect=false;
 					poker.source="image/poker/" + cardName + ".png";
 					cardsDealed.addChild(poker);
+					// 更新内存模型
+                    pokerBox.exportPoker(currentNumber - 1, cardNames[count]);
 				}
 			}
 
@@ -650,12 +672,12 @@ package info.knightrcom.state
 				}
 			}
 // 2009/10/13 该功能可能需要保留
-//            // 全都"不要"时的首发牌，清除桌面上所有牌
-//            if (currentNumber == currentNextNumber) {
-//                for each (tempTile in cardsDealedArray) {
-//                    tempTile.removeAllChildren();
-//                }
-//            }
+            // 全都"不要"时的首发牌，清除桌面上所有牌
+            if (currentNumber == currentNextNumber) {
+                for each (tempTile in cardsDealedArray) {
+                    tempTile.removeAllChildren();
+                }
+            }
 			// 为出牌玩家设置扑克操作按钮外观
 			if (currentNextNumber == localNumber)
 			{
@@ -707,10 +729,10 @@ package info.knightrcom.state
 			// 非出牌者时，移除桌面上显示的已出的牌，在桌面上显示最近新出的牌
             // if (localNumber != currentNumber && gameSetting != Red5GameSetting.EXTINCT_RUSH) {
             if (localNumber != currentNumber && isOrderNeighbor(currentNumber, currentNextNumber)) {
-                // 本局待发牌区域
-                var cardsCandidated:Box = cardsCandidatedArray[Number(currentNumber) - 1];
+            	// 本局待发牌区域
+                var cardsCandidated:Box = cardsCandidatedArray[currentNumber - 1];
                 // 本局已发牌区域
-                var cardsDealed:Tile = cardsDealedArray[Number(currentNumber) - 1];
+                var cardsDealed:Tile = cardsDealedArray[currentNumber - 1];
                 cardsDealed.removeAllChildren();
                 var cardNames:Array = currentBoutCards.split(",");
                 for each (var cardName:String in cardNames) {
@@ -721,20 +743,22 @@ package info.knightrcom.state
                     cardsDealed.addChild(poker);
                     // 从待发牌区域移除已经发出的牌
                     cardsCandidated.removeChildAt(0);
+                    // 更新内存
+                    pokerBox.exportPoker(currentNumber - 1, cardName);
                 }
             }
 			// 开始亮牌，并从当前玩家的下家开始
             var startIndex:int = localNumber;
             for (var i:int = 1; i < playerCogameNumber; i++) {
             	if (startIndex == playerCogameNumber) {
-            		startIndex == 0;
+            		startIndex = 0;
             	}
-            	(cardsCandidatedArray[i] as Box).removeAllChildren();
+            	(cardsCandidatedArray[startIndex] as Box).removeAllChildren();
             	for each (var eachPoker:String in pokerBox.cardsOfPlayers[startIndex]) {
                     var pokerInHand:PokerButton = new PokerButton();
                     pokerInHand.source = "image/poker/" + eachPoker + ".png";
                     pokerInHand.allowSelect = false;
-            		(cardsCandidatedArray[i] as Box).addChild(pokerInHand);
+            		(cardsCandidatedArray[startIndex] as Box).addChild(pokerInHand);
             	}
             	startIndex++;
             }
@@ -756,6 +780,10 @@ package info.knightrcom.state
 			}
 			// 游戏结束，并且当前玩家不是最终的游戏规则设置者
 			gameClient.txtSysMessage.text+=FightLandlordGameSetting.getDisplayName(gameSetting) + rushResult + "\n";
+			 if (otherTimer.running) {
+                otherTimer.stop();
+            }
+            CursorManager.removeBusyCursor();
 		}
 
 		/**
@@ -884,10 +912,10 @@ package info.knightrcom.state
 						if (currentNumber == localNextNumber)
 						{
 // 2009/10/13 该功能可能需要保留
-//                            // 当前玩家在本回合中不要，且之前所有的玩家均不要的时候
-//                            for each (var cardsDealed:Tile in cardsDealedArray) {
-//                                cardsDealed.removeAllChildren();
-//                            }
+                            // 当前玩家在本回合中不要，且之前所有的玩家均不要的时候
+                            for each (var cardsDealed:Tile in cardsDealedArray) {
+                                cardsDealed.removeAllChildren();
+                            }
 							currentGame.btnBarPokers.visible=false;
 //							return;
 						}
@@ -1059,6 +1087,45 @@ package info.knightrcom.state
 			timer.start();
 			CursorManager.removeBusyCursor();
 		}
+		
+		/**
+         * 
+         * 响应用户自主选牌提示
+         * 
+         * @param event
+         * 
+         */
+        private function btnBarPokersTipHandler(event:ItemClickEvent):void {
+            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_RESELECT));
+            var tipArray:Array = null;
+            if (event.currentTarget == currentGame.btnBarPokersTipA) {
+                // 对子、三同张、四同张、五同张、六同张、七同张、八同张
+                tipArray = FightLandlordGame.nextTipCards(event.index + 101);
+            } else if (event.currentTarget == currentGame.btnBarPokersTipB) {
+                // 四连顺、五连顺、对子三连顺、对子四连顺、对子五连顺
+                tipArray = FightLandlordGame.nextTipCards(event.index + 201);
+            } else if (event.currentTarget == currentGame.btnBarPokersTipC) {
+                // 三同张三连顺、三同张四连顺、三同张五连顺、四同张三连顺
+                tipArray = FightLandlordGame.nextTipCards(event.index + 301);
+            }
+            var i:int = 0;
+            var eachPokerButton:PokerButton = null;
+            if (tipArray) {
+                for each (eachPokerButton in currentGame.candidatedDown.getChildren()) {
+                    // 不计花色比较
+                    if (eachPokerButton.value.replace(/\d/, "") == tipArray[i]) {
+                        eachPokerButton.setSelected(true);
+                        i++;
+                    } else if (event.currentTarget == currentGame.btnBarPokersTipA && 
+                            (event.index + 101) == FightLandlordGame.TIPA_MUTIPLE2 && 
+                            eachPokerButton.value == tipArray[i]) {
+                        // 对子，且目标值带有花色，即大小王和红五时
+                        eachPokerButton.setSelected(true);
+                        i++;
+                    }
+                }
+            }
+        }
 
 		/**
 		 *
@@ -1095,8 +1162,8 @@ package info.knightrcom.state
             }
             // 显示游戏提示：指示当前要出牌的玩家
             tipString = tipString.replace(/#/, playerDirection[nextNumber - 1]);
-            // 显示游戏提示：指示最后出了牌的玩家
-            tipString = tipString.replace(/#/, playerDirection[lastBoutedNumber - 1]);
+            // 显示游戏提示：指示最后出了牌的玩家，首次发牌时，lastBoutedNumber小于零
+            tipString = tipString.replace(/#/, lastBoutedNumber < 0 ? "无" : playerDirection[lastBoutedNumber - 1]);
 
             if (gameSetting == FightLandlordGameSetting.NO_RUSH) {
                 currentGame.arrowTip.text = "游戏没有人独牌！\n" + tipString;
@@ -1105,7 +1172,7 @@ package info.knightrcom.state
                 currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, FightLandlordGameSetting.getDisplayName(gameSetting));
                 currentGame.arrowTip.text = currentGame.arrowTip.text + tipString;
             }
-        	currentGame.arrowTip.text = "首次发牌玩家: " + playerDirection[firstPlayerNumber - 1] + "\n" + currentGame.arrowTip.text;
+        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "\n" + currentGame.arrowTip.text;
             if (showOtherTime) {
                 // 非当前玩家出牌时，显示动态提示
                 currentGame.arrowTip.text = currentGame.arrowTip.text + "\n等待其他玩家出牌" + MAX_CARDS_SELECT_TIME + "秒！";
