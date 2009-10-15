@@ -33,6 +33,13 @@
 			{
 				var dateFormatter:DateFormatter=new DateFormatter();
 				dateFormatter.formatString="YYYYMMDD";
+				
+				var day:int = Math.floor((dateTo.selectedDate.time - dateFrom.selectedDate.time) / (1000 * 60 * 60 *24));
+    			if (day < 0) {
+    				Alert.show("查询开始日期不能晚于结束日期！", "消息");
+    				return;
+    			}
+    			
 				HttpServiceProxy.send(LocalGameFeedbackService.RETRIEVE_GAME_FEEDBACK, {CAPTION:caption.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.value, CURRENT_PAGE: CURRENT_PAGE}, infoService);
 				txtGameFeedbackId.text = "";
 				txtGameId.text = "";
@@ -148,12 +155,12 @@
 		</mx:ComboBox>
 		<mx:Label text="举报标题关键字"/>
 		<mx:TextInput id="caption"/>
-		<mx:Label text="起始时间"/>
+		<mx:Label text="开始日期"/>
         <mx:DateField id="dateFrom">
         	<mx:selectedDate>{new Date()}</mx:selectedDate>
         	<mx:formatString>YYYY年MM月DD日</mx:formatString>
         </mx:DateField>
-        <mx:Label text="终止时间"/>
+        <mx:Label text="结束日期"/>
         <mx:DateField id="dateTo">
         	<mx:selectedDate>{new Date()}</mx:selectedDate>
         	<mx:formatString>YYYY年MM月DD日</mx:formatString>
