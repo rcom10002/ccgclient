@@ -19,7 +19,7 @@ package info.knightrcom.state.red5game
 		public function set cardsOfPlayers(initCardsOfPlayers:Array):void
 		{
 			for (var i:int = 0; i < initCardsOfPlayers.length; i++) {
-			    this._cardsOfPlayers[i] = initCardsOfPlayers[i].toString().split(",");
+			    this._cardsOfPlayers[i] = Red5Game.sortPokers(initCardsOfPlayers[i].toString());
 			}
 		}
 
