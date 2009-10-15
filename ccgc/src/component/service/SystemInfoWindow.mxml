@@ -282,7 +282,7 @@
 							required="true"
 							property="text"
 							minLength="20"
-							maxLength="100"
+							maxLength="200"
 							tooShortError="请认真填写举报内容，字数必须在20-200之间！"
 							tooLongError="请认真填写举报内容，字数必须在20-200之间！"
 							requiredFieldError="请认真填写举报内容，字数必须在20-200之间！"/>
