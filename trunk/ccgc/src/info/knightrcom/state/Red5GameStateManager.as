@@ -20,11 +20,11 @@ package info.knightrcom.state {
     import info.knightrcom.util.PlatformAlertEvent;
     
     import mx.containers.Box;
-    import mx.containers.Tile;
     import mx.controls.Alert;
     import mx.controls.Button;
     import mx.controls.Label;
     import mx.controls.ProgressBarMode;
+    import mx.core.Container;
     import mx.events.FlexEvent;
     import mx.events.ItemClickEvent;
     import mx.managers.CursorManager;
@@ -220,8 +220,10 @@ package info.knightrcom.state {
 				});
                 ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
                     currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
-                    if (Tile(cardsDealedArray[currentNextNumber - 1]).numChildren > 0 && Tile(cardsDealedArray[currentNextNumber - 1]).getChildAt(0) is Label) {
-                    	Label(Tile(cardsDealedArray[currentNextNumber - 1]).getChildAt(0)).text = Label(Tile(cardsDealedArray[currentNextNumber - 1]).getChildAt(0)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
+                    var otherTimeLabelParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
+                    var lastChildIndex:int = otherTimeLabelParent.numChildren - 1;
+                    if (otherTimeLabelParent.numChildren > 0 && otherTimeLabelParent.getChildAt(lastChildIndex) is Label) {
+                    	Label(otherTimeLabelParent.getChildAt(lastChildIndex)).text = Label(otherTimeLabelParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     }
                 });
                 // 可视组件
@@ -378,6 +380,7 @@ package info.knightrcom.state {
                     // 首次出牌需要禁用"不要"按键
                     Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
+                updateTip(localNumber, localNextNumber);
             } else if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 当前玩家为最后一个玩家时，马上可以开始游戏
                 if (setting != Red5GameSetting.NO_RUSH) {
@@ -394,15 +397,18 @@ package info.knightrcom.state {
                     // 游戏设置为不独时
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
+                    updateTip(currentNumber, localNextNumber);
                 }
             } else if (setting == Red5GameSetting.NO_RUSH) {
                 // 非首次和末次，不独时，直接转发前次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
+                updateTip(currentNumber, localNextNumber);
             } else if (setting == Red5GameSetting.RUSH || setting == Red5GameSetting.DEADLY_RUSH) {
                 // 非首次和末次，独牌或天独时，发送本次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
                 gameSetting = setting;
                 gameFinalSettingPlayerNumber = localNumber;
+                updateTip(localNumber, localNextNumber);
             } else if (setting == Red5GameSetting.EXTINCT_RUSH) {
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                 // 非首次和末次，天外天时，发送本次的游戏设置
@@ -463,6 +469,10 @@ package info.knightrcom.state {
                 }
                 PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect);
             }
+            // 从画面中清除已经使用过的倒计时
+            for each (var eachDealed:Container in cardsDealedArray) {
+                eachDealed.removeAllChildren();
+            }
             updateTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
         }
 
@@ -495,29 +505,30 @@ package info.knightrcom.state {
             currentNextNumber = results[2];
             var passed:Boolean = false;
             var count:int = 0;
-            var tempTile:Tile = null;
+            var tempTile:Container = null;
 
             // 在桌面上显示最近新出的牌
-            if (results.length == 4) {
+            if (results.length == 5) {
                 // 获取"不要"标识
                 passed = ("pass" == results[3]);
             }
             // 上局待发牌区域
             var cardsCandidated:Box = cardsCandidatedArray[currentNumber - 1];
             // 上局已发牌区域
-            var cardsDealed:Tile = cardsDealedArray[currentNumber - 1];
+            var cardsDealed:Container = cardsDealedArray[currentNumber - 1];
             // 获取牌序
             var cardNames:Array = currentBoutCards.split(",");
             // 更新发牌玩家的发牌区域
             if (passed) {
                 // 上家不要时，显示不要的内容 TODO 间隔玩家？？？
-                var currentIndex:int = (currentNextNumber - 1);
-                var previousIndex:int = currentIndex == 0 ? playerCogameNumber - 1 : currentIndex - 1;
+//                var currentIndex:int = (currentNextNumber - 1);
+//                var previousIndex:int = currentIndex == 0 ? playerCogameNumber - 1 : currentIndex - 1;
+                var previousIndex:int = parseInt(results[4]) - 1;
                 var passLabel:Label = new Label();
                 passLabel.text = "不要";
                 passLabel.setStyle("fontSize", 24);
-                Tile(cardsDealedArray[previousIndex]).removeAllChildren();
-                Tile(cardsDealedArray[previousIndex]).addChild(passLabel);
+                Container(cardsDealedArray[previousIndex]).removeAllChildren();
+                Container(cardsDealedArray[previousIndex]).addChild(passLabel);
             } else {
                 if (isOrderNeighbor(currentNumber, currentNextNumber)) { // TODO THIS METHOD MAY BE USELESS
                     // 如果牌序中的两个玩家为邻座的两个人，并且上下家顺序为逆时针，则为正常出牌
@@ -540,12 +551,12 @@ package info.knightrcom.state {
                 }
             }
 // 2009/10/13 该功能可能需要保留
-            // 全都"不要"时的首发牌，清除桌面上所有牌
-            if (currentNumber == currentNextNumber) {
-                for each (tempTile in cardsDealedArray) {
-                    tempTile.removeAllChildren();
-                }
-            }
+//            // 全都"不要"时的首发牌，清除桌面上所有牌
+//            if (currentNumber == currentNextNumber) {
+//                for each (tempTile in cardsDealedArray) {
+//                    tempTile.removeAllChildren();
+//                }
+//            }
 
             // 为出牌玩家设置扑克操作按钮外观
             if (currentNextNumber == localNumber) {
@@ -597,7 +608,7 @@ package info.knightrcom.state {
                 // 本局待发牌区域
                 var cardsCandidated:Box = cardsCandidatedArray[currentNumber - 1];
                 // 本局已发牌区域
-                var cardsDealed:Tile = cardsDealedArray[currentNumber - 1];
+                var cardsDealed:Container = cardsDealedArray[currentNumber - 1];
                 cardsDealed.removeAllChildren();
                 var cardNames:Array = currentBoutCards.split(",");
                 for each (var cardName:String in cardNames) {
@@ -621,18 +632,40 @@ package info.knightrcom.state {
                 // 设置独牌时的排名
                 firstPlaceNumber = currentNumber;
             }
+            if (gameSetting == Red5GameSetting.NO_RUSH) {
+                var winLabel:Label = new Label();
+                winLabel.text = "大娘娘";
+                winLabel.setStyle("color", 0xff0000);
+                if ((cardsCandidatedArray[thirdPlaceNumber - 1] as Container).numChildren > 0 &&
+                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).getChildAt(0) is Label) {
+                } else {
+                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
+                }
+                winLabel = new Label();
+                winLabel.text = "二娘娘";
+                winLabel.setStyle("color", 0xff6699);
+                if ((cardsCandidatedArray[forthPlaceNumber - 1] as Container).numChildren > 0 &&
+                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).getChildAt(0) is Label) {
+                } else {
+                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                }
+            }
             // 开始亮牌，并从当前玩家的下家开始
             var startIndex:int = localNumber;
             for (var i:int = 1; i < playerCogameNumber; i++) {
             	if (startIndex == playerCogameNumber) {
             		startIndex = 0;
             	}
-            	(cardsCandidatedArray[startIndex] as Box).removeAllChildren();
+                var tempCardCandidated:Box = (cardsCandidatedArray[startIndex] as Box);
+                if (gameSetting != Red5GameSetting.NO_RUSH || (tempCardCandidated.numChildren > 0 && !(tempCardCandidated.getChildAt(0) is Label))) {
+                    // 保留大皇上二皇上大娘娘二娘娘提示
+                    tempCardCandidated.removeAllChildren();
+                }
             	for each (var eachPoker:String in pokerBox.cardsOfPlayers[startIndex]) {
                     var pokerInHand:PokerButton = new PokerButton();
                     pokerInHand.source = "image/poker/" + eachPoker + ".png";
                     pokerInHand.allowSelect = false;
-            		(cardsCandidatedArray[startIndex] as Box).addChild(pokerInHand);
+                    tempCardCandidated.addChild(pokerInHand);
             	}
             	startIndex++;
             }
@@ -668,7 +701,7 @@ package info.knightrcom.state {
 
         /**
          *
-         * 没有独牌或天独的情况下，游戏中产生获胜者
+         * 没有独牌或天独或天外天的情况下，游戏中产生获胜者
          *
          * @param event
          *
@@ -691,14 +724,28 @@ package info.knightrcom.state {
             // 更新画面表现
             gameBringOutHandler(event);
             // 设置游戏获胜者信息
+            var winLabel:Label = new Label();
             if (firstPlaceNumber == UNOCCUPIED_PLACE_NUMBER) {
                 firstPlaceNumber = currentNumber;
+                winLabel.text = "大皇上";
+                winLabel.setStyle("color", 0xffff00);
+                (cardsCandidatedArray[firstPlaceNumber - 1] as Container).addChild(winLabel);
             } else if (secondPlaceNumber == UNOCCUPIED_PLACE_NUMBER) {
                 secondPlaceNumber = currentNumber;
+                winLabel.text = "二皇上";
+                winLabel.setStyle("color", 0xffffcc);
+                (cardsCandidatedArray[secondPlaceNumber - 1] as Container).addChild(winLabel);
             } else if (thirdPlaceNumber == UNOCCUPIED_PLACE_NUMBER) {
                 thirdPlaceNumber = currentNumber;
                 var placeNumberPattern:RegExp = new RegExp("[" + firstPlaceNumber + secondPlaceNumber + thirdPlaceNumber + "]", "g");
                 forthPlaceNumber = Number("1234".replace(placeNumberPattern, ""));
+                winLabel.text = "大娘娘";
+                winLabel.setStyle("color", 0xff0000);
+                (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
+                winLabel = new Label();
+                winLabel.text = "二娘娘";
+                winLabel.setStyle("color", 0xff6699);
+                (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
             }
         }
 
@@ -821,23 +868,23 @@ package info.knightrcom.state {
                         // 如果当前玩家上家是获胜者时，需要重新设置获胜者发出的消息
                         // 将获胜者牌更为当前玩家牌，以便在所有玩家“不要”的情况下
                         // 可以由获胜者的直接下家出牌
-                        socketProxy.sendGameData(Red5GameCommand.GAME_BRING_OUT, localNumber + "~" + currentBoutCards + "~" + localNextNumber + "~pass");
+                        socketProxy.sendGameData(Red5GameCommand.GAME_BRING_OUT, localNumber + "~" + currentBoutCards + "~" + localNextNumber + "~pass~" + localNumber);
                         isWinnerFollowed = false;
                     } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH && localNextNumber == currentNumber && currentGame.candidatedRight.getChildren().length == 0) {
                         // 设置游戏冠军玩家
                         firstPlaceNumber = currentNumber;
                         // 游戏设置为天外天，且所有非独牌者均不要时
-                        socketProxy.sendGameData(Red5GameCommand.GAME_WIN_AND_END, currentNumber + "~" + cards + "~" + localNextNumber + "~pass");
+                        socketProxy.sendGameData(Red5GameCommand.GAME_WIN_AND_END, currentNumber + "~" + cards + "~" + localNextNumber + "~pass~" + localNumber);
                         isGameOver = true;
                     } else {
-                        socketProxy.sendGameData(Red5GameCommand.GAME_BRING_OUT, currentNumber + "~" + currentBoutCards + "~" + localNextNumber + "~pass");
+                        socketProxy.sendGameData(Red5GameCommand.GAME_BRING_OUT, currentNumber + "~" + currentBoutCards + "~" + localNextNumber + "~pass~" + localNumber);
                         if (currentNumber == localNextNumber) {
 // 2009/10/13 该功能可能需要保留
-                            // 当前玩家在本回合中不要，且之前所有的玩家均不要的时候
-                            for each (var cardsDealed:Tile in cardsDealedArray) {
-                                cardsDealed.removeAllChildren();
-                            }
-                            currentGame.btnBarPokers.visible = false;
+//                            // 当前玩家在本回合中不要，且之前所有的玩家均不要的时候
+//                            for each (var cardsDealed:Container in cardsDealedArray) {
+//                                cardsDealed.removeAllChildren();
+//                            }
+//                            currentGame.btnBarPokers.visible = false;
 //                            return;
                         }
                     }
@@ -846,8 +893,8 @@ package info.knightrcom.state {
                     var passLabel:Label = new Label();
                     passLabel.text = "不要";
                     passLabel.setStyle("fontSize", 24);
-                    Tile(cardsDealedArray[currentIndex]).removeAllChildren();
-                    Tile(cardsDealedArray[currentIndex]).addChild(passLabel);
+                    Container(cardsDealedArray[currentIndex]).removeAllChildren();
+                    Container(cardsDealedArray[currentIndex]).addChild(passLabel);
                     // 出牌操作结束后，关闭扑克操作栏
                     currentGame.btnBarPokers.visible = false;
                     // 更新显示提示
@@ -967,6 +1014,30 @@ package info.knightrcom.state {
                             card.allowSelect = false;
                         }
                     }
+                    if (gameSetting == Red5GameSetting.NO_RUSH) {
+                        var winLabel:Label = new Label();
+                        switch (localNumber) {
+                            case firstPlaceNumber:
+                                winLabel.text = "大皇上";
+                                winLabel.setStyle("color", 0xffff00);
+                                currentGame.candidatedDown.addChild(winLabel);
+                                break;
+                            case secondPlaceNumber:
+                                winLabel.text = "二皇上";
+                                winLabel.setStyle("color", 0xffffcc);
+                                currentGame.candidatedDown.addChild(winLabel);
+                                break;
+                            case thirdPlaceNumber:
+                                winLabel.text = "大娘娘";
+                                winLabel.setStyle("color", 0xff0000);
+                                currentGame.candidatedDown.addChild(winLabel);
+                                winLabel = new Label();
+                                winLabel.text = "二娘娘";
+                                winLabel.setStyle("color", 0xff6699);
+                                (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                                break;
+                        }
+                    }
                     // 出牌操作结束后，关闭扑克操作栏
                     currentGame.btnBarPokers.visible = false;
                     // 更新显示提示
@@ -1020,6 +1091,8 @@ package info.knightrcom.state {
 		 * 
 		 */
 		private function show(event:FlexEvent):void {
+            // 清除当前玩家出牌区域
+            currentGame.dealedDown.removeAllChildren();
 			// 显示进度条，倒计时开始开始
             currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
 			currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
@@ -1046,12 +1119,15 @@ package info.knightrcom.state {
          * 
          * 更新游戏提示信息 
          * 
-         * @param lastBoutedNumber 最后出牌玩家编号
+         * @param lastNumber 最后出牌或游戏设置玩家编号
          * @param nextNumber 准备出牌的玩家编号
+         * @param showOtherTime 是否应用等待其他玩家信息
+         * @param firstRound 是否首次
          * 
          */
-        private function updateTip(lastBoutedNumber:int, nextNumber:int, showOtherTime:Boolean = true, firstRound:Boolean = false):void {
+        private function updateTip(lastNumber:int, nextNumber:int, showOtherTime:Boolean = true, firstRound:Boolean = false):void {
             // 参数初始化
+            currentNextNumber = nextNumber;
             // 显示游戏提示
             var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
             var playerDirection:Array = new Array("下", "右", "上", "左");
@@ -1065,13 +1141,13 @@ package info.knightrcom.state {
             // 显示游戏提示：指示当前要出牌的玩家
             tipString = tipString.replace(/#/, playerDirection[nextNumber - 1]);
             // 显示游戏提示：指示最后出了牌的玩家，首次发牌时，lastBoutedNumber小于零
-            tipString = tipString.replace(/#/, lastBoutedNumber < 0 ? "无" : playerDirection[lastBoutedNumber - 1]);
+            tipString = tipString.replace(/#/, lastNumber < 0 ? "无" : playerDirection[lastNumber - 1]);
 
-            if (gameSetting == Red5GameSetting.NO_RUSH) {
+            if (gameSetting == -1 || gameSetting == Red5GameSetting.NO_RUSH) {
                 currentGame.arrowTip.text = "游戏没有人独牌！\n" + tipString;
             } else {
                 currentGame.arrowTip.text = "游戏#方玩家#！\n".replace(/#/, playerDirection[gameFinalSettingPlayerNumber - 1]);
-                currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, Red5GameSetting.getDisplayName(gameSetting));
+                currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, Red5GameSetting.getDisplayName(gameSetting < 0 ? 0 : gameSetting));
                 currentGame.arrowTip.text = currentGame.arrowTip.text + tipString;
             }
         	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
@@ -1083,13 +1159,21 @@ package info.knightrcom.state {
                     otherTimer.stop();
                 }
                 // 将出牌玩家出牌区域清空并添加倒计时提示
-                var timeTipLabel:Label = new Label();
-                timeTipLabel.text = "【" + MAX_CARDS_SELECT_TIME + "】";
-                if (firstRound) {
-                	currentNextNumber = gameFinalSettingPlayerNumber;
+                var otherTimeTipLabel:Label = new Label();
+                otherTimeTipLabel.text = "【" + MAX_CARDS_SELECT_TIME + "】";
+                otherTimeTipLabel.setStyle("color", 0x0000ff);
+                otherTimeTipLabel.opaqueBackground = 0xffffcc;
+                // 保留已出牌，并显示倒计时
+                var currentDealed:Container = Container(cardsDealedArray[nextNumber - 1]);
+                while (currentDealed.numChildren > 0) {
+                    if (currentDealed.getChildAt(currentDealed.numChildren - 1) is Label) {
+                        currentDealed.removeChildAt(currentDealed.numChildren - 1);
+                    } else {
+                        otherTimeTipLabel.setStyle("paddingLeft", 100);
+                        break;
+                    }
                 }
-                Tile(cardsDealedArray[currentNextNumber - 1]).removeAllChildren();
-                Tile(cardsDealedArray[currentNextNumber - 1]).addChild(timeTipLabel);
+                currentDealed.addChild(otherTimeTipLabel);
                 otherTimer.reset();
                 otherTimer.start();
             }
@@ -1148,7 +1232,7 @@ package info.knightrcom.state {
             thirdPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
             forthPlaceNumber = UNOCCUPIED_PLACE_NUMBER;
             isWinnerFollowed = false;
-            for each (var cardsDealed:Tile in cardsDealedArray) {
+            for each (var cardsDealed:Container in cardsDealedArray) {
                 cardsDealed.removeAllChildren();
             }
             for each (var cardsCandidated:Box in cardsCandidatedArray) {
