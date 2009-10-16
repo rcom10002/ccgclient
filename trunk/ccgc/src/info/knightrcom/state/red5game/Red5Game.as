@@ -247,7 +247,9 @@ package info.knightrcom.state.red5game {
 
         /**
          *
-         * @param boutCards
+         * 取得倍数，适用于单调、倍数牌、顺子
+         * 
+         * @param boutCards 当前打出的牌 
          * @return
          *
          */
@@ -257,6 +259,18 @@ package info.knightrcom.state.red5game {
             // 去重复项目
             resultCards = (resultCards).replace(/(V[^,]+,)\1*/g, "$1");
             return (boutCards + ",").replace(/\b\dV/g, "V").length / resultCards.length;
+        }
+
+        /**
+         *
+         * 取得顺子长度
+         * 
+         * @param boutCards 当前打出的牌 
+         * @return
+         *
+         */
+        private static function getStraightLength(boutCards:String):int {
+            return boutCards.split(",").length / getMultiple(boutCards);
         }
 
 		/**
@@ -426,6 +440,10 @@ package info.knightrcom.state.red5game {
 		/** 四同张三连顺 */
 		public static const TIPC_FOURFOLD_SEQ3:int = 304;
 
+		private static const allTipIds:Array = new Array(TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4, 
+				TIPA_MUTIPLE5, TIPA_MUTIPLE6, TIPA_MUTIPLE7, TIPA_MUTIPLE8, TIPB_SEQ4, TIPB_SEQ5, 
+				TIPB_DOUBLE_SEQ3, TIPB_DOUBLE_SEQ4, TIPB_DOUBLE_SEQ5, TIPC_TRIPLE_SEQ3, TIPC_TRIPLE_SEQ4, 
+				TIPC_TRIPLE_SEQ5, TIPC_FOURFOLD_SEQ3);
         /**
          * 提示容器
          */
@@ -437,24 +455,51 @@ package info.knightrcom.state.red5game {
 		 * 
 		 */
 		public static function refreshTips(myCards:String):void {
-			tipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
-			tipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
-			tipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
-			tipsHolder[TIPA_MUTIPLE5] = {STATUS : -1, TIPS : grabMultiple(5, myCards.split(","))};
-			tipsHolder[TIPA_MUTIPLE6] = {STATUS : -1, TIPS : grabMultiple(6, myCards.split(","))};
-			tipsHolder[TIPA_MUTIPLE7] = {STATUS : -1, TIPS : grabMultiple(7, myCards.split(","))};
-			tipsHolder[TIPA_MUTIPLE8] = {STATUS : -1, TIPS : grabMultiple(8, myCards.split(","))};
+			var allTips:Object = grabTips(myCards);
+			for each (var eachId:int in allTipIds) {
+				tipsHolder[eachId] = allTips[eachId];
+			}
+//			tipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
+//			tipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
+//			tipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
+//			tipsHolder[TIPA_MUTIPLE5] = {STATUS : -1, TIPS : grabMultiple(5, myCards.split(","))};
+//			tipsHolder[TIPA_MUTIPLE6] = {STATUS : -1, TIPS : grabMultiple(6, myCards.split(","))};
+//			tipsHolder[TIPA_MUTIPLE7] = {STATUS : -1, TIPS : grabMultiple(7, myCards.split(","))};
+//			tipsHolder[TIPA_MUTIPLE8] = {STATUS : -1, TIPS : grabMultiple(8, myCards.split(","))};
+//
+//			tipsHolder[TIPB_SEQ4] = {STATUS : -1, TIPS : grabSequence(1, 4, myCards.split(","))};
+//			tipsHolder[TIPB_SEQ5] = {STATUS : -1, TIPS : grabSequence(1, 5, myCards.split(","))};
+//			tipsHolder[TIPB_DOUBLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(2, 3, myCards.split(","))};
+//			tipsHolder[TIPB_DOUBLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(2, 4, myCards.split(","))};
+//			tipsHolder[TIPB_DOUBLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(2, 5, myCards.split(","))};
+//
+//			tipsHolder[TIPC_TRIPLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(3, 3, myCards.split(","))};
+//			tipsHolder[TIPC_TRIPLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(3, 4, myCards.split(","))};
+//			tipsHolder[TIPC_TRIPLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(3, 5, myCards.split(","))};
+//			tipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+		}
 
-			tipsHolder[TIPB_SEQ4] = {STATUS : -1, TIPS : grabSequence(1, 4, myCards.split(","))};
-			tipsHolder[TIPB_SEQ5] = {STATUS : -1, TIPS : grabSequence(1, 5, myCards.split(","))};
-			tipsHolder[TIPB_DOUBLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(2, 3, myCards.split(","))};
-			tipsHolder[TIPB_DOUBLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(2, 4, myCards.split(","))};
-			tipsHolder[TIPB_DOUBLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(2, 5, myCards.split(","))};
+		private static function grabTips(myCards:String):Object {
+			var tempTipsHolder:Object = new Object();
+			tempTipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
+			tempTipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
+			tempTipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
+			tempTipsHolder[TIPA_MUTIPLE5] = {STATUS : -1, TIPS : grabMultiple(5, myCards.split(","))};
+			tempTipsHolder[TIPA_MUTIPLE6] = {STATUS : -1, TIPS : grabMultiple(6, myCards.split(","))};
+			tempTipsHolder[TIPA_MUTIPLE7] = {STATUS : -1, TIPS : grabMultiple(7, myCards.split(","))};
+			tempTipsHolder[TIPA_MUTIPLE8] = {STATUS : -1, TIPS : grabMultiple(8, myCards.split(","))};
 
-			tipsHolder[TIPC_TRIPLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(3, 3, myCards.split(","))};
-			tipsHolder[TIPC_TRIPLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(3, 4, myCards.split(","))};
-			tipsHolder[TIPC_TRIPLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(3, 5, myCards.split(","))};
-			tipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+			tempTipsHolder[TIPB_SEQ4] = {STATUS : -1, TIPS : grabSequence(1, 4, myCards.split(","))};
+			tempTipsHolder[TIPB_SEQ5] = {STATUS : -1, TIPS : grabSequence(1, 5, myCards.split(","))};
+			tempTipsHolder[TIPB_DOUBLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(2, 3, myCards.split(","))};
+			tempTipsHolder[TIPB_DOUBLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(2, 4, myCards.split(","))};
+			tempTipsHolder[TIPB_DOUBLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(2, 5, myCards.split(","))};
+
+			tempTipsHolder[TIPC_TRIPLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(3, 3, myCards.split(","))};
+			tempTipsHolder[TIPC_TRIPLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(3, 4, myCards.split(","))};
+			tempTipsHolder[TIPC_TRIPLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(3, 5, myCards.split(","))};
+			tempTipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+			return tempTipsHolder;
 		}
 
 		/**
@@ -475,5 +520,93 @@ package info.knightrcom.state.red5game {
 			return (tipHolder.TIPS as Array)[tipHolder.STATUS].toString().split(",");
 		}
 
+		/**
+		 * 
+		 * 智能提示
+		 * 
+		 * @return
+		 * 
+		 */
+		public static function getBrainPowerTip(myCards:Array, boutCards:Array):Array {
+			var resultArrayArray:Array = new Array();
+			var boutCardsString:String = boutCards.join(",");
+			var myCardsString:String = myCards.join(",") + ",";
+			// 三张草五
+			if (new RegExp("^\\dV5,\\dV5,\\dV5,$").test(boutCardsString)) {
+				return null;
+			}
+			// 封顶龙儿
+			if (isStraightStyle(boutCardsString)) {
+				return null;
+			}
+			// 单双红五
+			if ("1V5" == boutCardsString || "1V5,1V5" == boutCardsString) {
+				return null;
+			}
+			// 七张二
+			if (new RegExp("^(\\dV2)\\1{6}$").test(boutCardsString)) {
+				return null;
+			}
+			// 单张判断
+			if (isSingleStyle(boutCardsString)) {
+				// 去花色和逗号
+				boutCardsString = boutCardsString.replace(/^\dV/g, "V");
+				myCardsString = myCardsString.replace(/^\dV/g, "V");
+				// 是否有比打出牌大的牌在手中
+				if (prioritySequence.indexOf(myCards[myCards.length - 1]) <= prioritySequence.indexOf(boutCardsString)) {
+					return null;
+				}
+				// 单张优先，判断是否有比打出牌大的单张
+				// 完全去除重复的项目，不保留任何内容
+				var singleCard:String = null;
+				var mySingleCardsString:String = myCardsString.replace(/(V[^,]*,)\1{1,}/g, "");
+				for each (singleCard in mySingleCardsString.replace(/,$/, "").split(",")) {
+					if (prioritySequence.indexOf(singleCard) > prioritySequence.indexOf(boutCardsString)) {
+						return new Array(singleCard);
+					}
+				}
+				// 判断是否有比打出牌大的非单张
+				for each (singleCard in myCardsString.replace(/,$/, "").split(",")) {
+					if (mySingleCardsString.indexOf(singleCard) > -1) {
+						continue;
+					}
+					if (prioritySequence.indexOf(singleCard) > prioritySequence.indexOf(boutCardsString)) {
+						return new Array(singleCard);
+					}
+				}
+			} else if (isSeveralFoldStyle(boutCardsString)) {
+				// 是否有比打出牌大的牌在手中
+				var allTips:Object = grabTips(myCardsString.replace(/,$/, ""));
+				var multiple:int = getMultiple(boutCardsString);
+				var multipleId:int = 99 + multiple;
+				var targetTips:Array = allTips[multipleId] as Array;
+				var boutValue:String = boutCardsString.replace(/(V[^,]*,)\1{1,}/g, "$1"); // 去重复项
+				if (targetTips.length > 0) {
+					for each (var eachTargetTip:Array in targetTips) {
+						var tempTargeTip:String = eachTargetTip.join(",").replace(/(V[^,]*)\1{1,}/g, "$1"); // 去重复项
+						if (prioritySequence.indexOf(tempTargeTip) > prioritySequence.indexOf(boutValue)) {
+							return eachTargetTip;
+						}
+					}
+				}
+			} else {
+				// 将手中顺子的首位与打出牌的首位比较
+				var allTips:Object = grabTips(myCardsString.replace(/,$/, ""));
+				var multiple:int = getMultiple(boutCardsString);
+				var stlength:int = gets 
+				var multipleId:int = multiple < 3 ? 200 + multipleId : 300 + multipleId - 2;
+				var targetTips:Array = allTips[multipleId] as Array;
+				var boutValue:String = boutCardsString.replace(/(V[^,]*,)\1{1,}/g, "$1"); // 去重复项
+				if (targetTips.length > 0) {
+					for each (var eachTargetTip:Array in targetTips) {
+						var tempTargeTip:String = eachTargetTip.join(",").replace(/(V[^,]*)\1{1,}/g, "$1"); // 去重复项
+						if (prioritySequence.indexOf(tempTargeTip) > prioritySequence.indexOf(boutValue)) {
+							return eachTargetTip;
+						}
+					}
+				}
+			}
+			return null;
+		}
     }
 }
