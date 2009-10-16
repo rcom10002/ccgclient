@@ -56,7 +56,7 @@
 	</mx:VBox>
 	<mx:Canvas left="128" right="128" top="128" bottom="157">
 		<!-- 牌桌区域 -->
-		<mx:Tile id="dealedUp"
+		<mx:HBox id="dealedUp"
 				 height="100"
 				 top="0"
 				 left="160"
@@ -66,9 +66,8 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-			<mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
-		<mx:Tile id="dealedRight"
+		</mx:HBox>
+		<mx:HBox id="dealedRight"
 				 right="0"
 				 top="117"
 				 horizontalGap="-55"
@@ -77,9 +76,8 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle" height="100">
-            <mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
-		<mx:Tile id="dealedDown"
+		</mx:HBox>
+		<mx:HBox id="dealedDown"
 				 height="100"
 				 right="160"
 				 bottom="100"
@@ -89,9 +87,8 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-            <mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
-		<mx:Tile id="dealedLeft"
+		</mx:HBox>
+		<mx:HBox id="dealedLeft"
 				 left="0"
 				 horizontalGap="-55"
 				 verticalGap="-78"
@@ -100,8 +97,7 @@
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle" height="100">
-            <mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
+		</mx:HBox>
 	</mx:Canvas>
 	<!-- 操作区域 -->
 	<mx:VBox horizontalAlign="center"
