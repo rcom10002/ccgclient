@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml" source="http://www.helpexamples.com/flash/images/logo.png" click="button_click(event);">
+<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml" click="button_click(event);">
 	<mx:Script>
 		<![CDATA[
-			private static var directions:Array = new Arrya(0, 90, 180, 270);
-			private static var currentPos = 0;
             private function button_click(evt:Event):void {
-                var direction:int = directions[currentPos++];
+                var direction:int = 90;
                 var radians:Number = degreesToRadians(direction);
-                var offsetWidth:Number = img.width / 2;
-                var offsetHeight:Number = img.height / 2;
-                var tempMatrix:Matrix = img.transform.matrix;
+                var offsetWidth:Number = this.width / 2;
+                var offsetHeight:Number = this.height / 2;
+                var tempMatrix:Matrix = this.transform.matrix;
                 tempMatrix.translate(-offsetWidth, -offsetHeight);
                 tempMatrix.rotate(radians);
                 tempMatrix.translate(+offsetWidth, +offsetHeight);
 
-                img.transform.matrix = tempMatrix;
-
-                rotateDeg = img.rotation;
+                this.transform.matrix = tempMatrix;
+//                rotateDeg = this.rotation;
             }
 
             private function degreesToRadians(degrees:Number):Number {
