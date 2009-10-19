@@ -9,10 +9,12 @@
 			import info.knightrcom.state.red5game.Red5GameSetting;
 			import component.PokerButton;
 			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
 			import mx.events.CloseEvent;
 			import info.knightrcom.util.HttpServiceProxy;
 			import mx.formatters.DateFormatter;
 			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.state.BaseStateManager;
 
 			private static const DEFAULT_DELAY:int = 5000;
 
@@ -27,65 +29,108 @@
 			private var settingTimer:Timer;
 
 			private var playingTimer:Timer
+			
+			private function readPlayerInfo():Object {
+				var user:Object = null;
+				HttpServiceProxy.send(LocalSystemInfoService.READ_PLAYER_INFO,
+            			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, GAME_ID : gameId.text}, null, 
+            			function (event:ResultEvent):void {
+            				user = new XML(event.result).tag;
+            			},
+            			function (e:FaultEvent):void {
+							Alert.show("通信失败！", "错误");
+						});
+				return user;
+			}
 
             private function btnExecuteClickHandler(event:MouseEvent):void {
-				if (btnExecute.label == "暂停") {
-					btnExecute.label = "继续";
-					if (playingTimer.running) {
-						playingTimer.stop();
-					}
-					return;
-				} else if (btnExecute.label == "继续") {
-					btnExecute.label = "暂停";
-					playingTimer.start();
-					return;
-				} else if (btnExecute.label == "播放") {
-            		btnExecute.label = "暂停";
-    			} else {
-    				throw Error("按钮状态错误！");
-    			}
-            	// 录像机初始化
-            	if (settingTimer != null && settingTimer.running) {
-            		settingTimer.stop();
-            		throw Error("Timer组件错误！");
-            	}
-            	if (playingTimer != null && playingTimer.running) {
-            		playingTimer.stop();
-            		throw Error("Timer组件错误！");
-            	}
-            	// 清空历史录像信息
-            	lblGameSetting.text = "";
-            	// 清除历史录像播放信息
-            	var eachBox:Box = null;
-            	for each (eachBox in cardsCandidatedArray) {
-            		eachBox.removeAllChildren();
-            	}
-            	for each (eachBox in cardsDealedArray) {
-            		eachBox.removeAllChildren();
-            	}
-            	// 游戏玩家
-            	// 1~user4~2~user3~3~user2~4~user1~
-            	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
-            			{GAME_ID : gameId.text}, null, function (event:ResultEvent):void {
-            				var e4xResult:XML = new XML(event.result);
-            				var gameType:String = e4xResult.entity.gameType.text();
-            				gamePlayers = e4xResult.entity.players.text();
-            				gameRecord = e4xResult.entity.record.text();
-            				lblGameSetting.text = Red5GameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
-							// 确定游戏名称
-							if (gameType == "Red5Game") {
-								var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
-								gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
-								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
-								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
-								var part3:String = removeBothSides(gameRecord, ";");
-								btnExecute.enabled = false;
-								playRed5Game(part1, part2, part3);
+            	HttpServiceProxy.send(LocalSystemInfoService.READ_PLAYER_INFO,
+            			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, GAME_ID : gameId.text}, null, 
+            			function (event:ResultEvent):void {
+            				var user:Object = new XML(event.result).tag;
+			            	if (user.status == "PLAYVEDIO") {
+			            		// Alert.show("看过录像!");
 							} else {
-								throw Error("未知游戏类型！无法播放游戏历史录像！");
+								if (user.currentScore - 2 * user.score < 0) {
+									Alert.show("分数不够扣的不能看录像!");
+									return;
+								}
+//								Alert.yesLabel = "确认";
+//								Alert.noLabel = "取消";
+//							    Alert.show( "录像观看需要扣除两倍底分,确定要观看吗？",
+//										"消息", 
+//										Alert.YES | Alert.NO,
+//										this,
+//										function handleAlert(eventClose:CloseEvent):void {
+//										    if(eventClose.detail == Alert.NO)
+//										    {
+//										      	return;
+//										    }
+//										},
+//										null,
+//										Alert.YES);
 							}
-            				settingWindow.visible = false;
-            			});
+					if (btnExecute.label == "暂停") {
+						btnExecute.label = "继续";
+						if (playingTimer.running) {
+							playingTimer.stop();
+						}
+						return;
+					} else if (btnExecute.label == "继续") {
+						btnExecute.label = "暂停";
+						playingTimer.start();
+						return;
+					} else if (btnExecute.label == "播放") {
+	            		btnExecute.label = "暂停";
+	    			} else {
+	    				throw Error("按钮状态错误！");
+	    			}
+	            	// 录像机初始化
+	            	if (settingTimer != null && settingTimer.running) {
+	            		settingTimer.stop();
+	            		throw Error("Timer组件错误！");
+	            	}
+	            	if (playingTimer != null && playingTimer.running) {
+	            		playingTimer.stop();
+	            		throw Error("Timer组件错误！");
+	            	}
+	            	// 清空历史录像信息
+	            	lblGameSetting.text = "";
+	            	// 清除历史录像播放信息
+	            	var eachBox:Box = null;
+	            	for each (eachBox in cardsCandidatedArray) {
+	            		eachBox.removeAllChildren();
+	            	}
+	            	for each (eachBox in cardsDealedArray) {
+	            		eachBox.removeAllChildren();
+	            	}
+	            	// 游戏玩家
+	            	// 1~user4~2~user3~3~user2~4~user1~
+	            	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
+	            			{GAME_ID : gameId.text, STATUS : user.status, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, function (event:ResultEvent):void {
+	            				var e4xResult:XML = new XML(event.result);
+	            				var gameType:String = e4xResult.entity.gameType.text();
+	            				gamePlayers = e4xResult.entity.players.text();
+	            				gameRecord = e4xResult.entity.record.text();
+	            				lblGameSetting.text = Red5GameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
+								// 确定游戏名称
+								if (gameType == "Red5Game") {
+									var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
+									gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
+									var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
+									gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
+									var part3:String = removeBothSides(gameRecord, ";");
+									btnExecute.enabled = false;
+									playRed5Game(part1, part2, part3);
+								} else {
+									throw Error("未知游戏类型！无法播放游戏历史录像！");
+								}
+	            				settingWindow.visible = false;
+	            			});
+            	},
+				function (e:FaultEvent):void {
+					Alert.show("通信失败！", "错误");
+				});
             }
 
 			private function btnTerminateClickHandler(event:MouseEvent):void {
@@ -313,7 +358,7 @@
 	    <mx:showCloseButton>true</mx:showCloseButton>
 		<mx:Form x="10" y="10">
 			<mx:FormItem label="游戏ID" required="true">
-				<mx:TextInput id="gameId" text="61c1f628-1450-4e34-bbb3-9a71c4258504"/>
+				<mx:TextInput id="gameId" text="83623bd6-95f2-403a-acd9-af856a961f1a"/>
 			</mx:FormItem>
 			<mx:FormItem label="播放速度">
 				<mx:HSlider id="gameSpeed" minimum="1" maximum="5" snapInterval="1" value="3" showDataTip="false" />
