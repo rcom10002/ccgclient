@@ -764,10 +764,11 @@ package info.knightrcom.state
             }
 			firstPlaceNumber=currentNumber;
 			// 显示记分牌
-			new Scoreboard().popUp(localNumber, scoreboardInfo, function():void
-				{
-					gameClient.currentState='LOBBY';
-				});
+			new Scoreboard().popUp(localNumber, scoreboardInfo, currentGameId,
+					function():void
+					{
+						gameClient.currentState='LOBBY';
+					});
 			// 显示游戏积分
 			var rushResult:String=null;
 			if (firstPlaceNumber == gameFinalSettingPlayerNumber)

@@ -706,9 +706,10 @@ package info.knightrcom.state {
             		GAME_SETTING : gameSetting, 
             		GAME_FINAL_SETTING_PLAYER_NUMBER : gameFinalSettingPlayerNumber,
             		TITLE : Red5GameSetting.getDisplayName(gameSetting)}; 
-            new Scoreboard().popUp(localNumber, scoreboardInfo, function():void {
-            	gameClient.currentState = 'LOBBY';
-            }, misc);
+            new Scoreboard().popUp(localNumber, scoreboardInfo, currentGameId,
+		            function():void {
+		            	gameClient.currentState = 'LOBBY';
+		            }, misc);
             // 显示游戏积分
             if (gameSetting != Red5GameSetting.NO_RUSH) {
                 var rushResult:String = null;
