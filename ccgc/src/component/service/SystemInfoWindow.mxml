@@ -2,6 +2,7 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="系统信息">
 	<mx:Script>
 		<![CDATA[
+			import flash.net.getClassByAlias;
 			import mx.rpc.events.ResultEvent;
 			import info.knightrcom.state.BaseStateManager;
 			import mx.validators.Validator;
@@ -106,6 +107,22 @@
 					{CURRENT_USER_ID: BaseStateManager.currentUserId}, 
 					feedbackHistoryInfoService);
 			}
+
+			public function quickFeedback(gameId:String):void
+			{
+				btnFeedbackClickHandler(new MouseEvent(MouseEvent.CLICK));
+				feedbackGameId.text = gameId;
+			}
+
+			public function quickVedio(gameId:String, gameSetting:String):void
+			{
+				var vedioClass:Class = getClassByAlias(gameSetting + "VedioWindow");
+				var gameVedio:* = new vedioClass();
+				gameVedio.gameId.text = gameId;
+				gameVedio.currentLayoutCanvas=this.layoutCanvas;
+				gameVedio.popUp();
+			}
+
 		]]>
 	</mx:Script>
 	<creationComplete>
@@ -143,10 +160,10 @@
 	</creationComplete>
 	<!-- 操作按钮 -->
 	<mx:Array id="popupMenuItems">
-		<mx:Object label="大连红五" id="red5"/>
-		<mx:Object label="斗地主" id="fightLandlord"/>
-		<mx:Object label="推倒胡" id="pushdownWin"/>
-		<mx:Object label="穷胡" id="qiongWin"/>
+		<mx:Object label="大连红五" data="Red5Game" id="red5"/>
+		<mx:Object label="斗地主" data="FightLandlordGame" id="fightLandlord"/>
+		<mx:Object label="推倒胡" data="PushdownWinGame" id="pushdownWin"/>
+		<mx:Object label="穷胡" data="QiongWinGame" id="qiongWin"/>
 	</mx:Array>
 	<mx:HBox horizontalGap="4"
 			 top="10"
