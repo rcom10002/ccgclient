@@ -30,19 +30,6 @@
 
 			private var playingTimer:Timer
 			
-			private function readPlayerInfo():Object {
-				var user:Object = null;
-				HttpServiceProxy.send(LocalSystemInfoService.READ_PLAYER_INFO,
-            			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, GAME_ID : gameId.text}, null, 
-            			function (event:ResultEvent):void {
-            				user = new XML(event.result).tag;
-            			},
-            			function (e:FaultEvent):void {
-							Alert.show("通信失败！", "错误");
-						});
-				return user;
-			}
-
             private function btnExecuteClickHandler(event:MouseEvent):void {
             	HttpServiceProxy.send(LocalSystemInfoService.READ_PLAYER_INFO,
             			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, GAME_ID : gameId.text}, null, 
