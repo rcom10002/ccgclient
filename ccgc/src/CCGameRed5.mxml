@@ -7,53 +7,97 @@
 		minWidth="800"
 		minHeight="600">
 	<!-- 上侧区域 -->
-	<mx:HBox id="candidatedUp"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 height="120"
-			 horizontalGap="-55"
-			 horizontalAlign="center"
-			 verticalAlign="bottom"
-			 top="0"
-			 left="128"
-			 right="128">
-	</mx:HBox>
+    <mx:HBox id="candidatedUp"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             verticalAlign="bottom"
+             top="0"
+             left="228"
+             right="128">
+    </mx:HBox>
+    <mx:HBox id="candidatedTipUp"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             verticalAlign="bottom"
+             top="0"
+             left="128"
+             right="740">
+    </mx:HBox>
 	<!-- 右侧区域 -->
-	<mx:VBox id="candidatedRight"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 width="120"
-			 top="128"
-			 bottom="156"
-			 right="0"
-			 horizontalAlign="left"
-			 verticalAlign="middle"
-			 verticalGap="-78">
-	</mx:VBox>
+    <mx:VBox id="candidatedRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="264"
+             bottom="120"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="464"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
 	<!-- 下侧区域 -->
-	<mx:HBox id="candidatedDown"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 height="120"
-			 horizontalGap="-55"
-			 horizontalAlign="center"
-			 left="128"
-			 right="128"
-			 bottom="0"
-			 verticalAlign="top">
+    <mx:HBox id="candidatedDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             left="128"
+             right="228"
+             bottom="0"
+             verticalAlign="top">
 	</mx:HBox>
+    <mx:HBox id="candidatedTipDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             left="740"
+             right="128"
+             bottom="0"
+             verticalAlign="top">
+    </mx:HBox>
 	<!-- 左侧区域 -->
-	<mx:VBox id="candidatedLeft"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 width="120"
-			 top="128"
-			 bottom="156"
-			 left="0"
-			 horizontalAlign="right"
-			 verticalAlign="middle"
-			 verticalGap="-78">
-	</mx:VBox>
+    <mx:VBox id="candidatedLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="256"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="472"
+             bottom="120"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
 	<mx:Canvas left="128" right="128" top="128" bottom="157">
 		<!-- 牌桌区域 -->
 		<mx:HBox id="dealedUp"
@@ -104,7 +148,7 @@
 			 left="128"
 			 right="128"
 			 bottom="120"
-			 height="110"
+			 height="128"
              verticalGap="2"
              verticalScrollPolicy="off">
 		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">

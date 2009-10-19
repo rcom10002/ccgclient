@@ -136,6 +136,11 @@ package info.knightrcom.state {
          * 已发牌区域
          */
         private static var cardsDealedArray:Array = null;
+        
+        /**
+         * 首次发牌提示区域
+         */
+        private static var cardsCandidatedTipArray:Array = null;
 
         /**
          * 待发牌区域
@@ -201,20 +206,36 @@ package info.knightrcom.state {
                 // 非可视组件
                 currentGame = gameClient.red5GameModule;
 				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
+                    currentGame.timerTip.label = "计时开始";
+                    // 自动放弃缩短至3秒
+                    if (currentGame.btnBarPokers.visible && Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
+                        // 当前玩家出牌时
+                        var brainpowerTips:Array = Red5Game.getBrainPowerTip(
+                                currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
+                        if (brainpowerTips == null || brainpowerTips.length == 0) {
+                            currentGame.timerTip.label = "智能放弃【" + timer.currentCount + "】";
+                            if (timer.currentCount == 3) {
+                                // 可以选择不要按钮时，则进行不要操作
+                                itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
+                            }
+                            return;
+                        }
+                    }
+                    // 常规计时
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
 					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
 					if (currentGame.btnBarPokers.visible && timer.currentCount == MAX_CARDS_SELECT_TIME) {
                         // 当前玩家出牌时
 						if (Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
 							// 可以选择不要按钮时，则进行不要操作
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
+	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
 						} else {
 							// 重选
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
+	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
 	                        // 选择第一张牌
-	                        PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
+	                        PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
 							// 出牌
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 3));
+	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_DISCARD));
 						}
 					}
 				});
@@ -238,12 +259,15 @@ package info.knightrcom.state {
             }
             // 按照当前玩家序号，进行画面座次安排
             var tempCardsDealed:Array = new Array(currentGame.dealedDown, currentGame.dealedRight, currentGame.dealedUp, currentGame.dealedLeft);
+            var tempCardsCandidatedTip:Array = new Array(currentGame.candidatedTipDown, currentGame.candidatedTipRight, currentGame.candidatedTipUp, currentGame.candidatedTipLeft);
             var tempCardsCandidated:Array = new Array(currentGame.candidatedDown, currentGame.candidatedRight, currentGame.candidatedUp, currentGame.candidatedLeft);
             // 进行位移操作
             var index:int = 0;
             while (index != localNumber - 1) {
                 var temp:Object = tempCardsDealed.pop();
                 tempCardsDealed.unshift(temp);
+                temp = tempCardsCandidatedTip.pop();
+                tempCardsCandidatedTip.unshift(temp);
                 temp = tempCardsCandidated.pop();
                 tempCardsCandidated.unshift(temp);
                 index++;
@@ -252,6 +276,10 @@ package info.knightrcom.state {
             cardsDealedArray = new Array(playerCogameNumber);
             for (index = 0; index < cardsDealedArray.length; index++) {
                 cardsDealedArray[index] = tempCardsDealed[index];
+            }
+            cardsCandidatedTipArray = new Array(playerCogameNumber);
+            for (index = 0; index < cardsCandidatedTipArray.length; index++) {
+                cardsCandidatedTipArray[index] = tempCardsCandidatedTip[index];
             }
             cardsCandidatedArray = new Array(playerCogameNumber);
             for (index = 0; index < cardsCandidatedArray.length; index++) {
@@ -347,6 +375,10 @@ package info.knightrcom.state {
                 playerDirection.unshift(temp);
                 index++;
             }
+            var poker:PokerButton = new PokerButton();
+            poker.allowSelect = false;
+            poker.source = "image/poker/1V10.png";
+            (cardsCandidatedTipArray[firstPlayerNumber - 1] as Box).addChild(poker);
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber, true);
@@ -525,7 +557,7 @@ package info.knightrcom.state {
 //                var previousIndex:int = currentIndex == 0 ? playerCogameNumber - 1 : currentIndex - 1;
                 var previousIndex:int = parseInt(results[4]) - 1;
                 var passLabel:Label = new Label();
-                passLabel.text = "不要";
+                passLabel.text = "PASS";
                 passLabel.setStyle("fontSize", 24);
                 Container(cardsDealedArray[previousIndex]).removeAllChildren();
                 Container(cardsDealedArray[previousIndex]).addChild(passLabel);
@@ -891,7 +923,7 @@ package info.knightrcom.state {
                     // 在发牌区域显示"不要"标签
                     var currentIndex:int = (localNumber - 1);
                     var passLabel:Label = new Label();
-                    passLabel.text = "不要";
+                    passLabel.text = "PASS";
                     passLabel.setStyle("fontSize", 24);
                     Container(cardsDealedArray[currentIndex]).removeAllChildren();
                     Container(cardsDealedArray[currentIndex]).addChild(passLabel);
@@ -913,13 +945,29 @@ package info.knightrcom.state {
 						PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
 						break;
 					}
-					// 3. 选择要出的牌
-                    var isSelectCard:Boolean = compareCards(currentBoutCards.split(",").length);
-                    // 4. 没有可提示的牌
-					if (!isSelectCard)
-					{
-						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
-					}
+//					// 3. 选择要出的牌
+//                    var isSelectCard:Boolean = compareCards(currentBoutCards.split(",").length);
+//                    // 4. 没有可提示的牌
+//					if (!isSelectCard)
+//					{
+//						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
+//					}
+                    var tipArray:Array = Red5Game.getBrainPowerTip(
+                            currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
+                    var i:int = 0;
+                    var eachPokerButton:PokerButton = null;
+                    if (tipArray) {
+                        for each (eachPokerButton in currentGame.candidatedDown.getChildren()) {
+                            // 不计花色比较
+                            if (eachPokerButton.value.replace(/\d/, "") == tipArray[i] || eachPokerButton.value == tipArray[i]) {
+                                eachPokerButton.setSelected(true);
+                                i++;
+                            }
+                        }
+                    } else {
+                        // 没有备选牌的情况下，自动放弃
+                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
+                    }
                     break;
                 case 3:
                     // 出牌
