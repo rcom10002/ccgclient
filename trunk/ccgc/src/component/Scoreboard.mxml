@@ -8,6 +8,7 @@
                 title="本局得分明细">
     <mx:Script>
         <![CDATA[
+        	import component.service.SystemInfoWindow;
             import info.knightrcom.state.red5game.Red5GameSetting;
             import info.knightrcom.util.ListenerBinder;
             
@@ -18,10 +19,13 @@
             
             private var _currentPlayerNumber:int = -1;
             private var _showCharacter:Boolean = false;
+            private var _gameId:String = null;
+            private var _gameSetting:String = null;
 
-            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, closeHandler:Function = null, misc:Object = null):void {
+            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, gameId:String, closeHandler:Function = null, misc:Object = null):void {
                 this._currentPlayerNumber = currentPlayerNumber;
                 this._showCharacter = (misc != null);
+                this._gameId = gameId;
                 scoreboardDataArray = new Array();
                 for each (var recordDesc:String in scoreboardInfo) {
                     var recordDetailDesc:Array = recordDesc.split(/,/);
@@ -45,7 +49,8 @@
 	            });
 	            scoreboardDataArray = scoreboardDataArray.reverse();
 	            if (misc) {
-	            	if ("Red5Game" == misc.GAME_TYPE) {
+            		this._gameSetting = misc.GAME_TYPE;
+	            	if ("Red5Game" == this._gameSetting) {
 	            		this.title += " - " + misc.TITLE;
 	            		if (misc.GAME_SETTING == Red5GameSetting.NO_RUSH) {
 	            			var red5Characters:Array = new Array("大皇上", "二皇上", "大娘娘", "二娘娘");
@@ -88,11 +93,32 @@
                 PopUpManager.removePopUp(this);
                 Button(this.mx_internal::closeButton).dispatchEvent(event);
             }
+
+            private function btnVedioHandler(event:MouseEvent):void {
+	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
+	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
+	        	infoForm.quickVedio(this._gameId, this._gameSetting);
+	        	infoForm.popUp();
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+
+            private function btnFeedbackHandler(event:MouseEvent):void {
+	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
+	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
+	        	infoForm.quickFeedback(this._gameId);
+	        	infoForm.popUp();
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
         ]]>
     </mx:Script>
     <mx:creationComplete>
     	<![CDATA[
+    		// 事件绑定
             ListenerBinder.bind(btnClose, MouseEvent.CLICK, closeHandler);
+            ListenerBinder.bind(btnVedio, MouseEvent.CLICK, btnVedioHandler);
+            ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackHandler);
             // 设置高亮显示行
             scoreboardGrid.selectedIndex = _currentPlayerNumber - 1;
             (scoreboardGrid.columns[1] as DataGridColumn).visible = true;
