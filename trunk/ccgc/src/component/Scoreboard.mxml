@@ -122,8 +122,12 @@
         </mx:columns>
     </mx:DataGrid>
     <!-- 关闭按钮 -->
-    <mx:Button id="btnClose"
-               x="166"
-               label="确定"
-               top="143"/>
+    <mx:HBox left="0" right="0" top="145" bottom="0" horizontalAlign="center">
+        <mx:Button id="btnClose"
+                   label="返回大厅" />
+        <mx:Button id="btnVedio"
+                   label="观看录像" />
+        <mx:Button id="btnFeedback"
+                   label="立即投诉" />
+    </mx:HBox>
 </mx:TitleWindow>
