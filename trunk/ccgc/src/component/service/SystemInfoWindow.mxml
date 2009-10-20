@@ -2,20 +2,20 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="系统信息">
 	<mx:Script>
 		<![CDATA[
-			import flash.net.getClassByAlias;
-			import mx.rpc.events.ResultEvent;
-			import info.knightrcom.state.BaseStateManager;
-			import mx.validators.Validator;
-			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.service.LocalGameFeedbackService;
-			import mx.controls.Alert;
+			import info.knightrcom.service.LocalSystemInfoService;
+			import info.knightrcom.state.BaseStateManager;
 			import info.knightrcom.util.HttpServiceProxy;
 			import info.knightrcom.util.ListenerBinder;
+			
+			import mx.controls.Alert;
 			import mx.controls.Button;
-			import mx.managers.PopUpManager;
 			import mx.controls.Menu;
 			import mx.events.CloseEvent;
 			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
 
 			private var gameVedioMenu:Menu;
 
@@ -116,7 +116,7 @@
 
 			public function quickVedio(gameId:String, gameSetting:String):void
 			{
-				var vedioClass:Class = getClassByAlias(gameSetting + "VedioWindow");
+				var vedioClass:Class = getDefinitionByName("component.service." + gameSetting + "VedioWindow") as Class;
 				var gameVedio:* = new vedioClass();
 				gameVedio.gameId.text = gameId;
 				gameVedio.currentLayoutCanvas=this.layoutCanvas;
