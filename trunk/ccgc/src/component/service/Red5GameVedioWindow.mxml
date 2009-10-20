@@ -2,6 +2,7 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="红五游戏录像">
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
 			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.red5game.Red5Game;
 			import mx.controls.Alert;
@@ -89,35 +90,33 @@
             				settingWindow.visible = false;
             			});
 			}
-			
+
             private function btnExecuteClickHandler(event:MouseEvent):void {
             	HttpServiceProxy.send(LocalSystemInfoService.READ_PLAYER_INFO,
             			{CURRENT_PROFILE_ID: BaseStateManager.currentProfileId, GAME_ID : gameId.text}, null, 
             			function (event:ResultEvent):void {
             				var user:Object = new XML(event.result).tag;
 			            	if (user.status == "PLAYVEDIO") {
-			            		// Alert.show("看过录像!");
 			            		playerVedio();
 							} else {
 								if (user.currentScore - 2 * user.score < 0) {
-									Alert.show("分数不够扣的不能看录像!");
+									Alert.show("分数不足不可以使用回放录像功能！");
 									return;
 								}
-//								Alert.yesLabel = "确认";
-//								Alert.noLabel = "取消";
-//							    Alert.show( "录像观看需要扣除两倍底分,确定要观看吗？",
-//										"消息", 
-//										Alert.YES | Alert.NO,
-//										this,
-//										function handleAlert(eventClose:CloseEvent):void {
-//										    if(eventClose.detail == Alert.NO)
-//										    {
-//										      	return;
-//										    }
-//										},
-//										null,
-//										Alert.YES);
-								playerVedio();
+								Alert.yesLabel = "确认";
+								Alert.noLabel = "取消";
+							    Alert.show( "录像回放需要扣除被回放的游戏的两倍底分，\n确定要观看吗？",
+										"消息", 
+										Alert.YES | Alert.NO,
+										Application.application as Sprite,
+										function handleAlert(eventClose:CloseEvent):void {
+										    if(eventClose.detail == Alert.YES)
+										    {
+										      	playerVedio();
+										    }
+										},
+										null,
+										Alert.YES);
 							}
 						},
 						function (e:FaultEvent):void {

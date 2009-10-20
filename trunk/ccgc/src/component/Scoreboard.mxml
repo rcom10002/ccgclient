@@ -105,7 +105,7 @@
             private function btnFeedbackHandler(event:MouseEvent):void {
                 btnClose.dispatchEvent(event);
 	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
-	        	infoForm.currentLayoutCanvas = Application.application as DisplayObjectContainer;// .lobbyMain;
+	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
 	        	infoForm.quickFeedback(this._gameId);
 	        	infoForm.popUp();
             }
