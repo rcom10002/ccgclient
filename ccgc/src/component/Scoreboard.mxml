@@ -85,7 +85,7 @@
                 	this.addEventListener(CloseEvent.CLOSE, closeHandler);
                 }
                 // 模态显示
-                PopUpManager.addPopUp(this, (Application.application as CCGameClient), true) as Scoreboard;
+                PopUpManager.addPopUp(this, (Application.application as DisplayObject), true) as Scoreboard;
                 PopUpManager.centerPopUp(this);
             }
             
@@ -95,21 +95,19 @@
             }
 
             private function btnVedioHandler(event:MouseEvent):void {
+                btnClose.dispatchEvent(event);
 	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
 	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
 	        	infoForm.quickVedio(this._gameId, this._gameSetting);
 	        	infoForm.popUp();
-                PopUpManager.removePopUp(this);
-                Button(this.mx_internal::closeButton).dispatchEvent(event);
             }
 
             private function btnFeedbackHandler(event:MouseEvent):void {
+                btnClose.dispatchEvent(event);
 	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
-	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
+	        	infoForm.currentLayoutCanvas = Application.application as DisplayObjectContainer;// .lobbyMain;
 	        	infoForm.quickFeedback(this._gameId);
 	        	infoForm.popUp();
-                PopUpManager.removePopUp(this);
-                Button(this.mx_internal::closeButton).dispatchEvent(event);
             }
         ]]>
     </mx:Script>

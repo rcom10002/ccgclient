@@ -28,7 +28,7 @@
 
 			private var settingTimer:Timer;
 
-			private var playingTimer:Timer
+			private var playingTimer:Timer;
 			
 			private function playerVedio():void {
 				if (btnExecute.label == "暂停") {

@@ -2,6 +2,7 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="系统信息">
 	<mx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
 			import info.knightrcom.service.LocalGameFeedbackService;
 			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.BaseStateManager;
@@ -110,16 +111,20 @@
 
 			public function quickFeedback(gameId:String):void
 			{
-				btnFeedbackClickHandler(new MouseEvent(MouseEvent.CLICK));
-				feedbackGameId.text = gameId;
+				ListenerBinder.bind(this, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+					feedbackGameId.text = gameId;
+					btnFeedbackClickHandler(new MouseEvent(MouseEvent.CLICK));
+				});
 			}
 
 			public function quickVedio(gameId:String, gameSetting:String):void
 			{
 				var vedioClass:Class = getDefinitionByName("component.service." + gameSetting + "VedioWindow") as Class;
 				var gameVedio:* = new vedioClass();
-				gameVedio.gameId.text = gameId;
-				gameVedio.currentLayoutCanvas=this.layoutCanvas;
+				ListenerBinder.bind(gameVedio, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+					gameVedio.gameId.text = gameId;
+				});
+				gameVedio.currentLayoutCanvas = this.layoutCanvas;
 				gameVedio.popUp();
 			}
 
@@ -151,9 +156,11 @@
         		feedbackWindow.visible = false;
         	});
         	ListenerBinder.bind(feedbackWindow, FlexEvent.SHOW, function (event:Event):void {
+        		/*
         		feedbackGameId.text = "";
         		feedbackTitle.text = "";
         		feedbackDesc.text = "";
+        		*/
         		retrieveHistroyFeeckback(event);
         	});
     	]]>
@@ -253,7 +260,7 @@
 				 paddingBottom="0"
 				 paddingLeft="0">
 			<mx:FormItem label="游戏ID" required="true" width="100%" direction="horizontal">
-				<mx:TextInput id="feedbackGameId" width="100%"/>
+				<mx:TextInput id="feedbackGameId" width="100%" text=""/>
 				<mx:Label width="50" textAlign="right" text="{feedbackGameId.text.length + '/100'}"/>
 			</mx:FormItem>
 			<mx:FormItem label="标题" required="true" width="100%" direction="horizontal">
