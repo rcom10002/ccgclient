@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Boolean id="allowSelect">true</mx:Boolean>
-	<mx:String id="value">{String(this.source).replace(/.*\/(\w+)\.(\w+)/, "$1")}</mx:String>
-	<mx:init>
-		<![CDATA[
-			this.addEventListener(MouseEvent.CLICK, toggleSelect);
-		]]>
-	</mx:init>
+    <mx:creationComplete>
+        <![CDATA[
+            this.addEventListener(MouseEvent.CLICK, toggleSelect);
+        ]]>
+    </mx:creationComplete>
 	<mx:Script>
 		<![CDATA[
-			private var selected:Boolean = false;
+            import mx.controls.Image;
+            private var selected:Boolean = false;
+            private var _source:String = null;
+            private var _childImage:Image = null;
 
             private function toggleSelect(event:MouseEvent):void {
 				if (!allowSelect) {
@@ -33,10 +35,25 @@
 					this.y += 10;
 				}
 			}
+            
+            public function set source(object:*):void {
+                this._childImage = new Image();
+                this._childImage.source = object;
+                this.removeAllChildren();
+                this.addChild(this._childImage);
+            }
+            
+            public function get source():* {
+                return this._childImage.source;
+            }
 
+            public function get value():String {
+                return this.source.toString().replace(/^.*?([0-4]V[\dJQKAXY]{1,2}).*$/, "$1");
+            }
+            
             public override function toString():String {
-                return value;
+                return this.value;
             }
 		]]>
 	</mx:Script>
-</mx:Image>
+</mx:Canvas>

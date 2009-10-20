@@ -438,16 +438,22 @@ package info.knightrcom.state.red5game {
         /** 四同张三连顺 */
         public static const TIPC_FOURFOLD_SEQ3:int = 304;
         
+        /**
+         * 
+         */
         private static const allTipIds:Array = new Array(TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4, 
             TIPA_MUTIPLE5, TIPA_MUTIPLE6, TIPA_MUTIPLE7, TIPA_MUTIPLE8, TIPB_SEQ4, TIPB_SEQ5, 
             TIPB_DOUBLE_SEQ3, TIPB_DOUBLE_SEQ4, TIPB_DOUBLE_SEQ5, TIPC_TRIPLE_SEQ3, TIPC_TRIPLE_SEQ4, 
             TIPC_TRIPLE_SEQ5, TIPC_FOURFOLD_SEQ3);
+
         /**
          * 提示容器
          */
         private static var tipsHolder:Object = new Object();
         
         /**
+         * 
+         * 将所有的可能的牌型放入提示容器中
          * 
          * @param myCards
          * 
@@ -477,6 +483,14 @@ package info.knightrcom.state.red5game {
             //			tipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
         }
         
+        /**
+         * 
+         * 从当前玩家手中的牌中组合出所有可能的牌型
+         * 
+         * @param myCards
+         * @return 
+         * 
+         */
         private static function grabTips(myCards:String):Object {
             var tempTipsHolder:Object = new Object();
             tempTipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
@@ -501,6 +515,8 @@ package info.knightrcom.state.red5game {
         }
         
         /**
+         * 
+         * 按用户的选择来进行循环选择备用牌
          * 
          * @param optrIndex
          * @return 

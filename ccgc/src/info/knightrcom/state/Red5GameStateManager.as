@@ -7,6 +7,7 @@ package info.knightrcom.state {
     import flash.utils.Timer;
     
     import info.knightrcom.GameSocketProxy;
+    import info.knightrcom.assets.PokerResource;
     import info.knightrcom.command.Red5GameCommand;
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.Red5GameEvent;
@@ -311,7 +312,7 @@ package info.knightrcom.state {
             // 为当前玩家发牌
             for each (var cardName:String in cardNames) {
                 poker = new PokerButton();
-                poker.source = "image/poker/" + cardName + ".png";
+                poker.source = PokerResource.load(cardName);
                 currentGame.candidatedDown.addChild(poker);
             }
             // 其他玩家牌数
@@ -331,7 +332,7 @@ package info.knightrcom.state {
                 // 为其他玩家发牌，全为牌的背面图案
                 for (var i:int = 0; i < pokerNumber; i++) {
                     poker = new PokerButton();
-                    poker.source = "image/poker/back.png";
+                    poker.source = PokerResource.load("back");
                     poker.allowSelect = false;
                     cardsCandidated.addChild(poker);
                 }
@@ -377,7 +378,7 @@ package info.knightrcom.state {
             }
             var poker:PokerButton = new PokerButton();
             poker.allowSelect = false;
-            poker.source = "image/poker/1V10.png";
+            poker.source = PokerResource.load("1V10");
             (cardsCandidatedTipArray[firstPlayerNumber - 1] as Box).addChild(poker);
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
@@ -576,7 +577,7 @@ package info.knightrcom.state {
                     // 向已发牌中添加牌
                     var poker:PokerButton = new PokerButton();
                     poker.allowSelect = false;
-                    poker.source = "image/poker/" + cardName + ".png";
+                    poker.source = PokerResource.load(cardName);
                     cardsDealed.addChild(poker);
                     // 更新内存模型
                     pokerBox.exportPoker(currentNumber - 1, cardName);
@@ -647,7 +648,7 @@ package info.knightrcom.state {
                     // 为发牌区域添加已经发出的牌
                     var poker:PokerButton = new PokerButton();
                     poker.allowSelect = false;
-                    poker.source = "image/poker/" + cardName + ".png";
+                    poker.source = PokerResource.load(cardName);
                     cardsDealed.addChild(poker);
                     // 从待发牌区域移除已经发出的牌
                     cardsCandidated.removeChildAt(0);
@@ -695,7 +696,7 @@ package info.knightrcom.state {
                 }
             	for each (var eachPoker:String in pokerBox.cardsOfPlayers[startIndex]) {
                     var pokerInHand:PokerButton = new PokerButton();
-                    pokerInHand.source = "image/poker/" + eachPoker + ".png";
+                    pokerInHand.source = PokerResource.load(eachPoker);
                     pokerInHand.allowSelect = false;
                     tempCardCandidated.addChild(pokerInHand);
             	}
