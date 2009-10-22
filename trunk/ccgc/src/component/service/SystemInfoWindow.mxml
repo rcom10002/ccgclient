@@ -2,7 +2,6 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="系统信息">
 	<mx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
 			import info.knightrcom.service.LocalGameFeedbackService;
 			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.BaseStateManager;
@@ -13,6 +12,7 @@
 			import mx.controls.Button;
 			import mx.controls.Menu;
 			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
@@ -117,9 +117,9 @@
 				});
 			}
 
-			public function quickVedio(gameId:String, gameSetting:String):void
+			public function quickVedio(gameId:String, gameType:String):void
 			{
-				var vedioClass:Class = getDefinitionByName("component.service." + gameSetting + "VedioWindow") as Class;
+				var vedioClass:Class = getDefinitionByName("component.service." + gameType + "VedioWindow") as Class;
 				var gameVedio:* = new vedioClass();
 				ListenerBinder.bind(gameVedio, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
 					gameVedio.gameId.text = gameId;
