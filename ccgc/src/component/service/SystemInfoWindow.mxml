@@ -4,6 +4,7 @@
 		<![CDATA[
 			import info.knightrcom.service.LocalGameFeedbackService;
 			import info.knightrcom.service.LocalSystemInfoService;
+			import info.knightrcom.service.LocalServerConfigureService;
 			import info.knightrcom.state.BaseStateManager;
 			import info.knightrcom.util.HttpServiceProxy;
 			import info.knightrcom.util.ListenerBinder;
@@ -64,6 +65,10 @@
 				HttpServiceProxy.send(LocalSystemInfoService.RETRIEVE_GAME_RUNTIME_INFO, null, null, function(event:ResultEvent):void
 					{
 					});
+				// 获取大厅状态信息
+				btnLobbyStatusClickHander(event);
+				// 获取历史举报信息
+				retrieveHistroyFeeckback(event);
 			}
 
 			private function btnSubmitFeeckbackClickHandler(event:MouseEvent):void
@@ -105,7 +110,7 @@
 				// 查看历史反馈信息
 				HttpServiceProxy.send(
 					LocalGameFeedbackService.RETRIEVE_FEEDBACK_HISTORY, 
-					{CURRENT_USER_ID: BaseStateManager.currentUserId}, 
+					{CURRENT_USER_ID: BaseStateManager.currentProfileId}, 
 					feedbackHistoryInfoService);
 			}
 
@@ -128,6 +133,24 @@
 				gameVedio.popUp();
 			}
 
+			private function btnLobbyStatusClickHander(event:MouseEvent):void {
+				HttpServiceProxy.send(LocalServerConfigureService.RETRIEVE_LOBBY_STATUS, null, null, function (event:ResultEvent):void {
+					var data:* = new XML(event.result);
+					var items:Array = new Array();
+					var num:Number = 1;
+					for each (var eachItem:String in data.tag.string) {
+						items.push({index : num++, 
+						roomName : eachItem.split("~")[0], 
+						rawPlayerCount : eachItem.split("~")[1], 
+						wanderPlayerCount : eachItem.split("~")[2], 
+						idlePlayerCount : eachItem.split("~")[3], 
+						matchingPlayerCount : eachItem.split("~")[4], 
+						playingPlayerCount : eachItem.split("~")[5], 
+						totalPlayerCount : eachItem.split("~")[6]});
+					}
+					lobbyStatusDatagrid.dataProvider = items;
+				});
+			}
 		]]>
 	</mx:Script>
 	<creationComplete>
@@ -163,6 +186,9 @@
         		*/
         		retrieveHistroyFeeckback(event);
         	});
+        	// 刷新按钮
+        	ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnRefreshClickHandler);
+        	btnRefresh.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
     	]]>
 	</creationComplete>
 	<!-- 操作按钮 -->
@@ -185,7 +211,23 @@
 		<mx:Button id="btnRefresh" label="刷新信息"/>
 	</mx:HBox>
 	<!-- 查询结果 -->
-	<mx:TabNavigator left="10" right="10" top="40" bottom="10">
+	<mx:TabNavigator left="10" right="10" top="40" bottom="10" id="multTab">
+		<!-- 大厅状态信息 -->
+		<!--
+			<mx:Canvas label="大厅状态信息" width="100%" height="100%" visible="false">
+				<mx:DataGrid id="lobbyStatusDatagrid_"
+							 left="0"
+							 right="0"
+							 top="0"
+							 bottom="0">
+					<mx:columns>
+						<mx:DataGridColumn headerText="编号" dataField=""/>
+						<mx:DataGridColumn headerText="项目名称" dataField=""/>
+						<mx:DataGridColumn headerText="值" dataField=""/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:Canvas>
+		-->
 		<!-- 大厅状态信息 -->
 		<mx:Canvas label="大厅状态信息" width="100%" height="100%">
 			<mx:DataGrid id="lobbyStatusDatagrid"
@@ -194,26 +236,12 @@
 						 top="0"
 						 bottom="0">
 				<mx:columns>
-					<mx:DataGridColumn headerText="编号" dataField=""/>
-					<mx:DataGridColumn headerText="项目名称" dataField=""/>
-					<mx:DataGridColumn headerText="值" dataField=""/>
-				</mx:columns>
-			</mx:DataGrid>
-		</mx:Canvas>
-		<!-- 游戏记录信息 -->
-		<mx:Canvas label="游戏记录信息" width="100%" height="100%">
-			<mx:DataGrid id="gameRecordDatagrid"
-						 left="0"
-						 right="0"
-						 top="0"
-						 bottom="0">
-				<mx:columns>
-					<mx:DataGridColumn headerText="编号" dataField=""/>
-					<mx:DataGridColumn headerText="房间名称" dataField=""/>
-					<mx:DataGridColumn headerText="游戏进行中人数" dataField=""/>
-					<mx:DataGridColumn headerText="等待队列中人数" dataField=""/>
-					<mx:DataGridColumn headerText="房间内闲散人数" dataField=""/>
-					<mx:DataGridColumn headerText="房间内总计人数" dataField=""/>
+					<mx:DataGridColumn headerText="编号" dataField="index"/>
+					<mx:DataGridColumn headerText="房间名称" dataField="roomName"/>
+					<mx:DataGridColumn headerText="游戏进行中人数" dataField="playingPlayerCount"/>
+					<mx:DataGridColumn headerText="等待队列中人数" dataField="matchingPlayerCount"/>
+					<mx:DataGridColumn headerText="房间内闲散人数" dataField="idlePlayerCount"/>
+					<mx:DataGridColumn headerText="房间内总计人数" dataField="totalPlayerCount"/>
 				</mx:columns>
 			</mx:DataGrid>
 		</mx:Canvas>
@@ -224,13 +252,14 @@
 						 right="0"
 						 top="0"
 						 bottom="0">
+				<mx:dataProvider>{feedbackHistoryInfoService.lastResult.tag.map}</mx:dataProvider>
 				<mx:columns>
-					<mx:DataGridColumn headerText="编号" dataField=""/>
-					<mx:DataGridColumn headerText="房间名称" dataField=""/>
-					<mx:DataGridColumn headerText="游戏进行中人数" dataField=""/>
-					<mx:DataGridColumn headerText="等待队列中人数" dataField=""/>
-					<mx:DataGridColumn headerText="房间内闲散人数" dataField=""/>
-					<mx:DataGridColumn headerText="房间内总计人数" dataField=""/>
+					<mx:DataGridColumn headerText="游戏ID" dataField="gameId"/>
+					<mx:DataGridColumn headerText="游戏类别" dataField="gameType"/>
+					<mx:DataGridColumn headerText="游戏时间" dataField="gameTime"/>
+					<mx:DataGridColumn headerText="标题" dataField="title"/>
+					<mx:DataGridColumn headerText="当前状态" dataField="status"/>
+					<mx:DataGridColumn headerText="举报时间" dataField="createTime"/>
 				</mx:columns>
 			</mx:DataGrid>
 		</mx:Canvas>
