@@ -1,110 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600">
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+		horizontalAlign="center"
+		verticalAlign="middle"
+		width="960"
+		height="720"
+		minWidth="800"
+		minHeight="600">
 	<!-- 上侧区域 -->
-	<mx:HBox id="candidatedUp"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 height="120"
-			 horizontalGap="-55"
-			 horizontalAlign="center"
-			 verticalAlign="bottom"
-			 top="0"
-			 left="128"
-			 right="128">
-	</mx:HBox>
+    <mx:HBox id="candidatedUp"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             verticalAlign="bottom"
+             top="0"
+             left="128"
+             right="128">
+    </mx:HBox>
 	<!-- 右侧区域 -->
-	<mx:VBox id="candidatedRight"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 width="120"
-			 top="128"
-			 bottom="156"
-			 right="0"
-			 horizontalAlign="left"
-			 verticalAlign="middle"
-			 verticalGap="-78">
-	</mx:VBox>
+    <mx:VBox id="candidatedRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="264"
+             bottom="120"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="464"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
 	<!-- 下侧区域 -->
-	<mx:HBox id="candidatedDown"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 height="120"
-			 horizontalGap="-55"
-			 horizontalAlign="center"
-			 left="128"
-			 right="128"
-			 bottom="0"
-			 verticalAlign="top">
+    <mx:HBox id="candidatedDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             left="128"
+             right="228"
+             bottom="0"
+             verticalAlign="top">
 	</mx:HBox>
+    <mx:HBox id="candidatedTipDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             left="740"
+             right="128"
+             bottom="0"
+             verticalAlign="top">
+    </mx:HBox>
 	<!-- 左侧区域 -->
-	<mx:VBox id="candidatedLeft"
-			 verticalScrollPolicy="off"
-			 horizontalScrollPolicy="off"
-			 width="120"
-			 top="128"
-			 bottom="156"
-			 left="0"
-			 horizontalAlign="right"
-			 verticalAlign="middle"
-			 verticalGap="-78">
-	</mx:VBox>
+    <mx:VBox id="candidatedLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="256"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="472"
+             bottom="120"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
 	<mx:Canvas left="128" right="128" top="128" bottom="157">
 		<!-- 牌桌区域 -->
-		<mx:Tile id="dealedUp"
-				 height="100"
-				 top="0"
-				 left="160"
-				 horizontalGap="-55"
-				 verticalGap="-78"
-				 right="160"
-				 horizontalScrollPolicy="off"
-				 horizontalAlign="center"
-				 verticalAlign="middle">
-			<mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
-		<mx:Tile id="dealedRight"
+		<mx:HBox id="dealedRight"
 				 right="0"
 				 top="117"
 				 horizontalGap="-55"
 				 verticalGap="-78"
-				 bottom="114"
-				 width="240"
+				 width="345"
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
-				 verticalAlign="middle">
-            <mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
-		<mx:Tile id="dealedDown"
+				 verticalAlign="middle" height="100">
+		</mx:HBox>
+		<mx:HBox id="dealedDown"
 				 height="100"
 				 right="160"
-				 bottom="0"
+				 bottom="100"
 				 horizontalGap="-55"
 				 verticalGap="-78"
 				 left="160"
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
-            <mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
-		<mx:Tile id="dealedLeft"
-				 bottom="114"
+		</mx:HBox>
+		<mx:HBox id="dealedLeft"
 				 left="0"
 				 horizontalGap="-55"
 				 verticalGap="-78"
 				 top="117"
-				 width="240"
+				 width="345"
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
-				 verticalAlign="middle">
-            <mx:Button label="按钮" visible="false"/>
-		</mx:Tile>
+				 verticalAlign="middle" height="100">
+		</mx:HBox>
 	</mx:Canvas>
 	<!-- 操作区域 -->
 	<mx:VBox horizontalAlign="center"
 			 left="128"
 			 right="128"
 			 bottom="120"
-			 height="110"
+			 height="128"
              verticalGap="2"
              verticalScrollPolicy="off">
 		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
