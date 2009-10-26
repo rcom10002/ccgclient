@@ -2,6 +2,10 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="斗地主游戏录像">
 	<mx:Script>
 		<![CDATA[
+			import mx.core.Application;
+			import info.knightrcom.state.BaseStateManager;
+			import info.knightrcom.service.LocalPlayerProfileService;
+			import mx.rpc.events.FaultEvent;
 			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.fightlandlordgame.FightLandlordGame;
 			import mx.controls.Alert;
@@ -28,7 +32,7 @@
 
 			private var playingTimer:Timer
 
-            private function btnExecuteClickHandler(event:MouseEvent):void {
+            private function playerVedio():void {
 				if (btnExecute.label == "暂停") {
 					btnExecute.label = "继续";
 					if (playingTimer.running) {
@@ -88,6 +92,65 @@
 							}
             				settingWindow.visible = false;
             			});
+            }
+            
+            private function btnExecuteClickHandler(event:MouseEvent):void {
+            	// 判断当前用户是否看过录像
+            	HttpServiceProxy.send(LocalSystemInfoService.PLAY_GAME_VEDIO,
+            			{GAME_ID: gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, 
+            			function (event:ResultEvent):void {
+            				if (new XML(event.result).result == "SUCCESS")
+							{
+								playerVedio();
+							}
+							else
+							{
+								readPlayerGameInfo();
+
+							}
+            			},
+            			function (e:FaultEvent):void {
+							Alert.show("通信失败！", "错误");
+						});
+            }
+            
+            private function readPlayerGameInfo():void {
+            	// 读取游戏底分
+            	HttpServiceProxy.send(LocalSystemInfoService.READ_GAME_INFO,
+            			{GAME_ID: gameId.text}, null, 
+            			function (event:ResultEvent):void {
+            				var score:Number = new XML(event.result).entity.score;
+            				// 读取用户当前积分
+            				HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE,
+		            			{PROFILE_ID: BaseStateManager.currentProfileId}, null, 
+		            			function (event:ResultEvent):void {
+		            				var user:Object = new XML(event.result).entity;
+									if (user.currentScore - 2 * score < 0) {
+										Alert.show("分数不足不可以使用回放录像功能！");
+										return;
+									}
+									Alert.yesLabel = "确认";
+									Alert.noLabel = "取消";
+								    Alert.show( "录像回放需要扣除被回放的游戏的两倍底分，\n确定要观看吗？",
+											"消息", 
+											Alert.YES | Alert.NO,
+											Application.application as Sprite,
+											function handleAlert(eventClose:CloseEvent):void {
+											    if(eventClose.detail == Alert.YES)
+											    {
+											      	playerVedio();
+											    }
+											},
+											null,
+											Alert.YES);
+								},
+								function (e:FaultEvent):void {
+									Alert.show("通信失败！", "错误");
+								});
+            			},
+						function (e:FaultEvent):void {
+							Alert.show("通信失败！", "错误");
+						});
             }
 
 			private function btnTerminateClickHandler(event:MouseEvent):void {
@@ -343,7 +406,7 @@
 	    <mx:showCloseButton>true</mx:showCloseButton>
 		<mx:Form x="10" y="10">
 			<mx:FormItem label="游戏ID" required="true">
-				<mx:TextInput id="gameId" text="64c9c36f-e201-4a18-9527-49044c1dbd30"/>
+				<mx:TextInput id="gameId"/>
 			</mx:FormItem>
 			<mx:FormItem label="播放速度">
 				<mx:HSlider id="gameSpeed" minimum="1" maximum="5" snapInterval="1" value="3" showDataTip="false" />
