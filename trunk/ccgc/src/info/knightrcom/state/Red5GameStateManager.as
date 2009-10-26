@@ -818,64 +818,6 @@ package info.knightrcom.state {
         }
         
         /**
-		 *
-		 * 动态比较扑克
-		 *
-		 * @param compareCurrentCardLen 当前要比较牌的张数
-		 * 
-		 * @return 返回是否有能出的牌 
-		 *
-		 */
-		private function compareCards(compareCurrentCardLen:int):Boolean
-		{
-			var times:int=0; // 计算手中牌数
-			var compareTimes:int=0; // 比较的次数做为下一次比较的索引位置
-			var selectCards:String=""; // 选择要比较的牌
-			var isSelectCard:Boolean= false; // 是否有大于当前牌的的牌
-			var cardsArr:Array = currentGame.candidatedDown.getChildren(); // 当前手中牌的集合
-			for (var i:int=0; i < cardsArr.length; ) 
-			{
-				selectCards+=cardsArr[i].value + ",";
-				times++;
-				if (times == compareCurrentCardLen) 
-				{
-					i=++compareTimes;
-					times=0;
-					selectCards=selectCards.replace(/,$/, "");
-                    // 规则验证
-                    if (Red5Game.isRuleFollowed(selectCards, currentBoutCards)) {
-                    	// 选出手中能压的牌
-                    	var tempTimes:int=0;
-						for each (var cardHand:PokerButton in currentGame.candidatedDown.getChildren())
-						{
-							var selectCardsArr:Array = selectCards.split(",");
-							for each (var selectCard:String in selectCardsArr) 
-							{
-								if(cardHand.value == selectCard)
-								{
-									tempTimes++;
-									// 排除在当前牌只有一张时将同花同号的牌重复选中
-									if (compareCurrentCardLen == 1 && tempTimes == 1)
-									{
-										cardHand.setSelected(true);
-									}
-								}
-							}
-						}
-						isSelectCard=true;
-						return isSelectCard;
-                    }
-                    selectCards="";
-	   			}
-	   			else 
-	   			{
-	   				i++;
-	   			}
-            }
-            return isSelectCard;
-		}
-
-        /**
          *
          * 扑克操作
          *
@@ -947,13 +889,6 @@ package info.knightrcom.state {
 						PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
 						break;
 					}
-//					// 3. 选择要出的牌
-//                    var isSelectCard:Boolean = compareCards(currentBoutCards.split(",").length);
-//                    // 4. 没有可提示的牌
-//					if (!isSelectCard)
-//					{
-//						itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 1));
-//					}
                     var tipArray:Array = Red5Game.getBrainPowerTip(
                             currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
                     var i:int = 0;
