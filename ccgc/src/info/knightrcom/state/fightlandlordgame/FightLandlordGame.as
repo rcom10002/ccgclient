@@ -826,48 +826,18 @@ package info.knightrcom.state.fightlandlordgame
             }
             // 确定组合样式
             var testStyleArray:Array = new Array();
-            switch (numSeq) {
-            	case 12:
-                    // 十二张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,");
-                    break;
-            	case 11:
-                    // 十一张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,V9,V10,VJ,VQ,VK,", "V4,V5,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,");
-                    break;
-            	case 10:
-                    // 十张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,V9,V10,VJ,VQ,", "V4,V5,V6,V7,V8,V9,V10,VJ,VQ,VK,", "V5,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,");
-                    break;
-            	case 9:
-                    // 九张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,V9,V10,VJ,", "V4,V5,V6,V7,V8,V9,V10,VJ,VQ,", "V5,V6,V7,V8,V9,V10,VJ,VQ,VK,", "V6,V7,V8,V9,V10,VJ,VQ,VK,VA,");
-                    break;
-            	case 8:
-                    // 八张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,V9,V10,", "V4,V5,V6,V7,V8,V9,V10,VJ,", "V5,V6,V7,V8,V9,V10,VJ,VQ,", "V6,V7,V8,V9,V10,VJ,VQ,VK,", "V7,V8,V9,V10,VJ,VQ,VK,VA,");
-                    break;
-            	case 7:
-                    // 七张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,V9,", "V4,V5,V6,V7,V8,V9,V10,", "V5,V6,V7,V8,V9,V10,VJ,", "V6,V7,V8,V9,V10,VJ,VQ,", "V7,V8,V9,V10,VJ,VQ,VK,", "V8,V9,V10,VJ,VQ,VK,VA,");
-                    break;
-                case 6:
-                    // 六张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,V8,", "V4,V5,V6,V7,V8,V9,", "V5,V6,V7,V8,V9,V10,", "V6,V7,V8,V9,V10,VJ,", "V7,V8,V9,V10,VJ,VQ,", "V8,V9,V10,VJ,VQ,VK,", "V9,V10,VJ,VQ,VK,VA,");
-                    break;
-                case 5:
-                    // 五张连
-                    testStyleArray.push("V3,V4,V5,V6,V7,", "V4,V5,V6,V7,V8,", "V5,V6,V7,V8,V9,", "V6,V7,V8,V9,V10,", "V7,V8,V9,V10,VJ,", "V8,V9,V10,VJ,VQ,", "V9,V10,VJ,VQ,VK,", "V10,VJ,VQ,VK,VA,");
-                    break;
-                case 4:
-                    testStyleArray.push("V3,V4,V5,V6,", "V4,V5,V6,V7,", "V5,V6,V7,V8,", "V6,V7,V8,V9,", "V7,V8,V9,V10,", "V8,V9,V10,VJ,", "V9,V10,VJ,VQ,", "V10,VJ,VQ,VK,", "VJ,VQ,VK,VA,");
-                    // 四张连
-                    break;
-                case 3:
-                    testStyleArray.push("V3,V4,V5,", "V4,V5,V,6", "V5,V6,V7,", "V6,V7,V8,", "V7,V8,V9,", "V8,V9,V10,", "V9,V10,VJ,", "V10,VJ,VQ,", "VJ,VQ,VK,", "VQ,VK,VA,");
-                    // 三张连
-                    break;
-            }
+            var cardsArr:Array = prioritySequence.replace(/,V[2XY]/g, "").split(",");
+			var cards:String = "";
+			for (var n:int = 0; n < cardsArr.length; n++) {
+				if (numSeq + n > cardsArr.length){
+					break;
+				}
+				for(var j:int = n; j < numSeq + n; j++) {
+					cards += cardsArr[j] + ",";
+				}
+				testStyleArray.push(cards);
+				cards="";
+			}
             // 按照给定的序列倍数扩大确定下来的样式
             var extStyle:String = "";
             while (multiple-- > 0) {
