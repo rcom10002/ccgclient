@@ -4,7 +4,7 @@
 		verticalAlign="middle"
 		width="960"
 		height="720"
-		minWidth="800"
+        minWidth="800"
 		minHeight="600">
 	<!-- 上侧区域 -->
     <mx:HBox id="candidatedUp"
@@ -15,42 +15,39 @@
              horizontalAlign="center"
              verticalAlign="bottom"
              top="0"
-             left="228"
-             right="128">
+             left="220"
+             right="220">
     </mx:HBox>
     <mx:HBox id="candidatedTipUp"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
-             height="120"
+             height="80"
              horizontalGap="-55"
              horizontalAlign="center"
              verticalAlign="bottom"
-             top="0"
-             left="128"
-             right="740">
+             top="40"
+             width="92" horizontalCenter="0">
     </mx:HBox>
 	<!-- 右侧区域 -->
     <mx:VBox id="candidatedRight"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
              width="120"
-             top="264"
-             bottom="120"
-             right="0"
+             top="128"
+             bottom="128"
+             right="92"
              horizontalAlign="left"
              verticalAlign="middle"
-             verticalGap="-78">
+             verticalGap="-86">
     </mx:VBox>
     <mx:VBox id="candidatedTipRight"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
              width="120"
-             top="128"
-             bottom="464"
-             right="0"
-             horizontalAlign="left"
+             right="92"
+             horizontalAlign="right"
              verticalAlign="middle"
-             verticalGap="-78">
+             verticalGap="-78" height="120" verticalCenter="0">
     </mx:VBox>
 	<!-- 下侧区域 -->
     <mx:HBox id="candidatedDown"
@@ -59,21 +56,17 @@
              height="120"
              horizontalGap="-55"
              horizontalAlign="center"
-             left="128"
-             right="228"
              bottom="0"
-             verticalAlign="top">
+             verticalAlign="top" left="220" right="220">
 	</mx:HBox>
     <mx:HBox id="candidatedTipDown"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
-             height="120"
+             height="80"
              horizontalGap="-55"
              horizontalAlign="center"
-             left="740"
-             right="128"
              bottom="0"
-             verticalAlign="top">
+             verticalAlign="top" width="92" horizontalCenter="0">
     </mx:HBox>
 	<!-- 左侧区域 -->
     <mx:VBox id="candidatedLeft"
@@ -81,53 +74,51 @@
              horizontalScrollPolicy="off"
              width="120"
              top="128"
-             bottom="256"
-             left="0"
+             bottom="128"
+             left="92"
              horizontalAlign="right"
              verticalAlign="middle"
-             verticalGap="-78">
+             verticalGap="-86">
     </mx:VBox>
     <mx:VBox id="candidatedTipLeft"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
              width="120"
-             top="472"
-             bottom="120"
-             left="0"
-             horizontalAlign="right"
+             left="92"
+             horizontalAlign="left"
              verticalAlign="middle"
-             verticalGap="-78">
+             verticalGap="-78" height="120" verticalCenter="0">
     </mx:VBox>
-	<mx:Canvas left="128" right="128" top="128" bottom="157">
+	<mx:Canvas left="220" right="220" top="128" bottom="128">
 		<!-- 牌桌区域 -->
 		<mx:HBox id="dealedUp"
 				 height="100"
-				 top="0"
-				 left="160"
+				 top="10"
+				 left="100"
 				 horizontalGap="-55"
 				 verticalGap="-78"
-				 right="160"
+				 right="100"
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
 		</mx:HBox>
 		<mx:HBox id="dealedRight"
 				 right="0"
-				 top="117"
+				 top="118"
 				 horizontalGap="-55"
 				 verticalGap="-78"
 				 width="345"
 				 horizontalScrollPolicy="off"
-				 horizontalAlign="center"
-				 verticalAlign="middle" height="100">
+				 horizontalAlign="right"
+				 verticalAlign="middle" bottom="118">
 		</mx:HBox>
 		<mx:HBox id="dealedDown"
 				 height="100"
-				 right="160"
-				 bottom="100"
+				 right="100"
+				 bottom="10"
 				 horizontalGap="-55"
 				 verticalGap="-78"
-				 left="160"
+				 left="100"
 				 horizontalScrollPolicy="off"
 				 horizontalAlign="center"
 				 verticalAlign="middle">
@@ -136,19 +127,19 @@
 				 left="0"
 				 horizontalGap="-55"
 				 verticalGap="-78"
-				 top="117"
+				 top="118"
 				 width="345"
 				 horizontalScrollPolicy="off"
-				 horizontalAlign="center"
-				 verticalAlign="middle" height="100">
+				 horizontalAlign="left"
+				 verticalAlign="middle" bottom="118">
 		</mx:HBox>
 	</mx:Canvas>
 	<!-- 操作区域 -->
 	<mx:VBox horizontalAlign="center"
-			 left="128"
-			 right="128"
+			 left="200"
+			 right="200"
 			 bottom="120"
-			 height="128"
+			 height="110"
              verticalGap="2"
              verticalScrollPolicy="off">
 		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
@@ -191,4 +182,15 @@
     <!-- 提示区域 -->
     <mx:ProgressBar id="timerTip" x="10" y="10" visible="false"/>
     <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>
-</mx:Module>
+    <!-- 背景图片区域 -->
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.Red5GameResource;
+        ]]>
+    </mx:Script>
+    <mx:Image id="bgCurtainLeft" source="{Red5GameResource.CURTAIN_LEFT}" left="0" top="0"/>
+    <mx:Image id="bgCurtainRight" source="{Red5GameResource.CURTAIN_RIGHT}" right="0" top="0"/>
+    <mx:Image id="bgLogo" source="{Red5GameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
+    <mx:Image id="bgLaceLeft" source="{Red5GameResource.LACE_LEFT}" left="0" bottom="0"/>
+    <mx:Image id="bgLaceRight" source="{Red5GameResource.LACE_RIGHT}" right="0" bottom="0"/>
+    </mx:Module>

@@ -2,21 +2,23 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="红五游戏录像">
 	<mx:Script>
 		<![CDATA[
-			import mx.core.Application;
-			import info.knightrcom.service.LocalSystemInfoService;
-			import info.knightrcom.service.LocalPlayerProfileService
-			import info.knightrcom.state.red5game.Red5Game;
-			import mx.controls.Alert;
-			import mx.containers.Box;
-			import info.knightrcom.state.red5game.Red5GameSetting;
 			import component.PokerButton;
-			import mx.rpc.events.ResultEvent;
-			import mx.rpc.events.FaultEvent;
-			import mx.events.CloseEvent;
-			import info.knightrcom.util.HttpServiceProxy;
-			import mx.formatters.DateFormatter;
-			import info.knightrcom.util.ListenerBinder;
+			
+			import info.knightrcom.assets.PokerResource;
+			import info.knightrcom.service.LocalPlayerProfileService;
+			import info.knightrcom.service.LocalSystemInfoService;
 			import info.knightrcom.state.BaseStateManager;
+			import info.knightrcom.state.red5game.Red5Game;
+			import info.knightrcom.state.red5game.Red5GameSetting;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			
+			import mx.containers.Box;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
 			private static const DEFAULT_DELAY:int = 5000;
 
@@ -180,7 +182,7 @@
 					var pokers:Array = Red5Game.sortPokers(initPokers[eachPokersIndex].toString().replace(/~.*/, "").split(","));
 					for each (var eachPokerName:String in pokers) {
 		                var poker:PokerButton = new PokerButton();
-		                poker.source = "image/poker/" + eachPokerName + ".png";
+		                poker.source = PokerResource.load(eachPokerName);
 		                poker.allowSelect = false;
 		                cardsCandidatedArray[eachPokersIndex].addChild(poker);
 					}
@@ -230,7 +232,18 @@
 				ListenerBinder.bind(playingTimer, TimerEvent.TIMER, function ():void {
 					if (itrIndex == initPokers.length) {
 						playingTimer.stop();
-						Alert.show("录像回放完毕！");
+                        Alert.yesLabel = "确定";
+                        Alert.noLabel = "举报"
+						Alert.show("录像回放完毕！", "信息", Alert.YES | Alert.NO, 
+                            Application.application as Sprite, function(event:CloseEvent):void {
+                            if (event.detail == Alert.YES) {
+                                return;
+                            }
+                            var infoForm:SystemInfoWindow = new SystemInfoWindow();
+                            infoForm.currentLayoutCanvas = Application.application.lobbyMain;
+                            infoForm.quickFeedback(gameId.text);
+                            infoForm.popUp();
+                        }, null, Alert.YES);
 						btnExecute.label = "播放";
 						return;
 					}
@@ -257,10 +270,10 @@
 					}
 					// 移除所有已经出牌或pass的内容
 					Box(cardsDealedArray[playerIndex]).removeAllChildren();
-					if (currentTurn.length == 4 && currentTurn[3].toString().indexOf("pass") > -1) {
+					if (currentTurn.length == 5 && currentTurn[3].toString().indexOf("pass") > -1) {
 						// 当前玩家不出牌，现实pass字样
 						var passLabel:Label = new Label();
-						passLabel.text = "不要";
+						passLabel.text = "PASS";
 						Box(cardsDealedArray[playerIndex]).addChild(passLabel);
 							if (currentNumber == nextNumber) {
 								setTimeout(function ():void {

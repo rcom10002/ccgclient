@@ -538,10 +538,11 @@ package info.knightrcom.state.red5game {
          * 
          * 智能提示，不负责牌型校验，只是针对已经打出的合法的牌型，从备选牌中选出合适的对策牌
          * 
+         * @param enableFoolish 是否采用笨蛋判断法，如果采用，只对明显的大牌作出放弃，否则会根据己方的牌来作出最合理的判断
          * @return
          * 
          */
-        public static function getBrainPowerTip(myCards:Array, boutCards:Array):Array {
+        public static function getBrainPowerTip(myCards:Array, boutCards:Array, enableFoolish:Boolean = true):Array {
             var resultArrayArray:Array = new Array();
             var boutCardsString:String = boutCards.join(",");
             var myCardsString:String = myCards.join(",") + ",";
@@ -560,6 +561,9 @@ package info.knightrcom.state.red5game {
             // 七张二
             if (new RegExp("^(\\dV2,){7}$").test(boutCardsString + ",")) {
                 return null;
+            }
+            if (enableFoolish) {
+                return new Array();
             }
             if (isSingleStyle(boutCardsString)) {
                 // 单张判断
@@ -620,7 +624,7 @@ package info.knightrcom.state.red5game {
                         }
                     }
                     // 有红五则返回红五
-                    if (multiple == 2 && myLastCard == "1V5,1V5") {
+                    if (multiple == 2 && myCardsString.indexOf("1V5,1V5") > -1) {
                         return "1V5,1V5".split(",");
                     }
                 } else {
