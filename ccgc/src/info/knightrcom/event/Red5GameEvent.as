@@ -4,6 +4,8 @@ package info.knightrcom.event {
 
         public static const EVENT_TYPE:uint = 2;
 
+        public static const GAME_DEADLY7_EXTINCT8:String = "GAME_DEADLY7_EXTINCT8";
+
         /**
          *
          * @param type

@@ -15,5 +15,6 @@ package info.knightrcom.command {
         public static const GAME_BRING_OUT:Red5GameCommand = new Red5GameCommand(1239177903375, "GAME_BRING_OUT");
         public static const GAME_WIN:Red5GameCommand = new Red5GameCommand(1239239884328, "GAME_WIN");
         public static const GAME_WIN_AND_END:Red5GameCommand = new Red5GameCommand(1239242003812, "GAME_WIN_AND_END");
+        // public static const GAME_DEADLY7_EXTINCT8:Red5GameCommand = new Red5GameCommand(1239246703678, "GAME_DEADLY7_EXTINCT8");
     }
 }
