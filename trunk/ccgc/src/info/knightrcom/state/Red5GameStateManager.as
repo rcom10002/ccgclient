@@ -8,6 +8,7 @@ package info.knightrcom.state {
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.assets.PokerResource;
+    import info.knightrcom.assets.Red5GameResource;
     import info.knightrcom.command.Red5GameCommand;
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.Red5GameEvent;
@@ -23,6 +24,7 @@ package info.knightrcom.state {
     import mx.containers.Box;
     import mx.controls.Alert;
     import mx.controls.Button;
+    import mx.controls.Image;
     import mx.controls.Label;
     import mx.controls.ProgressBarMode;
     import mx.core.Container;
@@ -207,13 +209,20 @@ package info.knightrcom.state {
                 // 非可视组件
                 currentGame = gameClient.red5GameModule;
 				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
+                    // 倒计时开始
                     currentGame.timerTip.label = "计时开始";
+                    if (currentGame.dealedDown.numChildren > 0 && currentGame.dealedDown.getChildAt(currentGame.dealedDown.numChildren - 1) is GameWaiting) {
+                        currentGame.dealedDown.removeChildAt(currentGame.dealedDown.numChildren - 1);
+                    }
+                    var gameWaitingClock:GameWaiting = new GameWaiting();
+                    gameWaitingClock.tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
+                    currentGame.dealedDown.addChild(gameWaitingClock);
                     // 自动放弃缩短至3秒
                     if (currentGame.btnBarPokers.visible && Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
                         // 当前玩家出牌时
                         var brainpowerTips:Array = Red5Game.getBrainPowerTip(
                                 currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
-                        if (brainpowerTips == null || brainpowerTips.length == 0) {
+                        if (brainpowerTips === null) {
                             currentGame.timerTip.label = "智能放弃【" + timer.currentCount + "】";
                             if (timer.currentCount == 3) {
                                 // 可以选择不要按钮时，则进行不要操作
@@ -242,10 +251,10 @@ package info.knightrcom.state {
 				});
                 ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
                     currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
-                    var otherTimeLabelParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
-                    var lastChildIndex:int = otherTimeLabelParent.numChildren - 1;
-                    if (otherTimeLabelParent.numChildren > 0 && otherTimeLabelParent.getChildAt(lastChildIndex) is Label) {
-                    	Label(otherTimeLabelParent.getChildAt(lastChildIndex)).text = Label(otherTimeLabelParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
+                    var otherGameWaitingClockParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
+                    var lastChildIndex:int = otherGameWaitingClockParent.numChildren - 1;
+                    if (otherGameWaitingClockParent.numChildren > 0 && otherGameWaitingClockParent.getChildAt(lastChildIndex) is GameWaiting) {
+                    	GameWaiting(otherGameWaitingClockParent.getChildAt(lastChildIndex)).tipText = String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount);// Label(otherGameWaitingClockParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     }
                 });
                 // 可视组件
@@ -255,6 +264,18 @@ package info.knightrcom.state {
                 ListenerBinder.bind(currentGame.btnBarPokersTipA, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipB, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipC, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
+                
+                // 调整画面布局
+                currentGame.setChildIndex(currentGame.bgLaceLeft, 0);
+                currentGame.setChildIndex(currentGame.bgLaceRight, 0);
+                currentGame.setChildIndex(currentGame.bgLogo, 0);
+                currentGame.setChildIndex(currentGame.bgCurtainLeft, currentGame.numChildren - 1);
+                currentGame.setChildIndex(currentGame.bgCurtainRight, currentGame.numChildren - 1);
+                for each (var eachContainer:Container in cardsCandidatedTipArray) {
+                    currentGame.setChildIndex(eachContainer, currentGame.numChildren - 1);
+                }
+                currentGame.setChildIndex(currentGame.timerTip, currentGame.numChildren - 1);
+                currentGame.setChildIndex(currentGame.arrowTip, currentGame.numChildren - 1);
 
                 setInitialized(true);
             }
@@ -349,6 +370,29 @@ package info.knightrcom.state {
 		            	currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/我的当前积分：\d*/, "我的当前积分：" + myScore);
             		}
             );
+//            // 七独八天判断
+//            var myCards:String = currentGame.candidatedDown.getChildren().join(",");
+//            // 去除5、大小王
+//            myCards = myCards.replace(/0VX|0VY|\dV5/g, "").replace(",{2,}", ",").replace(/^,|,$/g, "");
+//            if (/\d(V[^,]*)(,\1){6}/.test(myCards)) {
+//                // 七独
+//                socketProxy.sendGameData(Red5GameCommand.GAME_DEADLY7_EXTINCT8, localNumber + "~" + myCards.match(/\d(V[^,]*)(,\1){6}/)[0]);
+//            } else if (/(\dV\d*)(,\1){7}/.test(myCards)) {
+//                // 八天
+//                socketProxy.sendGameData(Red5GameCommand.GAME_DEADLY7_EXTINCT8, localNumber + "~" + myCards.match(/(\dV\d*)(,\1){7}/)[0]);
+//            }
+        }
+
+        /**
+         * 
+         * 七独八天
+         * 
+         * @param event
+         * 
+         */
+        private function gameDeadly7Extinct8Handler(event:Red5GameEvent):void {
+            var results:Array = event.incomingData.split("~");
+            
         }
 
         /**
@@ -376,10 +420,13 @@ package info.knightrcom.state {
                 playerDirection.unshift(temp);
                 index++;
             }
-            var poker:PokerButton = new PokerButton();
-            poker.allowSelect = false;
-            poker.source = PokerResource.load("1V10");
-            (cardsCandidatedTipArray[firstPlayerNumber - 1] as Box).addChild(poker);
+            // 设置红十标记
+//            var poker:PokerButton = new PokerButton();
+//            poker.allowSelect = false;
+//            poker.source = PokerResource.load("1V10");
+            var firstPoker:Image = new Image();
+            firstPoker.source = Red5GameResource.FIRST_POKER_TIP;
+            (cardsCandidatedTipArray[firstPlayerNumber - 1] as Box).addChild(firstPoker);
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber, true);
@@ -557,11 +604,13 @@ package info.knightrcom.state {
 //                var currentIndex:int = (currentNextNumber - 1);
 //                var previousIndex:int = currentIndex == 0 ? playerCogameNumber - 1 : currentIndex - 1;
                 var previousIndex:int = parseInt(results[4]) - 1;
-                var passLabel:Label = new Label();
-                passLabel.text = "PASS";
-                passLabel.setStyle("fontSize", 24);
+//                var passLabel:Label = new Label();
+//                passLabel.text = "PASS";
+//                passLabel.setStyle("fontSize", 24);
+                var passImage:Image = new Image();
+                passImage.source = Red5GameResource.PASS;
                 Container(cardsDealedArray[previousIndex]).removeAllChildren();
-                Container(cardsDealedArray[previousIndex]).addChild(passLabel);
+                Container(cardsDealedArray[previousIndex]).addChild(passImage);
             } else {
                 if (isOrderNeighbor(currentNumber, currentNextNumber)) { // TODO THIS METHOD MAY BE USELESS
                     // 如果牌序中的两个玩家为邻座的两个人，并且上下家顺序为逆时针，则为正常出牌
@@ -816,7 +865,7 @@ package info.knightrcom.state {
             gameClient.txtSysMessage.text += event.incomingData + "\n";
             gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
         }
-        
+
         /**
          *
          * 扑克操作
@@ -866,11 +915,13 @@ package info.knightrcom.state {
                     }
                     // 在发牌区域显示"不要"标签
                     var currentIndex:int = (localNumber - 1);
-                    var passLabel:Label = new Label();
-                    passLabel.text = "PASS";
-                    passLabel.setStyle("fontSize", 24);
+//                    var passLabel:Label = new Label();
+//                    passLabel.text = "PASS";
+//                    passLabel.setStyle("fontSize", 24);
+                    var passImage:Image = new Image();
+                    passImage.source = Red5GameResource.PASS;
                     Container(cardsDealedArray[currentIndex]).removeAllChildren();
-                    Container(cardsDealedArray[currentIndex]).addChild(passLabel);
+                    Container(cardsDealedArray[currentIndex]).addChild(passImage);
                     // 出牌操作结束后，关闭扑克操作栏
                     currentGame.btnBarPokers.visible = false;
                     // 更新显示提示
@@ -878,32 +929,28 @@ package info.knightrcom.state {
                     break;
                 case 2:
                     // 提示
-                    // 1. 重选
-					for each (card in currentGame.candidatedDown.getChildren())
-					{
-						card.setSelected(false);
-					}
+                    itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
 					// 2. 当前为发牌玩家选择第一张牌
 					if (currentBoutCards == null || currentBoutCards.split(",").length == 0)
 					{
 						PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
-						break;
-					}
-                    var tipArray:Array = Red5Game.getBrainPowerTip(
-                            currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
-                    var i:int = 0;
-                    var eachPokerButton:PokerButton = null;
-                    if (tipArray) {
-                        for each (eachPokerButton in currentGame.candidatedDown.getChildren()) {
-                            // 不计花色比较
-                            if (eachPokerButton.value.replace(/\d/, "") == tipArray[i] || eachPokerButton.value == tipArray[i]) {
-                                eachPokerButton.setSelected(true);
-                                i++;
+					} else {
+                        var tipArray:Array = Red5Game.getBrainPowerTip(
+                                currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","), false);
+                        var i:int = 0;
+                        var eachPokerButton:PokerButton = null;
+                        if (tipArray) {
+                            for each (eachPokerButton in currentGame.candidatedDown.getChildren()) {
+                                // 不计花色比较
+                                if (eachPokerButton.value.replace(/\d/, "") == tipArray[i] || eachPokerButton.value == tipArray[i]) {
+                                    eachPokerButton.setSelected(true);
+                                    i++;
+                                }
                             }
+                        } else {
+                            // 没有备选牌的情况下，自动放弃
+                            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
                         }
-                    } else {
-                        // 没有备选牌的情况下，自动放弃
-                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
                     }
                     break;
                 case 3:
@@ -922,7 +969,8 @@ package info.knightrcom.state {
                     }
                     // 规则验证
                     if (!Red5Game.isRuleFollowed(cards, currentBoutCards)) {
-                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, 0));
+                        // 不满足出牌规则时进行重选操作
+                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
                         return;
                     }
                     // 设置出牌结果
@@ -1143,22 +1191,36 @@ package info.knightrcom.state {
                 if (otherTimer.running) {
                     otherTimer.stop();
                 }
+//                // 将出牌玩家出牌区域清空并添加倒计时提示
+//                var otherTimeTipLabel:Label = new Label();
+//                otherTimeTipLabel.text = "【" + MAX_CARDS_SELECT_TIME + "】";
+//                otherTimeTipLabel.setStyle("color", 0x0000ff);
+//                otherTimeTipLabel.opaqueBackground = 0xffffcc;
+//                // 保留已出牌，并显示倒计时
+//                var currentDealed:Container = Container(cardsDealedArray[nextNumber - 1]);
+//                while (currentDealed.numChildren > 0) {
+//                    if (currentDealed.getChildAt(currentDealed.numChildren - 1) is Label) {
+//                        currentDealed.removeChildAt(currentDealed.numChildren - 1);
+//                    } else {
+//                        otherTimeTipLabel.setStyle("paddingLeft", 100);
+//                        break;
+//                    }
+//                }
+//                currentDealed.addChild(otherTimeTipLabel);
                 // 将出牌玩家出牌区域清空并添加倒计时提示
-                var otherTimeTipLabel:Label = new Label();
-                otherTimeTipLabel.text = "【" + MAX_CARDS_SELECT_TIME + "】";
-                otherTimeTipLabel.setStyle("color", 0x0000ff);
-                otherTimeTipLabel.opaqueBackground = 0xffffcc;
+                var gameWaitingClock:GameWaiting = new GameWaiting();
+                gameWaitingClock.tipText = MAX_CARDS_SELECT_TIME.toString();
                 // 保留已出牌，并显示倒计时
                 var currentDealed:Container = Container(cardsDealedArray[nextNumber - 1]);
                 while (currentDealed.numChildren > 0) {
-                    if (currentDealed.getChildAt(currentDealed.numChildren - 1) is Label) {
+                    if (currentDealed.getChildAt(currentDealed.numChildren - 1) is GameWaiting) {
                         currentDealed.removeChildAt(currentDealed.numChildren - 1);
                     } else {
-                        otherTimeTipLabel.setStyle("paddingLeft", 100);
+                        // gameWaitingClock.setStyle("paddingLeft", 100);
                         break;
                     }
                 }
-                currentDealed.addChild(otherTimeTipLabel);
+                currentDealed.addChild(gameWaitingClock);
                 otherTimer.reset();
                 otherTimer.start();
             }
