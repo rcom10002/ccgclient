@@ -567,6 +567,22 @@ package info.knightrcom.state {
             var results:Array = event.incomingData.split("~");
             gameFinalSettingPlayerNumber = results[0];
             gameSetting = results[1];
+            if (gameSetting == Red5GameSetting.NO_RUSH) {
+                return;
+            }
+            var gameSettingImage:Image = new Image();
+            switch (gameSetting) {
+                case Red5GameSetting.RUSH:
+                    gameSettingImage.source = Red5GameResource.RUSH;
+                    break;
+                case Red5GameSetting.DEADLY_RUSH:
+                    gameSettingImage.source = Red5GameResource.DEADLY_RUSH;
+                    break;
+                case Red5GameSetting.EXTINCT_RUSH:
+                    gameSettingImage.source = Red5GameResource.EXTINCT_RUSH;
+                    break;
+            }
+            (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);
             // updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber, true);
         }
 
@@ -1185,7 +1201,7 @@ package info.knightrcom.state {
             }
         	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
         	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
-            if (showOtherTime) {
+            if (showOtherTime /*&& !currentGame.btnBarPokers.visible*/) {
                 // 非当前玩家出牌时，显示动态提示
                 currentGame.arrowTip.text = currentGame.arrowTip.text + "\n其他玩家出牌，剩余【" + MAX_CARDS_SELECT_TIME + "】秒！";
                 if (otherTimer.running) {
@@ -1207,20 +1223,18 @@ package info.knightrcom.state {
 //                    }
 //                }
 //                currentDealed.addChild(otherTimeTipLabel);
-                // 将出牌玩家出牌区域清空并添加倒计时提示
-                var gameWaitingClock:GameWaiting = new GameWaiting();
-                gameWaitingClock.tipText = MAX_CARDS_SELECT_TIME.toString();
+//                // 将出牌玩家出牌区域清空并添加倒计时提示
+//                var gameWaitingClock:GameWaiting = new GameWaiting();
+//                gameWaitingClock.tipText = MAX_CARDS_SELECT_TIME.toString();
                 // 保留已出牌，并显示倒计时
                 var currentDealed:Container = Container(cardsDealedArray[nextNumber - 1]);
-                while (currentDealed.numChildren > 0) {
-                    if (currentDealed.getChildAt(currentDealed.numChildren - 1) is GameWaiting) {
-                        currentDealed.removeChildAt(currentDealed.numChildren - 1);
-                    } else {
-                        // gameWaitingClock.setStyle("paddingLeft", 100);
-                        break;
-                    }
+                if (currentDealed.numChildren > 0 && currentDealed.getChildAt(currentDealed.numChildren - 1) is GameWaiting) {
+                    (currentDealed.getChildAt(currentDealed.numChildren - 1) as GameWaiting).tipText = MAX_CARDS_SELECT_TIME.toString();
+                } else {
+                    var gameWaitingClock:GameWaiting = new GameWaiting();
+                    gameWaitingClock.tipText = MAX_CARDS_SELECT_TIME.toString();
+                    currentDealed.addChild(gameWaitingClock);
                 }
-                currentDealed.addChild(gameWaitingClock);
                 otherTimer.reset();
                 otherTimer.start();
             }
@@ -1284,6 +1298,9 @@ package info.knightrcom.state {
             }
             for each (var cardsCandidated:Box in cardsCandidatedArray) {
                 cardsCandidated.removeAllChildren();
+            }
+            for each (var cardsCandidatedTip:Box in cardsCandidatedTipArray) {
+                cardsCandidatedTip.removeAllChildren();
             }
             if (currentGame) {
                 currentGame.arrowTip.text = "";
