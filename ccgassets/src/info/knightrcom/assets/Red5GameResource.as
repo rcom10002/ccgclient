@@ -27,6 +27,9 @@ package info.knightrcom.assets
         [Embed(source="info/knightrcom/assets/image/red5game/game-pass.png")]
         public static const PASS:Class;
         
+        [Embed(source="info/knightrcom/assets/image/red5game/game-setting.png")]
+        public static const SETTING:Class;
+        
         [Embed(source="info/knightrcom/assets/image/red5game/game-rush1.png")]
         public static const RUSH:Class;
         
