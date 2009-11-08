@@ -493,7 +493,7 @@ package info.knightrcom.state {
                     // 游戏设置为不独时
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
-                    updateTip(currentNumber, localNextNumber);
+                    updateTip(currentNumber, gameFinalSettingPlayerNumber);
                 }
             } else if (setting == Red5GameSetting.NO_RUSH) {
                 // 非首次和末次，不独时，直接转发前次的游戏设置
@@ -533,7 +533,7 @@ package info.knightrcom.state {
                 gameSetting = results[1];
             }
             gameFinalSettingPlayerNumber = currentNumber;
-            currentNextNumber = gameSettingUpdateTimes == playerCogameNumber ? gameFinalSettingPlayerNumber : results[2];
+            currentNextNumber = (gameSettingUpdateTimes == playerCogameNumber ? gameFinalSettingPlayerNumber : results[2]);
             if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 每个玩家都进行过游戏设置，则可以开始游戏
                 if (localNumber == currentNumber) {
