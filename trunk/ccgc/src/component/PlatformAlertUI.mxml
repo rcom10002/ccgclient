@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
-         cornerRadius="6"
-         backgroundColor="#d7eef6"
-         borderColor="#d7eef6"
-         borderStyle="solid"
          paddingTop="6"
          paddingRight="6"
          paddingLeft="6"
          paddingBottom="6"
          horizontalAlign="center"
-         width="274">
+         width="277"
+         height="107"
+         backgroundImage="{Red5GameResource.SETTING}">
     <mx:Script>
         <![CDATA[
-            import mx.managers.PopUpManager;
+            import info.knightrcom.assets.Red5GameResource;
+            
+            import mx.controls.Button;
 
             private function handleDown(e:MouseEvent):void {
                 this.startDrag()
@@ -21,14 +21,11 @@
             private function handleUp(e:MouseEvent):void {
                 this.stopDrag()
             }
+
         ]]>
     </mx:Script>
     <mx:HBox mouseDown="handleDown(event)"
              mouseUp="handleUp(event)"
-             backgroundColor="#f6fcfe"
-             borderColor="#f6fcfe"
-             borderStyle="solid"
-             cornerRadius="6"
              width="100%"
              height="24"
              verticalAlign="middle"
@@ -40,16 +37,8 @@
                   textAlign="left"
                   paddingLeft="6"
                   paddingTop="2"/>
-<!--
-             <mx:Image source="@Embed('assets/close.png')" buttonMode="true"
-             click="{PopUpManager.removePopUp(this)}" />
--->
     </mx:HBox>
-    <mx:VBox cornerRadius="6"
-             backgroundColor="#f6fcfe"
-             borderColor="#f6fcfe"
-             borderStyle="solid"
-             verticalAlign="top"
+    <mx:VBox verticalAlign="top"
              verticalGap="0"
              width="100%">
         <mx:Text id="msg"
@@ -66,4 +55,11 @@
                  paddingBottom="6">
         </mx:HBox>
     </mx:VBox>
+    <mx:creationComplete>
+        <![CDATA[
+            for each (var eachButton:Button in btns.getChildren()) {
+                eachButton.styleName = "gameSettingButton";
+            }
+        ]]>
+    </mx:creationComplete>
 </mx:VBox>
