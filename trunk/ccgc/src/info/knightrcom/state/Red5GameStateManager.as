@@ -213,11 +213,12 @@ package info.knightrcom.state {
                     // 倒计时开始
                     currentGame.timerTip.label = "计时开始";
                     if (currentGame.dealedDown.numChildren > 0 && currentGame.dealedDown.getChildAt(currentGame.dealedDown.numChildren - 1) is GameWaiting) {
-                        currentGame.dealedDown.removeChildAt(currentGame.dealedDown.numChildren - 1);
+                        (currentGame.dealedDown.getChildAt(currentGame.dealedDown.numChildren - 1) as GameWaiting).tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
+                    } else {
+                        var gameWaitingClock:GameWaiting = new GameWaiting();
+                        gameWaitingClock.tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
+                        currentGame.dealedDown.addChild(gameWaitingClock);
                     }
-                    var gameWaitingClock:GameWaiting = new GameWaiting();
-                    gameWaitingClock.tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
-                    currentGame.dealedDown.addChild(gameWaitingClock);
                     // 自动放弃缩短至3秒
                     if (currentGame.btnBarPokers.visible && Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
                         // 当前玩家出牌时
@@ -251,6 +252,9 @@ package info.knightrcom.state {
 					}
 				});
                 ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
+                    if (currentGame.btnBarPokers.visible) {
+                        return;
+                    }
                     currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     var otherGameWaitingClockParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
                     var lastChildIndex:int = otherGameWaitingClockParent.numChildren - 1;
@@ -277,6 +281,8 @@ package info.knightrcom.state {
                 }
                 currentGame.setChildIndex(currentGame.timerTip, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.arrowTip, currentGame.numChildren - 1);
+                currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
+                currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
 
                 // 设置游戏按钮外观
                 for each (var eachBar:ButtonBar in [currentGame.btnBarPokers, 
@@ -526,8 +532,8 @@ package info.knightrcom.state {
             if (gameSetting < results[1]) {
                 gameSetting = results[1];
             }
-            currentNextNumber = results[2];
             gameFinalSettingPlayerNumber = currentNumber;
+            currentNextNumber = gameSettingUpdateTimes == playerCogameNumber ? gameFinalSettingPlayerNumber : results[2];
             if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 每个玩家都进行过游戏设置，则可以开始游戏
                 if (localNumber == currentNumber) {
@@ -563,9 +569,7 @@ package info.knightrcom.state {
             for each (var eachDealed:Container in cardsDealedArray) {
                 eachDealed.removeAllChildren();
             }
-            if (gameSettingUpdateTimes != playerCogameNumber) {
-                updateTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
-            }
+            updateTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
         }
 
         /**
@@ -596,7 +600,7 @@ package info.knightrcom.state {
                     break;
             }
             (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);
-            updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
+            // updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
         }
 
         /**
@@ -1159,7 +1163,11 @@ package info.knightrcom.state {
             currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
 			currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
 			currentGame.timerTip.visible = true;
-			timer.start();
+            if (timer.running) {
+                timer.stop();
+                timer.reset();
+            }
+            timer.start();
             CursorManager.removeBusyCursor();
             // 计算提示
             Red5Game.refreshTips(currentGame.candidatedDown.getChildren().join(","));
@@ -1189,6 +1197,12 @@ package info.knightrcom.state {
         private function updateTip(lastNumber:int, nextNumber:int, showOtherTime:Boolean = true):void {
             // 参数初始化
             currentNextNumber = nextNumber;
+            // 从画面中清除已经使用过的倒计时
+            for each (var eachDealed:Container in cardsDealedArray) {
+                if (eachDealed.numChildren > 0 && eachDealed.getChildAt(eachDealed.numChildren - 1) is GameWaiting) {
+                    eachDealed.removeChildAt(eachDealed.numChildren - 1);
+                }
+            }
             // 显示游戏提示
             var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
             var playerDirection:Array = new Array("下", "右", "上", "左");
