@@ -38,5 +38,8 @@ package info.knightrcom.assets
         
         [Embed(source="info/knightrcom/assets/image/red5game/game-rush3.png")]
         public static const EXTINCT_RUSH:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/red5game/game-info-board.png")]
+        public static const INFO_BOARD:Class;
     }
 }
