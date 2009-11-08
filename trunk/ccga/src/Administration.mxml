@@ -6,8 +6,8 @@
 				minWidth="1000"
 				minHeight="600"
 				currentState="LOGIN">
-	<mx:Style source="css/ccgaskin-ext.css"/>
-	<mx:Style source="style/style.css"/>
+	<mx:Style source="style/ccgskin.css"/>
+	<mx:Style source="style/ccgskin-ext.css"/>
 	<mx:applicationComplete>
 		<![CDATA[
 		import mx.states.State;
