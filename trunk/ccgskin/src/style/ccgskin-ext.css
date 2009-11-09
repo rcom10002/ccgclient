@@ -1,5 +1,52 @@
 /* 字体设置 */
+global {
+    font-size: 12px;
+    font-family: Simsun;
+}
+
+/*
 Application, Validator.errorTip {
 	font-size: 12px;
 	font-family: Simsun;
 }
+*/
+
+Accordion {
+    headerStyleName: accordionHeaderStyle;
+}
+
+.accordionHeaderStyle {
+    font-size: 16;
+    fontWeight: normal;
+    font-family: Simsun;
+    padding-top: 4;
+    padding-bottom: 4;
+}
+
+
+/*
+//------------------------------
+//  PlatformAlertUI
+//------------------------------
+*/
+PlatformAlertUI {
+    modalTransparencyBlur: 0;
+    modalTransparency: 0;
+    /*modalTransparencyColor: #FF0000;*/
+    /*modalTransparencyDuration: 1000;*/
+}
+
+
+/*
+//------------------------------
+//  Scoreboard
+//------------------------------
+*/
+Scoreboard {
+    modalTransparencyBlur: 0;
+    modalTransparency: 0;
+    /*modalTransparencyColor: #FF0000;*/
+    /*modalTransparencyDuration: 1000;*/
+}
+
+
