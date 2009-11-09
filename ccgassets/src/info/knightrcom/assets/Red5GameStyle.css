@@ -1,20 +1,37 @@
 /* CSS file */
 Button.gameButton {
-    skin: Embed(skinClass='Button_skin');
-    fontSize: 12;
-    color: #FFFFFF;
-    textRollOverColor: #FFFFFF;
-    textSelectedColor: #FFFFFF;
+    fontSize: 12px;
     fontWeight: normal;
-    textDecoration: none;
+    color: #FFFFFF;
+    textRollOverColor: #FFFF00;
+    textSelectedColor:#E1D700;
+    disabledColor:#4C4A12;
+
+    upSkin: ClassReference(null);
+    overSkin: ClassReference(null);
+    downSkin: ClassReference(null);
+    disabledSkin: ClassReference(null);
+    selectedUpSkin: ClassReference(null);
+    selectedOverSkin: ClassReference(null);
+    selectedDownSkin: ClassReference(null);
+    selectedDisabledSkin: ClassReference(null);
+    skin: Embed(skinClass='Button_skin');
 }
 Button.gameSettingButton {
+    fontSize: 12px;
     fontWeight: normal;
-    fontSize: 12;
-    color: #FFD7D7;
-    textRollOverColor: #FFFFFF;
-    textSelectedColor: #FFA0A0;
-    disabledColor: #6E0D0D;
+    color: #FFFFFF;
+    textRollOverColor: #FFFF00;
+    textSelectedColor:#E1D700;
+    disabledColor:#4C4A12;
 
+    upSkin: ClassReference(null);
+    overSkin: ClassReference(null);
+    downSkin: ClassReference(null);
+    disabledSkin: ClassReference(null);
+    selectedUpSkin: ClassReference(null);
+    selectedOverSkin: ClassReference(null);
+    selectedDownSkin: ClassReference(null);
+    selectedDisabledSkin: ClassReference(null);
     skin: Embed(skinClass='SettingButton_skin');
 }
