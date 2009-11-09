@@ -6,7 +6,8 @@
 		height="720"
         minWidth="800"
 		minHeight="600">
-	<!-- 上侧区域 -->
+    <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
+    <!-- 上侧区域 -->
     <mx:HBox id="candidatedUp"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
@@ -26,7 +27,7 @@
              horizontalAlign="center"
              verticalAlign="bottom"
              top="40"
-             width="92" horizontalCenter="0">
+             width="200" horizontalCenter="0">
     </mx:HBox>
 	<!-- 右侧区域 -->
     <mx:VBox id="candidatedRight"
@@ -38,7 +39,7 @@
              right="92"
              horizontalAlign="left"
              verticalAlign="middle"
-             verticalGap="-86">
+             verticalGap="-78">
     </mx:VBox>
     <mx:VBox id="candidatedTipRight"
              verticalScrollPolicy="off"
@@ -47,7 +48,7 @@
              right="92"
              horizontalAlign="right"
              verticalAlign="middle"
-             verticalGap="-78" height="120" verticalCenter="0">
+             verticalGap="-78" height="200" verticalCenter="0">
     </mx:VBox>
 	<!-- 下侧区域 -->
     <mx:HBox id="candidatedDown"
@@ -66,7 +67,7 @@
              horizontalGap="-55"
              horizontalAlign="center"
              bottom="0"
-             verticalAlign="top" width="92" horizontalCenter="0">
+             verticalAlign="top" width="200" horizontalCenter="0">
     </mx:HBox>
 	<!-- 左侧区域 -->
     <mx:VBox id="candidatedLeft"
@@ -78,7 +79,7 @@
              left="92"
              horizontalAlign="right"
              verticalAlign="middle"
-             verticalGap="-86">
+             verticalGap="-78">
     </mx:VBox>
     <mx:VBox id="candidatedTipLeft"
              verticalScrollPolicy="off"
@@ -87,7 +88,7 @@
              left="92"
              horizontalAlign="left"
              verticalAlign="middle"
-             verticalGap="-78" height="120" verticalCenter="0">
+             verticalGap="-78" height="200" verticalCenter="0">
     </mx:VBox>
 	<mx:Canvas left="220" right="220" top="128" bottom="128">
 		<!-- 牌桌区域 -->
@@ -172,20 +173,23 @@
 		</mx:ButtonBar>
 		<mx:ButtonBar id="btnBarPokersTipC" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
 			<mx:dataProvider>
-				<mx:String>三同张三连顺</mx:String>
-				<mx:String>三同张四连顺</mx:String>
-				<mx:String>三同张五连顺</mx:String>
-				<mx:String>四同张三连顺</mx:String>
+				<mx:String>三同三连顺</mx:String>
+				<mx:String>三同四连顺</mx:String>
+				<mx:String>三同五连顺</mx:String>
+				<mx:String>四同三连顺</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
 	</mx:VBox>
     <!-- 提示区域 -->
-    <mx:ProgressBar id="timerTip" x="10" y="10" visible="false"/>
-    <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>
+    <mx:ProgressBar id="timerTip" x="10" y="-300"/>
+    <mx:Text id="arrowTip" x="10" y="-400" selectable="false"/>
+    <mx:Image id="infoBoard" source="{Red5GameResource.INFO_BOARD}" x="0" y="0" />
+    <mx:Text id="infoBoardText" x="55" y="40" width="250" text="{arrowTip.text.replace(/^.*(我.*?[0-9]+).*$/g, '$1')}" selectable="false" />
     <!-- 背景图片区域 -->
     <mx:Script>
         <![CDATA[
             import info.knightrcom.assets.Red5GameResource;
+            import mx.controls.Button;
         ]]>
     </mx:Script>
     <mx:Image id="bgCurtainLeft" source="{Red5GameResource.CURTAIN_LEFT}" left="0" top="0"/>
@@ -193,4 +197,14 @@
     <mx:Image id="bgLogo" source="{Red5GameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
     <mx:Image id="bgLaceLeft" source="{Red5GameResource.LACE_LEFT}" left="0" bottom="0"/>
     <mx:Image id="bgLaceRight" source="{Red5GameResource.LACE_RIGHT}" right="0" bottom="0"/>
-    </mx:Module>
+    <mx:creationComplete>
+        <![CDATA[
+        // 设置游戏按钮外观
+        for each (var eachBar:ButtonBar in [btnBarPokers, btnBarPokersTipA, btnBarPokersTipB, btnBarPokersTipC]) {
+            for each (var eachButton:Button in eachBar.getChildren()) {
+                eachButton.styleName = "gameButton";
+            }
+        }
+        ]]>
+    </mx:creationComplete>
+</mx:Module>

@@ -6,8 +6,9 @@
                 xmlns:cmpext="component.*"
                 xmlns:service="component.service.*"
                 xmlns:ccgame="*">
-    <mx:Style source="css/ccgcskin-ext.css"/>
-    <mx:Style source="style/style.css"/>
+    <mx:Style source="style/ccgskin.css"/>
+    <mx:Style source="style/ccgskin-ext.css"/>
+    <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
     <mx:states>
         <!-- 登录界面 -->
         <mx:State id="loginState"
@@ -173,14 +174,16 @@
     </mx:transitions>
     <mx:applicationComplete>
         <![CDATA[
+        import info.knightrcom.GameSocketProxy;
+        import info.knightrcom.assets.CommonResource;
         import info.knightrcom.state.BaseStateManager;
+        import info.knightrcom.state.FightLandlordGameStateManager;
         import info.knightrcom.state.LobbyStateManager;
         import info.knightrcom.state.LoginStateManager;
-        import info.knightrcom.state.Red5GameStateManager;
-        import info.knightrcom.state.FightLandlordGameStateManager;
         import info.knightrcom.state.PushdownWinGameStateManager;
         import info.knightrcom.state.QiongWinGameStateManager;
-        import info.knightrcom.GameSocketProxy;
+        import info.knightrcom.state.Red5GameStateManager;
+        
         import mx.controls.Alert;
         import mx.utils.URLUtil;
         this.addEventListener(ErrorEvent.ERROR, function(errorEvent:ErrorEvent):void {
