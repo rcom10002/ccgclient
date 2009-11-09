@@ -284,15 +284,6 @@ package info.knightrcom.state {
                 currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
 
-                // 设置游戏按钮外观
-                for each (var eachBar:ButtonBar in [currentGame.btnBarPokers, 
-                                                    currentGame.btnBarPokersTipA, 
-                                                    currentGame.btnBarPokersTipB, 
-                                                    currentGame.btnBarPokersTipC]) {
-                    for each (var eachButton:Button in eachBar.getChildren()) {
-                        eachButton.styleName = "gameButton";
-                    }
-                }
                 setInitialized(true);
             }
             // 按照当前玩家序号，进行画面座次安排
