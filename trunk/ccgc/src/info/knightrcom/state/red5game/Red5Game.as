@@ -538,9 +538,13 @@ package info.knightrcom.state.red5game {
          * 
          * 智能提示，不负责牌型校验，只是针对已经打出的合法的牌型，从备选牌中选出合适的对策牌
          * 
+         * @param myCards 当前玩家手中的牌
+         * @param boutCards 最后一次打出的牌
          * @param enableFoolish 是否采用笨蛋判断法，如果采用，只对明显的大牌作出放弃，否则会根据己方的牌来作出最合理的判断
-         * @return
          * 
+         * @return 
+         * enableFoolish = true时，null代表没有上家牌为明显大牌<br>
+         * enableFoolish = false时，null代表手中现有的牌无法压制对方牌
          */
         public static function getBrainPowerTip(myCards:Array, boutCards:Array, enableFoolish:Boolean = true):Array {
             var resultArrayArray:Array = new Array();
@@ -567,11 +571,12 @@ package info.knightrcom.state.red5game {
             }
             if (isSingleStyle(boutCardsString)) {
                 // 单张判断
-                // 去花色和逗号
+                // 去花色
                 boutCardsString = boutCardsString.replace(/^\dV/g, "V");
+                // 去红五去花色
                 myCardsString = myCardsString.replace(/1V5,/g, "").replace(/\dV/g, "V");
                 // 是否有比打出牌大的牌在手中
-                var myLastCard:String = myCardsString.replace(/.*,(\w+),/, "$1");
+                var myLastCard:String = myCardsString.replace(/^(.*,)?(\w+),$/, "$2");
                 // 比较除了红五以外的牌
                 if (prioritySequence.indexOf(myLastCard.replace(/\dV/, "V")) <= prioritySequence.indexOf(boutCardsString)) {
                     // 有红五则返回红五
@@ -579,6 +584,10 @@ package info.knightrcom.state.red5game {
                         return new Array("1V5");
                     }
                     return null;
+                }
+                if (myCardsString.length - myCardsString.replace(/V/g, "").length == 1) {
+                    // 剩下最后一张牌的情况下
+                    return myCards;
                 }
                 // 单张优先，判断是否有比打出牌大的单张
                 // 完全去除重复的项目，不保留任何内容
