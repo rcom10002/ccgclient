@@ -252,6 +252,9 @@ package info.knightrcom
 				case "业务汇总报表":
 					adminApp.functionWindowArea.currentState="REPORT_BIZ_MATRIX";
 					break;
+				case "自主牌型设置":
+					adminApp.functionWindowArea.currentState="CUSTOM_POKER_WINDOW";
+					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");

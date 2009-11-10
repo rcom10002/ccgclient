@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler()">
 	<mx:Script>
 		<![CDATA[
+			import info.knightrcom.util.HttpServiceProxy;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			import info.knightrcom.assets.PokerResource;
 			
 			/** VV仅作为占位符使用，因5不能作为顺子的组成部分，VV不会与任何内容匹配，所以3、4也就不可能成为顺子的一部分 */
@@ -9,12 +13,32 @@
 	        private static const RED5:String = "1V5";
 	        private static const RED5_PAIR:String = "1V5,1V5";
 			
-			private function init(event:Event):void {
+			private function creationCompleteHandler():void {
 				this.currentState = "EDIT";
-	            var cardSequence:String = "1V3";
-	            var cardNames:Array = sortPokers(cardSequence);
+				HttpServiceProxy.send(LocalCustomPokerService.READ_POKER, {}, null, function(event:ResultEvent):void
+						{
+							var e4xResult:XML = new XML(event.result);
+							if (e4xResult.result == "SUCCESS")
+							{
+					            showPoker(e4xResult.tag);
+							}
+							else
+							{
+								Alert.show("数据失败！", "自主牌型设置");
+								return;
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("数据失败！", "自主牌型设置");
+							return;
+						});
+					
+			}
+			
+			
+			private function showPoker(cardSequence:String):void {
+				var cardNames:Array = sortPokers(cardSequence);
 	            var poker:PokerButton = null;
-	            // 为当前玩家发牌
 	            for each (var cardName:String in cardNames) {
 	                poker = new PokerButton();
 	                poker.source = PokerResource.load(cardName);
@@ -75,24 +99,26 @@
 	<states>
 		<mx:State name="EDIT">
 			<mx:AddChild position="lastChild">
-				<mx:VDividedBox x="0" y="19" height="100%" width="90%">
-					<mx:HBox id="candidatedUp" width="100%" height="200">
+					<mx:HBox id="candidatedUp" top="10" width="100%" height="200" horizontalGap="-55"
+			             horizontalAlign="left" verticalAlign="middle">
 					</mx:HBox>
-					<mx:HBox id="candidatedDown" width="100%" height="200">
+			</mx:AddChild>
+			<mx:AddChild>
+					<mx:HBox id="candidatedDown" top="260" width="1138" height="200" horizontalGap="-55"
+			             horizontalAlign="left" verticalAlign="middle">
 					</mx:HBox>
-				</mx:VDividedBox>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button x="679" y="200" label="上移" id="btnUp"/>
+				<mx:Button label="上移" id="btnUp" right="600" bottom="270"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="下移" id="btnDown" right="19" bottom="253"/>
+				<mx:Button label="下移" id="btnDown" right="550" bottom="270"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:CheckBox label="启用" id="chkDisable" right="22" bottom="38"/>
+				<mx:CheckBox label="启用" id="chkDisable" right="80" bottom="10"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="Button" right="2" bottom="8"/>
+				<mx:Button label="保存" right="20" bottom="10" id="btnSave"/>
 			</mx:AddChild>
 		</mx:State>
 	</states>
