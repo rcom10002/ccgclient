@@ -272,8 +272,7 @@ package info.knightrcom.state {
 
                 ListenerBinder.bind(currentGame, FlexEvent.UPDATE_COMPLETE, function (event:Event):void {
                     var eachButton:Button = null;
-                    for each (var eachBar:ButtonBar in [currentGame.btnBarPokers, 
-                                                        currentGame.btnBarPokersTipA, 
+                    for each (var eachBar:ButtonBar in [currentGame.btnBarPokersTipA, 
                                                         currentGame.btnBarPokersTipB, 
                                                         currentGame.btnBarPokersTipC]) {
                         for each (eachButton in eachBar.getChildren()) {
@@ -281,7 +280,7 @@ package info.knightrcom.state {
                         }
                     }
                     for each (eachButton in currentGame.btnBarPokers.getChildren()) {
-                        eachButton.setStyle("fontSize", "16px");
+                        eachButton.styleName = "gameBigButton";
                     }
                 });
 
