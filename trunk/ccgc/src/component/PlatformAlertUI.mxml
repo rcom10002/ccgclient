@@ -42,24 +42,20 @@
              verticalGap="0"
              width="100%">
         <mx:Text id="msg"
+                 text=" "
+                 styleName="gameSetting"
                  color="#000000"
                  textAlign="center"
                  paddingTop="6"
                  paddingBottom="6"
                  paddingLeft="6"
                  paddingRight="6"
-                 width="100%"/>
+                 width="100%"
+                 height="28"/>
         <mx:HBox id="btns"
                  width="100%"
                  horizontalAlign="center"
                  paddingBottom="6">
         </mx:HBox>
     </mx:VBox>
-    <mx:creationComplete>
-        <![CDATA[
-            for each (var eachButton:Button in btns.getChildren()) {
-                eachButton.styleName = "gameSettingButton";
-            }
-        ]]>
-    </mx:creationComplete>
 </mx:VBox>
