@@ -129,7 +129,7 @@ package info.knightrcom.state {
 		/**
 		 * 用户发牌最大等待时间(秒)
 		 */
-		private static const MAX_CARDS_SELECT_TIME:int = 15;
+		private static const MAX_CARDS_SELECT_TIME:int = 20;
 
         /**
          * 是否是第一个获胜者的下家
@@ -414,9 +414,6 @@ package info.knightrcom.state {
             firstPlayerNumber = parseInt(results[0]);
             results[1] = results[1].toString().replace(/~[^~]+;$/, "");
             var initCardsOfPlayers:Array = results[1].toString().split(/~[^~]+;/g);
-        	if (firstPlayerNumber == localNumber) {
-            	PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect);
-        	}
         	pokerBox = new Red5GameBox();
         	pokerBox.cardsOfPlayers = initCardsOfPlayers;
             var playerDirection:Array = new Array("下", "右", "上", "左");
@@ -436,6 +433,9 @@ package info.knightrcom.state {
             (cardsCandidatedTipArray[firstPlayerNumber - 1] as Box).addChild(firstPoker);
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
+            if (firstPlayerNumber == localNumber) {
+                PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect);
+            }
             updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber);
         }
 
@@ -707,7 +707,12 @@ package info.knightrcom.state {
             currentNumber = results[0];
             currentBoutCards = results[1];
             currentNextNumber = results[2];
-            var scoreboardInfo:Array = String(results[3]).split(/;/);
+            var scoreboardInfo:Array = null;
+            if (gameSetting == Red5GameSetting.EXTINCT_RUSH) {
+                scoreboardInfo = String(results.length - 1).split(/;/);
+            } else {
+                scoreboardInfo = String(results[3]).split(/;/);
+            }
             // 非出牌者时，移除桌面上显示的已出的牌，在桌面上显示最近新出的牌
             // if (localNumber != currentNumber && gameSetting != Red5GameSetting.EXTINCT_RUSH) {
             if (localNumber != currentNumber && isOrderNeighbor(currentNumber, currentNextNumber)) {
