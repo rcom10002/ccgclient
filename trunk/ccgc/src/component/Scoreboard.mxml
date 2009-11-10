@@ -33,6 +33,7 @@
                     record.currentNumber = recordDetailDesc[0];
                     record.score = recordDetailDesc[1];
                     record.systemScore = recordDetailDesc[2];
+                    record.playerCurrentScore = recordDetailDesc[3];
                     scoreboardDataArray.push(record);
                 }
 	            // 调整显示顺序，按照分值排序
@@ -143,6 +144,8 @@
                                dataField="score"/>
             <mx:DataGridColumn headerText="系统分"
                                dataField="systemScore"/>
+			<mx:DataGridColumn headerText="总积分"
+                               dataField="playerCurrentScore"/>
         </mx:columns>
     </mx:DataGrid>
     <!-- 关闭按钮 -->
