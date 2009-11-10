@@ -4,12 +4,10 @@ global {
     font-family: Simsun;
 }
 
-/*
 Application, Validator.errorTip {
 	font-size: 12px;
 	font-family: Simsun;
 }
-*/
 
 Accordion {
     headerStyleName: accordionHeaderStyle;
