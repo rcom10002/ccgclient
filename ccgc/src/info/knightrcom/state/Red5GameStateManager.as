@@ -206,9 +206,9 @@ package info.knightrcom.state {
          */
         private function init(event:Event):void {
             if (!isInitialized()) {
-                // 配置事件监听
-                // 非可视组件
                 currentGame = gameClient.red5GameModule;
+                // 配置事件监听
+                // 注册非可视组件监听事件
 				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
                     // 倒计时开始
                     currentGame.timerTip.label = "计时开始";
@@ -262,14 +262,29 @@ package info.knightrcom.state {
                     	GameWaiting(otherGameWaitingClockParent.getChildAt(lastChildIndex)).tipText = String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount);// Label(otherGameWaitingClockParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     }
                 });
-                // 可视组件
+                // 注册可视组件监听事件
                 ListenerBinder.bind(currentGame.btnBarPokers, ItemClickEvent.ITEM_CLICK, itemClick);
                 ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.SHOW, show);
                 ListenerBinder.bind(currentGame.btnBarPokers, FlexEvent.HIDE, hide);
                 ListenerBinder.bind(currentGame.btnBarPokersTipA, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipB, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipC, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
-                
+
+                ListenerBinder.bind(currentGame, FlexEvent.UPDATE_COMPLETE, function (event:Event):void {
+                    var eachButton:Button = null;
+                    for each (var eachBar:ButtonBar in [currentGame.btnBarPokers, 
+                                                        currentGame.btnBarPokersTipA, 
+                                                        currentGame.btnBarPokersTipB, 
+                                                        currentGame.btnBarPokersTipC]) {
+                        for each (eachButton in eachBar.getChildren()) {
+                            eachButton.styleName = "gameButton";
+                        }
+                    }
+                    for each (eachButton in currentGame.btnBarPokers.getChildren()) {
+                        eachButton.setStyle("fontSize", "16px");
+                    }
+                });
+
                 // 调整画面布局
                 currentGame.setChildIndex(currentGame.bgLaceLeft, 0);
                 currentGame.setChildIndex(currentGame.bgLaceRight, 0);
@@ -707,7 +722,7 @@ package info.knightrcom.state {
             currentNumber = results[0];
             currentBoutCards = results[1];
             currentNextNumber = results[2];
-            var scoreboardInfo:Array = String(results[3]).split(/;/);
+            var scoreboardInfo:Array = String(results[results.length - 1]).split(/;/);
             // 非出牌者时，移除桌面上显示的已出的牌，在桌面上显示最近新出的牌
             // if (localNumber != currentNumber && gameSetting != Red5GameSetting.EXTINCT_RUSH) {
             if (localNumber != currentNumber && isOrderNeighbor(currentNumber, currentNextNumber)) {
