@@ -131,7 +131,7 @@
 									}
 									Alert.yesLabel = "确认";
 									Alert.noLabel = "取消";
-								    Alert.show( "录像回放需要扣除被回放的游戏的两倍底分，\n确定要观看吗？",
+								    Alert.show( "录像回放需要扣除积分" + 2 * score + "分，\n确定要观看吗？",
 											"消息", 
 											Alert.YES | Alert.NO,
 											Application.application as Sprite,
