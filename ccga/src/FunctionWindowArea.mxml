@@ -154,5 +154,11 @@
 				</service:ReportBizMatrix>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="CUSTOM_POKER_WINDOW">
+			<mx:AddChild position="lastChild">
+				<service:CustomPokerWindow>
+				</service:CustomPokerWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
