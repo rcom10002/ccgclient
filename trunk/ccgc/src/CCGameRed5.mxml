@@ -7,6 +7,11 @@
         minWidth="800"
 		minHeight="600">
     <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.Red5GameResource;
+        ]]>
+    </mx:Script>
     <!-- 上侧区域 -->
     <mx:HBox id="candidatedUp"
              verticalScrollPolicy="off"
@@ -186,25 +191,9 @@
     <mx:Image id="infoBoard" source="{Red5GameResource.INFO_BOARD}" x="0" y="0" />
     <mx:Text id="infoBoardText" x="55" y="40" width="250" text="{arrowTip.text.replace(/^.*(我.*?[0-9]+).*$/g, '$1')}" selectable="false" />
     <!-- 背景图片区域 -->
-    <mx:Script>
-        <![CDATA[
-            import info.knightrcom.assets.Red5GameResource;
-            import mx.controls.Button;
-        ]]>
-    </mx:Script>
     <mx:Image id="bgCurtainLeft" source="{Red5GameResource.CURTAIN_LEFT}" left="0" top="0"/>
     <mx:Image id="bgCurtainRight" source="{Red5GameResource.CURTAIN_RIGHT}" right="0" top="0"/>
     <mx:Image id="bgLogo" source="{Red5GameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
     <mx:Image id="bgLaceLeft" source="{Red5GameResource.LACE_LEFT}" left="0" bottom="0"/>
     <mx:Image id="bgLaceRight" source="{Red5GameResource.LACE_RIGHT}" right="0" bottom="0"/>
-    <mx:creationComplete>
-        <![CDATA[
-        // 设置游戏按钮外观
-        for each (var eachBar:ButtonBar in [btnBarPokers, btnBarPokersTipA, btnBarPokersTipB, btnBarPokersTipC]) {
-            for each (var eachButton:Button in eachBar.getChildren()) {
-                eachButton.styleName = "gameButton";
-            }
-        }
-        ]]>
-    </mx:creationComplete>
 </mx:Module>
