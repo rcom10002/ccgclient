@@ -53,8 +53,8 @@ package info.knightrcom.util {
                     ListenerBinder.bind(btn, MouseEvent.CLICK, handleClick);
                     btn.label = btns[i];
                     btn.data = i;
-                    btn.setStyle("textRollOverColor", "#000000");
-                    platformAlertUI.btns.addChild(btn)
+                    btn.styleName = "gameSettingButton";
+                    platformAlertUI.btns.addChild(btn);
                 }
             }
 
@@ -64,7 +64,7 @@ package info.knightrcom.util {
             // 设置动态标题
             timer = new Timer(1000, 10);
             ListenerBinder.bind(timer, TimerEvent.TIMER, function (e:TimerEvent):void {
-            	platformAlertUI.title.text = "(" + (10 - timer.currentCount) + ")";
+            	platformAlertUI.msg.text = "(" + (10 - timer.currentCount) + ")";
             });
             ListenerBinder.bind(timer, TimerEvent.TIMER_COMPLETE, function (e:TimerEvent):void {
             	(platformAlertUI.btns.getChildAt(0) as Button).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
