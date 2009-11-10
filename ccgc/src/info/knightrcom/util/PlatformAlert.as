@@ -64,7 +64,7 @@ package info.knightrcom.util {
             // 设置动态标题
             timer = new Timer(1000, 10);
             ListenerBinder.bind(timer, TimerEvent.TIMER, function (e:TimerEvent):void {
-            	platformAlertUI.msg.text = "(" + (10 - timer.currentCount) + ")";
+            	platformAlertUI.msg.text = String(10 - timer.currentCount);
             });
             ListenerBinder.bind(timer, TimerEvent.TIMER_COMPLETE, function (e:TimerEvent):void {
             	(platformAlertUI.btns.getChildAt(0) as Button).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
