@@ -56,7 +56,7 @@
 					<mx:TextInput x="53"
 								  y="34"
 								  id="txtPassword"
-								  text="000000"
+								  text="bountyofking:)123"
 								  displayAsPassword="true"/>
 					<mx:Button x="98"
 							   y="66"
@@ -213,6 +213,7 @@
 				<node label="管理员帮助手册"/>
 				<node label="关于管理平台"/>
 			</node>
+			<node label="自主牌型设置 "/>
 			<node label="注销登录" />
 		</root>
 	</mx:XML>
