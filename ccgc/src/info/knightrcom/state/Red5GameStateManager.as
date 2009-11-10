@@ -707,12 +707,7 @@ package info.knightrcom.state {
             currentNumber = results[0];
             currentBoutCards = results[1];
             currentNextNumber = results[2];
-            var scoreboardInfo:Array = null;
-            if (gameSetting == Red5GameSetting.EXTINCT_RUSH) {
-                scoreboardInfo = String(results.length - 1).split(/;/);
-            } else {
-                scoreboardInfo = String(results[3]).split(/;/);
-            }
+            var scoreboardInfo:Array = String(results[3]).split(/;/);
             // 非出牌者时，移除桌面上显示的已出的牌，在桌面上显示最近新出的牌
             // if (localNumber != currentNumber && gameSetting != Red5GameSetting.EXTINCT_RUSH) {
             if (localNumber != currentNumber && isOrderNeighbor(currentNumber, currentNextNumber)) {
