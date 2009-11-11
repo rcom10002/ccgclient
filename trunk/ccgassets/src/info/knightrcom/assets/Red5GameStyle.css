@@ -66,6 +66,6 @@ Text.gameSettingNumber {
      */
     src: url("D:/Workspace/Flex/ccgassets/src/info/knightrcom/assets/font/DS-DIGI.TTF");
     fontFamily: DS-Digital;
-    unicodeRange:
+    /* unicodeRange:
         U+0030-U+0039; /* Numbers [0..9] */
 }
