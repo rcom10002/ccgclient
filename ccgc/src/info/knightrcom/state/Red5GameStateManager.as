@@ -209,15 +209,15 @@ package info.knightrcom.state {
                 currentGame = gameClient.red5GameModule;
                 // 配置事件监听
                 // 注册非可视组件监听事件
-				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
+                ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
                     // 倒计时开始
                     currentGame.timerTip.label = "计时开始";
-                    if (currentGame.dealedDown.numChildren > 0 && currentGame.dealedDown.getChildAt(currentGame.dealedDown.numChildren - 1) is GameWaiting) {
-                        (currentGame.dealedDown.getChildAt(currentGame.dealedDown.numChildren - 1) as GameWaiting).tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
+                    if (currentGame.candidatedTipDownExt.numChildren > 0) {
+                        (currentGame.candidatedTipDownExt.getChildAt(0) as GameWaiting).tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
                     } else {
                         var gameWaitingClock:GameWaiting = new GameWaiting();
                         gameWaitingClock.tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
-                        currentGame.dealedDown.addChild(gameWaitingClock);
+                        currentGame.candidatedTipDownExt.addChild(gameWaitingClock);
                     }
                     // 自动放弃缩短至3秒
                     if (currentGame.btnBarPokers.visible && Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
@@ -230,27 +230,29 @@ package info.knightrcom.state {
                                 // 可以选择不要按钮时，则进行不要操作
                                 itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
                             }
+                            currentGame.candidatedTipDownExt.removeAllChildren();
                             return;
                         }
                     }
                     // 常规计时
-					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-					currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
-					if (currentGame.btnBarPokers.visible && timer.currentCount == MAX_CARDS_SELECT_TIME) {
+                    currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
+                    currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
+                    if (currentGame.btnBarPokers.visible && timer.currentCount == MAX_CARDS_SELECT_TIME) {
                         // 当前玩家出牌时
-						if (Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
-							// 可以选择不要按钮时，则进行不要操作
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
-						} else {
-							// 重选
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
-	                        // 选择第一张牌
-	                        PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
-							// 出牌
-	                        itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_DISCARD));
-						}
-					}
-				});
+                        if (Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
+                            // 可以选择不要按钮时，则进行不要操作
+                            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
+                        } else {
+                            // 重选
+                            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
+                            // 选择第一张牌
+                            PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
+                            // 出牌
+                            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_DISCARD));
+                        }
+                        currentGame.candidatedTipDownExt.removeAllChildren();
+                    }
+                });
                 ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
                     if (currentGame.btnBarPokers.visible) {
                         return;
@@ -259,7 +261,7 @@ package info.knightrcom.state {
                     var otherGameWaitingClockParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
                     var lastChildIndex:int = otherGameWaitingClockParent.numChildren - 1;
                     if (otherGameWaitingClockParent.numChildren > 0 && otherGameWaitingClockParent.getChildAt(lastChildIndex) is GameWaiting) {
-                    	GameWaiting(otherGameWaitingClockParent.getChildAt(lastChildIndex)).tipText = String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount);// Label(otherGameWaitingClockParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
+                        GameWaiting(otherGameWaitingClockParent.getChildAt(lastChildIndex)).tipText = String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount);// Label(otherGameWaitingClockParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     }
                 });
                 // 注册可视组件监听事件
@@ -269,27 +271,27 @@ package info.knightrcom.state {
                 ListenerBinder.bind(currentGame.btnBarPokersTipA, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipB, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipC, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
-
+                
                 ListenerBinder.bind(currentGame, FlexEvent.UPDATE_COMPLETE, function (event:Event):void {
                     var eachButton:Button = null;
                     for each (var eachBar:ButtonBar in [currentGame.btnBarPokersTipA, 
                                                         currentGame.btnBarPokersTipB, 
                                                         currentGame.btnBarPokersTipC]) {
-                        for each (eachButton in eachBar.getChildren()) {
-                            eachButton.styleName = "gameButton";
+                            for each (eachButton in eachBar.getChildren()) {
+                                eachButton.styleName = "gameButton";
+                            }
                         }
-                    }
                     for each (eachButton in currentGame.btnBarPokers.getChildren()) {
                         eachButton.styleName = "gameBigButton";
                     }
                 });
-
+                
                 // 调整画面布局
                 currentGame.setChildIndex(currentGame.bgLaceLeft, 0);
                 currentGame.setChildIndex(currentGame.bgLaceRight, 0);
                 currentGame.setChildIndex(currentGame.bgLogo, 0);
-                currentGame.setChildIndex(currentGame.bgCurtainLeft, currentGame.numChildren - 1);
-                currentGame.setChildIndex(currentGame.bgCurtainRight, currentGame.numChildren - 1);
+                currentGame.setChildIndex(currentGame.bgCurtainLeft, 0);
+                currentGame.setChildIndex(currentGame.bgCurtainRight, 0);
                 for each (var eachContainer:Container in cardsCandidatedTipArray) {
                     currentGame.setChildIndex(eachContainer, currentGame.numChildren - 1);
                 }
@@ -297,7 +299,7 @@ package info.knightrcom.state {
                 currentGame.setChildIndex(currentGame.arrowTip, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
-
+                
                 setInitialized(true);
             }
             // 按照当前玩家序号，进行画面座次安排
@@ -328,6 +330,7 @@ package info.knightrcom.state {
             for (index = 0; index < cardsCandidatedArray.length; index++) {
                 cardsCandidatedArray[index] = tempCardsCandidated[index];
             }
+            // 数据初始化
             currentGame.btnBarPokers.visible = false;
             currentGame.btnBarPokersTipA.visible = false;
             currentGame.btnBarPokersTipB.visible = false;
@@ -389,6 +392,7 @@ package info.knightrcom.state {
 		            	var e4x:XML = new XML(e.result);
 		            	myScore = e4x.entity.currentScore;
 		            	currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/我的当前积分：\d*/, "我的当前积分：" + myScore);
+                        currentGame.infoBoardText.text = "我的当前积分：" + myScore;
             		}
             );
 //            // 七独八天判断
@@ -1208,6 +1212,7 @@ package info.knightrcom.state {
                     eachDealed.removeChildAt(eachDealed.numChildren - 1);
                 }
             }
+            currentGame.candidatedTipDownExt.removeAllChildren();
             // 显示游戏提示
             var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
             var playerDirection:Array = new Array("下", "右", "上", "左");
@@ -1335,6 +1340,7 @@ package info.knightrcom.state {
             }
             if (currentGame) {
                 currentGame.arrowTip.text = "";
+                currentGame.infoBoardText.text = "";
             }
         }
     }
