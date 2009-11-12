@@ -174,7 +174,7 @@ package info.knightrcom.state {
 		/**
 		 * 玩家当前的游戏积分
 		 */
-		private static var myScore:int = 0;
+		private static var myScore:Number = 0;
 
         /**
          *
@@ -390,7 +390,7 @@ package info.knightrcom.state {
             		null, 
             		function (e:ResultEvent):void {
 		            	var e4x:XML = new XML(e.result);
-		            	myScore = e4x.entity.currentScore;
+		            	myScore = Number(e4x.entity.currentScore.text());
 		            	currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/我的当前积分：\d*/, "我的当前积分：" + myScore);
                         currentGame.infoBoardText.text = "我的当前积分：" + myScore;
             		}
@@ -756,24 +756,6 @@ package info.knightrcom.state {
                 // 设置独牌时的排名
                 firstPlaceNumber = currentNumber;
             }
-            if (gameSetting == Red5GameSetting.NO_RUSH) {
-                var winLabel:Label = new Label();
-                winLabel.text = "大娘娘";
-                winLabel.setStyle("color", 0xff0000);
-                if ((cardsCandidatedArray[thirdPlaceNumber - 1] as Container).numChildren > 0 &&
-                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).getChildAt(0) is Label) {
-                } else {
-                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
-                }
-                winLabel = new Label();
-                winLabel.text = "二娘娘";
-                winLabel.setStyle("color", 0xff6699);
-                if ((cardsCandidatedArray[forthPlaceNumber - 1] as Container).numChildren > 0 &&
-                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).getChildAt(0) is Label) {
-                } else {
-                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
-                }
-            }
             // 开始亮牌，并从当前玩家的下家开始
             var startIndex:int = localNumber;
             for (var i:int = 1; i < playerCogameNumber; i++) {
@@ -792,6 +774,25 @@ package info.knightrcom.state {
                     tempCardCandidated.addChild(pokerInHand);
             	}
             	startIndex++;
+            }
+            // 按游戏排名显示头衔
+            if (gameSetting == Red5GameSetting.NO_RUSH) {
+                var winLabel:Label = new Label();
+                winLabel.text = "大娘娘";
+                winLabel.setStyle("color", 0xff0000);
+                if ((cardsCandidatedArray[thirdPlaceNumber - 1] as Container).numChildren > 0 &&
+                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).getChildAt(0) is Label) {
+                } else {
+                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
+                }
+                winLabel = new Label();
+                winLabel.text = "二娘娘";
+                winLabel.setStyle("color", 0xff6699);
+                if ((cardsCandidatedArray[forthPlaceNumber - 1] as Container).numChildren > 0 &&
+                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).getChildAt(0) is Label) {
+                } else {
+                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                }
             }
             // 显示记分牌
             var misc:Object = {GAME_TYPE : "Red5Game",
