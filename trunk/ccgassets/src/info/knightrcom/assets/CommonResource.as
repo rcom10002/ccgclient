@@ -7,7 +7,7 @@ package info.knightrcom.assets
         }
         
         /**
-         * 用于游戏设置面板的倒计时显示
+         * 游戏大厅背景
          */
         [Embed(source="info/knightrcom/assets/image/common/lobby-background.png")]
         public static const DARK_FLOWER:Class;
