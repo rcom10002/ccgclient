@@ -5,7 +5,9 @@ package info.knightrcom.state {
     import flash.display.DisplayObject;
     import flash.events.Event;
     import flash.events.MouseEvent;
+    import flash.events.TimerEvent;
     import flash.external.ExternalInterface;
+    import flash.utils.Timer;
     
     import info.knightrcom.GameSocketProxy;
     import info.knightrcom.command.FightLandlordGameCommand;
@@ -28,12 +30,11 @@ package info.knightrcom.state {
     import mx.core.Container;
     import mx.events.CloseEvent;
     import mx.events.FlexEvent;
+    import mx.formatters.DateFormatter;
     import mx.states.State;
 
     public class LobbyStateManager extends AbstractStateManager {
-    	
-    	public static var userApp:CCGameClient;
-    	
+
         public static const platform:Model = new Model();
 
         /**
@@ -58,19 +59,57 @@ package info.knightrcom.state {
                 return;
             }
 
-            ListenerBinder.bind(gameClient.gameControlBar.btnGameJoin, MouseEvent.CLICK, gameJoinClick);
-            ListenerBinder.bind(gameClient.gameControlBar.btnSystemInfo, MouseEvent.CLICK, systemInfoClick);
-            ListenerBinder.bind(gameClient.gameControlBar.btnPlayerInfo, MouseEvent.CLICK, playerInfoClick);
-            ListenerBinder.bind(gameClient.gameControlBar.btnOption, MouseEvent.CLICK, optionClick);
-            ListenerBinder.bind(gameClient.gameControlBar.btnLogout, MouseEvent.CLICK, logoutClick);
-            ListenerBinder.bind(gameClient.gameControlBar.btnHelp, MouseEvent.CLICK, helpClick);
+            ListenerBinder.bind(gameClient.gameControlBar.btnGameJoin, MouseEvent.CLICK, gameJoinClickHandler);
+            ListenerBinder.bind(gameClient.gameControlBar.btnSystemInfo, MouseEvent.CLICK, systemInfoClickHandler);
+            ListenerBinder.bind(gameClient.gameControlBar.btnPlayerInfo, MouseEvent.CLICK, playerInfoClickHandler);
+            ListenerBinder.bind(gameClient.gameControlBar.btnOption, MouseEvent.CLICK, optionClickHandler);
+            ListenerBinder.bind(gameClient.gameControlBar.btnLogout, MouseEvent.CLICK, logoutClickHandler);
+            ListenerBinder.bind(gameClient.gameControlBar.btnHelp, MouseEvent.CLICK, helpClickHandler);
+
+			ListenerBinder.bind(gameClient.btnHideLogWindow, MouseEvent.CLICK, btnHideLogWindowClickHandler);
+			ListenerBinder.bind(gameClient.btnCleanLogWindow, MouseEvent.CLICK, btnCleanLogWindowClickHandler);
 
             ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_ENVIRONMENT_INIT, platformEnvironmentInitHandler);
             ListenerBinder.bind(socketProxy, PlayerEvent.LOBBY_ENTER_ROOM, lobbyEnterRoomHandler);
 
-            ListenerBinder.bind(gameClient.txtSysMessage, Event.CHANGE, function (e:Event):void {
-                gameClient.txtSysMessage.verticalScrollPosition = gameClient.txtSysMessage.maxVerticalScrollPosition;
+            ListenerBinder.bind(gameClient.txtSysMessage, FlexEvent.VALUE_COMMIT, function (e:Event):void {
+				// 滚动条移动到最下方
+				gameClient.txtSysMessage.verticalScrollPosition = gameClient.txtSysMessage.maxVerticalScrollPosition;
+				// 系统时间追加不需要执行后续动作
+				if (gameClient.txtSysMessage.text.charAt(gameClient.txtSysMessage.text.length - 2) == "^" || gameClient.txtSysMessage.text.length == 0) {
+					return;
+				}
+				// 为消息自动添加时间戳
+				var dtFormatter:DateFormatter = new DateFormatter();
+				dtFormatter.formatString = "YYY-MM-DD JJ:NN:SS";
+				gameClient.txtSysMessage.text += "^" + dtFormatter.format(new Date()) + "^\n";
+				// 日志窗口可见时不执行后续动作
+				if (gameClient.txtSysMessage.visible) {
+					return;
+				}
+				// 显示日志消息，限时0.75秒
+				gameClient.btnHideLogWindow.enabled = false;
+				gameClient.txtSysMessage.visible = true;
+				var autoCloseTimer:Timer = new Timer(50, 15);
+				ListenerBinder.bind(autoCloseTimer, TimerEvent.TIMER_COMPLETE, function (event:TimerEvent):void {
+					if (autoCloseTimer.currentCount <= 5) {
+						return;
+					}
+					gameClient.txtSysMessage.alpha = (autoCloseTimer.repeatCount - autoCloseTimer.currentCount) / 10.0;
+					if (autoCloseTimer.currentCount == 15) {
+						gameClient.txtSysMessage.visible = false;
+						gameClient.txtSysMessage.alpha = 1;
+						gameClient.btnHideLogWindow.enabled = true;
+					}
+				});
+				autoCloseTimer.start();
             });
+			ListenerBinder.bind(gameClient.txtSysMessage, FlexEvent.SHOW, function (e:Event):void {
+				gameClient.btnHideLogWindow.label = "隐藏消息日志";
+			});
+			ListenerBinder.bind(gameClient.txtSysMessage, FlexEvent.HIDE, function (e:Event):void {
+				gameClient.btnHideLogWindow.label = "显示消息日志";
+			});
 
             // 请求平台信息
             socketProxy.sendPlatformData(PlatformCommand.PLATFORM_REQUEST_ENVIRONMENT);
@@ -177,7 +216,7 @@ package info.knightrcom.state {
                     button.label = buttonModel.name;
                     button.width = 80;
                     button.height = 80;
-                    ListenerBinder.bind(button, MouseEvent.CLICK, roomClick);
+                    ListenerBinder.bind(button, MouseEvent.CLICK, roomClickHandler);
                     tile.addChild(button);
                 }
                 // Button排序
@@ -201,14 +240,14 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function roomClick(event:Event):void {
+        private function roomClickHandler(event:Event):void {
             var targetButton:Button = Button(event.target);
             var roomId:String = targetButton.name;
             var lobbyId:String = targetButton.parent.name;
             BaseStateManager.currentRoomId = roomId;
             BaseStateManager.currentLobbyId = lobbyId;
             socketProxy.sendPlayerData(PlayerCommand.LOBBY_ENTER_ROOM, roomId);
-            gameClient.txtSysMessage.text += "roomId=" + roomId + ", lobbyId=" + lobbyId + "\n";
+            gameClient.txtSysMessage.text += "欢迎进入" + targetButton.parent["label"] + "，" + targetButton.label + "！\n";
         }
 
         /**
@@ -216,7 +255,7 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function gameJoinClick(event:Event):void {
+        private function gameJoinClickHandler(event:Event):void {
         	if (BaseStateManager.currentRoomId == null) {
         		Alert.show("请先选择要加入的房间！");
         		return;
@@ -240,7 +279,7 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function systemInfoClick(event:Event):void {
+        private function systemInfoClickHandler(event:Event):void {
         	var infoForm:SystemInfoWindow = new SystemInfoWindow();
         	infoForm.currentLayoutCanvas = gameClient.lobbyMain;
         	infoForm.popUp();
@@ -251,7 +290,7 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function playerInfoClick(event:Event):void {
+        private function playerInfoClickHandler(event:Event):void {
         	var infoForm:PlayerInfoWindow = new PlayerInfoWindow();
         	infoForm.currentLayoutCanvas = gameClient.lobbyMain;
         	infoForm.popUp();
@@ -262,7 +301,7 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function optionClick(event:Event):void {
+        private function optionClickHandler(event:Event):void {
         }
 
         /**
@@ -270,7 +309,7 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function logoutClick(event:Event):void {
+        private function logoutClickHandler(event:Event):void {
         	// FIXME This line is not necessary if the statement below works! socketProxy.disconnect();
         	// FIXME This line is not necessary if the statement below works! gameClient.currentState = "LOGIN";
         	Alert.yesLabel = "确认";
@@ -278,7 +317,7 @@ package info.knightrcom.state {
 		    Alert.show( "确定要注销登录？",
 						"消息", 
 						Alert.YES | Alert.NO,
-						userApp,
+						gameClient,
 						function handleAlert(event:CloseEvent):void {
 						    if(event.detail == Alert.YES)
 						    {
@@ -295,11 +334,33 @@ package info.knightrcom.state {
          * @param event
          *
          */
-        private function helpClick(event:Event):void {
+        private function helpClickHandler(event:Event):void {
             Alert.show("该功能尚未完成！");
             return;
         	gameClient.currentState = "CCGAMECLIENTHELP";
         }
 
+		/**
+		 * 
+		 * @param event
+		 * 
+		 */
+		private function btnHideLogWindowClickHandler(event:Event):void {
+			if ("显示消息日志" == gameClient.btnHideLogWindow.label) {
+				gameClient.btnHideLogWindow.label = "隐藏消息日志";
+			} else {
+				gameClient.btnHideLogWindow.label = "显示消息日志";
+			}
+			gameClient.txtSysMessage.visible = !gameClient.txtSysMessage.visible;
+		}
+
+		/**
+		 * 
+		 * @param event
+		 * 
+		 */
+		private function btnCleanLogWindowClickHandler(event:Event):void {
+			gameClient.txtSysMessage.text = "";
+		}
     }
 }
