@@ -392,7 +392,12 @@ package info.knightrcom.state {
 		            	var e4x:XML = new XML(e.result);
 		            	myScore = Number(e4x.entity.currentScore.text());
 		            	currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/我的当前积分：\d*/, "我的当前积分：" + myScore);
-                        currentGame.infoBoardText.text = "我的当前积分：" + myScore;
+                        currentGame.infoBoardText.text = "我的当前积分：" + myScore;						// 少于500分时设置警戒色
+						if (myScore < 500) {
+							currentGame.infoBoardText.setStyle("color", "red");
+						} else {
+							currentGame.infoBoardText.setStyle("color", "white");
+						}
             		}
             );
 //            // 七独八天判断
