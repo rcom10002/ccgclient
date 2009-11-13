@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AbstractInfoWindow 
-		xmlns:mx="http://www.adobe.com/2006/mxml" 
-		xmlns="component.service.*">
+<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="玩家信息">
 	<mx:Script>
 		<![CDATA[
 			import mx.containers.Canvas;

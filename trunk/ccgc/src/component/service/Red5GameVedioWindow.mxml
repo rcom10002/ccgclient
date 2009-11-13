@@ -17,6 +17,7 @@
 			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 
@@ -239,10 +240,11 @@
                             if (event.detail == Alert.YES) {
                                 return;
                             }
-                            var infoForm:SystemInfoWindow = new SystemInfoWindow();
-                            infoForm.currentLayoutCanvas = Application.application.lobbyMain;
-                            infoForm.quickFeedback(gameId.text);
-                            infoForm.popUp();
+							var feedbackWindow:SystemInfoExtFeedbackModelWindow = new SystemInfoExtFeedbackModelWindow();
+							ListenerBinder.bind(feedbackWindow, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+								feedbackWindow.feedbackGameId.text = gameId.text;
+							})
+							feedbackWindow.popup();
                         }, null, Alert.YES);
 						btnExecute.label = "播放";
 						return;
