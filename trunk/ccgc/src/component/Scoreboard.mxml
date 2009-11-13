@@ -8,14 +8,17 @@
                 title="本局得分明细">
     <mx:Script>
         <![CDATA[
-        	import component.service.SystemInfoWindow;
-            import info.knightrcom.state.red5game.Red5GameSetting;
-            import info.knightrcom.util.ListenerBinder;
-            
-            import mx.controls.dataGridClasses.DataGridColumn;
-            import mx.core.Application;
-            import mx.events.CloseEvent;
-            import mx.managers.PopUpManager;
+			import component.service.SystemInfoExtFeedbackModelWindow;
+			import component.service.SystemInfoWindow;
+			
+			import info.knightrcom.state.red5game.Red5GameSetting;
+			import info.knightrcom.util.ListenerBinder;
+			
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
             
             private var _currentPlayerNumber:int = -1;
             private var _showCharacter:Boolean = false;
@@ -105,10 +108,11 @@
 
             private function btnFeedbackHandler(event:MouseEvent):void {
                 btnClose.dispatchEvent(event);
-	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
-	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
-	        	infoForm.quickFeedback(this._gameId);
-	        	infoForm.popUp();
+				var feedbackWindow:SystemInfoExtFeedbackModelWindow = new SystemInfoExtFeedbackModelWindow();
+				ListenerBinder.bind(feedbackWindow, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+					feedbackWindow.feedbackGameId.text = _gameId;
+				})
+				feedbackWindow.popup();
             }
         ]]>
     </mx:Script>
