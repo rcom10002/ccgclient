@@ -74,25 +74,39 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				currentOperationMethod=OperationMethod.UPDATE;
-				if (currentOperationMethod == OperationMethod.UPDATE)
-				{
-					HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text), DISABLED: (gameDisabled.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+				// 检查服务器是否关闭
+				HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
+					{
+						if (new XML(event.result).result == "SUCCESS")
 						{
-							if (new XML(event.result).result == "SUCCESS")
+							currentOperationMethod=OperationMethod.UPDATE;
+							if (currentOperationMethod == OperationMethod.UPDATE)
 							{
-								Alert.show("保存成功！", "穷胡参数设置");
+								HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text), DISABLED: (gameDisabled.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+									{
+										if (new XML(event.result).result == "SUCCESS")
+										{
+											Alert.show("保存成功！", "穷胡参数设置");
+										}
+										else
+										{
+											Alert.show("保存失败！", "穷胡参数设置");
+										}
+									}, function(event:FaultEvent):void
+									{
+										Alert.show("保存失败！", "穷胡参数设置");
+									});
 							}
-							else
-							{
-								Alert.show("保存失败！", "穷胡参数设置");
-							}
-						}, function(event:FaultEvent):void
+							currentOperationMethod=OperationMethod.UPDATE;
+						}
+						else
 						{
-							Alert.show("保存失败！", "穷胡参数设置");
-						});
-				}
-				currentOperationMethod=OperationMethod.UPDATE;
+							Alert.show("请先关闭游戏服务器！", "穷胡参数设置");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("服务中断！", "穷胡参数设置");
+					});
 			}
 			
 			private function btnAddQiongWinClickHandler(event:MouseEvent):void {
@@ -108,36 +122,50 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				currentOperationMethod=OperationMethod.UPDATE;
-				Alert.yesLabel = "确认";
-				Alert.noLabel = "取消";
-			    Alert.show( "确定要" + btnDisabled.label + "？",
-						"消息", 
-						Alert.YES | Alert.NO,
-						adminApp,
-						function handleAlert(event:CloseEvent):void {
-						    if(event.detail == Alert.YES)
-						    {
-						      HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text), DISABLED: (btnDisabled.label == "禁用" ? true : false)}, null, function(event:ResultEvent):void
-									{
-										if (new XML(event.result).result == "SUCCESS")
-										{
-											Alert.show(btnDisabled.label + "成功！", "穷胡参数设置");
-											currentOperationMethod=OperationMethod.UPDATE;
-											readData(2);
-										}
-										else
-										{
-											Alert.show(btnDisabled.label + "失败！", "穷胡参数设置");
-										}
-									}, function(event:FaultEvent):void
-									{
-										Alert.show(btnDisabled.label + "失败！", "穷胡参数设置");
-									});
-						    }
-						},
-						null,
-						Alert.YES);
+				// 检查服务器是否关闭
+				HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							currentOperationMethod=OperationMethod.UPDATE;
+							Alert.yesLabel = "确认";
+							Alert.noLabel = "取消";
+						    Alert.show( "确定要" + btnDisabled.label + "？",
+									"消息", 
+									Alert.YES | Alert.NO,
+									adminApp,
+									function handleAlert(event:CloseEvent):void {
+									    if(event.detail == Alert.YES)
+									    {
+									      HttpServiceProxy.send(LocalGameConfigureService.UPDATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: CURRENT_PAGE, GAME_ID: gameId.text, GAME_NAME: gameName.text, DISPLAY_INDEX: displayIndex.text, ROUND_MARK: Number(roundMark.text), POINT_MARK: Number(pointMark.text), MIN_MARKS: Number(minMarks.text), DISABLED: (btnDisabled.label == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+												{
+													if (new XML(event.result).result == "SUCCESS")
+													{
+														Alert.show(btnDisabled.label + "成功！", "穷胡参数设置");
+														currentOperationMethod=OperationMethod.UPDATE;
+														readData(2);
+													}
+													else
+													{
+														Alert.show(btnDisabled.label + "失败！", "穷胡参数设置");
+													}
+												}, function(event:FaultEvent):void
+												{
+													Alert.show(btnDisabled.label + "失败！", "穷胡参数设置");
+												});
+									    }
+									},
+									null,
+									Alert.YES);
+							}
+							else
+							{
+								Alert.show("请先关闭游戏服务器！", "穷胡参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("服务中断！", "穷胡参数设置");
+						});
 			}
 					
 			private function pageChangeClickHandler(event:ItemClickEvent):void {
@@ -163,24 +191,38 @@
 					Alert.show("信息填写不符合规范！", "警告");
 					return;
 				}
-				if (currentOperationMethod == OperationMethod.CREATE)
-				{
-					HttpServiceProxy.send(LocalGameConfigureService.CREATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), POINT_MARK: Number(pointMarkNew.text), MIN_MARKS: Number(minMarksNew.text), DISABLED: (gameDisabledNew.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+				// 检查服务器是否关闭
+				HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
+					{
+						if (new XML(event.result).result == "SUCCESS")
 						{
-							if (new XML(event.result).result == "SUCCESS")
+							if (currentOperationMethod == OperationMethod.CREATE)
 							{
-								Alert.show("新增成功！", "穷胡参数设置");
-								currentOperationMethod=OperationMethod.UPDATE;
+								HttpServiceProxy.send(LocalGameConfigureService.CREATE_QIONG_WIN_ROOM_CONFIGURE, {GAME_TYPE: 2, CURRENT_PAGE: 1, GAME_ID: gameIdNew.text, GAME_NAME: gameNameNew.text, ROUND_MARK: Number(roundMarkNew.text), POINT_MARK: Number(pointMarkNew.text), MIN_MARKS: Number(minMarksNew.text), DISABLED: (gameDisabledNew.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+									{
+										if (new XML(event.result).result == "SUCCESS")
+										{
+											Alert.show("新增成功！", "穷胡参数设置");
+											currentOperationMethod=OperationMethod.UPDATE;
+										}
+										else
+										{
+											Alert.show("新增失败！", "穷胡参数设置");
+										}
+									}, function(event:FaultEvent):void
+									{
+										Alert.show("新增失败！", "穷胡参数设置");
+									});
 							}
-							else
-							{
-								Alert.show("新增失败！", "穷胡参数设置");
-							}
-						}, function(event:FaultEvent):void
+						}
+						else
 						{
-							Alert.show("新增失败！", "穷胡参数设置");
-						});
-				}
+							Alert.show("请先关闭游戏服务器！", "穷胡参数设置");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("服务中断！", "穷胡参数设置");
+					});
 			}
 			
 			private function btnBackQiongWinClickHandler(event:MouseEvent):void {
