@@ -28,7 +28,9 @@ package info.knightrcom.service
 		public static const UPDATE_QIONG_WIN_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "UPDATE_QIONG_WIN_ROOM_CONFIGURE");
 		public static const CREATE_QIONG_WIN_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "CREATE_QIONG_WIN_ROOM_CONFIGURE");
 		public static const DELETE_QIONG_WIN_ROOM_CONFIGURE:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "DELETE_QIONG_WIN_ROOM_CONFIGURE");
-
+		/** 检查服务器是否关闭 */
+		public static const IS_SERVER_CLOSE_STATUS:LocalAbstractService=new LocalGameConfigureService("GameConfigureService", "IS_SERVER_CLOSE_STATUS");
+		
 		public function LocalGameConfigureService(serviceId:String, processId:String=null)
 		{
 			super(serviceId, processId);
