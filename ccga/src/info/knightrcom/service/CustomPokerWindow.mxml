@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler()">
+<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler()" title="自主牌型设置">
 	<mx:Script>
 		<![CDATA[
+			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.util.HttpServiceProxy;
 			import mx.controls.Alert;
 			import mx.rpc.events.FaultEvent;
@@ -12,15 +13,23 @@
 	        private static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
 	        private static const RED5:String = "1V5";
 	        private static const RED5_PAIR:String = "1V5,1V5";
-			
-			private function creationCompleteHandler():void {
-				this.currentState = "EDIT";
+	        
+			private function defaultSearch():void {
 				HttpServiceProxy.send(LocalCustomPokerService.READ_POKER, {}, null, function(event:ResultEvent):void
 						{
 							var e4xResult:XML = new XML(event.result);
 							if (e4xResult.result == "SUCCESS")
 							{
-					            showPoker(e4xResult.tag);
+								var results:Array = e4xResult.tag.split("~");
+								if (results.length == 3) {
+									showUpPoker(results[0]);
+					            	showDownPoker(results[1]);
+					            	chkDisable.selected = results[2];
+								} else {
+									showUpPoker(null);
+									showDownPoker(results[0]);
+									chkDisable.selected = false;
+								}
 							}
 							else
 							{
@@ -32,11 +41,102 @@
 							Alert.show("数据失败！", "自主牌型设置");
 							return;
 						});
-					
 			}
 			
+			private function creationCompleteHandler():void {
+				this.currentState = "EDIT";
+				ListenerBinder.bind(btnUp, MouseEvent.CLICK, btnUpClickHandler);
+				ListenerBinder.bind(btnDown, MouseEvent.CLICK, btnDownClickHandler);
+				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveClickHandler);
+				ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnRefreshClickHandler);
+				defaultSearch();
+			}
 			
-			private function showPoker(cardSequence:String):void {
+			private function btnRefreshClickHandler(event:MouseEvent):void {
+				defaultSearch();
+			}
+			
+			private function btnSaveClickHandler(event:MouseEvent):void {
+				// 获取已选牌区的牌
+				var strUpCards:String = "";
+				var card:PokerButton;
+				for each (card in this.candidatedUp.getChildren()){
+					strUpCards += card.value + ",";
+				}
+                strUpCards = strUpCards.replace(/,$/, "");
+				// 获取待选牌区的牌
+				var strDownCards:String = "";
+				for each (card in this.candidatedDown.getChildren()){
+					strDownCards += card.value + ",";
+				}
+                strDownCards = strDownCards.replace(/,$/, "");
+                // 保存
+				HttpServiceProxy.send(LocalCustomPokerService.SAVE_CUSTOM_POKER, {UP_POKERS: strUpCards, DOWN_POKERS: strDownCards, IS_OPEN: chkDisable.selected}, null, function(event:ResultEvent):void
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							Alert.show("保存成功！", "自主牌型设置");
+						}
+						else
+						{
+							Alert.show("保存失败！", "自主牌型设置");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("保存失败！", "自主牌型设置");
+					});
+			}
+			
+			private function btnDownClickHandler(event:MouseEvent):void {
+				var cards:String = "";
+				var card:PokerButton;
+				for each (card in this.candidatedDown.getChildren()){
+					cards += card.value + ",";
+				}
+				// 选择要下移的牌
+                for each (card in candidatedUp.getChildren()) {
+                    if (card.isSelected()) {
+                    	this.candidatedUp.removeChild(card);
+                        cards += card.value + ",";
+                    }
+                }
+                cards = cards.replace(/,$/, "");
+                showDownPoker(cards);
+			}
+			
+			private function btnUpClickHandler(event:MouseEvent):void {
+				var cards:String = "";
+				var card:PokerButton;
+				for each (card in this.candidatedUp.getChildren()){
+					cards += card.value + ",";
+				}
+				// 选择要上移的牌
+                for each (card in candidatedDown.getChildren()) {
+                    if (card.isSelected()) {
+                    	this.candidatedDown.removeChild(card);
+                        cards += card.value + ",";
+                    }
+                }
+                cards = cards.replace(/,$/, "");
+                showUpPoker(cards);
+			}
+			
+			private function showUpPoker(cardSequence:String):void {
+				this.candidatedUp.removeAllChildren();
+				if (cardSequence == null) {
+					return;
+				}
+				var cardNames:Array = sortPokers(cardSequence);
+	            var poker:PokerButton = null;
+	            for each (var cardName:String in cardNames) {
+	                poker = new PokerButton();
+	                poker.source = PokerResource.load(cardName);
+	                this.candidatedUp.addChild(poker);
+	            }
+			}
+			
+			private function showDownPoker(cardSequence:String):void {
+				this.candidatedDown.removeAllChildren();
 				var cardNames:Array = sortPokers(cardSequence);
 	            var poker:PokerButton = null;
 	            for each (var cardName:String in cardNames) {
@@ -99,26 +199,33 @@
 	<states>
 		<mx:State name="EDIT">
 			<mx:AddChild position="lastChild">
-					<mx:HBox id="candidatedUp" top="10" width="100%" height="200" horizontalGap="-55"
-			             horizontalAlign="left" verticalAlign="middle">
-					</mx:HBox>
-			</mx:AddChild>
-			<mx:AddChild>
-					<mx:HBox id="candidatedDown" top="260" width="1138" height="200" horizontalGap="-55"
-			             horizontalAlign="left" verticalAlign="middle">
-					</mx:HBox>
+					<mx:TitleWindow width="100%" height="218" layout="absolute" title="已选牌区">
+							<mx:HBox id="candidatedUp" top="10" width="100%" height="168" horizontalGap="-55"
+			             horizontalAlign="left" verticalAlign="middle" left="10">
+			             </mx:HBox>
+					</mx:TitleWindow>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:Button label="上移" id="btnUp" right="600" bottom="270"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
-				<mx:Button label="下移" id="btnDown" right="550" bottom="270"/>
+				<mx:Button label="下移" id="btnDown" right="500" bottom="270"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="刷新" right="400" bottom="270" id="btnRefresh"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:CheckBox label="启用" id="chkDisable" right="80" bottom="10"/>
 			</mx:AddChild>
 			<mx:AddChild position="lastChild">
 				<mx:Button label="保存" right="20" bottom="10" id="btnSave"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:TitleWindow width="100%" height="222" layout="absolute" bottom="40" right="0" title="待选牌区">
+					<mx:HBox id="candidatedDown" width="100%" height="172" horizontalGap="-55"
+					           horizontalAlign="left" verticalAlign="middle">
+					</mx:HBox>
+				</mx:TitleWindow>
 			</mx:AddChild>
 		</mx:State>
 	</states>
