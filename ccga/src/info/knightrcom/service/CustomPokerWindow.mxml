@@ -2,6 +2,9 @@
 <FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler()" title="自主牌型设置">
 	<mx:Script>
 		<![CDATA[
+			import mx.validators.Validator;
+			import mx.events.ListEvent;
+			import mx.automation.events.ListItemSelectEvent;
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.util.HttpServiceProxy;
 			import mx.controls.Alert;
@@ -14,49 +17,106 @@
 	        private static const RED5:String = "1V5";
 	        private static const RED5_PAIR:String = "1V5,1V5";
 	        
-			private function defaultSearch():void {
-				HttpServiceProxy.send(LocalCustomPokerService.READ_POKER, {}, null, function(event:ResultEvent):void
-						{
-							var e4xResult:XML = new XML(event.result);
-							if (e4xResult.result == "SUCCESS")
-							{
-								var results:Array = e4xResult.tag.split("~");
-								if (results.length == 3) {
-									showUpPoker(results[0]);
-					            	showDownPoker(results[1]);
-					            	chkDisable.selected = results[2];
-								} else {
-									showUpPoker(null);
-									showDownPoker(results[0]);
-									chkDisable.selected = false;
-								}
-							}
-							else
-							{
-								Alert.show("数据失败！", "自主牌型设置");
-								return;
-							}
-						}, function(event:FaultEvent):void
-						{
-							Alert.show("数据失败！", "自主牌型设置");
-							return;
-						});
-			}
-			
+	        /**
+	         * 初始化
+	         * @return
+	         *
+	         */
 			private function creationCompleteHandler():void {
 				this.currentState = "EDIT";
 				ListenerBinder.bind(btnUp, MouseEvent.CLICK, btnUpClickHandler);
 				ListenerBinder.bind(btnDown, MouseEvent.CLICK, btnDownClickHandler);
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveClickHandler);
 				ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnRefreshClickHandler);
-				defaultSearch();
+				ListenerBinder.bind(customPokerList, ListEvent.ITEM_CLICK, itemClickHandler);
+				ListenerBinder.bind(btnAdd, MouseEvent.CLICK, btnAddClickHandler);
+				loadCustomList();
+			}
+			
+			/**
+	         * 新增
+	         * @param event
+	         * @return
+	         *
+	         */
+			private function btnAddClickHandler(event:MouseEvent):void {
+				this.txtId.text = "";
+				HttpServiceProxy.send(LocalCustomPokerService.READ_POKER, {METHOD:"ADD"}, null, function(event:ResultEvent):void
+					{
+						var e4xResult:XML = new XML(event.result);
+						if (e4xResult.result == "SUCCESS")
+						{
+							showUpPoker(null);
+							showDownPoker(e4xResult.tag);
+							chkDisable.selected = false;
+						}
+						else
+						{
+							Alert.show("数据失败！", "自主牌型设置");
+							return;
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("数据失败！", "自主牌型设置");
+						return;
+					});
+			}
+			
+			/**
+	         * 读取自主牌型列表
+	         * @return
+	         *
+	         */
+			private function loadCustomList():void {
+				HttpServiceProxy.send(LocalCustomPokerService.READ_POKER, {}, null, function(event:ResultEvent):void
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							var listSrc:Array = [];
+							for each (var item:* in new XML(event.result).tag.GlobalConfig) {
+	    			            listSrc.push({value: item, label: item.name});
+	    			        }
+							customPokerList.dataProvider = listSrc;
+						}
+						else
+						{
+							Alert.show("读取列表失败！", "自主牌型设置");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("读取列表失败！", "自主牌型设置");
+					});
+				this.txtId.text = "";
+				this.txtName.text = "";
+				this.candidatedDown.removeAllChildren();
+				this.candidatedUp.removeAllChildren();
+				chkDisable.selected = false;
 			}
 			
 			private function btnRefreshClickHandler(event:MouseEvent):void {
-				defaultSearch();
+				loadCustomList();
 			}
 			
+			/**
+	         * 保存
+	         * @param event
+	         * @return
+	         *
+	         */
 			private function btnSaveClickHandler(event:MouseEvent):void {
+				if (Validator.validateAll(this.customValidators).length > 0)
+				{
+					Alert.show("信息填写不符合规范！", "警告");
+					return;
+				}
+				if (candidatedUp.getChildren().length == 0) {
+					Alert.show("已选牌区不能为空！", "警告");
+					return;
+				}
+				if (candidatedUp.getChildren().length > 27) {
+					Alert.show("已选牌区的牌数不能大于27张！", "警告");
+					return;
+				}
 				// 获取已选牌区的牌
 				var strUpCards:String = "";
 				var card:PokerButton;
@@ -71,11 +131,16 @@
 				}
                 strDownCards = strDownCards.replace(/,$/, "");
                 // 保存
-				HttpServiceProxy.send(LocalCustomPokerService.SAVE_CUSTOM_POKER, {UP_POKERS: strUpCards, DOWN_POKERS: strDownCards, IS_OPEN: chkDisable.selected}, null, function(event:ResultEvent):void
+				HttpServiceProxy.send(LocalCustomPokerService.SAVE_CUSTOM_POKER, {ID:txtId.text, NAME: txtName.text, UP_POKERS: strUpCards, DOWN_POKERS: strDownCards, IS_OPEN: chkDisable.selected}, null, function(event:ResultEvent):void
 					{
 						if (new XML(event.result).result == "SUCCESS")
 						{
 							Alert.show("保存成功！", "自主牌型设置");
+							loadCustomList();
+						} 
+						else if (new XML(event.result).result == "WARNING")
+						{
+							Alert.show("自主牌型名称已存在！", "自主牌型设置");
 						}
 						else
 						{
@@ -87,6 +152,12 @@
 					});
 			}
 			
+			/**
+	         * 下移
+	         * @param event
+	         * @return
+	         *
+	         */
 			private function btnDownClickHandler(event:MouseEvent):void {
 				var cards:String = "";
 				var card:PokerButton;
@@ -104,6 +175,12 @@
                 showDownPoker(cards);
 			}
 			
+			/**
+	         * 上移
+	         * @param event
+	         * @return
+	         *
+	         */
 			private function btnUpClickHandler(event:MouseEvent):void {
 				var cards:String = "";
 				var card:PokerButton;
@@ -121,6 +198,12 @@
                 showUpPoker(cards);
 			}
 			
+			/**
+	         * 显示已选牌区
+	         * @param event
+	         * @return
+	         *
+	         */
 			private function showUpPoker(cardSequence:String):void {
 				this.candidatedUp.removeAllChildren();
 				if (cardSequence == null) {
@@ -135,6 +218,12 @@
 	            }
 			}
 			
+			/**
+	         * 显示待选牌区
+	         * @param event
+	         * @return
+	         *
+	         */
 			private function showDownPoker(cardSequence:String):void {
 				this.candidatedDown.removeAllChildren();
 				var cardNames:Array = sortPokers(cardSequence);
@@ -160,74 +249,124 @@
 	        }
 	        
 	        /**
-         *
-         * @param card1
-         * @param card2
-         * @return
-         *
-         */
-        private static function cardSorter(card1:String, card2:String):int {
-            if (card1 == card2) {
-                // 值与花色都相同时
-                return 0;
-            } else if ("1V5" == card1) {
-                // 第一张牌为红五时
-                return 1;
-            } else if ("1V5" == card2) {
-                // 第二张牌为红五时
-                return -1;
-            }
-            // 实现排序功能
-            var pri1:int = prioritySequence.indexOf(card1.replace(/^[0-4]/, ""));
-            var pri2:int = prioritySequence.indexOf(card2.replace(/^[0-4]/, ""));
-            // 值比较
-            if (pri1 > pri2) {
-                return 1;
-            } else if (pri1 < pri2) {
-                return -1;
-            }
-            // 值相同时，进行花色比较
-            if (card1.charAt(0) > card2.charAt(0)) {
-                return 1;
-            } else if (card1.charAt(0) < card2.charAt(0)) {
-                return -1;
-            }
-            return 0;
-        }
+	         * 扑克排序
+	         * @param card1
+	         * @param card2
+	         * @return
+	         *
+	         */
+	        private static function cardSorter(card1:String, card2:String):int {
+	            if (card1 == card2) {
+	                // 值与花色都相同时
+	                return 0;
+	            } else if ("1V5" == card1) {
+	                // 第一张牌为红五时
+	                return 1;
+	            } else if ("1V5" == card2) {
+	                // 第二张牌为红五时
+	                return -1;
+	            }
+	            // 实现排序功能
+	            var pri1:int = prioritySequence.indexOf(card1.replace(/^[0-4]/, ""));
+	            var pri2:int = prioritySequence.indexOf(card2.replace(/^[0-4]/, ""));
+	            // 值比较
+	            if (pri1 > pri2) {
+	                return 1;
+	            } else if (pri1 < pri2) {
+	                return -1;
+	            }
+	            // 值相同时，进行花色比较
+	            if (card1.charAt(0) > card2.charAt(0)) {
+	                return 1;
+	            } else if (card1.charAt(0) < card2.charAt(0)) {
+	                return -1;
+	            }
+	            return 0;
+	        }
+	        
+	        /**
+	         * 自主牌型列表点击事件
+	         * @param event
+	         * @return
+	         *
+	         */
+	        private function itemClickHandler(event:ListEvent):void {
+	        	var config:* = customPokerList.selectedItem.value;
+	        	var results:Array = config.value.split("~");
+				if (results.length == 2) {
+					txtId.text = config.globalConfigId;
+					txtName.text = config.name;
+					showUpPoker(results[0]);
+	            	showDownPoker(results[1]);
+	            	chkDisable.selected = config.status == "false" ? false : true;
+				} else {
+					showUpPoker(null);
+					showDownPoker(results[0]);
+					chkDisable.selected = false;
+				}
+	        }
 		]]>
 	</mx:Script>
 	<states>
 		<mx:State name="EDIT">
 			<mx:AddChild position="lastChild">
-					<mx:TitleWindow width="100%" height="218" layout="absolute" title="已选牌区">
-							<mx:HBox id="candidatedUp" top="10" width="100%" height="168" horizontalGap="-55"
-			             horizontalAlign="left" verticalAlign="middle" left="10">
-			             </mx:HBox>
-					</mx:TitleWindow>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:Button label="上移" id="btnUp" right="600" bottom="270"/>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:Button label="下移" id="btnDown" right="500" bottom="270"/>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:Button label="刷新" right="400" bottom="270" id="btnRefresh"/>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:CheckBox label="启用" id="chkDisable" right="80" bottom="10"/>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:Button label="保存" right="20" bottom="10" id="btnSave"/>
-			</mx:AddChild>
-			<mx:AddChild position="lastChild">
-				<mx:TitleWindow width="100%" height="222" layout="absolute" bottom="40" right="0" title="待选牌区">
-					<mx:HBox id="candidatedDown" width="100%" height="172" horizontalGap="-55"
-					           horizontalAlign="left" verticalAlign="middle">
+				<mx:HDividedBox top="0" left="0" width="100%" height="100%">
+					<mx:HBox height="100%"
+							 width="200"
+							 minWidth="100"
+							 maxWidth="300">
+						<mx:TitleWindow height="100%" width="100%" layout="absolute" title="自主牌型列表">
+							<mx:List width="100%" borderStyle="none" height="100%" id="customPokerList">
+							</mx:List>
+						</mx:TitleWindow>
 					</mx:HBox>
-				</mx:TitleWindow>
+					<mx:VBox height="100%"
+							 horizontalAlign="center">
+						<mx:Form width="100%" height="100%">
+							<mx:HBox width="100%">
+								<mx:FormItem label="自主牌型名称">
+									<mx:TextInput width="200" maxChars="20" id="txtName"/>
+								</mx:FormItem>
+								<mx:Spacer width="100%"/>
+								<mx:Button label="刷新" right="400" bottom="270" id="btnRefresh"/>
+								<mx:Button label="新增" id="btnAdd"/>
+							</mx:HBox>
+							<mx:TitleWindow width="100%" height="100%" layout="absolute" title="已选牌区">
+								<mx:HBox id="candidatedUp" top="10" width="100%" height="168" horizontalGap="-55"
+					             horizontalAlign="left" verticalAlign="middle" left="10">
+					             </mx:HBox>
+							</mx:TitleWindow>
+							<mx:HBox width="100%">
+								<mx:Spacer width="40%"/>
+								<mx:Button label="上移" id="btnUp" right="600" bottom="270"/>
+								<mx:Button label="下移" id="btnDown" right="500" bottom="270"/>
+							</mx:HBox>
+							<mx:TitleWindow width="100%" height="100%" layout="absolute" bottom="40" right="0" title="待选牌区">
+								<mx:HBox id="candidatedDown" width="100%" height="172" horizontalGap="-55"
+								           horizontalAlign="left" verticalAlign="middle">
+								</mx:HBox>
+							</mx:TitleWindow>
+							<mx:HBox width="100%">
+								<mx:TextInput width="200" maxChars="20" id="txtId" visible="false"/>
+								<mx:Spacer width="100%"/>
+								<mx:CheckBox label="启用" id="chkDisable" right="80" bottom="10"/>
+								<mx:Button label="保存" right="20" bottom="10" id="btnSave"/>
+							</mx:HBox>
+						</mx:Form>
+					</mx:VBox>
+				</mx:HDividedBox>
 			</mx:AddChild>
 		</mx:State>
 	</states>
-	
+	<!-- 验证器 -->
+    <mx:Array id="customValidators">
+        <mx:StringValidator id="nameValidator" source="{txtName}"
+        					property="text" 
+        					required="true"
+					    	minLength="1" maxLength="20"  
+					    	tooShortError="自主牌型名称数最少1个字符！"
+					    	tooLongError="自主牌型名称数最多20个字符！"
+					    	requiredFieldError="自主牌型名称不能为空！"
+					    	trigger="{btnSave}" triggerEvent="click"/>
+    </mx:Array>
 </FunctionWindow>
