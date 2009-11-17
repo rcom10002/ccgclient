@@ -768,7 +768,7 @@ package info.knightrcom.state {
             		startIndex = 0;
             	}
                 var tempCardCandidated:Box = (cardsCandidatedArray[startIndex] as Box);
-                if (gameSetting != Red5GameSetting.NO_RUSH || (tempCardCandidated.numChildren > 0 && !(tempCardCandidated.getChildAt(0) is Label))) {
+                if (gameSetting != Red5GameSetting.NO_RUSH || (tempCardCandidated.numChildren > 0 && !(tempCardCandidated.getChildAt(0) is Image))) {
                     // 保留大皇上二皇上大娘娘二娘娘提示
                     tempCardCandidated.removeAllChildren();
                 }
@@ -782,21 +782,31 @@ package info.knightrcom.state {
             }
             // 按游戏排名显示头衔
             if (gameSetting == Red5GameSetting.NO_RUSH) {
+                /*
                 var winLabel:Label = new Label();
                 winLabel.text = "大娘娘";
                 winLabel.setStyle("color", 0xff0000);
+                */
+                var winnerImage:Image = new Image();
+                winnerImage.source = Red5GameResource.WINNER3;
                 if ((cardsCandidatedArray[thirdPlaceNumber - 1] as Container).numChildren > 0 &&
-                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).getChildAt(0) is Label) {
+                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).getChildAt(0) is Image) {
                 } else {
-                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
+                    // (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
+                    (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winnerImage);
                 }
+                /*
                 winLabel = new Label();
                 winLabel.text = "二娘娘";
                 winLabel.setStyle("color", 0xff6699);
+                */
+                winnerImage = new Image();
+                winnerImage.source = Red5GameResource.WINNER4;
                 if ((cardsCandidatedArray[forthPlaceNumber - 1] as Container).numChildren > 0 &&
-                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).getChildAt(0) is Label) {
+                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).getChildAt(0) is Image) {
                 } else {
-                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                    // (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                    (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winnerImage);
                 }
             }
             // 显示记分牌
@@ -855,28 +865,42 @@ package info.knightrcom.state {
             // 更新画面表现
             gameBringOutHandler(event);
             // 设置游戏获胜者信息
-            var winLabel:Label = new Label();
+            var winnerImage:Image = new Image();
+            // var winLabel:Label = new Label();
             if (firstPlaceNumber == UNOCCUPIED_PLACE_NUMBER) {
                 firstPlaceNumber = currentNumber;
+                /*
                 winLabel.text = "大皇上";
                 winLabel.setStyle("color", 0xffff00);
-                (cardsCandidatedArray[firstPlaceNumber - 1] as Container).addChild(winLabel);
+                */
+                winnerImage.source = Red5GameResource.WINNER1;
+                (cardsCandidatedArray[firstPlaceNumber - 1] as Container).addChild(winnerImage);
             } else if (secondPlaceNumber == UNOCCUPIED_PLACE_NUMBER) {
                 secondPlaceNumber = currentNumber;
+                /*
                 winLabel.text = "二皇上";
                 winLabel.setStyle("color", 0xffffcc);
-                (cardsCandidatedArray[secondPlaceNumber - 1] as Container).addChild(winLabel);
+                */
+                winnerImage.source = Red5GameResource.WINNER2;
+                (cardsCandidatedArray[secondPlaceNumber - 1] as Container).addChild(winnerImage);
             } else if (thirdPlaceNumber == UNOCCUPIED_PLACE_NUMBER) {
                 thirdPlaceNumber = currentNumber;
                 var placeNumberPattern:RegExp = new RegExp("[" + firstPlaceNumber + secondPlaceNumber + thirdPlaceNumber + "]", "g");
                 forthPlaceNumber = Number("1234".replace(placeNumberPattern, ""));
+                /*
                 winLabel.text = "大娘娘";
                 winLabel.setStyle("color", 0xff0000);
-                (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winLabel);
+                */
+                winnerImage.source = Red5GameResource.WINNER3;
+                (cardsCandidatedArray[thirdPlaceNumber - 1] as Container).addChild(winnerImage);
+                /*
                 winLabel = new Label();
                 winLabel.text = "二娘娘";
                 winLabel.setStyle("color", 0xff6699);
-                (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                */
+                winnerImage = new Image();
+                winnerImage.source = Red5GameResource.WINNER4;
+                (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winnerImage);
             }
         }
 
@@ -1096,26 +1120,42 @@ package info.knightrcom.state {
                         }
                     }
                     if (gameSetting == Red5GameSetting.NO_RUSH) {
-                        var winLabel:Label = new Label();
+                        // var winLabel:Label = new Label();
+                        var winnerImage:Image = new Image();
                         switch (localNumber) {
                             case firstPlaceNumber:
+                                /*
                                 winLabel.text = "大皇上";
                                 winLabel.setStyle("color", 0xffff00);
-                                currentGame.candidatedDown.addChild(winLabel);
+                                */
+                                winnerImage.source = Red5GameResource.WINNER1;
+                                currentGame.candidatedDown.addChild(winnerImage);
                                 break;
                             case secondPlaceNumber:
+                                /*
                                 winLabel.text = "二皇上";
                                 winLabel.setStyle("color", 0xffffcc);
-                                currentGame.candidatedDown.addChild(winLabel);
+                                */
+                                winnerImage.source = Red5GameResource.WINNER2;
+                                currentGame.candidatedDown.addChild(winnerImage);
                                 break;
                             case thirdPlaceNumber:
+                                /*
                                 winLabel.text = "大娘娘";
                                 winLabel.setStyle("color", 0xff0000);
-                                currentGame.candidatedDown.addChild(winLabel);
+                                */
+                                /*
+                                winnerImage.source = Red5GameResource.WINNER3;
+                                currentGame.candidatedDown.addChild(winnerImage);
+                                */
+                                /*
                                 winLabel = new Label();
                                 winLabel.text = "二娘娘";
                                 winLabel.setStyle("color", 0xff6699);
-                                (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winLabel);
+                                */
+                                winnerImage = new Image();
+                                winnerImage.source = Red5GameResource.WINNER4;
+                                (cardsCandidatedArray[forthPlaceNumber - 1] as Container).addChild(winnerImage);
                                 break;
                         }
                     }
