@@ -213,7 +213,7 @@
 				<node label="管理员帮助手册"/>
 				<node label="关于管理平台"/>
 			</node>
-			<node label="自主牌型设置 "/>
+			<node label="自主牌型设置"/>
 			<node label="注销登录" />
 		</root>
 	</mx:XML>
