@@ -41,5 +41,17 @@ package info.knightrcom.assets
         
         [Embed(source="info/knightrcom/assets/image/red5game/game-info-board.png")]
         public static const INFO_BOARD:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/red5game/game-winner-tip1.png")]
+        public static const WINNER1:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/red5game/game-winner-tip2.png")]
+        public static const WINNER2:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/red5game/game-winner-tip3.png")]
+        public static const WINNER3:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/red5game/game-winner-tip4.png")]
+        public static const WINNER4:Class;
     }
 }
