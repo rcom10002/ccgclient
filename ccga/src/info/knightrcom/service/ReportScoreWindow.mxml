@@ -217,6 +217,14 @@
 										   dataField="drawScores"/>
 						<mx:DataGridColumn headerText="总系统分"
 										   dataField="totalSystemScore"/>
+						<mx:DataGridColumn headerText="玩家当前分"
+										   dataField="currentScore"/>
+						<mx:DataGridColumn headerText="玩家初始分"
+										   dataField="playerLimitScore"/>
+						<mx:DataGridColumn headerText="总充值分"
+										   dataField="rechargeSum"/>
+						<mx:DataGridColumn headerText="净收益分"
+										   dataField="resultScore"/>
 						<mx:DataGridColumn headerText="开始统计时间"
 										   dataField="startDate"/>
 						<mx:DataGridColumn headerText="结束统计时间"
