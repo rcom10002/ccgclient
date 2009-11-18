@@ -108,6 +108,7 @@
 						throw Error("无法为当前控件进行初始化");
 					}
 				}
+				PopUpManager.removePopUp(this);
 			}
 
 			private function btnSubmitFeeckbackClickHandler(event:MouseEvent):void
@@ -155,7 +156,6 @@
 
 			public function popup():void {
 				try {
-					PopUpManager.removePopUp(this);
 					PopUpManager.addPopUp(this, Application.application as DisplayObject, true);
 					PopUpManager.centerPopUp(this);
 					this.visible = true;
