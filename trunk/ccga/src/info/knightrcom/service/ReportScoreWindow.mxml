@@ -44,7 +44,19 @@
 //    				return;
 //    			}
     			
-				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {CURRENT_USER_ID: Application.application.currentUserId, USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
+				HttpServiceProxy.send(LocalReportScoreService.READ_PERIODLY_SUM, {CURRENT_USER_ID: Application.application.currentUserId, USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService , function(event:ResultEvent):void
+					{
+						var xml:XML = new XML(event.result);
+						var url:String = xml.tag;
+						if (xml.result == "WARNING")
+						{
+							Alert.show("查询范围不足请扩大查询周期！", "积分结算报表");
+							return;
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("查询失败！", "积分结算报表");
+					});
 			}
 			
 			private function getSearchPeriod():void
@@ -60,10 +72,6 @@
 							dateFrom.selectedDate = DateField.stringToDate(searchPeriod[0], "YYYY-MM-DD");
 							dateTo.selectedDate = DateField.stringToDate(searchPeriod[1], "YYYY-MM-DD");
 						} 
-						else 
-						{
-							Alert.show("获取查询期间失败！", "警告");
-						}
 					}, function(event:FaultEvent):void
 					{
 						Alert.show("获取查询期间失败！", "警告");
