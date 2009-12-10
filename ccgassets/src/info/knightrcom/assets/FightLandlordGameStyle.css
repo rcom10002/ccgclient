@@ -1,0 +1,71 @@
+/* CSS file */
+Button.gameBigButton {
+    fontSize: 18px;
+    fontWeight: bold;
+    color: #FFFFFF;
+    textRollOverColor: #FFFF00;
+    textSelectedColor:#E1D700;
+    disabledColor:#4C4A12;
+    
+    upSkin: ClassReference(null);
+    overSkin: ClassReference(null);
+    downSkin: ClassReference(null);
+    disabledSkin: ClassReference(null);
+    selectedUpSkin: ClassReference(null);
+    selectedOverSkin: ClassReference(null);
+    selectedDownSkin: ClassReference(null);
+    selectedDisabledSkin: ClassReference(null);
+    skin: Embed(skinClass='Button_skin');
+}
+Button.gameButton {
+    fontSize: 12px;
+    fontWeight: normal;
+    color: #FFFFFF;
+    textRollOverColor: #FFFF00;
+    textSelectedColor:#E1D700;
+    disabledColor:#4C4A12;
+    
+    upSkin: ClassReference(null);
+    overSkin: ClassReference(null);
+    downSkin: ClassReference(null);
+    disabledSkin: ClassReference(null);
+    selectedUpSkin: ClassReference(null);
+    selectedOverSkin: ClassReference(null);
+    selectedDownSkin: ClassReference(null);
+    selectedDisabledSkin: ClassReference(null);
+    skin: Embed(skinClass='Button_skin');
+}
+Button.gameSettingButton {
+    fontSize: 12px;
+    fontWeight: normal;
+    color: #FFFFFF;
+    textRollOverColor: #FFFF00;
+    textSelectedColor:#E1D700;
+    disabledColor:#4C4A12;
+
+    upSkin: ClassReference(null);
+    overSkin: ClassReference(null);
+    downSkin: ClassReference(null);
+    disabledSkin: ClassReference(null);
+    selectedUpSkin: ClassReference(null);
+    selectedOverSkin: ClassReference(null);
+    selectedDownSkin: ClassReference(null);
+    selectedDisabledSkin: ClassReference(null);
+    skin: Embed(skinClass='SettingButton_skin');
+}
+Text.gameSettingNumber {
+    fontFamily: DS-Digital;
+    fontSize: 36px;
+    color: #FFFFFF;
+}
+@font-face
+{
+    /* 
+     * This should be replaced with a relative path if possible~~~ 
+     * currently there must be something wrong with Font Manager option of the complier
+     */
+    src: url("D:/eclipse/workspace/ccgassets/src/info/knightrcom/assets/font/DS-DIGI.TTF");
+    fontFamily: DS-Digital;
+    /* unicodeRange:
+        U+0030-U+0039; /* Numbers [0..9] */
+}
