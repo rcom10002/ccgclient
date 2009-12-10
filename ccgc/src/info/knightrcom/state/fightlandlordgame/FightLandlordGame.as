@@ -1,12 +1,8 @@
 package info.knightrcom.state.fightlandlordgame
 {
 	
-	import info.knightrcom.util.Model;
-	
 	import component.PokerButton;
 	
-	import info.knightrcom.util.CardReStrut;
-
 	/**
 	 *
 	 * 方法中所有的参数形式均为 \dV([2-9JQKAXY]|10)(,\dV([2-9JQKAXY]|10))*
@@ -409,7 +405,7 @@ package info.knightrcom.state.fightlandlordgame
 			{
 				// 去花色
 				var priAf2:String=cardAf2.replace(/\b\dV/g, "V");
-				newCardArray2.push(new CardReStrut(priAf2, map2[priAf2] as int));
+				newCardArray2.push({cardName:priAf2, cardCount:map2[priAf2] as int});
 			}
 			// 重新构造按同号顺序由大到小排序后的字段串
 			var reCardArray2:Array=newCardArray2.sort(boutCardSorter);
@@ -417,7 +413,7 @@ package info.knightrcom.state.fightlandlordgame
 			var newCardString2:String="";
 			for (var i:int=0; i < reCardArray2.length; i++)
 			{
-				newCardString2+=((CardReStrut)(reCardArray2[i])).getCardName();
+				newCardString2+=(reCardArray2[i]).cardName;
 				if (i != reCardArray2.length - 1)
 				{
 					newCardString2+=",";
@@ -589,7 +585,7 @@ package info.knightrcom.state.fightlandlordgame
 			{
 				// 去花色
 				var priAf:String=cardAf.replace(/\b\dV/g, "V");
-				newCardArray.push(new CardReStrut(priAf, map[priAf] as int));
+				newCardArray.push({cardName:priAf, cardCount:map[priAf] as int});
 			}
 			// 对三同张的牌进行排序并判断是否是三同顺
 			tempFollow=tempFollow.replace(/,$/, "");
@@ -615,7 +611,7 @@ package info.knightrcom.state.fightlandlordgame
 			var newCardString:String="";
 			for (var i:int=0; i < reCardArray.length; i++)
 			{
-				newCardString+=((CardReStrut)(reCardArray[i])).getCardName();
+				newCardString+=(reCardArray[i]).cardName;
 				if (i != reCardArray.length - 1)
 				{
 					newCardString+=",";
@@ -631,17 +627,17 @@ package info.knightrcom.state.fightlandlordgame
 		 * @return
 		 *
 		 */
-		private static function boutCardSorter(card1:CardReStrut, card2:CardReStrut):int
+		private static function boutCardSorter(card1:Object, card2:Object):int
 		{
 			// 实现排序功能
 			// 数量相同时比较牌号大小
-			if (card1.getCardCount() == card2.getCardCount())
+			if (card1.cardCount == card2.cardCount)
 			{
-				if (prioritySequence.indexOf(card1.getCardName()) > prioritySequence.indexOf(card2.getCardName()))
+				if (prioritySequence.indexOf(card1.cardName) > prioritySequence.indexOf(card2.cardName))
 				{
 					return 1;
 				}
-				else if (prioritySequence.indexOf(card1.getCardName()) < prioritySequence.indexOf(card2.getCardName()))
+				else if (prioritySequence.indexOf(card1.cardName) < prioritySequence.indexOf(card2.cardName))
 				{
 					return -1;
 				}
@@ -650,11 +646,11 @@ package info.knightrcom.state.fightlandlordgame
 					return 0;
 				}
 			}
-			else if (card1.getCardCount() < card2.getCardCount())
+			else if (card1.cardCount < card2.cardCount)
 			{
 				return 1;
 			}
-			else if (card1.getCardCount() > card2.getCardCount())
+			else if (card1.cardCount > card2.cardCount)
 			{
 				return -1;
 			}
@@ -1007,7 +1003,7 @@ package info.knightrcom.state.fightlandlordgame
          * @return
          * 
          */
-        public static function getBrainPowerTip(myCards:Array, boutCards:Array):Array {
+        public static function getBrainPowerTip(myCards:Array, boutCards:Array, enableFoolish:Boolean = true):Array {
             var resultArrayArray:Array = new Array();
             var boutCardsString:String = boutCards.join(",");
             var myCardsString:String = myCards.join(",") + ",";
