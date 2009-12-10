@@ -6,6 +6,12 @@
 		height="720"
 		minWidth="800"
 		minHeight="600">
+	<mx:Style source="info/knightrcom/assets/FightLandlordGameStyle.css" />
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.FightLandlordGameResource;
+        ]]>
+    </mx:Script>
 	<!-- 上侧区域 -->
     <mx:HBox id="candidatedUp"
              verticalScrollPolicy="off"
@@ -167,6 +173,27 @@
 		</mx:ButtonBar>
 	</mx:VBox>
     <!-- 提示区域 -->
-    <mx:ProgressBar id="timerTip" x="10" y="10" visible="false"/>
-    <mx:Text id="arrowTip" x="10" y="40" selectable="false"/>
+    <!-- 提示区域 -->
+    <mx:ProgressBar id="timerTip" x="10" y="-300"/>
+    <mx:Text id="arrowTip" x="10" y="-400" selectable="false"/>
+    <mx:Image id="infoBoard" source="{FightLandlordGameResource.INFO_BOARD}" x="0" y="0" />
+    <mx:Text id="infoBoardText" x="48" y="80" width="160" text="" selectable="false" 
+             textAlign="center" fontSize="36" fontFamily="DS-Digital" fontAntiAliasType="advanced" 
+             filters="{[dropShadowFilter]}" />
+    <mx:DropShadowFilter id="dropShadowFilter" angle="45" alpha="0.65" 
+                         blurX="0.5" blurY="0.5" distance="3" color="0x000000" />
+    <!-- 背景图片区域 -->
+    <mx:Image id="bgCurtainLeft" source="{FightLandlordGameResource.CURTAIN_LEFT}" left="0" top="0"/>
+    <mx:Image id="bgCurtainRight" source="{FightLandlordGameResource.CURTAIN_RIGHT}" right="0" top="0"/>
+    <mx:Image id="bgLogo" source="{FightLandlordGameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
+    <mx:Image id="bgLaceLeft" source="{FightLandlordGameResource.LACE_LEFT}" left="0" bottom="0"/>
+    <mx:Image id="bgLaceRight" source="{FightLandlordGameResource.LACE_RIGHT}" right="0" bottom="0"/>
+    <mx:HBox id="candidatedTipDownExt"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="102"
+             horizontalAlign="left"
+             bottom="10"
+             verticalAlign="top" width="120" horizontalCenter="240">
+    </mx:HBox>
 </mx:Module>
