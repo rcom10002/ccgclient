@@ -2,6 +2,7 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="斗地主游戏录像">
 	<mx:Script>
 		<![CDATA[
+			import mx.validators.Validator;
 			import mx.core.Application;
 			import info.knightrcom.state.BaseStateManager;
 			import info.knightrcom.service.LocalPlayerProfileService;
@@ -69,7 +70,7 @@
             	}
             	// 游戏玩家
             	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
-            			{GAME_ID : gameId.text}, null, function (event:ResultEvent):void {
+            			{GAME_ID : gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, function (event:ResultEvent):void {
             				var e4xResult:XML = new XML(event.result);
             				var gameType:String = e4xResult.entity.gameType.text();
             				gamePlayers = e4xResult.entity.players.text();
@@ -96,22 +97,50 @@
             
             private function btnExecuteClickHandler(event:MouseEvent):void {
             	// 判断当前用户是否看过录像
-            	HttpServiceProxy.send(LocalSystemInfoService.PLAY_GAME_VEDIO,
-            			{GAME_ID: gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, 
-            			function (event:ResultEvent):void {
-            				if (new XML(event.result).result == "SUCCESS")
-							{
-								playerVedio();
-							}
-							else
-							{
-								readPlayerGameInfo();
-
-							}
-            			},
-            			function (e:FaultEvent):void {
-							Alert.show("通信失败！", "错误");
-						});
+            	if (Validator.validateAll(this.gameVedioValidators).length > 0)
+				{
+					Alert.show("游戏ID不能为空！", "警告");
+					settingWindow.visible = true;
+					return;
+				}
+				HttpServiceProxy.send(
+					LocalSystemInfoService.GAME_ID_VALIDATE, 
+					   {GAME_ID: this.gameId.text}, 
+					null, 
+					function(event:ResultEvent):void
+					{
+						var data:* = new XML(event.result);
+						if (data.result == "SUCCESS")
+						{
+							// 判断当前用户是否看过录像
+			            	HttpServiceProxy.send(LocalSystemInfoService.PLAY_GAME_VEDIO,
+			            			{GAME_ID: gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, 
+			            			function (event:ResultEvent):void {
+			            				if (new XML(event.result).result == "SUCCESS")
+										{
+											playerVedio();
+										}
+										else
+										{
+											readPlayerGameInfo();
+			
+										}
+			            			},
+			            			function (e:FaultEvent):void {
+										Alert.show("通信失败！", "错误");
+									});
+						}
+						else if (data.result == "WARNING")
+						{
+							Alert.show("播放失败，请检查游戏ID是否输入正确！", "警告");
+							settingWindow.visible = true;
+							return;
+						}
+						else
+						{
+							Alert.show("播放失败！", "错误");
+						}
+					});
             }
             
             private function readPlayerGameInfo():void {
@@ -131,7 +160,7 @@
 									}
 									Alert.yesLabel = "确认";
 									Alert.noLabel = "取消";
-								    Alert.show( "录像回放需要扣除被回放的游戏的两倍底分，\n确定要观看吗？",
+								    Alert.show( "录像回放需要扣除积分" + 2 * score + "分，\n确定要观看吗？",
 											"消息", 
 											Alert.YES | Alert.NO,
 											Application.application as Sprite,
@@ -417,4 +446,8 @@
 	<mx:Button x="10" y="40" label="播放" id="btnExecute"/>
 	<mx:Button label="停止" y="70" x="10" id="btnTerminate"/>
 	<mx:Label id="lblGameSetting" right="10" top="12"/>
+	<!-- 验证器 -->
+	<mx:Array id="gameVedioValidators">
+		<mx:StringValidator source="{gameId}" required="true" property="text" requiredFieldError="游戏ID不能为空！"/>
+	</mx:Array>
 </AbstractInfoWindow>
