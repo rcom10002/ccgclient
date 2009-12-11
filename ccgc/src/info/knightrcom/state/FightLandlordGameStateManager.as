@@ -207,6 +207,7 @@ package info.knightrcom.state
 					GameEvent.GAME_SETTING_UPDATE, gameSettingUpdateHandler, 
 					GameEvent.GAME_SETTING_OVER, gameSettingOverHandler,
             		FightLandlordGameEvent.GAME_SETTING_UPDATE_FINISH, gameSettingUpdateFinishHandler, 
+            		FightLandlordGameEvent.GAME_BOMB, gameBombHandler, 
 					GameEvent.GAME_BRING_OUT, gameBringOutHandler, 
 					GameEvent.GAME_INTERRUPTED, gameInterruptedHandler, 
 					GameEvent.GAME_WINNER_PRODUCED, gameWinnerProducedHandler, 
@@ -313,6 +314,13 @@ package info.knightrcom.state
                 currentGame.setChildIndex(currentGame.arrowTip, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
+                // 设置倍数
+                var gameBombClock:GameWaiting = new GameWaiting();
+                gameBombClock.tipText = String(1);
+                var lab:Label = new Label();
+                lab.text = "倍数：";
+                currentGame.candidatedTipUpExt.addChild(lab);
+                currentGame.candidatedTipUpExt.addChild(gameBombClock);
 				setInitialized(true);
 			}
 
@@ -624,6 +632,27 @@ package info.knightrcom.state
                 eachDealed.removeAllChildren();
             }
             updateTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
+		}
+		
+		/**
+		 *
+		 * 炸弹|火箭 倍数增加
+		 *
+		 * @param event
+		 *
+		 */
+		private function gameBombHandler(event:FightLandlordGameEvent):void
+		{	
+			var results:Array=event.incomingData.split("~");
+			var bomb:int = results[results.length - 1];
+			// 设置倍数显示区
+			currentGame.candidatedTipUpExt.removeAllChildren();
+            var gameBombClock:GameWaiting = new GameWaiting();
+            gameBombClock.tipText = String(bomb);
+            var lab:Label = new Label();
+            lab.text = "倍数：";
+            currentGame.candidatedTipUpExt.addChild(lab);
+            currentGame.candidatedTipUpExt.addChild(gameBombClock);
 		}
 
 		/**
