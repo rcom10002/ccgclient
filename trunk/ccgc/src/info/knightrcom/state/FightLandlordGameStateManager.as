@@ -23,7 +23,6 @@ package info.knightrcom.state
 	import info.knightrcom.util.PlatformAlertEvent;
 	
 	import mx.containers.Box;
-	import mx.containers.Tile;
 	import mx.controls.Alert;
 	import mx.controls.Button;
 	import mx.controls.ButtonBar;
@@ -852,7 +851,7 @@ package info.knightrcom.state
             	// 本局待发牌区域
                 var cardsCandidated:Box = cardsCandidatedArray[currentNumber - 1];
                 // 本局已发牌区域
-                var cardsDealed:Tile = cardsDealedArray[currentNumber - 1];
+                var cardsDealed:Container = cardsDealedArray[currentNumber - 1];
                 cardsDealed.removeAllChildren();
                 var cardNames:Array = currentBoutCards.split(",");
                 for each (var cardName:String in cardNames) {
@@ -1387,6 +1386,7 @@ package info.knightrcom.state
 			gameFinalSettingPlayerNumber=-1;
 			gameSettingUpdateTimes=0;
 			currentGameId=null;
+			firstPlayerNumber=0;
 			localNumber=0;
 			localNextNumber=0;
 			currentNumber=0;
@@ -1396,7 +1396,7 @@ package info.knightrcom.state
 			secondPlaceNumber=UNOCCUPIED_PLACE_NUMBER;
 			thirdPlaceNumber=UNOCCUPIED_PLACE_NUMBER;
 			isWinnerFollowed=false;
-			for each (var cardsDealed:Tile in cardsDealedArray)
+			for each (var cardsDealed:Container in cardsDealedArray)
 			{
 				cardsDealed.removeAllChildren();
 			}
@@ -1404,8 +1404,12 @@ package info.knightrcom.state
 			{
 				cardsCandidated.removeAllChildren();
 			}
+			for each (var cardsCandidatedTip:Box in cardsCandidatedTipArray) {
+                cardsCandidatedTip.removeAllChildren();
+            }
 			if (currentGame) {
                 currentGame.arrowTip.text = "";
+                currentGame.infoBoardText.text = "";
             }
 		}
 
