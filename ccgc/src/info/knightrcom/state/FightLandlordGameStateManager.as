@@ -225,7 +225,15 @@ package info.knightrcom.state
                 // 非可视组件
                 currentGame = gameClient.fightLandlordGameModule;
 				ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
+					// 倒计时开始
                     currentGame.timerTip.label = "计时开始";
+                    if (currentGame.candidatedTipDownExt.numChildren > 0) {
+                        (currentGame.candidatedTipDownExt.getChildAt(0) as GameWaiting).tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
+                    } else {
+                        var gameWaitingClock:GameWaiting = new GameWaiting();
+                        gameWaitingClock.tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
+                        currentGame.candidatedTipDownExt.addChild(gameWaitingClock);
+                    }
                     // 自动放弃缩短至3秒
                     if (currentGame.btnBarPokers.visible && Button(currentGame.btnBarPokers.getChildAt(FightLandlordGame.OPTR_GIVEUP)).enabled) {
                         // 当前玩家出牌时
@@ -237,6 +245,7 @@ package info.knightrcom.state
                                 // 可以选择不要按钮时，则进行不要操作
                                 itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_GIVEUP));
                             }
+                            currentGame.candidatedTipDownExt.removeAllChildren();
                             return;
                         }
                     }
@@ -259,11 +268,14 @@ package info.knightrcom.state
 					}
 				});
 				ListenerBinder.bind(otherTimer, TimerEvent.TIMER, function(e:TimerEvent):void {
+					if (currentGame.btnBarPokers.visible) {
+                        return;
+                    }
                     currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
-                    var otherTimeLabelParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
-                    var lastChildIndex:int = otherTimeLabelParent.numChildren - 1;
-                    if (otherTimeLabelParent.numChildren > 0 && otherTimeLabelParent.getChildAt(lastChildIndex) is Label) {
-                    	Label(otherTimeLabelParent.getChildAt(lastChildIndex)).text = Label(otherTimeLabelParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
+                    var otherGameWaitingClockParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
+                    var lastChildIndex:int = otherGameWaitingClockParent.numChildren - 1;
+                    if (otherGameWaitingClockParent.numChildren > 0 && otherGameWaitingClockParent.getChildAt(lastChildIndex) is GameWaiting) {
+                        GameWaiting(otherGameWaitingClockParent.getChildAt(lastChildIndex)).tipText = String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount);// Label(otherGameWaitingClockParent.getChildAt(lastChildIndex)).text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     }
                 });
 				// 可视组件
