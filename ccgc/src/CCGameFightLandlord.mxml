@@ -188,6 +188,15 @@
     <mx:Image id="bgLogo" source="{FightLandlordGameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
     <mx:Image id="bgLaceLeft" source="{FightLandlordGameResource.LACE_LEFT}" left="0" bottom="0"/>
     <mx:Image id="bgLaceRight" source="{FightLandlordGameResource.LACE_RIGHT}" right="0" bottom="0"/>
+    <!-- 倍数 -->
+    <mx:HBox id="candidatedTipUpExt"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="102"
+             horizontalAlign="left"
+             top="10"
+             verticalAlign="top" width="120" horizontalCenter="350">
+    </mx:HBox>
     <mx:HBox id="candidatedTipDownExt"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
