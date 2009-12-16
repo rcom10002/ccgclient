@@ -26,7 +26,7 @@ package info.knightrcom.util {
          * @param closeHandler
          *
          */
-        public static function show(msg:String, title:String = null, btns:Array = null, closeHandler:Function = null, defaultFocusIndex:int = 0):void {
+        public static function show(msg:String, title:String = null, btns:Array = null, closeHandler:Function = null, defaultFocusIndex:int = 0):* {
             // 创建UI对象
             platformAlertUI = new PlatformAlertUI();
             platformAlertUI = PlatformAlertUI(PopUpManager.createPopUp(Application.application as DisplayObject, PlatformAlertUI, true));
@@ -74,7 +74,9 @@ package info.knightrcom.util {
 
             // 显示UI画面
             PopUpManager.centerPopUp(platformAlertUI);
-        }
+
+			return platformAlertUI;
+		}
 
         /**
          *

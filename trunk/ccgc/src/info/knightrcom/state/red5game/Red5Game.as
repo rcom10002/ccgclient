@@ -41,6 +41,8 @@ package info.knightrcom.state.red5game {
         
         /**
          *
+		 * 扑克牌排序算法
+		 *
          * @param card1
          * @param card2
          * @return
@@ -77,7 +79,7 @@ package info.knightrcom.state.red5game {
         
         /**
          *
-         * 严重发牌规则，分为两种验证：首发、接牌
+         * 验证发牌规则，分为两种验证：首发、接牌
          *
          * @param previousBout
          * @param currentBout
@@ -439,7 +441,7 @@ package info.knightrcom.state.red5game {
         public static const TIPC_FOURFOLD_SEQ3:int = 304;
         
         /**
-         * 
+         * 所有提示种类
          */
         private static const allTipIds:Array = new Array(TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4, 
             TIPA_MUTIPLE5, TIPA_MUTIPLE6, TIPA_MUTIPLE7, TIPA_MUTIPLE8, TIPB_SEQ4, TIPB_SEQ5, 
@@ -447,13 +449,13 @@ package info.knightrcom.state.red5game {
             TIPC_TRIPLE_SEQ5, TIPC_FOURFOLD_SEQ3);
 
         /**
-         * 提示容器
+         * 提示暂存容器
          */
         private static var tipsHolder:Object = new Object();
         
         /**
          * 
-         * 将所有的可能的牌型放入提示容器中
+         * 将所有的可能的牌型放入提示暂存容器中
          * 
          * @param myCards
          * 
@@ -541,15 +543,28 @@ package info.knightrcom.state.red5game {
          * @param myCards 当前玩家手中的牌
          * @param boutCards 最后一次打出的牌
          * @param enableFoolish 是否采用笨蛋判断法，如果采用，只对明显的大牌作出放弃，否则会根据己方的牌来作出最合理的判断
-         * 
-         * @return 
-         * enableFoolish = true时，null代表没有上家牌为明显大牌<br>
-         * enableFoolish = false时，null代表手中现有的牌无法压制对方牌
+		 * 
+		 * @return
          */
         public static function getBrainPowerTip(myCards:Array, boutCards:Array, enableFoolish:Boolean = true):Array {
             var resultArrayArray:Array = new Array();
-            var boutCardsString:String = boutCards.join(",");
+            var boutCardsString:String = null;
+			if (boutCards) {
+				boutCardsString = boutCards.join(",");
+			}
             var myCardsString:String = myCards.join(",") + ",";
+			if (!boutCardsString) {
+				// 启用首次发票提示功能、发牌提示从单张、同张、顺子，每种牌型的
+				var allTipIdsReversedEdition:Array = allTipIds.slice(0, allTipIds.length);
+				for each (var eachId:String in allTipIdsReversedEdition) {
+					for each (var eachTip:Array in tipsHolder[eachId].TIPS as Array) {
+						if (new RegExp("^\\d" + eachTip[0] + "$").test(myCards[0])) {
+							return myCards[0];
+						}
+					}
+				}
+				return myCardsString.split(/,/g)[0];
+			}
             // 三张草五
             if (new RegExp("^[234]V5(,[234]V5){2,}$").test(boutCardsString)) {
                 return null;
@@ -679,5 +694,94 @@ package info.knightrcom.state.red5game {
             }
             return null;
         }
+
+		/**
+		 * 根据现有牌，按照顺子、同张、单张的优先顺序组合出唯一的牌型
+		 * 
+		 * @param myCards
+		 * @return 
+		 * 
+		 */
+		public static function analyzeCandidateCards(myCards:Array):Array {
+			var allStyles:Object = [{multiple: 4, numSeq: 3, key: TIPC_FOURFOLD_SEQ3}, 
+									{multiple: 3, numSeq: 5, key: TIPC_TRIPLE_SEQ5}, 
+									{multiple: 3, numSeq: 4, key: TIPC_TRIPLE_SEQ4}, 
+									{multiple: 3, numSeq: 3, key: TIPC_TRIPLE_SEQ3}, 
+									{multiple: 2, numSeq: 5, key: TIPB_DOUBLE_SEQ5}, 
+									{multiple: 2, numSeq: 4, key: TIPB_DOUBLE_SEQ4}, 
+									{multiple: 2, numSeq: 3, key: TIPB_DOUBLE_SEQ3}, 
+									{multiple: 1, numSeq: 5, key: TIPB_SEQ5}, 
+									{multiple: 1, numSeq: 4, key: TIPB_SEQ4}, 
+									{multiple: 8, key: TIPA_MUTIPLE8}, 
+									{multiple: 7, key: TIPA_MUTIPLE7}, 
+									{multiple: 6, key: TIPA_MUTIPLE6}, 
+									{multiple: 5, key: TIPA_MUTIPLE5}, 
+									{multiple: 4, key: TIPA_MUTIPLE4}, 
+									{multiple: 3, key: TIPA_MUTIPLE3}, 
+									{multiple: 2, key: TIPA_MUTIPLE2}];
+            var i:int = 0;
+            var eachCard:String = null;
+			var myCardsString:String = myCards.join(",");
+			var myCardsArray:Array = myCards.slice(0, myCards.length);
+			var myUniqueCardsStyleArray:Array = new Array();
+			for each (var eachStyle:* in allStyles) {
+				if (eachStyle.numSeq) {
+					// 获取备选方案
+					myUniqueCardsStyleArray.push(grabSequence(eachStyle.multiple, eachStyle.numSeq, myCardsArray));
+				} else {
+					// 获取备选方案
+					myUniqueCardsStyleArray.push(grabMultiple(eachStyle.multiple, myCardsArray));
+				}
+				// 查找已使用过的牌
+				var cardsToDelete:Array = new Array();
+				var cardsInStyle:String = null;
+				var uniqueCardsStyle:Array = myUniqueCardsStyleArray[myUniqueCardsStyleArray.length - 1];
+				if (eachStyle.numSeq && uniqueCardsStyle && uniqueCardsStyle.length > 0) {
+					// 顺子的情况
+					uniqueCardsStyle = uniqueCardsStyle[uniqueCardsStyle.length - 1];
+					for each (eachCard in myCardsArray) {
+						cardsInStyle = uniqueCardsStyle[i];
+						if (eachCard.replace(/\d/, "") == cardsInStyle || eachCard == cardsInStyle) {
+							cardsToDelete.push(eachCard);
+							i++;
+						}
+					}
+				} else if (uniqueCardsStyle && uniqueCardsStyle.length > 0) {
+					// 同张的情况
+					for each (var eachCardsInStyle:Array in uniqueCardsStyle) {
+						i = 0;
+						for each (eachCard in myCardsArray) {
+							cardsInStyle = eachCardsInStyle[i];
+							if (eachCard.replace(/\d/, "") == cardsInStyle || eachCard == cardsInStyle) {
+								cardsToDelete.push(eachCard);
+								i++;
+							}
+						}
+					}
+				} else {
+					myUniqueCardsStyleArray.pop();
+					continue;
+				}
+				// 删除已使用过的牌
+				for each (eachCard in cardsToDelete) {
+					var startIndex:int = myCardsArray.indexOf(eachCard);
+					myCardsArray.splice(startIndex, 1);
+				}
+			}
+			for (i = 0; i < myCardsArray.length; i++) {
+				// 去花色
+				if ("0VX,0VY,1V5".indexOf(myCardsArray[i].toString()) > -1) {
+					break;
+				}
+				myCardsArray[i] = myCardsArray[i].toString().replace(/\dV/, "V");
+			}
+			if (myCardsArray.length > 0) {
+				myUniqueCardsStyleArray.push(new Array());
+			}
+			for each (eachCard in myCardsArray) {
+				myUniqueCardsStyleArray[myUniqueCardsStyleArray.length - 1].push([eachCard]);
+			}
+			return myUniqueCardsStyleArray;
+		}
     }
 }
