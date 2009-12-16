@@ -241,6 +241,10 @@ package info.knightrcom.state {
          *
          */
         private function roomClickHandler(event:Event):void {
+            if (gameClient.progressBarMatching.visible) {
+                gameClient.txtSysMessage.text += "系统配对中，无法切换房间！\n";
+                return;
+            }
             var targetButton:Button = Button(event.target);
             var roomId:String = targetButton.name;
             var lobbyId:String = targetButton.parent.name;
@@ -263,12 +267,24 @@ package info.knightrcom.state {
             var roomIdFlag:String = BaseStateManager.currentRoomId.toLocaleLowerCase();
             if (roomIdFlag.toLocaleLowerCase().indexOf("red5") > -1) {
                 socketProxy.sendGameData(Red5GameCommand.GAME_JOIN_MATCHING_QUEUE);
+                gameClient.progressBarMatching.setProgress(0, 100);
+                gameClient.progressBarMatching.indeterminate = true;
+                gameClient.progressBarMatching.visible = true;
             } else if (roomIdFlag.indexOf("fightlandlord") > -1) {
                 socketProxy.sendGameData(FightLandlordGameCommand.GAME_JOIN_MATCHING_QUEUE);
+                gameClient.progressBarMatching.setProgress(0, 100);
+                gameClient.progressBarMatching.indeterminate = true;
+                gameClient.progressBarMatching.visible = true;
             } else if (roomIdFlag.indexOf("pushdownwin") > -1) {
                 socketProxy.sendGameData(PushdownWinGameCommand.GAME_JOIN_MATCHING_QUEUE);
+                gameClient.progressBarMatching.setProgress(0, 100);
+                gameClient.progressBarMatching.indeterminate = true;
+                gameClient.progressBarMatching.visible = true;
             } else if (roomIdFlag.indexOf("qiongwin") > -1) {
                 socketProxy.sendGameData(QiongWinGameCommand.GAME_JOIN_MATCHING_QUEUE);
+                gameClient.progressBarMatching.setProgress(0, 100);
+                gameClient.progressBarMatching.indeterminate = true;
+                gameClient.progressBarMatching.visible = true;
             } else {
                 Alert.show("当前房间暂不开放！");
             }

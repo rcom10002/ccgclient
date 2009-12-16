@@ -18,6 +18,7 @@ package info.knightrcom {
     import info.knightrcom.service.LocalErrorReportService;
     import info.knightrcom.util.HttpServiceProxy;
     import info.knightrcom.util.ListenerBinder;
+    import info.knightrcom.util.Logger;
     
     import mx.controls.Alert;
     import mx.utils.Base64Decoder;
@@ -140,6 +141,7 @@ package info.knightrcom {
         private function sendSocket(data:String):void {
             try {
                 socket.send(encodeForBase64String(data));
+                Logger.debug("DATA SENT " + data);
             } catch (e:Error) {
 				HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
                 Alert.show("数据发送失败！与服务器通信受阻，建议重新进入系统！", "错误");

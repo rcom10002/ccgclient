@@ -12,6 +12,7 @@ package info.knightrcom.state {
     import info.knightrcom.command.Red5GameCommand;
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.Red5GameEvent;
+    import info.knightrcom.puppet.GamePinocchioEvent;
     import info.knightrcom.service.LocalPlayerProfileService;
     import info.knightrcom.state.red5game.Red5Game;
     import info.knightrcom.state.red5game.Red5GameBox;
@@ -26,7 +27,6 @@ package info.knightrcom.state {
     import mx.controls.Button;
     import mx.controls.ButtonBar;
     import mx.controls.Image;
-    import mx.controls.Label;
     import mx.controls.ProgressBarMode;
     import mx.core.Container;
     import mx.events.FlexEvent;
@@ -349,6 +349,10 @@ package info.knightrcom.state {
          *
          */
         private function gameStartedHandler(event:Red5GameEvent):void {
+            // 更新配对提示
+            gameClient.progressBarMatching.visible = false;
+            gameClient.progressBarMatching.setProgress(0, 100);
+            gameClient.progressBarMatching.indeterminate = true;
             // 显示系统洗牌后的结果，格式为：当前玩家待发牌 + "~" + "0=15;1=15;2=15;3=15"
             var results:Array = event.incomingData.split("~");
             var cardSequence:String = results[0];
@@ -400,6 +404,7 @@ package info.knightrcom.state {
 						}
             		}
             );
+			CCGameRed5.puppet.tips = currentGame.candidatedDown.getChildren();
 //            // 七独八天判断
 //            var myCards:String = currentGame.candidatedDown.getChildren().join(",");
 //            // 去除5、大小王
@@ -457,7 +462,10 @@ package info.knightrcom.state {
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             if (firstPlayerNumber == localNumber) {
-                PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect);
+				CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+					GamePinocchioEvent.GAME_SETTING, 
+					null, 
+					PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect)));
             }
             updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber);
         }
@@ -577,7 +585,10 @@ package info.knightrcom.state {
                     case Red5GameSetting.EXTINCT_RUSH:
                         return;
                 }
-                PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect);
+				CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+					GamePinocchioEvent.GAME_SETTING, 
+					null, 
+					PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect)));
             }
             // 从画面中清除已经使用过的倒计时
             for each (var eachDealed:Container in cardsDealedArray) {
@@ -814,10 +825,13 @@ package info.knightrcom.state {
             		GAME_SETTING : gameSetting, 
             		GAME_FINAL_SETTING_PLAYER_NUMBER : gameFinalSettingPlayerNumber,
             		TITLE : Red5GameSetting.getDisplayName(gameSetting)}; 
-            new Scoreboard().popUp(localNumber, scoreboardInfo, currentGameId,
+			CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+				GamePinocchioEvent.GAME_END, 
+				null, 
+				new Scoreboard().popUp(localNumber, scoreboardInfo, currentGameId,
 		            function():void {
 		            	gameClient.currentState = 'LOBBY';
-		            }, misc);
+		            }, misc)));
             // 显示游戏积分
             if (gameSetting != Red5GameSetting.NO_RUSH) {
                 var rushResult:String = null;
@@ -935,7 +949,10 @@ package info.knightrcom.state {
          */
         private function gameWaitHandler(event:GameEvent):void {
             gameClient.txtSysMessage.text += event.incomingData + "\n";
-            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
+            // gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
+            gameClient.progressBarMatching.indeterminate = false;
+            gameClient.progressBarMatching.setProgress(parseInt(event.incomingData.replace(/\D/g, "")), 100);
+            gameClient.progressBarMatching.visible = true;
         }
 
         /**
@@ -950,6 +967,9 @@ package info.knightrcom.state {
          *
          */
         private function itemClick(event:ItemClickEvent):void {
+            if (!currentGame.btnBarPokers.visible) {
+                return;
+            }
             var card:PokerButton;
             var isGameOver:Boolean = false;
             switch (event.index) {
@@ -1000,13 +1020,14 @@ package info.knightrcom.state {
                     updateTip(currentNumber, localNextNumber);
                     break;
                 case 2:
-                    // 提示
+					// 提示
+                    // 将所有牌设置为非选中状态
                     itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_RESELECT));
-					// 2. 当前为发牌玩家选择第一张牌
-					if (currentBoutCards == null || currentBoutCards.split(",").length == 0)
-					{
-						PokerButton(currentGame.candidatedDown.getChildAt(Red5Game.OPTR_RESELECT)).setSelected(true);
+					if (currentBoutCards == null || currentBoutCards.split(",").length == 0) {
+						// 轮到当前玩家发牌时
+						PokerButton(currentGame.candidatedDown.getChildAt(0)).setSelected(true);
 					} else {
+						// 轮到当前玩家接牌时
                         var tipArray:Array = Red5Game.getBrainPowerTip(
                                 currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","), false);
                         var i:int = 0;
@@ -1209,6 +1230,8 @@ package info.knightrcom.state {
 		/**
 		 * 
 		 * 轮到当前玩家出牌时，开始倒计时，时间到则自动进行pass，若为首发牌，打出最小的一张牌
+         * 
+         * @param event
 		 * 
 		 */
 		private function show(event:FlexEvent):void {
@@ -1226,11 +1249,16 @@ package info.knightrcom.state {
             CursorManager.removeBusyCursor();
             // 计算提示
             Red5Game.refreshTips(currentGame.candidatedDown.getChildren().join(","));
+			
+			CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+				GamePinocchioEvent.GAME_BOUT, null));
 		}
 
 		/**
 		 * 
 		 * 轮到当前玩家出牌时，开始倒计时，时间到则自动进行pass，若为首发牌，打出最小的一张牌
+         * 
+         * @param event
 		 * 
 		 */
 		private function hide(event:FlexEvent):void {

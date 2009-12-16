@@ -25,7 +25,7 @@
             private var _gameId:String = null;
             private var _gameType:String = null;
 
-            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, gameId:String, closeHandler:Function = null, misc:Object = null):void {
+            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, gameId:String, closeHandler:Function = null, misc:Object = null):* {
                 this._currentPlayerNumber = currentPlayerNumber;
                 this._showCharacter = (misc != null);
                 this._gameId = gameId;
@@ -91,7 +91,9 @@
                 // 模态显示
                 PopUpManager.addPopUp(this, (Application.application as DisplayObject), true) as Scoreboard;
                 PopUpManager.centerPopUp(this);
-            }
+
+				return this;
+			}
             
             private function closeHandler(event:MouseEvent):void {
                 PopUpManager.removePopUp(this);
