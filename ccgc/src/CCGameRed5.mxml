@@ -10,6 +10,9 @@
     <mx:Script>
         <![CDATA[
             import info.knightrcom.assets.Red5GameResource;
+            import info.knightrcom.puppet.GamePinocchio;
+
+			public static var puppet:GamePinocchio = new GamePinocchio(null, null, null);
         ]]>
     </mx:Script>
     <!-- 上侧区域 -->

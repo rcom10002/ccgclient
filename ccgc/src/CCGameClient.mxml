@@ -11,8 +11,9 @@
     <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
 	<mx:Script>
 		<![CDATA[
-			import info.knightrcom.assets.CommonResource;
 			import info.knightrcom.GameSocketProxy;
+			import info.knightrcom.assets.CommonResource;
+			import info.knightrcom.state.AbstractGameStateManager;
 			import info.knightrcom.state.BaseStateManager;
 			import info.knightrcom.state.FightLandlordGameStateManager;
 			import info.knightrcom.state.LobbyStateManager;
@@ -20,8 +21,9 @@
 			import info.knightrcom.state.PushdownWinGameStateManager;
 			import info.knightrcom.state.QiongWinGameStateManager;
 			import info.knightrcom.state.Red5GameStateManager;
+			import info.knightrcom.util.BrowserAddressUtil;
+			import info.knightrcom.util.PuppetProxy;
 			
-			import mx.controls.Alert;
 			import mx.utils.URLUtil;
 		]]>
 	</mx:Script>
@@ -116,6 +118,17 @@
 												 visible="false"/>
 									<mx:Button label="显示消息日志" id="btnHideLogWindow" bottom="10" right="110" />
 									<mx:Button label="清空消息日志" id="btnCleanLogWindow" bottom="10" right="10" />
+									<mx:ProgressBar id="progressBarMatching" 
+                                                    bottom="10" 
+                                                    left="10" 
+                                                    width="360"
+                                                    labelPlacement="right" 
+                                                    label="系统配对中，请稍候……" 
+                                                    minimum="0" 
+                                                    maximum="100"
+                                                    mode="manual"
+                                                    indeterminate="true"
+                                                    visible="false"/>
 								</mx:Canvas>
 	                        </mx:VDividedBox>
 	                    </mx:HDividedBox>
@@ -195,6 +208,16 @@
                      duration="1500"/>
         </mx:Transition>
     </mx:transitions>
+	<mx:Script>
+		<![CDATA[
+			private var stateManagers:Object = new Object();
+
+			public function getGameStateManager(gameStateManagerClass:*):AbstractGameStateManager
+			{
+				return stateManagers[getQualifiedClassName(gameStateManagerClass)] as AbstractGameStateManager;
+			}
+		]]>
+	</mx:Script>
     <mx:applicationComplete>
         <![CDATA[
         var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
@@ -205,9 +228,26 @@
         var fightLandlordGameStateManager:FightLandlordGameStateManager = new FightLandlordGameStateManager(socketProxy, this, fightLandlordGameState);
         var pushdownWinGameStateManager:PushdownWinGameStateManager = new PushdownWinGameStateManager(socketProxy, this, pushdownWinGameState);
         var qiongWinGameStateManager:QiongWinGameStateManager = new QiongWinGameStateManager(socketProxy, this, qiongWinGameState);
+		for each (var eachGameStateManager:* in [
+				{key: getQualifiedClassName(Red5GameStateManager), value: red5GameStateManager}, 
+				{key: getQualifiedClassName(FightLandlordGameStateManager), value: fightLandlordGameStateManager}, 
+				{key: getQualifiedClassName(PushdownWinGameStateManager), value: pushdownWinGameStateManager}, 
+				{key: getQualifiedClassName(QiongWinGameStateManager), value: qiongWinGameStateManager}]) {
+			stateManagers[eachGameStateManager.key] = eachGameStateManager.value;
+		}
         baseStateManager.init();
         // 全屏效果
         // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
+		// login the platform through a unique identifier
+		var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
+		var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
+		var username:String = BrowserAddressUtil.getParameterValue("username");
+		var password:String = BrowserAddressUtil.getParameterValue("password");
+		var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
+		var gameSetting:String = BrowserAddressUtil.getParameterValue("gameSetting");
+		if (securityPassword) {
+			PuppetProxy.createPinocchioPuppet(securityPassword, classPrefix, username, password, roomId, gameSetting);
+		}
         ]]>
     </mx:applicationComplete>
 </mx:Application>
