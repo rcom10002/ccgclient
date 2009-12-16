@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%"
+				height="100%"
+				title="でく・ロボット">
+	<mx:Button id="btnStartPuppet" label="Start a Puppet for Red 5 Game" bottom="10" right="10" />
+	<mx:Script>
+		<![CDATA[
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			protected function btnStartPuppetClickHandler(event:MouseEvent):void
+			{
+				HttpServiceProxy.send(
+						LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
+						{GAME_TYPE : "Red5", MAX_RESULTS_SIZE : puppetStepper.value}, 
+						null, function (e:ResultEvent):void {
+					var result:* = e.result;
+					var targetURL:String = result.tag;
+					var classPrefix:String = "Red5";
+					for each (var entity:* in result.entityList.PlayerProfile) {
+						// targetURL, securityPassword, classPrefix, username, password
+						var values:Array = entity.status.split(/~/g);
+						var finalTargetURL:String = targetURL + 
+						"?securityPassword=test" + 
+						"&classPrefix=" + values[1] + 
+						"&username=" + entity.userId + 
+						"&password=" + entity.userId +
+						"&roomId=" + values[2] // Red5Fresh
+						"&gameSetting=" + values[3];
+						ExternalInterface.call("window.open", finalTargetURL);
+					}
+				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+			}
+
+		]]>
+	</mx:Script>
+	<creationComplete>
+		<![CDATA[
+			ListenerBinder.bind(btnStartPuppet, MouseEvent.CLICK, btnStartPuppetClickHandler);
+		]]>
+	</creationComplete>
+	<mx:NumericStepper id="puppetStepper" right="218" bottom="10" minimum="1" maximum="10" stepSize="1" value="4"/>
+</FunctionWindow>
