@@ -32,10 +32,10 @@ package info.knightrcom.util
 				throw Error("EventDispatcher类型参数target为空！\nError #1009: 无法访问空对象引用的属性或方法。");
 			}
 			if (target.hasEventListener(type) && debug) {
-				trace("警告：目标对象" + target + "已经含有" + type + "事件句柄");
+                Logger.warn("目标对象" + target + "已经含有" + type + "事件句柄");
 				// Alert.show("警告：目标对象" + target + "已经含有" + type + "事件句柄");
 			}
-			trace("绑定游戏事件：" + gameType + type);
+            Logger.debug("绑定游戏事件：" + gameType + type);
 			target.addEventListener(gameType + type, function (event:Event):void {
 				try {
 					listener(event);
@@ -43,6 +43,7 @@ package info.knightrcom.util
 					if (debug) {
 						Alert.show(e.getStackTrace(), e.message);
 					}
+                    HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
 				}
 			});
 		}
@@ -61,8 +62,7 @@ package info.knightrcom.util
 				throw Error("EventDispatcher类型参数target为空！\nError #1009: 无法访问空对象引用的属性或方法。");
 			}
 			if (target.hasEventListener(type) && debug) {
-				trace("警告：目标对象" + target + "已经含有" + type + "事件句柄");
-				// Alert.show("警告：目标对象" + target + "已经含有" + type + "事件句柄");
+                Logger.warn("目标对象" + target + "已经含有" + type + "事件句柄");
 			}
 			var gamePrefix:String = "";
 			if (target is GameEvent) {
@@ -79,7 +79,7 @@ package info.knightrcom.util
 				}
 			});
 		}
-
+// TODO THIS IS A TODO IMPLEMENTATION
 //		/**
 //		 * 
 //		 * @param target 要进行事件绑定的对象
