@@ -255,6 +255,9 @@ package info.knightrcom
 				case "自主牌型设置":
 					adminApp.functionWindowArea.currentState="CUSTOM_POKER_WINDOW";
 					break;
+				case "でく・ロボット":
+					adminApp.functionWindowArea.currentState="PUPPET_LAUNCHER_WINDOW";
+					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");
