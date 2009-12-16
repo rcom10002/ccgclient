@@ -160,5 +160,11 @@
 				</service:CustomPokerWindow>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="PUPPET_LAUNCHER_WINDOW">
+			<mx:AddChild position="lastChild">
+				<service:PuppetLauncherWindow>
+				</service:PuppetLauncherWindow>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 </mx:Module>
