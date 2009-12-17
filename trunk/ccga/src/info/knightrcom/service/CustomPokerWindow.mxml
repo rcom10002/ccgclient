@@ -172,6 +172,10 @@
                     }
                 }
                 cards = cards.replace(/,$/, "");
+                if (card == null || cards.length == 0 || this.candidatedDown.getChildren().length == cards.split(",").length) {
+                	Alert.show("请选择要下移的牌！", "自主牌型设置");
+                	return;
+                }
                 showDownPoker(cards);
 			}
 			
@@ -195,6 +199,10 @@
                     }
                 }
                 cards = cards.replace(/,$/, "");
+                if (card == null || cards.length == 0 || this.candidatedUp.getChildren().length == cards.split(",").length) {
+                	Alert.show("请选择要上移的牌！", "自主牌型设置");
+                	return;
+                }
                 showUpPoker(cards);
 			}
 			
