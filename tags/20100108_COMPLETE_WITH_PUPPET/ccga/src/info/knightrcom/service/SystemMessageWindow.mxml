@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service:FunctionWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+						xmlns:service="info.knightrcom.service.*"
+						width="100%"
+						height="100%"
+						creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.validators.Validator;
+			import mx.rpc.events.ResultEvent;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+
+			private function resultHandler(event:ResultEvent):void
+			{
+				if (new XML(event.result).result == "SUCCESS")
+				{
+					Alert.show("消息发送全部成功！", "信息");
+				}
+				else if (new XML(event.result).result == "FAIL")
+				{
+					Alert.show("消息发送全部失败", "错误");
+				}
+				else if (new XML(event.result).result == "WARNING")
+				{
+					Alert.show("有部分消息未能发送成功", "警告");
+				}
+				else
+				{
+					Alert.show("发送失败！", "错误");
+				}
+			}
+
+			private function creationCompleteHandler():void
+			{
+				ListenerBinder.bind(btnSend, MouseEvent.CLICK, sendMessage);
+				ListenerBinder.bind(btnClear, MouseEvent.CLICK, clearMessage);
+			}
+
+			private function sendMessage(event:MouseEvent):void
+			{
+				if (Validator.validateAll(sendValidators).length > 0)
+				{
+					return;
+				}
+				if (radioInstantMessage.selected)
+				{
+					// 发送即时消息
+					HttpServiceProxy.send(LocalSystemMessageService.SEND_SYSTEM_MESSAGE, 
+							{MESSAGE_TYPE : "INSTANT", MESSAGE_CONTENT : instantMessage.text}, 
+							null, 
+							resultHandler);
+				}
+				else if (radioConsoleMessage.selected)
+				{
+					// 发送控制台消息
+					HttpServiceProxy.send(LocalSystemMessageService.SEND_SYSTEM_MESSAGE, 
+							{MESSAGE_TYPE : "CONSOLE", MESSAGE_CONTENT: consoleMessage.text}, 
+							null, 
+							resultHandler);
+				}
+			}
+
+			private function clearMessage(event:MouseEvent):void
+			{
+				if (radioInstantMessage.selected)
+				{
+					instantMessage.text="";
+				}
+				else if (radioConsoleMessage.selected)
+				{
+					consoleMessage.text="";
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Label text="即时消息：" left="10" top="10"/>
+	<mx:Label left="10" top="30">
+		<mx:text>{instantMessage.text.length + "/100"}</mx:text>
+	</mx:Label>
+	<mx:TextArea left="80"
+				 right="10"
+				 top="10"
+				 height="60"
+				 id="instantMessage"
+				 maxChars="100"
+				 enabled="{radioInstantMessage.selected}"/>
+	<mx:Label text="控制台消息：" left="10" top="80"/>
+	<mx:Label left="10" top="100">
+		<mx:text>{consoleMessage.text.length + "/800"}</mx:text>
+	</mx:Label>
+	<mx:TextArea top="80"
+				 bottom="40"
+				 right="10"
+				 left="80"
+				 maxChars="800"
+				 id="consoleMessage"
+				 enabled="{radioConsoleMessage.selected}"/>
+	<!-- 控制区域 -->
+	<mx:RadioButtonGroup id="messageGroup"/>
+	<mx:RadioButton id="radioInstantMessage"
+					label="即时消息"
+					groupName="messageGroup"
+					right="130"
+					bottom="10"/>
+	<mx:RadioButton id="radioConsoleMessage"
+					label="控制台消息"
+					groupName="messageGroup"
+					right="200"
+					bottom="10"/>
+	<mx:Button id="btnSend" label="发送" right="74" bottom="10"/>
+	<mx:Button id="btnClear" label="清除" right="18" bottom="10"/>
+	<!-- 标题 -->
+	<service:title>{"发送" + messageGroup.selectedValue}</service:title>
+	<!-- 验证器 -->
+	<mx:Array id="sendValidators">
+		<mx:StringValidator enabled="{radioInstantMessage.selected}"
+							source="{instantMessage}"
+							property="text"
+							required="true"
+							maxLength="200"
+							requiredFieldError="字数必须在100以内！" 
+							tooLongError="字数必须在100以内！" />
+		<mx:StringValidator enabled="{radioConsoleMessage.selected}"
+							source="{consoleMessage}"
+							property="text"
+							required="true"
+							maxLength="800"
+							requiredFieldError="字数必须在800以内！"
+							tooLongError="字数必须在800以内！"/>
+	</mx:Array>
+</service:FunctionWindow>

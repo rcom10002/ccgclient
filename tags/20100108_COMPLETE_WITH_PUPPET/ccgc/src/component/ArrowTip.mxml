@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml" click="button_click(event);">
+	<mx:Script>
+		<![CDATA[
+            private function button_click(evt:Event):void {
+                var direction:int = 90;
+                var radians:Number = degreesToRadians(direction);
+                var offsetWidth:Number = this.width / 2;
+                var offsetHeight:Number = this.height / 2;
+                var tempMatrix:Matrix = this.transform.matrix;
+                tempMatrix.translate(-offsetWidth, -offsetHeight);
+                tempMatrix.rotate(radians);
+                tempMatrix.translate(+offsetWidth, +offsetHeight);
+
+                this.transform.matrix = tempMatrix;
+//                rotateDeg = this.rotation;
+            }
+
+            private function degreesToRadians(degrees:Number):Number {
+                var radians:Number = degrees * (Math.PI / 180);
+                return radians;
+            }
+		]]>
+	</mx:Script>
+</mx:Image>

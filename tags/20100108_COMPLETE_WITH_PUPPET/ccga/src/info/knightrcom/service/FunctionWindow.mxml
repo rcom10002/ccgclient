@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:layout>absolute</mx:layout>
+	<mx:width>100%</mx:width>
+	<mx:height>100%</mx:height>
+	<mx:minWidth>480</mx:minWidth>
+	<mx:minHeight>360</mx:minHeight>
+	<mx:Script>
+		<![CDATA[
+			import mx.states.State;
+			import mx.events.FlexEvent;
+			import mx.events.StateChangeEvent;
+			import mx.core.Application;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.controls.Button;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+
+			private var layoutCanvas:DisplayObject = null;
+			
+            public function popUp(closeHandler:Function = null):void {
+                // 事件绑定
+                if (closeHandler != null) {
+                	ListenerBinder.bind(this, CloseEvent.CLOSE, closeHandler);
+                }
+            	ListenerBinder.bind(this, CloseEvent.CLOSE, this.closeHandler);
+            	ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGE, this.currentStateChangeHandler);
+            	// 设置容器
+                if (this.layoutCanvas == null) {
+                	this.layoutCanvas = DisplayObject(Application.application);
+                }
+                // 弹出窗口
+                PopUpManager.addPopUp(this, layoutCanvas, true) as TitleWindow;
+                PopUpManager.centerPopUp(this);
+                this.isPopUp = false;
+            }
+
+            public function set currentLayoutCanvas(obj:DisplayObject):void {
+            	this.layoutCanvas = obj;
+            }
+
+            protected function closeHandler(event:CloseEvent):void {
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+
+			protected function currentStateChangeHandler(event:StateChangeEvent):void {
+				if (event.newState == "LIST") {
+					this.percentWidth = 100;
+					this.percentHeight = 100;
+				}
+				if (event.newState == "EDIT") {
+					this.percentWidth = NaN;
+					this.percentHeight = NaN;
+				}
+			}
+			
+			protected function initializeEachState(defaultStateName:String = null):void {
+			    // 为了使每个State中的组件可以通过代码访问，初始化所有的State
+			    var currentVisible:Boolean = this.visible;
+			    var currentStateName:String = this.currentState;
+			    this.visible = false;
+			    for each(var eachState:State in this.states) {
+			        this.currentState = eachState.name;
+			    }
+			    if (defaultStateName != null) {
+			        this.currentState = defaultStateName;
+			    } else {
+			        this.currentState = currentStateName;
+			    }
+			    this.visible = currentVisible;
+			}
+		]]>
+	</mx:Script>
+	<mx:creationComplete>
+		<![CDATA[
+        	// ListenerBinder.bind(this, StateChangeEvent.CURRENT_STATE_CHANGING, this.currentStateChangeHandler);
+		]]>
+	</mx:creationComplete>
+    <mx:HTTPService id="infoService" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST">
+    </mx:HTTPService>
+</mx:TitleWindow>

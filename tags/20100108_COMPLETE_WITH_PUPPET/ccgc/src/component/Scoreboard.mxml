@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+                layout="absolute"
+                width="400"
+                height="209"
+                verticalAlign="top"
+                horizontalAlign="center"
+                title="本局得分明细">
+    <mx:Script>
+        <![CDATA[
+			import component.service.SystemInfoExtFeedbackModelWindow;
+			import component.service.SystemInfoWindow;
+			
+			import info.knightrcom.state.red5game.Red5GameSetting;
+			import info.knightrcom.util.ListenerBinder;
+			
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+            
+            private var _currentPlayerNumber:int = -1;
+            private var _showCharacter:Boolean = false;
+            private var _gameId:String = null;
+            private var _gameType:String = null;
+
+            public function popUp(currentPlayerNumber:int, scoreboardInfo:Array, gameId:String, closeHandler:Function = null, misc:Object = null):* {
+                this._currentPlayerNumber = currentPlayerNumber;
+                this._showCharacter = (misc != null);
+                this._gameId = gameId;
+                scoreboardDataArray = new Array();
+                for each (var recordDesc:String in scoreboardInfo) {
+                    var recordDetailDesc:Array = recordDesc.split(/,/);
+                    var record:Object = new Object();
+                    record.currentNumber = recordDetailDesc[0];
+                    record.score = recordDetailDesc[1];
+                    record.systemScore = recordDetailDesc[2];
+                    record.playerCurrentScore = recordDetailDesc[3];
+                    scoreboardDataArray.push(record);
+                }
+	            // 调整显示顺序，按照分值排序
+				scoreboardDataArray.sort(function (a:Object, b:Object):int {
+	            	var valueA:int = int(a.score);
+	            	var valueB:int = int(b.score);
+	            	if (valueA > valueB) {
+	            		return 1;
+	            	} else if (valueA < valueB) {
+	            		return -1;
+	            	} else {
+	            		return 0;
+	            	}
+	            });
+	            scoreboardDataArray = scoreboardDataArray.reverse();
+	            if (misc) {
+            		this._gameType = misc.GAME_TYPE;
+	            	if ("Red5Game" == this._gameType) {
+	            		this.title += " - " + misc.TITLE;
+	            		if (misc.GAME_SETTING == Red5GameSetting.NO_RUSH) {
+	            			var red5Characters:Array = new Array("大皇上", "二皇上", "大娘娘", "二娘娘");
+	            			for (var i:int = 0; i < red5Characters.length; i++) {
+	            				scoreboardDataArray[i]["character"] = red5Characters[i];
+	            			}
+	            		} else {
+	            			for each (var dataRow:Object in scoreboardDataArray) {
+	            				if (dataRow.currentNumber == misc.GAME_FINAL_SETTING_PLAYER_NUMBER) {
+	            					dataRow["character"] = "独牌玩家";
+	            				} else {
+	            					dataRow["character"] = "普通玩家";
+	            				}
+	            			}
+	            		}
+	            	}
+	            }
+	            // 调整显示顺序
+				scoreboardDataArray.sort(function (a:Object, b:Object):int {
+	            	var valueA:int = int(a.currentNumber);
+	            	var valueB:int = int(b.currentNumber);
+	            	if (valueA > valueB) {
+	            		return 1;
+	            	} else if (valueA < valueB) {
+	            		return -1;
+	            	} else {
+	            		return 0;
+	            	}
+	            });
+	            // 设置关闭回调函数
+                if (closeHandler != null) {
+                	this.addEventListener(CloseEvent.CLOSE, closeHandler);
+                }
+                // 模态显示
+                PopUpManager.addPopUp(this, (Application.application as DisplayObject), true) as Scoreboard;
+                PopUpManager.centerPopUp(this);
+
+				return this;
+			}
+            
+            private function closeHandler(event:MouseEvent):void {
+                PopUpManager.removePopUp(this);
+                Button(this.mx_internal::closeButton).dispatchEvent(event);
+            }
+
+            private function btnVedioHandler(event:MouseEvent):void {
+                btnClose.dispatchEvent(event);
+	        	var infoForm:SystemInfoWindow = new SystemInfoWindow();
+	        	infoForm.currentLayoutCanvas = Application.application.lobbyMain;
+                infoForm.quickVedio(this._gameId, this._gameType);
+	        	infoForm.popUp();
+            }
+
+            private function btnFeedbackHandler(event:MouseEvent):void {
+                btnClose.dispatchEvent(event);
+				var feedbackWindow:SystemInfoExtFeedbackModelWindow = new SystemInfoExtFeedbackModelWindow();
+				ListenerBinder.bind(feedbackWindow, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+					feedbackWindow.feedbackGameId.text = _gameId;
+				})
+				feedbackWindow.popup();
+            }
+        ]]>
+    </mx:Script>
+    <mx:creationComplete>
+    	<![CDATA[
+    		// 事件绑定
+            ListenerBinder.bind(btnClose, MouseEvent.CLICK, closeHandler);
+            ListenerBinder.bind(btnVedio, MouseEvent.CLICK, btnVedioHandler);
+            ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackHandler);
+            // 设置高亮显示行
+            scoreboardGrid.selectedIndex = _currentPlayerNumber - 1;
+            (scoreboardGrid.columns[1] as DataGridColumn).visible = true;
+            // 设置焦点
+            btnClose.setFocus();
+    	]]>
+    </mx:creationComplete>
+    <!-- 数据源与数据显示表格 -->
+    <mx:Array id="scoreboardDataArray"/>
+    <mx:DataGrid id="scoreboardGrid"
+                 dataProvider="{scoreboardDataArray}"
+                 selectionDisabledColor="#663366"
+                 enabled="false"
+                 height="125"
+                 right="10"
+                 left="10"
+                 top="10">
+        <mx:columns>
+            <mx:DataGridColumn headerText="序号"
+                               dataField="currentNumber"/>
+            <mx:DataGridColumn headerText="角色"
+                               dataField="character" visible="false"/>
+            <mx:DataGridColumn headerText="得分"
+                               dataField="score"/>
+            <mx:DataGridColumn headerText="系统分"
+                               dataField="systemScore"/>
+			<mx:DataGridColumn headerText="总积分"
+                               dataField="playerCurrentScore"/>
+        </mx:columns>
+    </mx:DataGrid>
+    <!-- 关闭按钮 -->
+    <mx:HBox left="0" right="0" top="145" bottom="0" horizontalAlign="center">
+        <mx:Button id="btnClose"
+                   label="返回大厅" />
+        <mx:Button id="btnVedio"
+                   label="观看录像" />
+        <mx:Button id="btnFeedback"
+                   label="立即投诉" />
+    </mx:HBox>
+</mx:TitleWindow>

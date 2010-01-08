@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+         paddingTop="6"
+         paddingRight="6"
+         paddingLeft="6"
+         paddingBottom="6"
+         horizontalAlign="center"
+         width="277"
+         height="107"
+         backgroundImage="{Red5GameResource.SETTING}" verticalGap="0">
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.Red5GameResource;
+            
+            import mx.controls.Button;
+
+            private function handleDown(e:MouseEvent):void {
+                this.startDrag()
+            }
+
+            private function handleUp(e:MouseEvent):void {
+                this.stopDrag()
+            }
+
+        ]]>
+    </mx:Script>
+    <mx:HBox mouseDown="handleDown(event)"
+             mouseUp="handleUp(event)"
+             width="100%"
+             height="24"
+             verticalAlign="middle"
+             horizontalAlign="left"
+             id="hbox0"
+             paddingRight="6">
+        <mx:Label id="title"
+                  color="#0000ff"
+                  textAlign="left"
+                  paddingLeft="6"
+                  paddingTop="2"
+                  visible="false"/>
+    </mx:HBox>
+    <mx:VBox verticalAlign="top"
+             verticalGap="0"
+             width="100%">
+        <mx:Text id="msg"
+                 styleName="gameSettingNumber"
+                 textAlign="center"
+                 width="100%"
+                 height="32"/>
+        <mx:HBox id="btns"
+                 width="100%"
+                 horizontalAlign="center"
+                 paddingTop="6">
+        </mx:HBox>
+    </mx:VBox>
+</mx:VBox>

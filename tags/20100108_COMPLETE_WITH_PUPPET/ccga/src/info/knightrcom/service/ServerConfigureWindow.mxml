@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.Base64Decoder;
+			import mx.events.DragEvent;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.TextArea;
+			import mx.containers.FormItem;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalServerConfigureService;
+			import mx.events.ItemClickEvent;
+			import mx.validators.Validator;
+			import mx.events.CloseEvent;
+
+			public static var adminApp:Administration;
+			
+			public var currentOperationMethod:OperationMethod;
+			// 验证字母数字和下划线组合
+			private function validateInput(str:String):Boolean {
+				var pattern:RegExp = /^[a-zA-Z_]*$/;
+				return pattern.test(str);
+			}
+			
+			protected function setValue(event:ResultEvent):void
+			{
+				var e4xResult:XML=new XML(event.result);
+				variableName.text=e4xResult.entity.name.text();
+				variableValue.text=e4xResult.entity.value.text();
+				trace(e4xResult.entity.globalconfigId.text());
+			}
+
+			protected function readServerData():void
+			{
+				HttpServiceProxy.send(LocalServerConfigureService.RETRIEVE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+
+
+			protected function clearEditor():void
+			{
+				for each (var thisFormItem:FormItem in Form(this.editor).getChildren())
+				{
+					var control:Object=thisFormItem.getChildAt(0);
+					if (control is TextInput)
+					{
+						TextInput(control).text="";
+					}
+					else if (control is TextArea)
+					{
+						TextArea(control).text="";
+					}
+					else
+					{
+						throw Error("无法为当前控件进行初始化");
+					}
+				}
+			}
+			
+			private function btnCreateServerConfigureClickHandler(event:MouseEvent):void {
+				currentState="EDIT";
+				currentOperationMethod=OperationMethod.CREATE;
+				clearEditor();
+				variableName.enabled = true;
+			}
+			
+			private function btnUpdateServerConfigureClickHandler(event:MouseEvent):void {
+				if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要更新的数据！", "服务器参数管理");
+			        return;
+			    }
+				currentState="EDIT";
+				currentOperationMethod=OperationMethod.UPDATE;
+				variableName.enabled = false;
+				HttpServiceProxy.send(LocalServerConfigureService.READ_SERVER_CONFIGURE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+					{
+						setValue(event);
+					});
+			}
+			
+			private function btnDeleteServerConfigureClickHandler(event:MouseEvent):void {
+				currentOperationMethod=OperationMethod.DELETE;
+				if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要删除的数据！", "服务器参数设置");
+			        return;
+			    }
+			    Alert.yesLabel = "确认";
+				Alert.noLabel = "取消";
+			    Alert.show( "确定要删除？",
+						"消息", 
+						Alert.YES | Alert.NO,
+						adminApp,
+						function handleAlert(event:CloseEvent):void {
+						    if(event.detail == Alert.YES)
+						    {
+						    	HttpServiceProxy.send(LocalServerConfigureService.DELETE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+									{
+										if (new XML(event.result).result == "SUCCESS")
+										{
+											Alert.show("删除成功！", "服务器参数设置");
+											currentOperationMethod=OperationMethod.UPDATE;
+											readServerData();
+										}
+										else
+										{
+											Alert.show("删除失败！", "服务器参数设置");
+										}
+									}, function(event:FaultEvent):void
+									{
+										Alert.show("删除失败！", "服务器参数设置");
+									});
+						    }
+						},
+						null,
+						Alert.YES);
+			}
+			
+			private function pageChangeServerConfigureClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+				{
+					return;
+				}
+				if (event.index == 0)
+				{
+					CURRENT_PAGE--;
+				}
+				else if (event.index == 1)
+				{
+					CURRENT_PAGE++;
+				}
+				readServerData();
+			}
+			
+			private function btnSubmitServerConfigureClickHandler(event:MouseEvent):void {
+				if (Validator.validateAll(this.serverConfigureValidators).length > 0)
+				{
+					Alert.show("信息填写不符合规范！", "警告");
+					return;
+				}
+				if (!validateInput(variableName.text)) 
+				{
+					Alert.show("变量名格式错误(变量名应为字母或下划线)！","服务器参数管理");
+					return;
+				}
+				if (currentOperationMethod == OperationMethod.CREATE)
+				{
+					HttpServiceProxy.send(LocalServerConfigureService.CREATE_SERVER_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show("新增成功！", "服务器参数设置");
+								currentState="LIST";
+								currentOperationMethod=OperationMethod.UNKNOWN;
+								readServerData();
+							} 
+							else if (new XML(event.result).result == "WARNING")
+							{
+								Alert.show("变量名已存在！", "服务器参数设置");
+							}
+							else
+							{
+								Alert.show("新增失败！", "服务器参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("新增失败！", "服务器参数设置");
+						});
+				}
+				else if (currentOperationMethod == OperationMethod.UPDATE)
+				{
+					HttpServiceProxy.send(LocalServerConfigureService.UPDATE_SERVER_CONFIGURE, {CURRENT_PAGE: 1, VARIABLE_NAME: variableName.text, VARIABLE_VALUE: variableValue.text, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show("保存成功！", "服务器参数设置");
+								currentOperationMethod=OperationMethod.UPDATE;
+							}
+							else
+							{
+								Alert.show("保存失败！", "服务器参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("保存失败！", "服务器参数设置");
+						});
+				}
+			}
+			
+			private function btnBackServerConfigureClickHandler(event:MouseEvent):void {
+				currentState="LIST";
+				currentOperationMethod=OperationMethod.UNKNOWN;
+				readServerData();
+			}
+
+			protected function creationCompleteHandler():void
+			{
+				// 状态初始化
+				initializeEachState("LIST");
+				// 事件绑定
+				CURRENT_PAGE=1;
+				readServerData();
+				currentOperationMethod=OperationMethod.UPDATE; // default
+				
+				// 新增
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnCreateServerConfigureClickHandler);
+				// 更新
+				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, btnUpdateServerConfigureClickHandler);	
+				// 删除
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, btnDeleteServerConfigureClickHandler);
+				// 翻页
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeServerConfigureClickHandler);
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitServerConfigureClickHandler);
+				// 取消
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackServerConfigureClickHandler);
+			}
+		]]>
+	</mx:Script>
+	<states>
+		<mx:State name="EDIT">
+			<mx:AddChild position="lastChild">
+				<mx:Form id="editor"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="40">
+					<mx:FormItem label="变量名">
+						<mx:TextInput id="variableName"/>
+					</mx:FormItem>
+					<mx:FormItem label="变量值">
+						<mx:TextInput id="variableValue"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="66"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="服务器参数编辑"/>
+		</mx:State>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="0"
+							 left="0"
+							 right="0"
+							 bottom="40"
+							 id="datagrid">
+					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn dataField="globalConfigId"
+										   visible="false"/>
+						<mx:DataGridColumn headerText="变量名"
+										   dataField="name"/>
+						<mx:DataGridColumn headerText="变量值"
+										   dataField="value"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="新增"
+						   id="btnCreate"
+						   right="130"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="修改"
+						   id="btnUpdate"
+						   right="70"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="删除"
+						   id="btnDelete"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="服务器参数管理"/>
+		</mx:State>
+	</states>
+	<!-- 验证器 -->
+    <mx:Array id="serverConfigureValidators">
+		<mx:StringValidator source="{variableName}"
+                            required="true"
+                            property="text"
+                            minLength="1" maxLength="50"  
+					    	tooShortError="变量名字数最少1个字符！"
+					    	tooLongError="变量名字数最多50个字符！"
+                            requiredFieldError="变量名不能为空！"/>
+        <mx:StringValidator source="{variableValue}"
+                            required="true"
+                            property="text"
+                            minLength="1" maxLength="50"  
+					    	tooShortError="变量值字数最少1个字符！"
+					    	tooLongError="变量值字数最多50个字符！"
+                            requiredFieldError="变量值不能为空！"/>
+    </mx:Array>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+		horizontalAlign="center"
+		verticalAlign="middle"
+		width="960"
+		height="720"
+		minWidth="800"
+		minHeight="600">
+	<mx:Style source="info/knightrcom/assets/FightLandlordGameStyle.css" />
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.FightLandlordGameResource;
+        ]]>
+    </mx:Script>
+	<!-- 上侧区域 -->
+    <mx:HBox id="candidatedUp"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             verticalAlign="bottom"
+             top="0"
+             left="128"
+             right="128">
+    </mx:HBox>
+	<!-- 右侧区域 -->
+    <mx:VBox id="candidatedRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="264"
+             bottom="120"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="464"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+	<!-- 下侧区域 -->
+    <mx:HBox id="candidatedDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             left="128"
+             right="228"
+             bottom="0"
+             verticalAlign="top">
+	</mx:HBox>
+    <mx:HBox id="candidatedTipDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="120"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             left="740"
+             right="128"
+             bottom="0"
+             verticalAlign="top">
+    </mx:HBox>
+	<!-- 左侧区域 -->
+    <mx:VBox id="candidatedLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="256"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="472"
+             bottom="120"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+	<mx:Canvas left="128" right="128" top="128" bottom="157">
+		<!-- 牌桌区域 -->
+		<mx:HBox id="dealedRight"
+				 right="0"
+				 top="117"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 width="345"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle" height="100">
+		</mx:HBox>
+		<mx:HBox id="dealedDown"
+				 height="100"
+				 right="160"
+				 bottom="100"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 left="160"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+		</mx:HBox>
+		<mx:HBox id="dealedLeft"
+				 left="0"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 top="117"
+				 width="345"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle" height="100">
+		</mx:HBox>
+	</mx:Canvas>
+	<!-- 操作区域 -->
+	<mx:VBox horizontalAlign="center"
+			 left="128"
+			 right="128"
+			 bottom="120"
+			 height="128"
+             verticalGap="2"
+             verticalScrollPolicy="off">
+		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
+			<mx:dataProvider>
+				<mx:String>重选</mx:String>
+				<mx:String>不要</mx:String>
+				<mx:String>提示</mx:String>
+				<mx:String>出牌</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipA" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>对子</mx:String>
+				<mx:String>三同张</mx:String>
+				<mx:String>四同张</mx:String>
+				<mx:String>五同张</mx:String>
+				<mx:String>六同张</mx:String>
+				<mx:String>七同张</mx:String>
+				<mx:String>八同张</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipB" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>四连顺</mx:String>
+				<mx:String>五连顺</mx:String>
+				<mx:String>对子三连顺</mx:String>
+				<mx:String>对子四连顺</mx:String>
+				<mx:String>对子五连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipC" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>三同张三连顺</mx:String>
+				<mx:String>三同张四连顺</mx:String>
+				<mx:String>三同张五连顺</mx:String>
+				<mx:String>四同张三连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:VBox>
+    <!-- 提示区域 -->
+    <!-- 提示区域 -->
+    <mx:ProgressBar id="timerTip" x="10" y="-300"/>
+    <mx:Text id="arrowTip" x="10" y="-400" selectable="false"/>
+    <mx:Image id="infoBoard" source="{FightLandlordGameResource.INFO_BOARD}" x="0" y="0" />
+    <mx:Text id="infoBoardText" x="48" y="80" width="160" text="" selectable="false" 
+             textAlign="center" fontSize="36" fontFamily="DS-Digital" fontAntiAliasType="advanced" 
+             filters="{[dropShadowFilter]}" />
+    <mx:DropShadowFilter id="dropShadowFilter" angle="45" alpha="0.65" 
+                         blurX="0.5" blurY="0.5" distance="3" color="0x000000" />
+    <!-- 背景图片区域 -->
+    <mx:Image id="bgCurtainLeft" source="{FightLandlordGameResource.CURTAIN_LEFT}" left="0" top="0"/>
+    <mx:Image id="bgCurtainRight" source="{FightLandlordGameResource.CURTAIN_RIGHT}" right="0" top="0"/>
+    <mx:Image id="bgLogo" source="{FightLandlordGameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
+    <mx:Image id="bgLaceLeft" source="{FightLandlordGameResource.LACE_LEFT}" left="0" bottom="0"/>
+    <mx:Image id="bgLaceRight" source="{FightLandlordGameResource.LACE_RIGHT}" right="0" bottom="0"/>
+    <!-- 倍数 -->
+    <mx:HBox id="candidatedTipUpExt"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="102"
+             horizontalAlign="left"
+             top="10"
+             verticalAlign="top" width="120" horizontalCenter="350">
+    </mx:HBox>
+    <mx:HBox id="candidatedTipDownExt"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="102"
+             horizontalAlign="left"
+             bottom="10"
+             verticalAlign="top" width="120" horizontalCenter="240">
+    </mx:HBox>
+</mx:Module>

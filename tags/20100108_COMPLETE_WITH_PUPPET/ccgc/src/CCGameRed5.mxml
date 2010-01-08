@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+		horizontalAlign="center"
+		verticalAlign="middle"
+		width="960"
+		height="720"
+        minWidth="800"
+		minHeight="600">
+    <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.Red5GameResource;
+            import info.knightrcom.puppet.GamePinocchio;
+
+			public static var puppet:GamePinocchio = new GamePinocchio(null, null, null);
+        ]]>
+    </mx:Script>
+    <!-- 上侧区域 -->
+    <mx:HBox id="candidatedUp"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="129"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             verticalAlign="bottom"
+             top="0"
+             left="220"
+             right="220">
+    </mx:HBox>
+    <mx:VBox id="candidatedTipUp"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="129"
+             horizontalAlign="center"
+             verticalAlign="bottom"
+             top="0"
+             width="200" horizontalCenter="200">
+    </mx:VBox>
+	<!-- 右侧区域 -->
+    <mx:VBox id="candidatedRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="128"
+             right="92"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipRight"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="140"
+             right="0"
+             horizontalAlign="left"
+             verticalAlign="middle"
+             height="200" verticalCenter="0">
+    </mx:VBox>
+	<!-- 下侧区域 -->
+    <mx:HBox id="candidatedDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="129"
+             horizontalGap="-55"
+             horizontalAlign="center"
+             bottom="0"
+             verticalAlign="top" left="220" right="220">
+	</mx:HBox>
+    <mx:VBox id="candidatedTipDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="129"
+             horizontalAlign="center"
+             bottom="0"
+             verticalAlign="top" width="200" horizontalCenter="-200">
+    </mx:VBox>
+	<!-- 左侧区域 -->
+    <mx:VBox id="candidatedLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120"
+             top="128"
+             bottom="128"
+             left="92"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             verticalGap="-78">
+    </mx:VBox>
+    <mx:VBox id="candidatedTipLeft"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="140"
+             left="0"
+             horizontalAlign="right"
+             verticalAlign="middle"
+             height="200" verticalCenter="0">
+    </mx:VBox>
+	<mx:Canvas left="220" right="220" top="128" bottom="128">
+		<!-- 牌桌区域 -->
+		<mx:HBox id="dealedUp"
+				 height="100"
+				 top="10"
+				 left="100"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 right="100"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+		</mx:HBox>
+		<mx:HBox id="dealedRight"
+				 right="0"
+				 top="118"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 width="345"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="right"
+				 verticalAlign="middle" bottom="118">
+		</mx:HBox>
+		<mx:HBox id="dealedDown"
+				 height="100"
+				 right="100"
+				 bottom="10"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 left="100"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="center"
+				 verticalAlign="middle">
+		</mx:HBox>
+		<mx:HBox id="dealedLeft"
+				 left="0"
+				 horizontalGap="-55"
+				 verticalGap="-78"
+				 top="118"
+				 width="345"
+				 horizontalScrollPolicy="off"
+				 horizontalAlign="left"
+				 verticalAlign="middle" bottom="118">
+		</mx:HBox>
+	</mx:Canvas>
+	<!-- 操作区域 -->
+	<mx:VBox horizontalAlign="center"
+			 left="0"
+			 right="0"
+			 bottom="120"
+			 height="135"
+             verticalGap="2"
+             verticalScrollPolicy="off">
+		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
+			<mx:dataProvider>
+				<mx:String>重选</mx:String>
+				<mx:String>不要</mx:String>
+				<mx:String>提示</mx:String>
+				<mx:String>出牌</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipA" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>对子</mx:String>
+				<mx:String>三同张</mx:String>
+				<mx:String>四同张</mx:String>
+				<mx:String>五同张</mx:String>
+				<mx:String>六同张</mx:String>
+				<mx:String>七同张</mx:String>
+				<mx:String>八同张</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipB" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>四连顺</mx:String>
+				<mx:String>五连顺</mx:String>
+				<mx:String>对子三连顺</mx:String>
+				<mx:String>对子四连顺</mx:String>
+				<mx:String>对子五连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipC" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
+				<mx:String>三同三连顺</mx:String>
+				<mx:String>三同四连顺</mx:String>
+				<mx:String>三同五连顺</mx:String>
+				<mx:String>四同三连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:VBox>
+    <!-- 提示区域 -->
+    <mx:ProgressBar id="timerTip" x="10" y="-300"/>
+    <mx:Text id="arrowTip" x="10" y="-400" selectable="false"/>
+    <mx:Image id="infoBoard" source="{Red5GameResource.INFO_BOARD}" x="0" y="0" />
+    <mx:Text id="infoBoardText" x="48" y="80" width="160" text="" selectable="false" 
+             textAlign="center" fontSize="36" fontFamily="DS-Digital" fontAntiAliasType="advanced" 
+             filters="{[dropShadowFilter]}" />
+    <mx:DropShadowFilter id="dropShadowFilter" angle="45" alpha="0.65" 
+                         blurX="0.5" blurY="0.5" distance="3" color="0x000000" />
+    <!-- 背景图片区域 -->
+    <mx:Image id="bgCurtainLeft" source="{Red5GameResource.CURTAIN_LEFT}" left="0" top="0"/>
+    <mx:Image id="bgCurtainRight" source="{Red5GameResource.CURTAIN_RIGHT}" right="0" top="0"/>
+    <mx:Image id="bgLogo" source="{Red5GameResource.LOGO}" horizontalCenter="0" verticalCenter="0"/>
+    <mx:Image id="bgLaceLeft" source="{Red5GameResource.LACE_LEFT}" left="0" bottom="0"/>
+    <mx:Image id="bgLaceRight" source="{Red5GameResource.LACE_RIGHT}" right="0" bottom="0"/>
+    <mx:HBox id="candidatedTipDownExt"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             height="102"
+             horizontalAlign="left"
+             bottom="10"
+             verticalAlign="top" width="120" horizontalCenter="240">
+    </mx:HBox>
+</mx:Module>

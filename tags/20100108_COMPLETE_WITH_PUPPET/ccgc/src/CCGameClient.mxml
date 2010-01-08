@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+                layout="absolute"
+                minWidth="800"
+                minHeight="600"
+                xmlns:cmpext="component.*"
+                xmlns:service="component.service.*"
+                xmlns:ccgame="*">
+    <mx:Style source="style/ccgskin.css"/>
+    <mx:Style source="style/ccgskin-ext.css"/>
+    <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
+	<mx:Script>
+		<![CDATA[
+			import info.knightrcom.GameSocketProxy;
+			import info.knightrcom.assets.CommonResource;
+			import info.knightrcom.state.AbstractGameStateManager;
+			import info.knightrcom.state.BaseStateManager;
+			import info.knightrcom.state.FightLandlordGameStateManager;
+			import info.knightrcom.state.LobbyStateManager;
+			import info.knightrcom.state.LoginStateManager;
+			import info.knightrcom.state.PushdownWinGameStateManager;
+			import info.knightrcom.state.QiongWinGameStateManager;
+			import info.knightrcom.state.Red5GameStateManager;
+			import info.knightrcom.util.BrowserAddressUtil;
+			import info.knightrcom.util.PuppetProxy;
+			
+			import mx.utils.URLUtil;
+		]]>
+	</mx:Script>
+    <mx:states>
+        <!-- 登录界面 -->
+        <mx:State id="loginState"
+                  name="LOGIN">
+            <mx:AddChild position="lastChild">
+                <mx:Panel id="loginLayout"
+                          layout="absolute"
+                          height="138"
+                          width="240"
+                          title="用户登录" bottom="46" right="52">
+                    <mx:Label x="10"
+                              y="10"
+                              text="用户ID"/>
+                    <mx:Label x="10"
+                              y="36"
+                              text="密码"
+                              fontFamily="simsun"/>
+                    <mx:TextInput x="53"
+                                  y="8"
+                                  id="txtUsername"
+                                  text="user1"/>
+                    <mx:TextInput x="53"
+                                  y="34"
+                                  id="txtPassword"
+                                  text="user1"
+                                  displayAsPassword="true"/>
+                    <mx:Button x="38"
+                               y="66"
+                               id="btnConnect"
+                               label="连接"/>
+                    <mx:Button x="98"
+                               y="66"
+                               id="btnSubmit"
+                               label="登录"/>
+                    <mx:Button x="158"
+                               y="66"
+                               id="btnReset"
+                               label="重置"/>
+                </mx:Panel>
+            </mx:AddChild>
+            <!--
+            <mx:SetProperty name="layout" value="vertical"/>
+            <mx:SetStyle name="horizontalAlign" value="center"/>
+            <mx:SetStyle name="verticalAlign" value="middle"/>
+            -->
+        </mx:State>
+        <!-- 平台界面 -->
+        <mx:State id="lobbyState"
+                  name="LOBBY">
+            <mx:AddChild position="lastChild">
+                <cmpext:GameControlBar id="gameControlBar"
+                                       left="0"
+                                       right="0"
+                                       top="0"/>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+            	<mx:Canvas id="lobbyMain"
+                           left="10"
+                           right="10"
+                           top="40"
+                           bottom="10">
+	                <mx:Panel id="platformLayout"
+	                          layout="absolute"
+	                          left="0"
+	                          right="0"
+	                          top="0"
+	                          bottom="0"
+	                          title="游戏大厅">
+	                    <mx:HDividedBox width="100%"
+	                                    height="100%">
+	                        <mx:VBox minWidth="200"
+	                                 maxWidth="300"
+	                                 height="100%"
+	                                 id="vboxLobbyTree">
+	                            <mx:Accordion id="acdnLobbys"
+	                                          width="100%"
+	                                          height="100%">
+	                            </mx:Accordion>
+	                        </mx:VBox>
+	                        <mx:VDividedBox width="100%"
+	                                        height="100%">
+								<mx:Canvas width="100%" height="100%">
+									<mx:Image source="{CommonResource.DARK_FLOWER}"  right="0" verticalCenter="0"/>
+									<mx:TextArea id="txtSysMessage"
+												 width="100%"
+												 top="0"
+												 bottom="40"
+												 editable="false"
+												 visible="false"/>
+									<mx:Button label="显示消息日志" id="btnHideLogWindow" bottom="10" right="110" />
+									<mx:Button label="清空消息日志" id="btnCleanLogWindow" bottom="10" right="10" />
+									<mx:ProgressBar id="progressBarMatching" 
+                                                    bottom="10" 
+                                                    left="10" 
+                                                    width="360"
+                                                    labelPlacement="right" 
+                                                    label="系统配对中，请稍候……" 
+                                                    minimum="0" 
+                                                    maximum="100"
+                                                    mode="manual"
+                                                    indeterminate="true"
+                                                    visible="false"/>
+								</mx:Canvas>
+	                        </mx:VDividedBox>
+	                    </mx:HDividedBox>
+	                </mx:Panel>
+            	</mx:Canvas>
+            </mx:AddChild>
+        </mx:State>
+        <!-- 红五游戏 -->
+        <mx:State id="red5GameState"
+                  name="RED5GAME">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGameRed5 id="red5GameModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGameRed5>
+            </mx:AddChild>
+        </mx:State>
+        <!-- 斗地主游戏 -->
+        <mx:State id="fightLandlordGameState"
+                  name="FIGHTLANDLORDGAME">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGameFightLandlord id="fightLandlordGameModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGameFightLandlord>
+            </mx:AddChild>
+        </mx:State>
+        <!-- 推倒胡游戏 -->
+        <mx:State id="pushdownWinGameState"
+                  name="PUSHDOWNWINGAME">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGamePushdownWin id="pushdownWinGameModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGamePushdownWin>
+            </mx:AddChild>
+        </mx:State>
+        <!-- 穷胡游戏 -->
+        <mx:State id="qiongWinGameState"
+                  name="QIONGWINGAME">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGameQiongWin id="qiongWinGameModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGameQiongWin>
+            </mx:AddChild>
+        </mx:State>
+        <!-- 游戏帮助 -->
+        <mx:State id="ccgameClientHelpState"
+                  name="CCGAMECLIENTHELP">
+            <mx:AddChild position="lastChild">
+                <ccgame:CCGameHelp id="ccgameHelpModule" x="0" y="0" width="100%" height="100%">
+                </ccgame:CCGameHelp>
+            </mx:AddChild>
+        </mx:State>
+    </mx:states>
+	<!-- 系统消息显示区域 -->
+    <mx:Canvas id="instantMessageTip" left="0" top="0" right="0" height="40" backgroundColor="white" backgroundAlpha="0.85" visible="false">
+    	<mx:Text left="10" top="10" right="40" id="txtSysNotification" color="blue" />
+    	<mx:Label text="关闭" top="10" right="10" click="instantMessageTip.visible = false;" color="red" />
+    </mx:Canvas>
+	<!-- 全屏显示按钮 -->
+    <mx:Button width="16" height="16" id="btnScreenMode" cornerRadius="8" bottom="10" right="10" visible="false"/>
+    <!-- 验证器 -->
+    <mx:Array id="loginValidators">
+        <mx:StringValidator source="{txtUsername}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="用户ID不能为空！"/>
+        <mx:StringValidator source="{txtPassword}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="密码不能为空！"/>
+    </mx:Array>
+    <!-- 转换效果 -->
+    <mx:transitions>
+        <mx:Transition fromState="*"
+                       toState="LOGIN">
+            <mx:Blur target="{loginLayout}"
+                     duration="1500"/>
+        </mx:Transition>
+        <mx:Transition fromState="*"
+                       toState="PLATFORM">
+            <mx:Blur target="{platformLayout}"
+                     duration="1500"/>
+        </mx:Transition>
+    </mx:transitions>
+	<mx:Script>
+		<![CDATA[
+			private var stateManagers:Object = new Object();
+
+			public function getGameStateManager(gameStateManagerClass:*):AbstractGameStateManager
+			{
+				return stateManagers[getQualifiedClassName(gameStateManagerClass)] as AbstractGameStateManager;
+			}
+		]]>
+	</mx:Script>
+    <mx:applicationComplete>
+        <![CDATA[
+        var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
+        var baseStateManager:BaseStateManager = new BaseStateManager(socketProxy, this);
+        var loginStateManager:LoginStateManager = new LoginStateManager(socketProxy, this, loginState);
+        var lobbyStateManager:LobbyStateManager = new LobbyStateManager(socketProxy, this, lobbyState);
+        var red5GameStateManager:Red5GameStateManager = new Red5GameStateManager(socketProxy, this, red5GameState);
+        var fightLandlordGameStateManager:FightLandlordGameStateManager = new FightLandlordGameStateManager(socketProxy, this, fightLandlordGameState);
+        var pushdownWinGameStateManager:PushdownWinGameStateManager = new PushdownWinGameStateManager(socketProxy, this, pushdownWinGameState);
+        var qiongWinGameStateManager:QiongWinGameStateManager = new QiongWinGameStateManager(socketProxy, this, qiongWinGameState);
+		for each (var eachGameStateManager:* in [
+				{key: getQualifiedClassName(Red5GameStateManager), value: red5GameStateManager}, 
+				{key: getQualifiedClassName(FightLandlordGameStateManager), value: fightLandlordGameStateManager}, 
+				{key: getQualifiedClassName(PushdownWinGameStateManager), value: pushdownWinGameStateManager}, 
+				{key: getQualifiedClassName(QiongWinGameStateManager), value: qiongWinGameStateManager}]) {
+			stateManagers[eachGameStateManager.key] = eachGameStateManager.value;
+		}
+        baseStateManager.init();
+        // 全屏效果
+        // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
+		// login the platform through a unique identifier
+		var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
+		var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
+		var username:String = BrowserAddressUtil.getParameterValue("username");
+		var password:String = BrowserAddressUtil.getParameterValue("password");
+		var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
+		var gameSetting:String = BrowserAddressUtil.getParameterValue("gameSetting");
+		if (securityPassword) {
+			PuppetProxy.createPinocchioPuppet(securityPassword, classPrefix, username, password, roomId, gameSetting);
+		}
+        ]]>
+    </mx:applicationComplete>
+</mx:Application>

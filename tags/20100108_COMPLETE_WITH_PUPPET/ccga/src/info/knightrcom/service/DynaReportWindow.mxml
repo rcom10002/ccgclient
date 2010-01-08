@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:net="flash.net.*" xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="creationCompleteHandler();">
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import info.knightrcom.service.LocalDynaReportService;
+		import mx.controls.Alert;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import info.knightrcom.util.HttpServiceProxy;
+		import info.knightrcom.util.ListenerBinder;
+		import mx.events.ItemClickEvent;
+		import mx.events.CloseEvent;
+		
+		public static var adminApp:Administration;
+			
+		protected function clearEditor():void
+		{
+			txtError.text = "";
+		}
+		
+		private function dataBind(e4xResult:XML):void {
+			CURRENT_PAGE = e4xResult.pagination.currentPage;
+			TOTAL_PAGE = e4xResult.pagination.totalPage;
+			lblPage.text = e4xResult.pagination.currentPage + "/" + e4xResult.pagination.totalPage;
+			var colsLen:int = e4xResult.entityList.map.length();
+			if (colsLen == 0) {
+				datagridResult.columns = new Array();
+				return;
+			}
+			var cols:Array = new Array();
+			for (var ind:String in e4xResult.entityList.map[0].children()){
+				cols.push(new DataGridColumn(e4xResult.entityList.map[0].children()[ind].name()));
+			}
+			datagridResult.columns = cols;
+			datagridResult.dataProvider = e4xResult.entityList.children();
+		}
+		
+		private function defaultSearch():void {
+			var templateId:String = null;
+			if (mth.selectedValue == 0) {
+				templateId = datagrid.selectedItem.globalConfigId.text();
+			}
+            HttpServiceProxy.send(LocalDynaReportService.READ_DYNA_REPORT, {CURRENT_PAGE : CURRENT_PAGE, MTH: mth.selectedValue, TEMPLATE_ID: templateId, SQL:txtContent.text}, null, function(event:ResultEvent):void
+				{
+					var e4xResult:XML=new XML(event.result);
+					if (e4xResult.result == "SUCCESS")
+					{
+						currentState="RESULT";
+						dataBind(e4xResult);
+					}
+					else
+					{
+						Alert.show("查询失败！", "动态报表分析器");
+						clearEditor();
+						currentState="ERROR";
+						txtError.text = e4xResult.entity.map.error.text();
+					}
+				}, function(event:FaultEvent):void
+				{
+					Alert.show("查询失败！", "动态报表分析器");
+				});
+		}
+
+		protected function readReportTemplate():void
+		{
+			HttpServiceProxy.send(LocalReportTemplateManageService.RETRIEVE_SQL_TEMPLATE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
+		}
+		
+		private function rdoTemplateDynaReportClickHandler(event:MouseEvent):void {
+			txtContent.enabled = false;
+			txtContent.visible = false;
+			datagrid.visible = true;
+			barTemplate.visible = true;
+			readReportTemplate();
+		}
+		
+		private function rdoInputDynaReportClickHandler(event:MouseEvent):void {
+			txtContent.enabled = true;
+			txtContent.visible = true;
+			datagrid.visible = false;
+			barTemplate.visible = false;
+		}
+		
+		private function btnSearchDynaReportClickHandler(event:MouseEvent):void {
+			if (mth.selectedValue == 1 && txtContent.text == "") 
+			{
+				Alert.show("查询SQL不能为空！","动态报表分析器");
+				return;
+			}
+			if (mth.selectedValue == 0 && datagrid.selectedIndices.length == 0)
+			{
+				Alert.show("请选择报表模板！","动态报表分析器");
+				return;
+			}
+			defaultSearch();
+		}
+		
+		private function pageChangeClickHandler(event:ItemClickEvent):void {
+			if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+			{
+				return;
+			}
+			if (event.index == 0)
+			{
+				CURRENT_PAGE--;
+			}
+			else if (event.index == 1)
+			{
+				CURRENT_PAGE++;
+			}
+			defaultSearch();
+		}
+		
+		private function pageChangeTemplateClickHandler(event:ItemClickEvent):void {
+			if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+			{
+				return;
+			}
+			if (event.index == 0)
+			{
+				CURRENT_PAGE--;
+			}
+			else if (event.index == 1)
+			{
+				CURRENT_PAGE++;
+			}
+			readReportTemplate();
+		}
+		
+		private function showDownloadDialog(url:String):void {
+			var urlReq:URLRequest = new URLRequest(url);
+            fileReference.download(urlReq);
+		}
+		
+		private function btnDownloadClickHandler(event:MouseEvent):void {
+			if (TOTAL_PAGE > 0) {
+				var templateId:String = null;
+				if (mth.selectedValue == 0) {
+					templateId = datagrid.selectedItem.globalConfigId.text();
+				}
+	            HttpServiceProxy.send(LocalDynaReportService.CSV_EXPORT, {CURRENT_PAGE : CURRENT_PAGE, MTH: mth.selectedValue, TEMPLATE_ID: templateId, SQL:txtContent.text}, null, function(event:ResultEvent):void
+				{
+					var xml:XML = new XML(event.result);
+					var url:String = xml.tag;
+					if (xml.result == "SUCCESS")
+					{
+						if (url.length == 0) {
+		            		Alert.show("暂时无法下载，请重新导出！", "动态报表分析器");
+		            		return;
+		            	}
+		            	Alert.yesLabel = "确认";
+						Alert.noLabel = "取消";
+					    Alert.show( "确定要下载吗？",
+									"消息", 
+									Alert.YES | Alert.NO,
+									adminApp,
+									function handleAlert(event:CloseEvent):void {
+									    if(event.detail == Alert.YES)
+									    {
+									        showDownloadDialog(url);
+									    }
+									},
+									null,
+									Alert.YES);
+					}
+					else
+					{
+						Alert.show("导出失败！", "动态报表分析器");
+					}
+				}, function(event:FaultEvent):void
+				{
+					Alert.show("导出失败！", "动态报表分析器");
+				});
+			} else {
+				Alert.show("还没有查询结果不能导出！", "动态报表分析器");
+			}
+		}
+		
+		private function onEvent(evt:Event):void {
+            Alert.show(evt.toString(), evt.type);
+        }
+				
+		protected function creationCompleteHandler():void {
+			// 状态初始化
+			initializeEachState("LIST");
+			readReportTemplate();
+			// 单选按钮
+			ListenerBinder.bind(radioTemplate, MouseEvent.CLICK, rdoTemplateDynaReportClickHandler);
+			ListenerBinder.bind(radioInput, MouseEvent.CLICK, rdoInputDynaReportClickHandler);
+			// 返回按钮
+			ListenerBinder.bind(btnBack, MouseEvent.CLICK, function():void {
+				currentState="LIST";
+			});
+			ListenerBinder.bind(btnForward, MouseEvent.CLICK, function():void {
+				currentState="LIST";
+			});
+			// 查询按钮 
+			ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchDynaReportClickHandler);
+        	// 翻页
+			ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
+			// 模板翻页
+			ListenerBinder.bind(pageRollerTemplate, ItemClickEvent.ITEM_CLICK, pageChangeTemplateClickHandler);
+			// 导出
+			ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
+		}
+	]]>
+</mx:Script>
+	<net:FileReference id="fileReference" ioError="onEvent(event);"/>
+	<states>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+			<mx:HBox horizontalGap="4" top="10" left="10" right="10">
+				<mx:RadioButtonGroup id="mth" />
+				<mx:RadioButton label="使用模板" id="radioTemplate" value="0" groupName="mth" selected="true"/>
+				<mx:RadioButton label="手工录入" id="radioInput" value="1" groupName="mth"/>
+				<mx:Button label="开始查询" id="btnSearch"/>
+			</mx:HBox>
+			</mx:AddChild>
+			<mx:SetProperty name="title" value="动态报表分析器"/>
+			<mx:AddChild position="lastChild">
+				<mx:TextArea left="10" right="10" top="40" bottom="10" id="txtContent" text="select * from player_score" enabled="false" visible="true"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid left="10" right="10" top="40" bottom="10"
+							 id="datagrid">
+					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn dataField="globalConfigId"
+										   visible="false"/>
+						<mx:DataGridColumn headerText="报表模板标题"
+										   dataField="name"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<!-- 查询导航 -->
+			<mx:AddChild position="lastChild">
+			    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right" id="barTemplate">
+			        <mx:Label id="lblPageTemplate" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
+			        <mx:LinkBar id="pageRollerTemplate">
+					    <mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+			        </mx:LinkBar>
+			    </mx:ControlBar>
+		    </mx:AddChild>
+		</mx:State>
+		<mx:State name="RESULT">
+			<mx:AddChild position="lastChild">
+				<mx:HBox left="10"
+						 right="10"
+						 top="10">
+					<mx:Button id="btnDownload"
+				               label="下载"/>
+					<mx:Button label="返回"
+							   id="btnForward"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid left="10" right="10" top="40" bottom="10" id="datagridResult">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Column 1" dataField="col1"/>
+						<mx:DataGridColumn headerText="Column 2" dataField="col2"/>
+						<mx:DataGridColumn headerText="Column 3" dataField="col3"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:SetProperty name="title" value="查询结果"/>
+			<!-- 查询导航 -->
+			<mx:AddChild position="lastChild">
+			    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
+			        <mx:Label id="lblPage" />
+			        <mx:LinkBar id="pageRoller">
+					    <mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+			        </mx:LinkBar>
+			    </mx:ControlBar>
+		    </mx:AddChild>
+		</mx:State>
+		<mx:State name="ERROR">
+			<mx:SetProperty name="title" value="错误消息"/>
+			<mx:AddChild position="lastChild">
+				<mx:TextArea left="10" right="10" top="10" bottom="40" id="txtError"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+		</mx:State>
+	</states>
+	<!-- 验证器 -->
+    <mx:Array id="loginValidators">
+        <mx:StringValidator source="{txtContent}"
+                            required="true"
+                            property="text"
+                            requiredFieldError="查询SQL不能为空！"/>
+    </mx:Array>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

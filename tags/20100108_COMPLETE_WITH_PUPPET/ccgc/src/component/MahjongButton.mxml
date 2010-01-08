@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Boolean id="allowSelect">true</mx:Boolean>
+	<mx:Number id="direction">-1</mx:Number>
+	<mx:init>
+		<![CDATA[
+			this.addEventListener(MouseEvent.MOUSE_OVER, toggleSelect);
+			this.addEventListener(MouseEvent.MOUSE_OUT, toggleSelect);
+		]]>
+	</mx:init>
+	<mx:Script>
+		<![CDATA[
+			private var selected:Boolean = false;
+
+			private function toggleSelect(event:MouseEvent):void {
+				if (!allowSelect) {
+					return;
+				}
+				setSelected(!this.selected);
+			}
+
+			public function isSelected():Boolean {
+				return this.selected;
+			}
+
+			public function setSelected(selectedFlag:Boolean):void {
+				if (!allowSelect || this.selected == selectedFlag) {
+					return;
+				}
+				this.selected = selectedFlag;
+				if (this.selected) {
+					this.y -= 10;
+				} else {
+					this.y += 10;
+				}
+			}
+
+			public function get value():String {
+				return this.source.toString().replace(/^.*\/(\w+)\.(\w+)$/, "$1");
+			}
+
+			public override function toString():String {
+			    return value;
+			}
+		]]>
+	</mx:Script>
+</mx:Image>

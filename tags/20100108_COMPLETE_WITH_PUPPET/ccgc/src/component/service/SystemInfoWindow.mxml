@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="系统信息">
+	<mx:Script>
+		<![CDATA[
+			import info.knightrcom.service.LocalGameFeedbackService;
+			import info.knightrcom.service.LocalSystemInfoService;
+			import info.knightrcom.service.LocalServerConfigureService;
+			import info.knightrcom.state.BaseStateManager;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			
+			import mx.containers.Form;
+			import mx.containers.FormItem;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.Menu;
+			import mx.controls.TextArea;
+			import mx.controls.TextInput;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.Validator;
+
+			private var gameVedioMenu:Menu;
+
+			private function gameVedioClickHandler(event:MenuEvent):void
+			{
+				switch (event.item.label)
+				{
+					case "大连红五":
+						var red5GameVedio:Red5GameVedioWindow = new Red5GameVedioWindow();
+						red5GameVedio.currentLayoutCanvas=this.layoutCanvas;
+						red5GameVedio.popUp();
+						break;
+					case "斗地主":
+						var fightlandlordGameVedio:FightLandlordGameVedioWindow = new FightLandlordGameVedioWindow();
+						fightlandlordGameVedio.currentLayoutCanvas=this.layoutCanvas;
+						fightlandlordGameVedio.popUp();
+						break;
+					case "推倒胡":
+						var pushdownWinGameVedio:PushdownWinGameVedioWindow = new PushdownWinGameVedioWindow();
+						pushdownWinGameVedio.currentLayoutCanvas=this.layoutCanvas;
+						pushdownWinGameVedio.popUp();
+						break;
+					default:
+						Alert.show("功能尚未实现！", "消息");
+				}
+			}
+
+			private function btnFeedbackClickHandler(event:MouseEvent):void
+			{
+				feedbackWindow.popup();
+			}
+
+			private function btnRefreshClickHandler(event:MouseEvent):void
+			{
+//				// 查询游戏运行时信息
+//				HttpServiceProxy.send(LocalSystemInfoService.RETRIEVE_GAME_RUNTIME_INFO, null, null, function(event:ResultEvent):void
+//					{
+//					});
+				// 获取大厅状态信息
+				btnLobbyStatusClickHander(event);
+				// 获取历史举报信息
+				feedbackWindow.retrieveHistroyFeeckback(event);
+			}
+
+			public function quickFeedback(gameId:String):void
+			{
+				ListenerBinder.bind(this, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+					feedbackWindow.feedbackGameId.text = gameId;
+					btnFeedbackClickHandler(new MouseEvent(MouseEvent.CLICK));
+				});
+			}
+
+			public function quickVedio(gameId:String, gameType:String):void
+			{
+				var vedioClass:Class = getDefinitionByName("component.service." + gameType + "VedioWindow") as Class;
+				var gameVedio:* = new vedioClass();
+				ListenerBinder.bind(gameVedio, FlexEvent.CREATION_COMPLETE, function (event:Event):void {
+					gameVedio.gameId.text = gameId;
+				});
+				gameVedio.currentLayoutCanvas = this.layoutCanvas;
+				gameVedio.popUp();
+			}
+
+			private function btnLobbyStatusClickHander(event:MouseEvent):void {
+				HttpServiceProxy.send(LocalServerConfigureService.RETRIEVE_LOBBY_STATUS, null, null, function (event:ResultEvent):void {
+					var data:* = new XML(event.result);
+					var items:Array = new Array();
+					var num:Number = 1;
+					for each (var eachItem:String in data.tag.string) {
+						items.push({index : num++, 
+						roomName : eachItem.split("~")[0], 
+						rawPlayerCount : eachItem.split("~")[1], 
+						wanderPlayerCount : eachItem.split("~")[2], 
+						idlePlayerCount : eachItem.split("~")[3], 
+						matchingPlayerCount : eachItem.split("~")[4], 
+						playingPlayerCount : eachItem.split("~")[5], 
+						totalPlayerCount : eachItem.split("~")[6]});
+					}
+					lobbyStatusDatagrid.dataProvider = items;
+				});
+			}
+		]]>
+	</mx:Script>
+	<creationComplete>
+		<![CDATA[
+	    	// 当前窗口中游戏录像菜单
+        	gameVedioMenu = new Menu;
+        	gameVedioMenu.dataProvider = popupMenuItems;
+        	btnGameVedio.popUp = gameVedioMenu;
+        	ListenerBinder.bind(gameVedioMenu, MenuEvent.CHANGE, gameVedioClickHandler);
+            // 当前窗口中反馈按钮
+        	ListenerBinder.bind(btnFeedback, MouseEvent.CLICK, btnFeedbackClickHandler);
+        	// 刷新按钮
+        	ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnRefreshClickHandler);
+        	btnRefresh.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+    	]]>
+	</creationComplete>
+	<!-- 操作按钮 -->
+	<mx:Array id="popupMenuItems">
+		<mx:Object label="" data="" id="nullItem"/>
+		<mx:Object label="大连红五" data="Red5Game" id="red5"/>
+		<!--
+		<mx:Object label="斗地主" data="FightLandlordGame" id="fightLandlord"/>
+		<mx:Object label="推倒胡" data="PushdownWinGame" id="pushdownWin"/>
+		<mx:Object label="穷胡" data="QiongWinGame" id="qiongWin"/>
+		-->
+	</mx:Array>
+	<mx:HBox horizontalGap="4"
+			 top="10"
+			 left="10"
+			 right="10"
+			 id="hbox1">
+		<mx:PopUpButton id="btnGameVedio" label="游戏录像" openAlways="true"/>
+		<mx:Button id="btnFeedback" label="作弊举报"/>
+		<mx:Button id="btnRefresh" label="刷新信息"/>
+	</mx:HBox>
+	<!-- 查询结果 -->
+	<mx:TabNavigator left="10" right="10" top="40" bottom="10" id="multTab">
+		<!-- 大厅状态信息 -->
+		<!--
+			<mx:Canvas label="大厅状态信息" width="100%" height="100%" visible="false">
+				<mx:DataGrid id="lobbyStatusDatagrid_"
+							 left="0"
+							 right="0"
+							 top="0"
+							 bottom="0">
+					<mx:columns>
+						<mx:DataGridColumn headerText="编号" dataField=""/>
+						<mx:DataGridColumn headerText="项目名称" dataField=""/>
+						<mx:DataGridColumn headerText="值" dataField=""/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:Canvas>
+		-->
+		<!-- 大厅状态信息 -->
+		<mx:Canvas label="大厅状态信息" width="100%" height="100%">
+			<mx:DataGrid id="lobbyStatusDatagrid"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="0">
+				<mx:columns>
+					<mx:DataGridColumn headerText="编号" dataField="index"/>
+					<mx:DataGridColumn headerText="房间名称" dataField="roomName"/>
+					<mx:DataGridColumn headerText="游戏进行中人数" dataField="playingPlayerCount"/>
+					<mx:DataGridColumn headerText="等待队列中人数" dataField="matchingPlayerCount"/>
+					<mx:DataGridColumn headerText="房间内闲散人数" dataField="idlePlayerCount"/>
+					<mx:DataGridColumn headerText="房间内总计人数" dataField="totalPlayerCount"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:Canvas>
+		<!-- 历史举报信息 -->
+		<mx:Canvas label="历史举报信息" width="100%" height="100%">
+			<mx:DataGrid id="feedbackDatagrid"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="0">
+				<mx:dataProvider>{feedbackWindow.feedbackHistoryInfoService.lastResult.tag.map}</mx:dataProvider>
+				<mx:columns>
+					<mx:DataGridColumn headerText="游戏ID" dataField="gameId"/>
+					<mx:DataGridColumn headerText="游戏类别" dataField="gameType"/>
+					<mx:DataGridColumn headerText="游戏时间" dataField="gameTime"/>
+					<mx:DataGridColumn headerText="标题" dataField="title"/>
+					<mx:DataGridColumn headerText="当前状态" dataField="status"/>
+					<mx:DataGridColumn headerText="举报时间" dataField="createTime"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:Canvas>
+	</mx:TabNavigator>
+	<!-- 作弊举报 -->
+	<SystemInfoExtFeedbackModelWindow id="feedbackWindow">
+	</SystemInfoExtFeedbackModelWindow>
+</AbstractInfoWindow>

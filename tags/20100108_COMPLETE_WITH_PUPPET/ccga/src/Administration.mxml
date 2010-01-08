@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:service="info.knightrcom.service.*"
+				xmlns:fwm="*"
+				layout="absolute"
+				minWidth="1000"
+				minHeight="600"
+				currentState="LOGIN">
+	<mx:Style source="style/ccgskin.css"/>
+	<mx:Style source="style/ccgskin-ext.css"/>
+	<mx:applicationComplete>
+		<![CDATA[
+		import mx.states.State;
+		import mx.events.ListEvent;
+		import flash.events.MouseEvent;
+		import info.knightrcom.UIManager;
+		import mx.events.ItemClickEvent;
+		import info.knightrcom.util.ListenerBinder;
+
+		for each (var currentState:State in this.states) {
+			trace(currentState.name);
+			this.currentState = currentState.name;
+		}
+		this.currentState = "LOGIN";
+		UIManager.adminApp = this;
+		ListenerBinder.bind(menuTree, ListEvent.ITEM_CLICK, UIManager.itemClickHandler);
+		ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, UIManager.btnSubmitClickHandler);
+		ListenerBinder.bind(btnReset, MouseEvent.CLICK, UIManager.btnResetClickHandler);
+		]]>
+	</mx:applicationComplete>
+	<mx:String id="currentProfileId"></mx:String>
+	<mx:String id="currentUserId"></mx:String>
+	<mx:String id="currentRlsPath"></mx:String>
+	<mx:String id="currentRole"></mx:String>
+	<mx:states>
+		<mx:State name="LOGIN">
+			<mx:AddChild position="lastChild">
+				<mx:Panel id="loginLayout"
+						  layout="absolute"
+						  height="138"
+						  width="240"
+						  right="50"
+						  bottom="50"
+						  title="用户登录">
+					<mx:Label x="10"
+							  y="10"
+							  text="用户ID"/>
+					<mx:Label x="10"
+							  y="36"
+							  text="密码"
+							  fontFamily="simsun"/>
+					<mx:TextInput x="53"
+								  y="8"
+								  id="txtUsername"
+								  text="admin"/>
+					<mx:TextInput x="53"
+								  y="34"
+								  id="txtPassword"
+								  text="bountyofking:)123"
+								  displayAsPassword="true"/>
+					<mx:Button x="98"
+							   y="66"
+							   id="btnSubmit"
+							   label="登录"/>
+					<mx:Button x="158"
+							   y="66"
+							   id="btnReset"
+							   label="重置"/>
+				</mx:Panel>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="MAIN">
+			<mx:AddChild position="lastChild">
+				<mx:HDividedBox top="41"
+								bottom="10"
+								left="10"
+								right="10">
+					<mx:HBox height="100%"
+							 width="200"
+							 minWidth="100"
+							 maxWidth="300">
+						<mx:Tree id="menuTree"
+								 labelField="@label"
+								 showRoot="false"
+								 wordWrap="false"
+								 variableRowHeight="true"
+								 height="100%"
+								 width="100%"
+								 horizontalScrollPolicy="{mx.core.ScrollPolicy.ON}"
+								 verticalScrollPolicy="{mx.core.ScrollPolicy.ON}"/>
+					</mx:HBox>
+					<mx:HBox height="100%"
+							 horizontalAlign="center"
+							 verticalAlign="middle">
+						<fwm:FunctionWindowArea id="functionWindowArea">
+						</fwm:FunctionWindowArea>
+					</mx:HBox>
+				</mx:HDividedBox>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	<mx:ApplicationControlBar left="0"
+							  right="0"
+							  top="0"
+							  id="applicationControlBar"
+							  horizontalAlign="center">
+		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.8)"/>
+	</mx:ApplicationControlBar>
+    <!-- 高级用户界面菜单配置 -->
+	<mx:XML id="GroupUserMenuXML">
+		<root label="nodegraphs">
+			<node label="用户信息管理">
+				<node label="用户管理"/>
+				<node label="积分充值"/>
+			</node>
+			<node label="报表管理">
+				<node label="业务分析报表"/>
+				<node label="积分结算报表"/>
+			</node>
+			<node label="帮助">
+				<node label="关于管理平台"/>
+			</node>
+			<node label="注销登录"/>
+		</root>
+	</mx:XML>
+    <!-- GM界面菜单配置 -->
+	<mx:XML id="GameMasterMenuXML">
+		<root label="nodegraphs">
+			<node label="系统管理">
+				<node label="即时消息发布"/>
+				<node label="平台信息发布"/>
+				<node label="日志查看"/>
+			</node>
+			<node label="帮助">
+				<node label="关于管理平台"/>
+			</node>
+			<node label="注销登录"/>
+		</root>
+	</mx:XML>
+    <!-- 超级GM界面菜单配置 -->
+	<mx:XML id="SuperGameMasterMenuXML">
+		<root label="nodegraphs">
+			<node label="用户信息管理">
+				<node label="用户管理"/>
+				<node label="用户关系浏览"/>
+				<node label="积分充值"/>
+			</node>
+			<node label="系统管理">
+				<node label="即时消息发布"/>
+				<node label="平台信息发布"/>
+				<node label="服务器参数"/>
+				<node label="日志查看"/>
+				<node label="服务器状态查看"/>
+			</node>
+			<node label="报表管理">
+				<node label="业务分析报表"/>
+				<node label="积分结算报表"/>
+				<node label="充值历史报表"/>
+				<node label="业务汇总报表"/>
+				<node label="动态报表分析器"/>
+			</node>
+			<node label="帮助">
+				<node label="管理员帮助手册"/>
+				<node label="关于管理平台"/>
+			</node>
+			<node label="「でく・ロボット」のコンソール"/>
+			<node label="注销登录"/>
+		</root>
+	</mx:XML>
+    <!-- 管理员界面菜单配置 -->
+	<mx:XML id="AdministratorMenuXML">
+		<root label="nodegraphs">
+			<node label="用户信息管理">
+				<node label="用户管理"/>
+				<node label="用户关系浏览"/>
+				<node label="积分充值"/>
+			</node>
+			<node label="系统管理">
+				<node label="即时消息发布"/>
+				<node label="平台信息发布"/>
+				<node label="服务器管理">
+					<node label="启动游戏服务器"/>
+					<node label="关闭游戏服务器"/>
+					<node label="重启游戏服务器"/>
+				</node>
+				<node label="服务器参数"/>
+				<node label="日志查看"/>
+				<node label="服务器状态查看"/>
+			</node>
+			<node label="游戏管理">
+				<node label="游戏大厅"/>
+				<node label="不良举报"/>
+				<node label="扑克游戏">
+					<node label="大连红五"/>
+					<node label="斗地主"/>
+				</node>
+				<node label="麻将游戏">
+					<node label="穷胡"/>
+					<node label="推倒胡"/>
+				</node>
+			</node>
+			<node label="报表管理">
+				<node label="业务分析报表"/>
+				<node label="积分结算报表"/>
+				<node label="充值历史报表"/>
+				<node label="业务汇总报表"/>
+				<!-- 1.用于每周结算 2.用于调用“创建报表”中创建出来的报表并显示 -->
+				<node label="报表模板"><!-- 可以动态创建报表，其实就是一条sql，保存在global_config，key=报表名称，value=sql，在报表查询中可以利用这些sql输出结果。类似于SQL Server的查询分析器，利用SQL跑结果 -->
+					<node label="报表模板管理"/>
+					<node label="动态报表分析器"/>
+				</node>
+			</node>
+			<node label="帮助">
+				<node label="管理员帮助手册"/>
+				<node label="关于管理平台"/>
+			</node>
+			<node label="自主牌型设置"/>
+			<node label="でく・ロボット"/>
+			<node label="注销登录" />
+		</root>
+	</mx:XML>
+</mx:Application>
