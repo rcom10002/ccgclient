@@ -75,7 +75,7 @@
 			<mx:DataGridColumn headerText="当前状态" dataField="currentstatus"/>
 			<mx:DataGridColumn headerText="最后一次游戏时间" dataField="lastgametime"/>
 			<mx:DataGridColumn headerText="启动时间" dataField="starttime"/>
-			<mx:DataGridColumn headerText="运行时间" dataField="runingtime"/>
+			<mx:DataGridColumn headerText="运行时间(秒)" dataField="runingtime"/>
 		</mx:columns>
 	</mx:DataGrid>
 	<mx:Button id="btnRefresh" label="刷新" right="10" top="10"/>
