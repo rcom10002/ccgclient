@@ -7,13 +7,14 @@
 	<mx:Button id="btnStartPuppet" label="Start a Puppet for Red 5 Game" bottom="10" right="10" />
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.List;
 			import info.knightrcom.util.HttpServiceProxy;
 			import info.knightrcom.util.ListenerBinder;
 
 			import mx.controls.Alert;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
 			protected function btnStartPuppetClickHandler(event:MouseEvent):void
 			{
 				HttpServiceProxy.send(
@@ -38,12 +39,45 @@
 				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
 			}
 
+			protected function btnListPuppetClickHandler(event:MouseEvent):void
+			{
+				getListPuppetInfo();
+			}
+			
+			protected function onTimer(event:TimerEvent):void{ 
+		         trace("on timer"); 
+		         getListPuppetInfo();
+			} 
+			
+			private function getListPuppetInfo():void {
+				HttpServiceProxy.send(
+						LocalPuppetConsoleService.LIST_PUPPET_INFO, 
+						{GAME_TYPE : "Red5"}, 
+						null, function (e:ResultEvent):void {
+							datagrid.dataProvider = new XML(e.result).tag.map;
+						}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+			}
 		]]>
 	</mx:Script>
 	<creationComplete>
 		<![CDATA[
+			var timer:Timer = new Timer(5000); 
 			ListenerBinder.bind(btnStartPuppet, MouseEvent.CLICK, btnStartPuppetClickHandler);
+			ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
+			ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
+			timer.start();
 		]]>
 	</creationComplete>
+	<mx:DataGrid id="datagrid" left="10" top="10" right="70" bottom="50">
+		<mx:columns>
+			<mx:DataGridColumn headerText="puppet名称" dataField="pupuetname"/>
+			<mx:DataGridColumn headerText="当前分数" dataField="currentscore"/>
+			<mx:DataGridColumn headerText="当前状态" dataField="currentstatus"/>
+			<mx:DataGridColumn headerText="最后一次游戏时间" dataField="lastgametime"/>
+			<mx:DataGridColumn headerText="启动时间" dataField="starttime"/>
+			<mx:DataGridColumn headerText="运行时间" dataField="runingtime"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button id="btnRefresh" label="刷新" right="10" top="10"/>
 	<mx:NumericStepper id="puppetStepper" right="218" bottom="10" minimum="1" maximum="10" stepSize="1" value="4"/>
 </FunctionWindow>
