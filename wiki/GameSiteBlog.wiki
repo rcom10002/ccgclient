@@ -1,0 +1,2 @@
+<img src="http://ccgclient.googlecode.com/files/game_site_blog.png" width="1200" height="1200" />
+<img src="http://ccgclient.googlecode.com/files/game_site_blog.png" />
