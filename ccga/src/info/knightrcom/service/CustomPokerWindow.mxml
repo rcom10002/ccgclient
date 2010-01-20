@@ -2,6 +2,7 @@
 <FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler()" title="自主牌型设置">
 	<mx:Script>
 		<![CDATA[
+			import mx.managers.PopUpManager;
 			import mx.validators.Validator;
 			import mx.events.ListEvent;
 			import mx.automation.events.ListItemSelectEvent;
@@ -30,7 +31,14 @@
 				ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnRefreshClickHandler);
 				ListenerBinder.bind(customPokerList, ListEvent.ITEM_CLICK, itemClickHandler);
 				ListenerBinder.bind(btnAdd, MouseEvent.CLICK, btnAddClickHandler);
+				ListenerBinder.bind(btnBatchCreate, MouseEvent.CLICK, btnBatchClickHandler);
 				loadCustomList();
+				BatchCustomPokerWindow.customPokerWindow = this;
+			}
+			
+			private function btnBatchClickHandler(event:MouseEvent):void {
+				var batchCustomPokerWindow:BatchCustomPokerWindow = PopUpManager.createPopUp(this,BatchCustomPokerWindow,true) as BatchCustomPokerWindow;
+                PopUpManager.centerPopUp(batchCustomPokerWindow);
 			}
 			
 			/**
@@ -67,7 +75,7 @@
 	         * @return
 	         *
 	         */
-			private function loadCustomList():void {
+			public function loadCustomList():void {
 				HttpServiceProxy.send(LocalCustomPokerService.READ_POKER, {}, null, function(event:ResultEvent):void
 					{
 						if (new XML(event.result).result == "SUCCESS")
@@ -113,8 +121,8 @@
 					Alert.show("已选牌区不能为空！", "警告");
 					return;
 				}
-				if (candidatedUp.getChildren().length > 27) {
-					Alert.show("已选牌区的牌数不能大于27张！", "警告");
+				if (candidatedUp.getChildren().length > 15) {
+					Alert.show("已选牌区的牌数不能大于15张！", "警告");
 					return;
 				}
 				// 获取已选牌区的牌
@@ -131,7 +139,7 @@
 				}
                 strDownCards = strDownCards.replace(/,$/, "");
                 // 保存
-				HttpServiceProxy.send(LocalCustomPokerService.SAVE_CUSTOM_POKER, {ID:txtId.text, NAME: txtName.text, UP_POKERS: strUpCards, DOWN_POKERS: strDownCards, IS_OPEN: chkDisable.selected}, null, function(event:ResultEvent):void
+				HttpServiceProxy.send(LocalCustomPokerService.SAVE_CUSTOM_POKER, {ID:txtId.text, NAME: txtName.text, TYPE: comboSetting.selectedIndex, UP_POKERS: strUpCards, DOWN_POKERS: strDownCards, IS_OPEN: chkDisable.selected}, null, function(event:ResultEvent):void
 					{
 						if (new XML(event.result).result == "SUCCESS")
 						{
@@ -244,6 +252,16 @@
 			}
 			
 			/**
+	         * 显示游戏设置
+	         * @param event
+	         * @return
+	         *
+	         */
+			private function showType(ind:int):void {
+				comboSetting.selectedIndex = ind;
+			}
+			
+			/**
 	         * 对服务器端洗牌后分配的尚未排序过的扑克进行排序
 	         *
 	         * @param cards
@@ -301,11 +319,12 @@
 	        private function itemClickHandler(event:ListEvent):void {
 	        	var config:* = customPokerList.selectedItem.value;
 	        	var results:Array = config.value.split("~");
-				if (results.length == 2) {
+				if (results.length == 3) {
 					txtId.text = config.globalConfigId;
 					txtName.text = config.name;
 					showUpPoker(results[0]);
 	            	showDownPoker(results[1]);
+	            	showType(int(results[2]));
 	            	chkDisable.selected = config.status == "false" ? false : true;
 				} else {
 					showUpPoker(null);
@@ -357,8 +376,20 @@
 							<mx:HBox width="100%">
 								<mx:TextInput width="200" maxChars="20" id="txtId" visible="false"/>
 								<mx:Spacer width="100%"/>
+								<mx:Label text="游戏设置"/>
+								<mx:ComboBox id="comboSetting">
+									<mx:dataProvider>
+					                <mx:Array>
+					                    <mx:Object label="不独" data="0"/>
+					                    <mx:Object label="独牌" data="1" />
+					                    <mx:Object label="天独" data="2" />
+					                    <mx:Object label="天外天" data="3" />
+					                </mx:Array>
+					            </mx:dataProvider>
+								</mx:ComboBox>
 								<mx:CheckBox label="启用" id="chkDisable" right="80" bottom="10"/>
 								<mx:Button label="保存" right="20" bottom="10" id="btnSave"/>
+								<mx:Button label="批量生成" id="btnBatchCreate" right="150" bottom="10"/>
 							</mx:HBox>
 						</mx:Form>
 					</mx:VBox>
