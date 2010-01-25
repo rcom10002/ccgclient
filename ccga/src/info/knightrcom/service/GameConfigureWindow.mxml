@@ -96,27 +96,32 @@
 						{
 							if (currentOperationMethod == OperationMethod.CREATE)
 							{
-								HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text, DISABLED: lobbyDisabledNew.text}, null, function(event:ResultEvent):void
-									{
-										if (new XML(event.result).result == "SUCCESS")
-										{
-											Alert.show("新增成功！", "游戏大厅参数设置");
-											currentOperationMethod=OperationMethod.UPDATE;
-										}
-										else
-										{
-											Alert.show("新增失败！", "游戏大厅参数设置");
-										}
-									}, function(event:FaultEvent):void
-									{
-										Alert.show("新增失败！", "游戏大厅参数设置");
-									});
+								addConfig();
 							}
 							readData();
 						}
 						else
 						{
-							Alert.show("请先关闭游戏服务器！", "游戏大厅参数设置");
+							Alert.buttonWidth = 150;
+							Alert.yesLabel="关闭服务器并保存修改";
+	    					Alert.noLabel="关闭服务器并继续修改";
+	    					Alert.cancelLabel="取消 ";
+							Alert.show("是否关闭服务器?", "游戏大厅参数设置", 
+								Alert.YES | Alert.NO | Alert.CANCEL,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+									Alert.buttonWidth = 65;
+								    if(event.detail == Alert.YES)
+								    {
+								        shutDownServer(2);
+								    }
+								    else if(event.detail == Alert.NO)
+								    {
+										shutDownServer(-1);
+								    }
+								},
+								null,
+								Alert.YES);
 						}
 					}, function(event:FaultEvent):void
 					{
@@ -152,26 +157,7 @@
 									function handleAlert(event:CloseEvent):void {
 									    if(event.detail == Alert.YES)
 									    {
-											if (currentOperationMethod == OperationMethod.UPDATE)
-											{
-												HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (btnDisabled.label == "禁用" ? true : false)}, null, function(event:ResultEvent):void
-													{
-														if (new XML(event.result).result == "SUCCESS")
-														{
-															Alert.show(btnDisabled.label + "成功！", "游戏大厅参数设置");
-															currentOperationMethod=OperationMethod.UPDATE;
-															readData();
-														}
-														else
-														{
-															Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
-														}
-													}, function(event:FaultEvent):void
-													{
-														Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
-													});
-											}
-											currentOperationMethod=OperationMethod.UPDATE;
+											setEnabled();
 										}
 									},
 									null,
@@ -179,11 +165,117 @@
 					}
 					else
 					{
-						Alert.show("请先关闭游戏服务器！", "游戏大厅参数设置");
+						Alert.buttonWidth = 150;
+						Alert.yesLabel="关闭服务器并保存修改";
+    					Alert.noLabel="关闭服务器并继续修改";
+    					Alert.cancelLabel="取消 ";
+						Alert.show("是否关闭服务器?", "游戏大厅参数设置", 
+							Alert.YES | Alert.NO | Alert.CANCEL,
+							adminApp,
+							function handleAlert(event:CloseEvent):void {
+								Alert.buttonWidth = 65;
+							    if(event.detail == Alert.YES)
+							    {
+							        shutDownServer(1);
+							    }
+							    else if(event.detail == Alert.NO)
+							    {
+									shutDownServer(-1);
+							    }
+							},
+							null,
+							Alert.YES);
 					}
 				}, function(event:FaultEvent):void
 				{
 					Alert.show("服务中断！", "游戏大厅参数设置");
+				});
+			}
+			
+			private function addConfig():void {
+				HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: CURRENT_PAGE, LOBBY_ID: lobbyIdNew.text, LOBBY_NAME: lobbyNameNew.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndexNew.text, DISABLED: lobbyDisabledNew.text}, null, function(event:ResultEvent):void
+				{
+					if (new XML(event.result).result == "SUCCESS")
+					{
+						Alert.show("新增成功！", "游戏大厅参数设置");
+						currentOperationMethod=OperationMethod.UPDATE;
+					}
+					else
+					{
+						Alert.show("新增失败！", "游戏大厅参数设置");
+					}
+				}, function(event:FaultEvent):void
+				{
+					Alert.show("新增失败！", "游戏大厅参数设置");
+				});
+			}
+			
+			private function setEnabled():void {
+				if (currentOperationMethod == OperationMethod.UPDATE)
+				{
+					HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (btnDisabled.label == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show(btnDisabled.label + "成功！", "游戏大厅参数设置");
+								currentOperationMethod=OperationMethod.UPDATE;
+								readData();
+							}
+							else
+							{
+								Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
+						});
+				}
+				currentOperationMethod=OperationMethod.UPDATE;
+			}
+			
+			private function saveConfig():void {
+				if (currentOperationMethod == OperationMethod.UPDATE)
+				{
+					HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (btnDisabled.label == "禁用" ? true : false)}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show(btnDisabled.label + "成功！", "游戏大厅参数设置");
+								currentOperationMethod=OperationMethod.UPDATE;
+								readData();
+							}
+							else
+							{
+								Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show(btnDisabled.label + "失败！", "游戏大厅参数设置");
+						});
+				}
+				currentOperationMethod=OperationMethod.UPDATE;
+			}
+			
+			private function shutDownServer(method:int):void {
+				HttpServiceProxy.send(LocalApplicationServerOperationService.STOP_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
+				{
+					var result:XML = new XML(event.result);
+					if (result.entity == "UPDATE_WARNING") {
+						Alert.show("游戏服务器已经是关闭状态，该操作被中止！");
+					} else {
+						if (method == 0) {
+							saveConfig();
+						} else if (method == 1) {
+							setEnabled();
+						} else if (method == 2) {
+							addConfig();
+						} else {
+							Alert.show("游戏服务器关闭成功！");
+						}
+					}
+				}, function():void
+				{
+					Alert.show("游戏服务器关闭失败！");
 				});
 			}
 			
@@ -200,28 +292,32 @@
 						{
 							if (currentOperationMethod == OperationMethod.UPDATE)
 							{
-								HttpServiceProxy.send(LocalGameConfigureService.UPDATE_GAME_CONFIGURE, {CURRENT_PAGE: 1, LOBBY_ID: lobbyId.text, LOBBY_NAME: lobbyName.text, LOBBY_DISPLAYINDEX: lobbyDisplayIndex.text, DISABLED: (lobbyDisabled.text == "禁用" ? true : false)}, null, function(event:ResultEvent):void
-									{
-										if (new XML(event.result).result == "SUCCESS")
-										{
-											Alert.show("保存成功！", "游戏大厅参数设置");
-											currentOperationMethod=OperationMethod.UPDATE;
-											readData();
-										}
-										else
-										{
-											Alert.show("保存失败！", "游戏大厅参数设置");
-										}
-									}, function(event:FaultEvent):void
-									{
-										Alert.show("保存失败！", "游戏大厅参数设置");
-									});
+								saveConfig();
 							}
 							currentOperationMethod=OperationMethod.UPDATE;
 						}
 						else
 						{
-							Alert.show("请先关闭游戏服务器！", "游戏大厅参数设置");
+							Alert.buttonWidth = 150;
+							Alert.yesLabel="关闭服务器并保存修改";
+	    					Alert.noLabel="关闭服务器并继续修改";
+	    					Alert.cancelLabel="取消 ";
+							Alert.show("是否关闭服务器?", "游戏大厅参数设置", 
+								Alert.YES | Alert.NO | Alert.CANCEL,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+									Alert.buttonWidth = 65;
+								    if(event.detail == Alert.YES)
+								    {
+								        shutDownServer(0);
+								    }
+								    else if(event.detail == Alert.NO)
+								    {
+										shutDownServer(-1);
+								    }
+								},
+								null,
+								Alert.YES);
 						}
 					}, function(event:FaultEvent):void
 					{
