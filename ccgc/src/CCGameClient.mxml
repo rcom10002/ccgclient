@@ -210,6 +210,7 @@
     </mx:transitions>
 	<mx:Script>
 		<![CDATA[
+			public static var str:String;
 			private var stateManagers:Object = new Object();
 
 			public function getGameStateManager(gameStateManagerClass:*):AbstractGameStateManager
@@ -220,7 +221,8 @@
 	</mx:Script>
     <mx:applicationComplete>
         <![CDATA[
-        var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
+        //var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
+        var socketProxy:GameSocketProxy = new GameSocketProxy("127.0.0.1", 2009);
         var baseStateManager:BaseStateManager = new BaseStateManager(socketProxy, this);
         var loginStateManager:LoginStateManager = new LoginStateManager(socketProxy, this, loginState);
         var lobbyStateManager:LobbyStateManager = new LobbyStateManager(socketProxy, this, lobbyState);
@@ -239,15 +241,24 @@
         // 全屏效果
         // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
 		// login the platform through a unique identifier
+		var securityPassword:String = this.root.loaderInfo.parameters["securityPassword"];
+		var classPrefix:String = this.root.loaderInfo.parameters["classPrefix"];
+		var username:String = this.root.loaderInfo.parameters["username"];
+		var password:String = this.root.loaderInfo.parameters["password"];
+		var roomId:String = this.root.loaderInfo.parameters["roomId"];
+		var gameSetting:String = this.root.loaderInfo.parameters["gameSetting"];
+		/*
 		var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
 		var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
 		var username:String = BrowserAddressUtil.getParameterValue("username");
 		var password:String = BrowserAddressUtil.getParameterValue("password");
 		var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
 		var gameSetting:String = BrowserAddressUtil.getParameterValue("gameSetting");
+		*/
 		if (securityPassword) {
 			PuppetProxy.createPinocchioPuppet(securityPassword, classPrefix, username, password, roomId, gameSetting);
 		}
+		
         ]]>
     </mx:applicationComplete>
 </mx:Application>
