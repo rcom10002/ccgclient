@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="500" borderAlpha="1"
+                         verticalGap="0" verticalScrollPolicy="off" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20"
+                         showCloseButton="true" close="colseMe()" fontSize="11" title="批量生成自主牌型"  fontWeight="bold" creationComplete="init()">
+<mx:Script>
+    <![CDATA[
+    	import mx.rpc.events.ResultEvent;
+    	import mx.rpc.events.FaultEvent;
+    	import info.knightrcom.util.HttpServiceProxy;
+    	import mx.containers.FormItem;
+    	import mx.controls.Alert;
+    	import info.knightrcom.util.ListenerBinder;
+        import mx.managers.PopUpManager;
+        
+        public static var customPokerWindow:CustomPokerWindow;
+        private function colseMe():void{
+            PopUpManager.removePopUp(this);
+        	customPokerWindow.loadCustomList();
+        }
+        
+		private function init():void {
+			ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnCreateClickHandler);
+		}
+		
+		private function btnCreateClickHandler(event:MouseEvent):void{
+			if (!validateTotal()) {
+				Alert.show("每种扑克的出现比率和必须等于100！");
+				return;
+			}
+			HttpServiceProxy.send(LocalCustomPokerService.BATCH_CUSTOM_POKER, {NUM: [num0.value,num1.value,num2.value,num3.value,num4.value,num5.value,num6.value,num7.value,num8.value,num9.value], TYPE: comboSetting.selectedIndex, COUNT:numSuit.value}, null, function(event:ResultEvent):void
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							Alert.show("保存成功！", "自主牌型设置");
+							colseMe();
+						} 
+						else if (new XML(event.result).result == "WARNING")
+						{
+							Alert.show("自主牌型名称已存在！", "自主牌型设置");
+						}
+						else
+						{
+							Alert.show("保存失败！", "自主牌型设置");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("保存失败！", "自主牌型设置");
+					}); 
+		}
+		
+		private function validateTotal():Boolean {
+			var arr:Array = form.getChildren();
+			var total:int = 0;
+			for each(var obj:Object in arr) {
+				for each(var objsub:Object in FormItem(obj).getChildren()) {
+					if (objsub is NumericStepper) {
+						total += NumericStepper(objsub).value;
+					}
+				}
+			}
+			return total == 100;
+		} 
+    ]]>
+</mx:Script>
+	<mx:VBox height="100%" width="100%"
+				 horizontalAlign="center" backgroundColor="#A8A3A3">
+	<mx:Form borderStyle="solid">
+		<mx:Form id="form">
+		<mx:FormItem label="10">
+			<mx:NumericStepper id="num0" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="J">
+			<mx:NumericStepper id="num1" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="Q">
+			<mx:NumericStepper id="num2" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="K">
+			<mx:NumericStepper id="num3" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="A">
+			<mx:NumericStepper id="num4" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="2">
+			<mx:NumericStepper id="num5" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="草5">
+			<mx:NumericStepper id="num6" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="小王">
+			<mx:NumericStepper id="num7" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="大王">
+			<mx:NumericStepper id="num8" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:FormItem label="红5">
+			<mx:NumericStepper id="num9" minimum="0" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		</mx:Form>
+		<mx:FormItem label="游戏设置">
+			<mx:ComboBox id="comboSetting">
+				<mx:dataProvider>
+                <mx:Array>
+                    <mx:Object label="不独" data="0"/>
+                    <mx:Object label="独牌" data="1" />
+                    <mx:Object label="天独" data="2" />
+                    <mx:Object label="天外天" data="3" />
+                </mx:Array>
+            </mx:dataProvider>
+			</mx:ComboBox>
+		</mx:FormItem>
+		<mx:FormItem label="套数">
+			<mx:NumericStepper id="numSuit" minimum="1" maximum="50" stepSize="1" value="10"/>
+		</mx:FormItem>
+		<mx:HBox>
+			<mx:Spacer width="50"/>
+			<mx:Button label="生成" id="btnCreate"/>
+		</mx:HBox>
+	</mx:Form>
+	</mx:VBox>
+</mx:TitleWindow>

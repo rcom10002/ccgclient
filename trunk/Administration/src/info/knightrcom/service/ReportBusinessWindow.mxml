@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:net="flash.net.*"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.core.Application;
+			import info.knightrcom.util.HttpServiceProxy;
+			import mx.core.ScrollPolicy;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.formatters.DateFormatter;
+			import mx.controls.Button;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.managers.PopUpManager;
+			import mx.events.CloseEvent;
+			import info.knightrcom.service.LocalReportBusinessService;
+			import mx.controls.Alert;
+
+			public static var CURRENT_PROFILE_ID:String;
+
+			private var layoutCanvas:DisplayObject=null;
+			
+			public static var adminApp:Administration;
+
+			private var isInitialized:Boolean = false;
+			
+			private var searchPeriod:int = 2;
+
+			private function defaultSearch():void
+			{
+				var dateFormatter:DateFormatter=new DateFormatter();
+				dateFormatter.formatString="YYYYMMDD";
+				
+				var day:int = Math.floor((dateTo.selectedDate.time - dateFrom.selectedDate.time) / (1000 * 60 * 60 *24));
+    			if (day < 0) {
+    				Alert.show("查询开始日期不能晚于结束日期！", "消息");
+    				return;
+    			}
+//    			if (day > searchPeriod * 7 - 1) {
+//    				Alert.show("查询期间限制在" + searchPeriod + "个星期内！", "消息");
+//    				return;
+//    			}
+				
+				HttpServiceProxy.send(LocalReportBusinessService.BUSINESS_INFO, {CURRENT_USER_ID : Application.application.currentUserId, USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+			
+			private function getSearchPeriod():void
+			{
+				dateFrom.selectedDate = new Date();
+				dateTo.selectedDate = new Date();
+//				HttpServiceProxy.send(LocalReportBusinessService.GET_SEARCH_PERIOD, null, null, function (event:ResultEvent) :void 
+//					{
+//						var rst:XML = new XML(event.result);
+//						if (rst.result == "SUCCESS")
+//						{
+//							searchPeriod = rst.tag;
+//							dateFrom.selectedDate["date"] -= rst.tag * 7 - 1;
+//							dateFrom.selectedDate = dateFrom.selectedDate;
+//						} 
+//						else 
+//						{
+//							Alert.show("获取查询期间失败！", "警告");
+//						}
+//					}, function(event:FaultEvent):void
+//					{
+//						Alert.show("获取查询期间失败！", "警告");
+//					});
+			}
+			
+            private function btnSearchReportBusinessClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE = 1;
+				defaultSearch();
+			}
+			
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+					return;
+				}
+				if (event.index == 0) {
+					CURRENT_PAGE--;
+				} else if (event.index == 1) {
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+			
+			private function showDownloadDialog(url:String):void {
+				var urlReq:URLRequest = new URLRequest(url);
+                fileReference.download(urlReq);
+			}
+			
+			private function btnDownloadClickHandler(event:MouseEvent):void {
+				if (TOTAL_PAGE > 0) {
+					var dateFormatter:DateFormatter=new DateFormatter();
+					dateFormatter.formatString="YYYYMMDD";
+			        HttpServiceProxy.send(LocalReportBusinessService.CSV_EXPORT, {CURRENT_USER_ID: Application.application.currentUserId, USER_ID: userId.text, FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.selectedValue, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+							{
+								var xml:XML = new XML(event.result);
+								var url:String = xml.tag;
+								if (xml.result == "SUCCESS")
+								{
+									if (url.length == 0) {
+					            		Alert.show("暂时无法下载，请重新导出！", "业务分析报表");
+					            		return;
+					            	}
+					            	Alert.yesLabel = "确认";
+									Alert.noLabel = "取消";
+								    Alert.show( "确定要下载" + dateFrom.text + "-" + dateTo.text + "时间段的数据吗？",
+								     			"消息", 
+												Alert.YES | Alert.NO,
+												adminApp,
+												function handleAlert(event:CloseEvent):void {
+												    if(event.detail == Alert.YES)
+												    {
+												        showDownloadDialog(url);
+												    }
+												},
+												null,
+												Alert.YES);
+								}
+								else
+								{
+									Alert.show("导出失败！", "业务分析报表");
+								}
+							}, function(event:FaultEvent):void
+							{
+								Alert.show("导出失败！", "业务分析报表");
+							});
+				} else {
+					Alert.show("还没有查询结果不能导出！", "业务分析报表");
+				}
+			}
+			
+			protected function creationCompleteHandler():void
+			{
+				if (!isInitialized) {
+					// 状态初始化
+					initializeEachState("LIST");
+					// 获取查询期间
+					getSearchPeriod();
+					// 事件绑定
+					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportBusinessClickHandler);
+					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
+					// 导出
+					ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
+					isInitialized = true;
+	            }
+			}
+			
+			private function onEvent(evt:Event):void {
+	            Alert.show(evt.toString(), evt.type);
+	        }
+		]]>
+	</mx:Script>
+	
+	<net:FileReference id="fileReference" ioError="onEvent(event);"/>
+	<states>
+		<mx:State name="LIST">
+	<!-- 查询条件 -->
+	<mx:AddChild position="lastChild">
+	<mx:HBox  top="10"
+			 left="10"
+			 right="10">
+		<mx:FormItem label="用户ID">
+			<mx:TextInput id="userId"/>
+		</mx:FormItem>
+		<mx:Label text="从："/>
+		<mx:DateField id="dateFrom">
+			<mx:formatString>YYYY年MM月DD日</mx:formatString>
+		</mx:DateField>
+		<mx:Label text="至："/>
+		<mx:DateField id="dateTo">
+			<mx:formatString>YYYY年MM月DD日</mx:formatString>
+		</mx:DateField>
+		<mx:Label text="显示："/>
+		<mx:RadioButtonGroup id="sc"/>
+		<mx:RadioButton id="radioShowAll"
+						label="全部"
+						value="999"
+						groupName="sc"
+						selected="true"/>
+		<mx:RadioButton id="radioShowWin"
+						label="获胜"
+						value="1"
+						groupName="sc"/>
+		<mx:RadioButton id="radioShowLose"
+						label="失败"
+						value="-1"
+						groupName="sc"/>
+		<mx:RadioButton id="radioShowDraw"
+						label="平局"
+						value="0"
+						groupName="sc"/>
+		<mx:Button id="btnSearch"
+				   label="查询"/>
+		<mx:Button id="btnDownload"
+				   label="下载"/>
+	</mx:HBox>
+	</mx:AddChild>
+	<!-- 查询结果 -->
+	<mx:AddChild position="lastChild">
+	<mx:DataGrid id="datagrid1"
+				 left="10"
+				 right="10"
+				 top="40"
+				 bottom="10">
+		<mx:dataProvider>{infoService.lastResult.entityList.ReportBusinessInfo}</mx:dataProvider>
+		<mx:columns>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="玩家ID"
+							   dataField="userId"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="游戏ID"
+							   dataField="gameId"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="游戏类别"
+							   dataField="gameType"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="游戏时间"
+							   dataField="createTime"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="状态"
+							   dataField="winandlose"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="得分"
+							   dataField="score"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="时间开始"
+							   dataField="startTime"/>
+			<mx:DataGridColumn width="75"
+							   resizable="false"
+							   headerText="结束开始"
+							   dataField="endTime"/>
+		</mx:columns>
+	</mx:DataGrid>
+	</mx:AddChild>
+	<mx:AddChild position="lastChild">
+		<mx:ControlBar paddingTop="0"
+					   paddingBottom="0"
+					   horizontalAlign="right">
+			<mx:Label id="lblPage"
+					  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+			<mx:LinkBar id="pageRoller">
+				<mx:Array>
+					<mx:Object label="前页"/>
+					<mx:Object label="后页"/>
+				</mx:Array>
+			</mx:LinkBar>
+		</mx:ControlBar>
+	</mx:AddChild>
+	<mx:SetProperty name="title"
+							value="业务分析报表"/>
+		</mx:State>
+	</states>
+	<!-- 查询组件 -->
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns="info.knightrcom.service.*"
+				width="100%"
+				height="100%"
+				title="用户充值"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.controls.ComboBox;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalDepositBookService;
+			import info.knightrcom.service.LocalPlayerProfileService;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.events.CloseEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+	        import mx.core.Application;
+	        import mx.validators.Validator;
+
+			public static var CURRENT_PROFILE_ID:String;
+			
+			public static var adminApp:Administration;
+
+			public var currentOperationMethod:OperationMethod;
+			
+			private var isInitialized:Boolean = false;
+			
+			protected function defaultSearch():void
+			{
+				// 取得充值记录
+				getPlayerRecord();
+				getMyRecord();
+				// 读取玩家和我的信息
+	        	comboUserInfoChangeHandler(new ListEvent(ListEvent.CHANGE));
+	        	txtMyCurScore.text = "0";
+	        	txtMyOrgScore.enabled = false;
+	        	txtMyOverScore.enabled = false;
+	        	txtPlayerOrgScore.enabled = false;
+	        	txtPlayerCurScore.enabled = false;
+	        	txtPlayerOverScore.enabled = false;
+			}
+			
+			private function freshTreeResultHandler(event:ResultEvent):void {
+				var data:XML = new XML(event.result);
+				userTree.dataProvider = data;
+				var userIdArray:Array = new Array();
+				for each(var rlspath:XML in data..rlspath) {
+					with (rlspath) {
+				    	userIdArray.push({data: @key, label: @key});
+				 	}
+				}
+				comboUserIds.dataProvider = userIdArray;
+				comboUserIds.selectedIndex = -1;
+			}
+
+			private function freshFaultHandler(event:FaultEvent):void {
+				Alert.show("数据通信失败！", "错误");
+			}
+			
+            private function btnResetClickHandler(event:MouseEvent):void {
+            	// 清空我的充值积分
+            	txtMyCurScore.text = "0";
+			}
+			
+			private function btnSubmitClickHandler(event:MouseEvent):void {
+				if (comboUserIds.selectedLabel.toString() == Application.application.currentUserId) {
+					Alert.show("不能为自己充值，只能为自己下属用户充值！", "警告");
+					return;
+				}
+				if (Application.application.currentRole == "GroupUser" && parseInt(txtMyOverScore.text) < 0) {
+					Alert.show("我的当前积分不足，无法为玩家充值！", "警告");
+					return;
+				}
+				if (Validator.validateAll(this.depositBookValidators).length > 0) {
+					Alert.show("信息填写不符合规范！", "警告");
+					return;
+				}
+				if (parseInt(txtMyCurScore.text) % 100 != 0) {
+					Alert.show("充值积分必须是100的倍数！", "警告");
+					return;
+				}
+				Alert.yesLabel = "确认";
+				Alert.noLabel = "取消";
+			    Alert.show( "确定要充值吗？",
+							"消息", 
+							Alert.YES | Alert.NO,
+							adminApp,
+							function handleAlert(event:CloseEvent):void {
+							    if(event.detail == Alert.YES)
+							    {
+							    	HttpServiceProxy.send(LocalDepositBookService.SAVE_RECHARGE_RECORD, 
+							    			{
+							    				FROM_PLAYER : Application.application.currentUserId,
+							    				FROM_ORG_SCORE : txtMyOrgScore.text,
+							    				SCORE : txtMyCurScore.text,
+							    				TO_PLAYER : comboUserIds.selectedLabel.toString(),
+							    				TO_ORG_SCORE : txtPlayerOrgScore.text
+							    			}, null,
+							    		function(eventResult:ResultEvent):void {
+							    			if (new XML(eventResult.result).result == "SUCCESS")
+											{
+												Alert.show("充值成功！", "用户充值");
+							    				defaultSearch();
+											}
+											else
+											{
+												Alert.show("充值失败！", "用户充值");
+											}
+							    			
+							    		},
+							    		function(eventFault:FaultEvent):void {
+							    			Alert.show("充值失败！");
+							    		});
+								}
+							},
+						null,
+						Alert.YES);
+			}
+			
+			private function getMyRecord():void {
+				HttpServiceProxy.send(LocalDepositBookService.GET_MY_RECHARGE_RECORD, {CURRENT_USER_ID : Application.application.currentUserId}, infoServiceMine);
+			}
+			
+			private function getPlayerRecord():void {
+				HttpServiceProxy.send(LocalDepositBookService.GET_PLAYER_RECHARGE_RECORD, {CURRENT_USER_ID : comboUserIds.selectedLabel.toString()}, infoService);
+			}
+			
+            private function tabChangeClickHandler(event:Event):void {
+    			if (tabNavigator.selectedIndex == 0) {
+    				getPlayerRecord();
+    			} else {
+    				getMyRecord();
+    			}
+            }
+            
+            private function btnUserRelationsShipClickHandler(event:MouseEvent):void
+			{
+			    try {
+			    	HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, {USER_ID :Application.application.currentUserId}, null, freshTreeResultHandler, freshFaultHandler);
+    				userRelationsShipWindow.visible=true;
+    				PopUpManager.removePopUp(userRelationsShipWindow);
+    				PopUpManager.addPopUp(userRelationsShipWindow, adminApp, true);
+    				PopUpManager.centerPopUp(userRelationsShipWindow);
+			    }
+			    catch (e:*) {
+			    }
+			}
+			
+			private function comboUserInfoChangeHandler(event:ListEvent):void
+			{
+				// 玩家信息
+				HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE_BY_USER_ID, {USER_ID: comboUserIds.selectedLabel.toString()}, null, 
+					function(eventResult:ResultEvent):void {
+						var e4xResult:XML=new XML(eventResult.result);
+    					txtPlayerOrgScore.text=e4xResult.entity.currentScore.text();
+					}, 
+					function(eventFault:FaultEvent):void {
+						Alert.show("数据通信失败！", "错误");
+					});
+				// 我的信息
+				HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE_BY_USER_ID, {USER_ID: Application.application.currentUserId}, null, 
+					function(eventResult:ResultEvent):void {
+						var e4xResult:XML=new XML(eventResult.result);
+    					txtMyOrgScore.text=e4xResult.entity.currentScore.text();
+					}, 
+					function(eventFault:FaultEvent):void {
+						Alert.show("数据通信失败！", "错误");
+					});
+				getPlayerRecord();
+				getMyRecord();
+			}		
+			
+			protected function creationCompleteHandler():void
+			{
+				if (!isInitialized) {
+					// 状态初始化
+					initializeEachState("EDIT");
+					// 关系路径显示
+					ListenerBinder.bind(btnShow, MouseEvent.CLICK, btnUserRelationsShipClickHandler);
+					// 我的充值记录|玩家充值记录
+					ListenerBinder.bind(tabNavigator, FlexEvent.VALUE_COMMIT, tabChangeClickHandler);
+					// 重置
+					ListenerBinder.bind(btnReset, MouseEvent.CLICK, btnResetClickHandler);
+					// 充值
+					ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitClickHandler);
+					// 玩家ID下拉框事件
+					ListenerBinder.bind(comboUserIds, ListEvent.CHANGE, comboUserInfoChangeHandler);
+					// 当前窗口中关系路径窗口关闭事件
+		        	ListenerBinder.bind(userRelationsShipWindow, CloseEvent.CLOSE, function ():void {
+		        		userRelationsShipWindow.visible = false;
+		        	});
+		        	// 读取用户关系
+					HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, {USER_ID: Application.application.currentUserId}, null, freshTreeResultHandler, freshFaultHandler);
+					// 读取初始参数
+					defaultSearch();
+					isInitialized = true;
+	            }
+			}
+		]]>
+	</mx:Script>
+    <mx:HTTPService id="infoServiceMine" showBusyCursor="true" useProxy="false" resultFormat="e4x" method="POST">
+    </mx:HTTPService>
+	<states>
+		<mx:State name="EDIT">
+			<mx:AddChild>
+				<mx:Canvas left="0" top="0" right="0" bottom="0" id="editor">
+					<mx:Label text="玩家ID：" width="60" left="10" top="10"/>
+					<mx:ComboBox left="78" top="8" id="comboUserIds" />
+					<mx:Label text="关系路径：" width="70" left="10" top="36"/>
+					<mx:Button label="显示" left="78" top="36" id="btnShow"/>
+					<mx:Label text="玩家当前积分：" width="90" left="10" top="62"/>
+					<mx:TextInput left="98" top="60" width="80" id="txtPlayerOrgScore"/>
+					<mx:Label text="我的当前积分：" width="90" left="10" top="88"/>
+					<mx:TextInput left="98" top="86" width="80" id="txtMyOrgScore"/>
+					<mx:Label text="充值积分：" width="70" left="186" top="62"/>
+					<mx:TextInput left="254" top="60" width="80" id="txtPlayerCurScore" text="{txtMyCurScore.text}"/>
+					<mx:Label text="充值积分：" width="70" left="185" top="88"/>
+					<mx:TextInput left="253" top="86" width="80" id="txtMyCurScore" restrict="0-9"/>
+					<mx:Label text="充值后积分：" width="80" left="342" top="62"/>
+					<mx:TextInput left="415" top="60" width="80" id="txtPlayerOverScore" text="{(parseInt(txtPlayerOrgScore.text) + parseInt(txtPlayerCurScore.text)).toString() == 'NaN' ? '' : (parseInt(txtPlayerOrgScore.text) + parseInt(txtPlayerCurScore.text)).toString()}"/>
+					<mx:Label text="充值后积分：" width="80" left="342" top="88"/>
+					<mx:TextInput left="415" top="86" width="80" id="txtMyOverScore" text="{(parseInt(txtMyOrgScore.text) - parseInt(txtMyCurScore.text)).toString() == 'NaN' ? '' : (parseInt(txtMyOrgScore.text) - parseInt(txtMyCurScore.text)).toString()}"/>
+					<!-- 只显示从当前日期开始，向前推40天的数据，不需要分页 -->
+					<mx:Label text="历史充值记录" left="10" top="114"/>
+					<mx:Button label="重置" right="10" top="112" id="btnReset"/>
+					<mx:Button label="充值" right="66" top="112" id="btnSubmit"/>
+					<mx:TabNavigator x="10" y="140" top="140" left="10" right="10" bottom="10" id="tabNavigator">
+						<mx:Canvas label="玩家充值历史记录" width="100%" height="100%">
+							<mx:DataGrid left="0" right="0" top="0" bottom="0">
+								<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+								<mx:columns>
+									<mx:DataGridColumn headerText="充值积分来自用户" dataField="fromPlayer" width="80"/>
+									<mx:DataGridColumn headerText="充值前积分" dataField="toOrgScore" width="30"/>
+									<mx:DataGridColumn headerText="充值积分" dataField="score" width="30"/>
+									<mx:DataGridColumn headerText="充值后积分" dataField="toCurScore" width="30"/>
+									<mx:DataGridColumn headerText="充值时间" dataField="createTime" width="120"/>
+								</mx:columns>
+							</mx:DataGrid>
+						</mx:Canvas>
+						<mx:Canvas label="我的充值历史记录" width="100%" height="100%">
+							<mx:DataGrid left="0" right="0" top="0" bottom="0">
+								<mx:dataProvider>{infoServiceMine.lastResult.entityList.map}</mx:dataProvider>
+								<mx:columns>
+									<mx:DataGridColumn headerText="充值玩家" dataField="toPlayer" width="80"/>
+									<mx:DataGridColumn headerText="充值前积分" dataField="fromOrgScore" width="30"/>
+									<mx:DataGridColumn headerText="充值积分" dataField="score" width="30"/>
+									<mx:DataGridColumn headerText="充值后积分" dataField="fromCurScore" width="30"/>
+									<mx:DataGridColumn headerText="充值时间" dataField="createTime" width="120"/>
+								</mx:columns>
+							</mx:DataGrid>
+						</mx:Canvas>
+					</mx:TabNavigator>
+					<mx:TitleWindow layout="absolute"
+									horizontalCenter="0"
+									verticalCenter="0"
+									title="关系路径"
+									id="userRelationsShipWindow"
+									showCloseButton="true"
+									height="374"
+									width="500">
+						<mx:visible>false</mx:visible>
+						<mx:Tree id="userTree"
+							 labelField="@key"
+							 showRoot="false"
+							 wordWrap="false"
+							 variableRowHeight="true"
+							 styleName="relationshipStyle"
+							 top="0"
+							 bottom="0"
+							 left="0"
+							 right="0"
+							 horizontalScrollPolicy="{mx.core.ScrollPolicy.ON}"
+							 verticalScrollPolicy="{mx.core.ScrollPolicy.ON}"/>
+					</mx:TitleWindow>
+				</mx:Canvas>
+			</mx:AddChild>
+		</mx:State>
+	</states>
+	
+	<mx:Array id="depositBookValidators">
+        <mx:StringValidator source="{comboUserIds}"
+                            required="true"
+                            property="selectedLabel"
+                            requiredFieldError="玩家ID不能为空！"/>
+        <mx:NumberValidator source="{txtMyCurScore}"
+                            required="true"
+                            property="text"
+                            minValue="100"
+                            lowerThanMinError="充值积分至少为100！"
+                            requiredFieldError="充值积分不能为空！"/>
+     </mx:Array>
+</FunctionWindow>
