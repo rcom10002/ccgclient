@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:net="flash.net.*"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import mx.utils.Base64Decoder;
+			import mx.events.DragEvent;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.TextArea;
+			import mx.containers.FormItem;
+			import mx.formatters.DateFormatter;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalReportBizMatrixService;
+			import mx.events.ItemClickEvent;
+			import mx.events.CloseEvent;
+
+			public static var adminApp:Administration;
+
+			public var currentOperationMethod:OperationMethod;
+			
+			private var isInitialized:Boolean = false;
+			
+			protected function defaultSearch():void
+			{
+				var dateFormatter:DateFormatter=new DateFormatter();
+				dateFormatter.formatString="YYYYMMDD";
+				var day:int = Math.floor((dateTo.selectedDate.time - dateFrom.selectedDate.time) / (1000 * 60 * 60 *24));
+    			if (day < 0) {
+    				Alert.show("查询开始日期不能晚于结束日期！", "消息");
+    				return;
+    			}
+				HttpServiceProxy.send(LocalReportBizMatrixService.RETRIEVE_REPORT_BIZ_MATRIX, {FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+			
+            private function btnSearchReportRechargeHistoryClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE=1;
+				defaultSearch();
+			}
+			
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+				{
+					return;
+				}
+				if (event.index == 0)
+				{
+					CURRENT_PAGE--;
+				}
+				else if (event.index == 1)
+				{
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+			
+			private function showDownloadDialog(url:String):void {
+				var urlReq:URLRequest = new URLRequest(url);
+                fileReference.download(urlReq);
+			}
+			
+			private function btnDownloadClickHandler(event:MouseEvent):void {
+				if (TOTAL_PAGE > 0) {
+					var dateFormatter:DateFormatter=new DateFormatter();
+					dateFormatter.formatString="YYYYMMDD";
+					HttpServiceProxy.send(LocalReportBizMatrixService.CSV_EXPORT, {FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+					{
+						var xml:XML = new XML(event.result);
+						var url:String = xml.tag;
+						if (xml.result == "SUCCESS")
+						{
+							if (url.length == 0) {
+			            		Alert.show("暂时无法下载，请重新导出！", "业务汇总报表");
+			            		return;
+			            	}
+			            	Alert.yesLabel = "确认";
+							Alert.noLabel = "取消";
+						    Alert.show( "确定要下载" + dateFrom.text + "-" + dateTo.text + "时间段的数据吗？",
+										"消息", 
+										Alert.YES | Alert.NO,
+										adminApp,
+										function handleAlert(event:CloseEvent):void {
+										    if(event.detail == Alert.YES)
+										    {
+										        showDownloadDialog(url);
+										    }
+										},
+										null,
+										Alert.YES);
+						}
+						else
+						{
+							Alert.show("导出失败！", "业务汇总报表");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("导出失败！", "业务汇总报表");
+					});
+				} else {
+					Alert.show("还没有查询结果不能导出！", "业务汇总报表");
+				}
+			}
+			
+			protected function creationCompleteHandler():void
+			{
+				if (!isInitialized) {
+					// 状态初始化
+					initializeEachState("LIST");
+					dateFrom.selectedDate = new Date();
+					dateTo.selectedDate = new Date();
+					// 事件绑定
+					// 检索
+					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportRechargeHistoryClickHandler);
+					// 翻页
+					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
+					// 下载
+					ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
+					isInitialized = true;
+	            }
+			}
+			
+			private function onEvent(evt:Event):void {
+	            Alert.show(evt.toString(), evt.type);
+	        }
+	        
+		]]>
+	</mx:Script>
+	
+	<net:FileReference id="fileReference" ioError="onEvent(event);"/>
+	<states>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:HBox left="10"
+						 right="10"
+						 top="10">
+					<mx:Label text="起始日期"/>
+					<mx:DateField id="dateFrom" formatString="YYYY年MM月DD日">
+					</mx:DateField>
+					<mx:Label text="结束日期"/>
+					<mx:DateField id="dateTo" formatString="YYYY年MM月DD日">
+					</mx:DateField>
+					<mx:Button id="btnSearch"
+							   label="查询"/>
+					<mx:Button id="btnDownload"
+				               label="下载"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="40" left="10" right="10" bottom="10" id="datagrid">
+				<mx:dataProvider>{infoService.lastResult.entityList.BizMatrixInfo}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn headerText="被充值玩家" dataField="userId"/>
+						<mx:DataGridColumn headerText="累计充值积分" dataField="totalRechargeScore"/>
+						<mx:DataGridColumn headerText="累计游戏积分" dataField="totalGameScore"/>
+						<mx:DataGridColumn headerText="累计系统积分" dataField="totalSysScore"/>
+						<mx:DataGridColumn headerText="有效剩余积分" dataField="currentScore"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title" value="业务汇总报表"/>
+		</mx:State>
+	</states>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

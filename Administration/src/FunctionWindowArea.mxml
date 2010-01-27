@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+		   layout="absolute"
+		   minWidth="400"
+		   minHeight="300"
+		   width="100%"
+		   height="100%"
+		   xmlns:sw="info.knightrcom.sw.*"
+		   currentState="WELCOME"
+		   xmlns:service="info.knightrcom.service.*">
+	<mx:states>
+		<mx:State name="GROUP_USER_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GroupUserWindow>
+				</service:GroupUserWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="WELCOME">
+			<mx:AddChild position="lastChild">
+				<mx:HBox width="100%"
+						 height="100%"
+						 verticalAlign="middle"
+						 horizontalAlign="center">
+					<mx:Label text="Welcome"
+							  fontWeight="bold"
+							  fontSize="36"
+							  fontFamily="Verdana"/>
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SOLO_USER_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:PlayerProfileWindow>
+				</service:PlayerProfileWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SERVER_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ServerConfigureWindow>
+				</service:ServerConfigureWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigureWindow>
+				</service:GameConfigureWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_RED5_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigRed5Window>
+				</service:GameConfigRed5Window>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_FIGHTLANDLORD_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigFightLandlordWindow>
+				</service:GameConfigFightLandlordWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_QIONGWIN_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigQiongWinWindow>
+				</service:GameConfigQiongWinWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_PUSHDOWNWIN_PARAM_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:GameConfigPushDownWinWindow>
+				</service:GameConfigPushDownWinWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SERVER_MESSAGE_SEND">
+			<mx:AddChild position="lastChild">
+				<service:SystemMessageWindow id="serverMessageWindow">
+				</service:SystemMessageWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="ADMIN_MANUAL">
+			<mx:AddChild position="lastChild">
+				<service:AdminManual right="10" left="10" top="10" bottom="10">
+				</service:AdminManual>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="ABOUT_GAME_PLATFORM">
+			<mx:AddChild position="lastChild">
+				<service:AboutGamePlatform left="10" top="10" bottom="10" right="10">
+				</service:AboutGamePlatform>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="REPORT_SCORE_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ReportScoreWindow>
+				</service:ReportScoreWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="REPORT_BUSINESS_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ReportBusinessWindow>
+				</service:ReportBusinessWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="REPORT_TEMPLATE_MANAGE_EDIT">
+			<mx:AddChild position="lastChild">
+				<service:ReportTemplateManageWindow>
+				</service:ReportTemplateManageWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="DYNA_REPORT">
+			<mx:AddChild position="lastChild">
+				<service:DynaReportWindow>
+				</service:DynaReportWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SYSTEM_STATUS">
+			<mx:AddChild position="lastChild">
+				<service:SystemStatusWindow>
+				</service:SystemStatusWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="SYSTEM_LOG">
+			<mx:AddChild position="lastChild">
+				<service:SystemLogWindow>
+				</service:SystemLogWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GAME_FEEDBACK">
+			<mx:AddChild position="lastChild">
+				<service:GameFeedbackWindow>
+				</service:GameFeedbackWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="USER_RELATIONSHIP_VIEW">
+			<mx:AddChild position="lastChild">
+				<service:UserRelationshipWindow>
+				</service:UserRelationshipWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="RECHARGE_VIEW">
+			<mx:AddChild position="lastChild">
+				<service:DepositBookWindow>
+				</service:DepositBookWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="REPORT_RECHARGE_HISTORY">
+			<mx:AddChild position="lastChild">
+				<service:ReportRechargeHistory>
+				</service:ReportRechargeHistory>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="REPORT_BIZ_MATRIX">
+			<mx:AddChild position="lastChild">
+				<service:ReportBizMatrix>
+				</service:ReportBizMatrix>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="CUSTOM_POKER_WINDOW">
+			<mx:AddChild position="lastChild">
+				<service:CustomPokerWindow>
+				</service:CustomPokerWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="PUPPET_LAUNCHER_WINDOW">
+			<mx:AddChild position="lastChild">
+				<service:PuppetLauncherWindow>
+				</service:PuppetLauncherWindow>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="MULTI_PUPPET_LAUNCHER_WINDOW">
+			<mx:AddChild position="lastChild">
+				<service:MultiPuppetWindow>
+				</service:MultiPuppetWindow>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+</mx:Module>

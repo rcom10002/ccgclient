@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.Base64Decoder;
+			import mx.events.DragEvent;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.TextArea;
+			import mx.containers.FormItem;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalReportTemplateManageService;
+			import mx.events.ItemClickEvent;
+			import mx.validators.Validator;
+			import mx.events.CloseEvent;
+
+			public var currentOperationMethod:OperationMethod;
+			
+			public static var adminApp:Administration;
+			
+			// 验证字母数字和下划线组合
+			private function validateInput(str:String):Boolean {
+				var pattern:RegExp = /^[A-Z_]+$/;
+				return pattern.test(str);
+			}
+			
+			protected function setValue(event:ResultEvent):void
+			{
+				var e4xResult:XML=new XML(event.result);
+				reportName.text=e4xResult.entity.name.text();
+				content.text=e4xResult.entity.value.text();
+				trace(e4xResult.entity.globalconfigId.text());
+			}
+
+			protected function readReportTemplate():void
+			{
+				HttpServiceProxy.send(LocalReportTemplateManageService.RETRIEVE_SQL_TEMPLATE, {CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+
+
+			protected function clearEditor():void
+			{
+				for each (var thisFormItem:FormItem in Form(this.editorNew).getChildren())
+				{
+					var control:Object=thisFormItem.getChildAt(0);
+					if (control is TextInput)
+					{
+						TextInput(control).text="";
+					}
+					else if (control is TextArea)
+					{
+						TextArea(control).text="";
+					}
+					else
+					{
+						throw Error("无法为当前控件进行初始化");
+					}
+				}
+			}
+			
+			private function btnCreateReportTemplateClickHandler(event:MouseEvent):void {
+				currentState="EDIT";
+				currentOperationMethod=OperationMethod.CREATE;
+				clearEditor();
+				reportName.enabled = true;
+			}
+			
+			private function btnUpdateReportTemplateClickHandler(event:MouseEvent):void {
+				if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要更新的数据！", "报表模板管理");
+			        return;
+			    }
+				currentState="EDIT";
+				currentOperationMethod=OperationMethod.UPDATE;
+				reportName.enabled = false;
+				HttpServiceProxy.send(LocalReportTemplateManageService.READ_SQL_TEMPLATE, {GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+					{
+						setValue(event);
+					});
+			}
+			
+			private function btnDeleteReportTemplateClickHandler(event:MouseEvent):void {
+				currentOperationMethod=OperationMethod.DELETE;
+				if (datagrid.selectedIndices.length == 0) {
+			        Alert.show("请选择要删除的数据！", "报表模板管理");
+			        return;
+			    }
+			    Alert.yesLabel = "确认";
+				Alert.noLabel = "取消";
+			    Alert.show( "确定要删除？",
+						"消息", 
+						Alert.YES | Alert.NO,
+						adminApp,
+						function handleAlert(event:CloseEvent):void {
+						    if(event.detail == Alert.YES)
+						    {
+						    	HttpServiceProxy.send(LocalReportTemplateManageService.DELETE_SQL_TEMPLATE, {CURRENT_PAGE: 1, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+									{
+										if (new XML(event.result).result == "SUCCESS")
+										{
+											Alert.show("删除成功！", "报表模板管理");
+											readReportTemplate();
+										}
+										else
+										{
+											Alert.show("删除失败！", "报表模板管理");
+										}
+									}, function(event:FaultEvent):void
+									{
+										Alert.show("删除失败！", "报表模板管理");
+									});
+						    }
+						},
+						null,
+						Alert.YES);
+				currentOperationMethod=OperationMethod.UNKNOWN;
+			}
+			
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+				{
+					return;
+				}
+				if (event.index == 0)
+				{
+					CURRENT_PAGE--;
+				}
+				else if (event.index == 1)
+				{
+					CURRENT_PAGE++;
+				}
+				readReportTemplate();
+			}
+			
+			private function btnSubmitReportTemplateClickHandler(event:MouseEvent):void {
+				if (Validator.validateAll(this.reportTemplateValidators).length > 0)
+				{
+					Alert.show("信息填写不符合规范！", "警告");
+					return;
+				}
+				if (!validateInput(reportName.text)) 
+				{
+					Alert.show("报表名称格式错误(变量名应为大写字母或下划线)！","报表模板管理");
+					return;
+				}
+				if (currentOperationMethod == OperationMethod.CREATE)
+				{
+					HttpServiceProxy.send(LocalReportTemplateManageService.CREATE_SQL_TEMPLATE, {CURRENT_PAGE: CURRENT_PAGE, TITLE: reportName.text, CONTENT: content.text}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show("新增成功！", "报表模板管理");
+								currentState="LIST";
+								currentOperationMethod=OperationMethod.UNKNOWN;
+								readReportTemplate();
+							}
+							else if (new XML(event.result).result == "WARNING")
+							{
+								Alert.show("报表名称已存在！", "报表模板管理");
+							}
+							else
+							{
+								Alert.show("新增失败！", "报表模板管理");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("新增失败！", "报表模板管理");
+						});
+				}
+				else if (currentOperationMethod == OperationMethod.UPDATE)
+				{
+					HttpServiceProxy.send(LocalReportTemplateManageService.UPDATE_SQL_TEMPLATE, {CURRENT_PAGE: 1, TITLE: reportName.text, CONTENT: content.text, GLOBALCONFIG_ID: datagrid.selectedItem.globalConfigId.text()}, null, function(event:ResultEvent):void
+						{
+							if (new XML(event.result).result == "SUCCESS")
+							{
+								Alert.show("保存成功！", "报表模板管理");
+								currentOperationMethod=OperationMethod.UPDATE;
+							}
+							else
+							{
+								Alert.show("保存失败！", "报表模板管理");
+							}
+						}, function(event:FaultEvent):void
+						{
+							Alert.show("保存失败！", "报表模板管理");
+						});
+				}
+			}
+			
+			private function btnBackReportTemplateClickHandler(event:MouseEvent):void {
+				currentState="LIST";
+				currentOperationMethod=OperationMethod.UNKNOWN;
+				readReportTemplate();
+			}
+
+			protected function creationCompleteHandler():void
+			{
+				// 状态初始化
+				initializeEachState("LIST");
+				// 事件绑定
+				CURRENT_PAGE=1;
+				readReportTemplate();
+				// 新增
+				ListenerBinder.bind(btnCreate, MouseEvent.CLICK, btnCreateReportTemplateClickHandler);
+				// 更新
+				ListenerBinder.bind(btnUpdate, MouseEvent.CLICK, btnUpdateReportTemplateClickHandler);
+				// 删除
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, btnDeleteReportTemplateClickHandler);
+				// 翻页
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
+				// 确定
+				ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, btnSubmitReportTemplateClickHandler);
+				// 取消
+				ListenerBinder.bind(btnBack, MouseEvent.CLICK, btnBackReportTemplateClickHandler);
+			}
+		]]>
+	</mx:Script>
+	<states>
+		<mx:State name="EDIT">
+			<mx:AddChild position="lastChild">
+				<mx:Form id="editorNew"
+						 left="0"
+						 right="0"
+						 top="0"
+						 bottom="40">
+					<mx:FormItem label="报表名称">
+						<mx:TextInput id="reportName" width="300"/>
+					</mx:FormItem>
+					<mx:FormItem label="SQL文">
+						<mx:TextArea width="600" minHeight="400" id="content"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="确定"
+						   id="btnSubmit"
+						   right="66"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="返回"
+						   id="btnBack"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="报表模板编辑"/>
+		</mx:State>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="0"
+							 left="0"
+							 right="0"
+							 bottom="40"
+							 id="datagrid">
+					<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn dataField="globalConfigId"
+										   visible="false"/>
+						<mx:DataGridColumn headerText="报表模板标题"
+										   dataField="name"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="新增"
+						   id="btnCreate"
+						   right="130"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="修改"
+						   id="btnUpdate"
+						   right="70"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="删除"
+						   id="btnDelete"
+						   right="10"
+						   bottom="10"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title"
+							value="报表模板管理"/>
+		</mx:State>
+	</states>
+	<!-- 验证器 -->
+    <mx:Array id="reportTemplateValidators">
+		<mx:StringValidator source="{reportName}"
+                            required="true"
+                            property="text"
+                            minLength="4" maxLength="20"  
+					    	tooShortError="报表名字数最少4个字符！"
+					    	tooLongError="报表名字数最多20个字符！"
+                            requiredFieldError="报表名称不能为空！"/>
+        <mx:StringValidator source="{content}"
+                            required="true"
+                            property="text"
+                            minLength="4" maxLength="5000"  
+					    	tooShortError="SQL文字数最少4个字符！"
+					    	tooLongError="SQL文字数最多5000个字符！"
+                            requiredFieldError="SQL文不能为空！"/>
+    </mx:Array>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

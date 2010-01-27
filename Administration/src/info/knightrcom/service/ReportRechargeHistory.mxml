@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:net="flash.net.*"
+				creationComplete="creationCompleteHandler();">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import mx.utils.Base64Decoder;
+			import mx.events.DragEvent;
+			import info.knightrcom.model.OperationMethod;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.TextArea;
+			import mx.containers.FormItem;
+			import mx.formatters.DateFormatter;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+			import info.knightrcom.service.LocalReportRechargeHistoryService;
+			import mx.events.ItemClickEvent;
+			import mx.events.CloseEvent;
+
+			public static var adminApp:Administration;
+
+			public var currentOperationMethod:OperationMethod;
+			
+			private var isInitialized:Boolean = false;
+			
+			protected function defaultSearch():void
+			{
+				HttpServiceProxy.send(LocalReportRechargeHistoryService.RETRIEVE_REPORT_RECHARGE_HISTORY, {FROM_PLAYER: fromPlayer.text, TO_PLAYER: toPlayer.text, CREATE_MONTH: createMonth.text, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+			
+            private function btnSearchReportRechargeHistoryClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE=1;
+				defaultSearch();
+			}
+			
+			private function pageChangeClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1)
+				{
+					return;
+				}
+				if (event.index == 0)
+				{
+					CURRENT_PAGE--;
+				}
+				else if (event.index == 1)
+				{
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+			
+			private function showDownloadDialog(url:String):void {
+				var urlReq:URLRequest = new URLRequest(url);
+                fileReference.download(urlReq);
+			}
+			
+			private function btnDownloadClickHandler(event:MouseEvent):void {
+				if (TOTAL_PAGE > 0) {
+					HttpServiceProxy.send(LocalReportRechargeHistoryService.CSV_EXPORT, {FROM_PLAYER: fromPlayer.text, TO_PLAYER: toPlayer.text, CREATE_MONTH: createMonth.text, CURRENT_PAGE: CURRENT_PAGE}, null, function(event:ResultEvent):void
+					{
+						var xml:XML = new XML(event.result);
+						var url:String = xml.tag;
+						if (xml.result == "SUCCESS")
+						{
+							if (url.length == 0) {
+			            		Alert.show("暂时无法下载，请重新导出！", "充值历史报表");
+			            		return;
+			            	}
+			            	Alert.yesLabel = "确认";
+							Alert.noLabel = "取消";
+						    Alert.show( "确定要下载充值月份为" + createMonth.text + "的数据吗？",
+										"消息", 
+										Alert.YES | Alert.NO,
+										adminApp,
+										function handleAlert(event:CloseEvent):void {
+										    if(event.detail == Alert.YES)
+										    {
+										        showDownloadDialog(url);
+										    }
+										},
+										null,
+										Alert.YES);
+						}
+						else
+						{
+							Alert.show("导出失败！", "充值历史报表");
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("导出失败！", "充值历史报表");
+					});
+				} else {
+					Alert.show("还没有查询结果不能导出！", "充值历史报表");
+				}
+			}
+			
+			protected function creationCompleteHandler():void
+			{
+				if (!isInitialized) {
+					// 状态初始化
+					initializeEachState("LIST");
+					createMonth.selectedDate = new Date();
+					// 事件绑定
+					// 检索
+					ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchReportRechargeHistoryClickHandler);
+					// 翻页
+					ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeClickHandler);
+					// 下载
+					ListenerBinder.bind(btnDownload, MouseEvent.CLICK, btnDownloadClickHandler);
+					isInitialized = true;
+	            }
+			}
+			
+			private function onEvent(evt:Event):void {
+	            Alert.show(evt.toString(), evt.type);
+	        }
+	        
+		]]>
+	</mx:Script>
+	<net:FileReference id="fileReference" ioError="onEvent(event);"/>
+	<states>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:HBox left="10"
+						 right="10"
+						 top="10">
+					<mx:FormItem label="充值玩家">
+						<mx:TextInput id="fromPlayer"/>
+					</mx:FormItem>
+					<mx:FormItem label="被充值玩家">
+						<mx:TextInput id="toPlayer"/>
+					</mx:FormItem>
+					<mx:Label text="充值月份"/>
+					<mx:DateField id="createMonth" formatString="YYYY年MM月">
+					</mx:DateField>
+					<mx:Button id="btnSearch"
+							   label="查询"/>
+					<mx:Button id="btnDownload"
+				               label="下载"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="40" left="10" right="10" bottom="10" id="datagrid">
+				<mx:dataProvider>{infoService.lastResult.entityList.RechargeHistoryInfo}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn dataField="rechargeId" visible="false"/>
+						<mx:DataGridColumn headerText="充值玩家" dataField="toPlayer"/>
+						<mx:DataGridColumn headerText="充值前积分" dataField="toOrgScore"/>
+						<mx:DataGridColumn headerText="充值后积分" dataField="toCurScore"/>
+						<mx:DataGridColumn headerText="充值积分" dataField="score"/>
+						<mx:DataGridColumn headerText="被充值玩家" dataField="fromPlayer"/>
+						<mx:DataGridColumn headerText="被充值前积分" dataField="fromOrgScore"/>
+						<mx:DataGridColumn headerText="被充值后积分" dataField="fromCurScore"/>
+						<mx:DataGridColumn headerText="充值时间" dataField="createTime"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar paddingTop="0"
+							   paddingBottom="0"
+							   horizontalAlign="right">
+					<mx:Label id="lblPage"
+							  text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}"/>
+					<mx:LinkBar id="pageRoller">
+						<mx:Array>
+							<mx:Object label="前页"/>
+							<mx:Object label="后页"/>
+						</mx:Array>
+					</mx:LinkBar>
+				</mx:ControlBar>
+			</mx:AddChild>
+			<mx:SetProperty name="title" value="充值历史报表"/>
+		</mx:State>
+	</states>
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

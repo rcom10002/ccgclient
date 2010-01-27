@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%"
+				height="100%"
+				minWidth="640"
+				minHeight="480"
+				title="系统日志"
+				creationComplete="creationCompleteHandler();">
+<mx:Script>
+		<![CDATA[
+			import mx.events.ListEvent;
+			import mx.events.ItemClickEvent;
+			import mx.core.Application;
+			import info.knightrcom.util.HttpServiceProxy;
+			import mx.core.ScrollPolicy;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.formatters.DateFormatter;
+			import mx.controls.Button;
+			import info.knightrcom.util.ListenerBinder;
+			import mx.managers.PopUpManager;
+			import info.knightrcom.service.LocalSystemLogService;
+
+			public static var CURRENT_PROFILE_ID:String;
+
+			private var layoutCanvas:DisplayObject=null;
+
+			private function defaultSearch():void
+			{
+				var dateFormatter:DateFormatter=new DateFormatter();
+				dateFormatter.formatString="YYYYMMDD";
+				HttpServiceProxy.send(LocalSystemLogService.SYSTEM_INFO, {CAPTION:caption.text,FROM_DATE: dateFormatter.format(dateFrom.selectedDate), TO_DATE: dateFormatter.format(dateTo.selectedDate), SHOW_CONDITION: sc.value, CURRENT_PAGE: CURRENT_PAGE}, infoService);
+			}
+			
+			private function pageChangeSystemLogClickHandler(event:ItemClickEvent):void {
+				if (isNaN(TOTAL_PAGE) || TOTAL_PAGE < 1) {
+					return;
+				}
+				if (event.index == 0) {
+					CURRENT_PAGE--;
+				} else if (event.index == 1) {
+					CURRENT_PAGE++;
+				}
+				defaultSearch();
+			}
+			
+			private function btnSearchSystemLogClickHandler(event:MouseEvent):void {
+				CURRENT_PAGE = 1;
+				defaultSearch();
+			}
+			
+			protected function creationCompleteHandler():void
+			{
+				// 事件绑定
+				ListenerBinder.bind(btnSearch, MouseEvent.CLICK, btnSearchSystemLogClickHandler);
+				ListenerBinder.bind(pageRoller, ItemClickEvent.ITEM_CLICK, pageChangeSystemLogClickHandler);
+			}
+		]]>
+	</mx:Script>
+	<!-- 查询条件 -->
+    <mx:HBox horizontalGap="4" top="10" left="10" right="10">
+		<mx:Label text="日志类型"/>
+		<mx:ComboBox id="sc" selectedIndex="1">
+			<mx:dataProvider>
+                <mx:Array>
+                    <mx:Object label="全部" data="" />
+                    <mx:Object label="系统日志" data="SYSTEM_LOG" />
+                    <mx:Object label="应用服务器错误日志" data="SYSTEM_ERROR" />
+                    <mx:Object label="Web服务器错误日志" data="WEB_ERROR" />
+                    <mx:Object label="客户端错误日志" data="CLIENT_ERROR" />
+                </mx:Array>
+            </mx:dataProvider>
+		</mx:ComboBox>
+		<mx:Label text="标题关键字"/>
+		<mx:TextInput id="caption"/>
+		<mx:Label text="起始时间"/>
+        <mx:DateField id="dateFrom">
+        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+        </mx:DateField>
+        <mx:Label text="终止时间"/>
+        <mx:DateField id="dateTo">
+        	<mx:selectedDate>{new Date()}</mx:selectedDate>
+        	<mx:formatString>YYYY年MM月DD日</mx:formatString>
+        </mx:DateField>
+		<mx:Button label="查询" id="btnSearch"/>
+	</mx:HBox>
+	<mx:DataGrid left="10" right="10" top="36" bottom="114" id="datagird">
+		<mx:dataProvider>{infoService.lastResult.entityList.map}</mx:dataProvider>
+		<mx:columns>
+			<mx:DataGridColumn headerText="标题" dataField="caption"/>
+			<mx:DataGridColumn headerText="类型" dataField="type"/>
+			<mx:DataGridColumn headerText="创建日期" dataField="createtime"/>
+			<mx:DataGridColumn headerText="内容" dataField="info" visible="false"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HRule height="6" bottom="100" left="10" right="10"/>
+	<mx:Label text="标题：" bottom="72" left="10"/>
+	<mx:TextInput left="53" bottom="70" id="txtCaption" editable="false" width="200" text="{datagird.selectedItem.caption}"/>
+	<mx:Label text="类型：" bottom="42" left="10"/>
+	<mx:TextInput left="53" bottom="40" id="txtType" editable="false" width="200" text="{datagird.selectedItem.type}"/>
+	<mx:Label text="日期：" bottom="10" left="10"/>
+	<mx:TextInput left="53" bottom="10" id="txtCreateTime" editable="false" width="200" text="{datagird.selectedItem.createtime}"/>
+	<mx:TextArea right="10"
+				 bottom="10"
+				 height="82"
+				 left="262" id="txtInfo" editable="false" text="{datagird.selectedItem.info}"/>
+	<!-- 查询导航 -->
+    <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
+        <mx:Label id="lblPage" text="{infoService.lastResult.pagination.currentPage + '/' + infoService.lastResult.pagination.totalPage}" />
+        <mx:LinkBar id="pageRoller">
+		    <mx:Array>
+				<mx:Object label="前页"/>
+				<mx:Object label="后页"/>
+			</mx:Array>
+        </mx:LinkBar>
+    </mx:ControlBar>
+    <!-- 查询组件 -->
+	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
+	<mx:Number id="TOTAL_PAGE">{infoService.lastResult.pagination.totalPage}</mx:Number>
+</FunctionWindow>

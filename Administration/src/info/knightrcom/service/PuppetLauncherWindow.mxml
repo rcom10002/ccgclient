@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*"
+				xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="100%"
+				height="100%"
+				title="でく・ロボット">
+	<mx:Button id="btnStartPuppet" label="Start a Puppet for Red 5 Game" bottom="10" right="10" />
+	<mx:Script>
+		<![CDATA[
+			import mx.containers.Canvas;
+			import info.knightrcom.UIManager;
+			import mx.controls.List;
+			import info.knightrcom.util.HttpServiceProxy;
+			import info.knightrcom.util.ListenerBinder;
+
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			protected function btnStartPuppetClickHandler(event:MouseEvent):void
+			{
+				HttpServiceProxy.send(
+						LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
+						{GAME_TYPE : "Red5", MAX_RESULTS_SIZE : puppetStepper.value}, 
+						null, function (e:ResultEvent):void {
+					var result:* = e.result;
+//					var targetURL:String = result.tag;
+					var targetURL:String = "D:/eclipse/workspace/f3server/web/content/ccgc/CCGameClient.swf";
+					var classPrefix:String = "Red5";
+					for each (var entity:* in result.entityList.PlayerProfile) {
+						// targetURL, securityPassword, classPrefix, username, password
+						var values:Array = entity.status.split(/~/g);
+						var finalTargetURL:String = targetURL.replace(".html", ".swf") + 
+						"?securityPassword=test" + 
+						"&classPrefix=" + values[1] + 
+						"&username=" + entity.userId + 
+						"&password=" + entity.userId +
+						"&roomId=" + values[2] // Red5Fresh
+						"&gameSetting=" + values[3];
+						UIManager.addTab("", new Canvas(), finalTargetURL);
+//						ExternalInterface.call("window.open", finalTargetURL);
+					}
+				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+			}
+
+			protected function btnListPuppetClickHandler(event:MouseEvent):void
+			{
+				getListPuppetInfo();
+			}
+			
+			protected function onTimer(event:TimerEvent):void{ 
+		         trace("on timer"); 
+		         getListPuppetInfo();
+			} 
+			
+			private function getListPuppetInfo():void {
+				HttpServiceProxy.send(
+						LocalPuppetConsoleService.LIST_PUPPET_INFO, 
+						{GAME_TYPE : "Red5"}, 
+						null, function (e:ResultEvent):void {
+							datagrid.dataProvider = new XML(e.result).tag.map;
+						}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+			}
+		]]>
+	</mx:Script>
+	<creationComplete>
+		<![CDATA[
+			var timer:Timer = new Timer(5000); 
+			ListenerBinder.bind(btnStartPuppet, MouseEvent.CLICK, btnStartPuppetClickHandler);
+			ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
+			ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
+			timer.start();
+		]]>
+	</creationComplete>
+	<mx:DataGrid id="datagrid" left="10" top="10" right="70" bottom="50">
+		<mx:columns>
+			<mx:DataGridColumn headerText="puppet名称" dataField="pupuetname"/>
+			<mx:DataGridColumn headerText="当前分数" dataField="currentscore"/>
+			<mx:DataGridColumn headerText="当前状态" dataField="currentstatus"/>
+			<mx:DataGridColumn headerText="最后一次游戏时间" dataField="lastgametime"/>
+			<mx:DataGridColumn headerText="启动时间" dataField="starttime"/>
+			<mx:DataGridColumn headerText="运行时间(秒)" dataField="runingtime"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button id="btnRefresh" label="刷新" right="10" top="10"/>
+	<mx:NumericStepper id="puppetStepper" right="218" bottom="10" minimum="1" maximum="10" stepSize="1" value="4"/>
+</FunctionWindow>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml">
+	<states>
+		<mx:State name="EDIT">
+            <mx:AddChild position="lastChild">
+			    <mx:Form left="0"
+			             right="0"
+			             top="0"
+			             bottom="40"
+			             id="editForm">
+	                <mx:FormItem label="组用户Id">
+	                    <mx:TextInput id="groupUserId"/>
+	                </mx:FormItem>
+	                <mx:FormItem label="密码">
+	                    <mx:TextInput id="soloUserPassword" displayAsPassword="true"/>
+	                </mx:FormItem>
+	                <mx:FormItem label="密码确认">
+	                    <mx:TextInput id="soloUserPasswordConfirm" displayAsPassword="true"/>
+	                </mx:FormItem>
+	                <mx:FormItem label="组编号">
+	                    <mx:TextInput id="groupUserNumber"/>
+	                </mx:FormItem>
+	                <mx:FormItem label="组类别">
+	                	<mx:ComboBox id="groupUserType"></mx:ComboBox>
+	                </mx:FormItem>
+	                <mx:FormItem label="备注">
+	                    <mx:TextArea height="100"
+	                                 id="groupUserMemo"/>
+	                </mx:FormItem>
+			    </mx:Form>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+			    <mx:Button label="取消"
+			               id="btnCancel"
+			               right="10"
+			               bottom="10"/>
+            </mx:AddChild>
+            <mx:AddChild position="lastChild">
+			    <mx:Button label="确定"
+			               id="btnSubmit"
+			               right="66"
+			               bottom="10"/>
+            </mx:AddChild>
+            <mx:SetProperty name="title"
+                            value="组用户编辑"/>
+		</mx:State>
+		<mx:State name="LIST">
+			<mx:AddChild position="lastChild">
+				<mx:HBox top="10" left="10" right="10">
+					<mx:Label text="组用户ID"/>
+					<mx:TextInput/>
+					<mx:Label text="组编号"/>
+					<mx:TextInput/>
+					<mx:Text text="组类别"/>
+					<mx:ComboBox></mx:ComboBox>
+					<mx:Button label="查询"/>
+				</mx:HBox>
+			</mx:AddChild>
+            <mx:AddChild position="lastChild">
+            	<mx:HBox left="10" right="10" top="40">
+            		<mx:Button label="添加"/>
+            		<mx:Button label="修改"/>
+            		<mx:Button label="删除"/>
+            	</mx:HBox>
+            </mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:DataGrid top="68" left="10" right="10" bottom="10">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Column 1" dataField="col1"/>
+						<mx:DataGridColumn headerText="Column 2" dataField="col2"/>
+						<mx:DataGridColumn headerText="Column 3" dataField="col3"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:AddChild>
+            <mx:AddChild position="lastChild">
+            	<mx:ControlBar paddingTop="0" paddingBottom="0" horizontalAlign="right">
+            		<mx:LinkBar labelField="label">
+            			<mx:Array>
+            				<mx:Object label="前页" />
+            				<mx:Object label="后页" />
+            			</mx:Array>
+            		</mx:LinkBar>
+            	</mx:ControlBar>
+            </mx:AddChild>
+            <mx:SetProperty name="title"
+                            value="组用户列表"/>
+		</mx:State>
+	</states>
+    <mx:HTTPService id="infoServiceForGroupUser"
+                    url="employees.jsp">
+        <mx:request>
+            <groupUserId>{groupUserId.text}</groupUserId>
+            <groupUserNumber>{groupUserNumber.text}</groupUserNumber>
+            <groupUserType>{groupUserType.text}</groupUserType>
+            <groupUserMemo>{groupUserMemo.text}</groupUserMemo>
+        </mx:request>
+    </mx:HTTPService>
+</FunctionWindow>
