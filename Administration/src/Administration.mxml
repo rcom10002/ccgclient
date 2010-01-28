@@ -215,7 +215,6 @@
 			</node>
 			<node label="自主牌型设置"/>
 			<node label="でく・ロボット"/>
-			<node label="PUPPET"/>
 			<node label="注销登录" />
 		</root>
 	</mx:XML>
