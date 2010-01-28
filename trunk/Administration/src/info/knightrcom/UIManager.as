@@ -6,7 +6,6 @@ package info.knightrcom
 	
 	import info.knightrcom.service.LocalAdminLoginService;
 	import info.knightrcom.service.LocalApplicationServerOperationService;
-	import info.knightrcom.service.MultiPuppetWindow;
 	import info.knightrcom.util.HttpServiceProxy;
 	
 	import mx.containers.Canvas;
@@ -25,13 +24,6 @@ package info.knightrcom
 		}
 
 		public static var adminApp:Administration;
-		public static var puppet:MultiPuppetWindow;
-		
-		[Embed(source="assets/document.png")]
-		public static var document_icon:Class;
-		
-		[Embed(source="assets/home.png")]
-		public static var home_icon:Class;
 
 		/**
 		 *
@@ -268,39 +260,10 @@ package info.knightrcom
 				case "でく・ロボット":
 					adminApp.functionWindowArea.currentState="PUPPET_LAUNCHER_WINDOW";
 					break;
-				case "PUPPET":
-					adminApp.functionWindowArea.currentState="MULTI_PUPPET_LAUNCHER_WINDOW";
-					break;
 				default:
 					adminApp.functionWindowArea.currentState="WELCOME";
 					Alert.show("该功能正在完善中");
 			}
-		}
-		
-		public static function addTab(lbl:String, child:Canvas, contentString:String=null, icon:Class=null):void {
-			if(lbl=="") lbl = "(Untitled)";
-			
-			var curNum:Number = puppet.nav.numChildren + 1;
-			
-			if (contentString != null && contentString.length > 0) {
-				var air:AirLoadSWF = new AirLoadSWF();
-				air.addSwf(child, contentString);
-			}
-			child.setStyle("closable", true);
-			child.label = lbl;
-			if(icon) {
-				child.icon = icon;
-			}
-			else {
-				child.icon = document_icon;
-			}
-			var label:Label = new Label();
-			//label.text = contentString;
-			label.setStyle("horizontalCenter", -16); 
-			label.setStyle("verticalCenter", 50);
-			label.setStyle("fontSize", 24);
-			child.addChild(label);
-			puppet.nav.addChild(child);
 		}
 	}
 }

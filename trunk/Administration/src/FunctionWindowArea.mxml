@@ -166,11 +166,5 @@
 				</service:PuppetLauncherWindow>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="MULTI_PUPPET_LAUNCHER_WINDOW">
-			<mx:AddChild position="lastChild">
-				<service:MultiPuppetWindow>
-				</service:MultiPuppetWindow>
-			</mx:AddChild>
-		</mx:State>
 	</mx:states>
 </mx:Module>
