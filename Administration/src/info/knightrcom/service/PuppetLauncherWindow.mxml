@@ -5,8 +5,6 @@
 				height="100%"
 				xmlns:flexlib="http://code.google.com/p/flexlib/"
 				title="でく・ロボット">
-	<mx:NumericStepper id="puppetStepper" right="218" bottom="10" minimum="1" maximum="10" stepSize="1" value="4"/>
-	<mx:Button id="btnStartPuppet" label="Start a Puppet for Red 5 Game" bottom="10" right="10" />
 	<mx:Script>
 		<![CDATA[
 			import flexlib.controls.tabBarClasses.SuperTab;
@@ -27,6 +25,8 @@
 			
 			[Embed(source="../assets/home.png")]
 			private var home_icon:Class;
+			
+			private var timer:Timer = new Timer(5000); 
 			
 			private function addTab(lbl:String, child:Canvas, contentString:String=null, icon:Class=null):void {
 				if(lbl=="") lbl = "(Untitled)";
@@ -74,7 +74,7 @@
 						"&password=" + entity.userId +
 						"&roomId=" + values[2] // Red5Fresh
 						"&gameSetting=" + values[3];
-						addTab("", new Canvas(), finalTargetURL);
+						addTab(entity.userId + "[" + values[2] + "]", new Canvas(), finalTargetURL);
 //						ExternalInterface.call("window.open", finalTargetURL);
 					}
 				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
@@ -107,15 +107,19 @@
 			private function initNonClosableTab():void {
 				nav.setClosePolicyForTab(0, SuperTab.CLOSE_NEVER);
 			}
+			
+			private function btnGoClickHandler(event:MouseEvent):void {
+				this.currentState = 'PUPPET_CONTAINER';
+				ListenerBinder.bind(btnStartPuppet, MouseEvent.CLICK, btnStartPuppetClickHandler);
+				ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
+				ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
+			}
 		]]>
 	</mx:Script>
 	<creationComplete>
 		<![CDATA[
 			this.currentState = 'PUPPET_LAUNCH';
-			var timer:Timer = new Timer(5000); 
-			ListenerBinder.bind(btnStartPuppet, MouseEvent.CLICK, btnStartPuppetClickHandler);
-			ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
-			ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
+			ListenerBinder.bind(btnGo, MouseEvent.CLICK, btnGoClickHandler);
 			timer.start();
 		]]>
 	</creationComplete>
@@ -135,7 +139,7 @@
 					</mx:DataGrid>
 					<mx:VBox width="50">
 						<mx:Button id="btnRefresh" label="刷新" right="10" top="10"/>
-						<mx:Button id="btnGo" label="切换" right="10" top="50" click="this.currentState = 'PUPPET_CONTAINER'"/>	
+						<mx:Button id="btnGo" label="切换" right="10" top="50"/>	
 					</mx:VBox>
 				</mx:HBox>
 			</mx:AddChild>
@@ -144,7 +148,7 @@
 		<mx:AddChild>
 			<mx:VBox width="100%" height="100%" horizontalAlign="center" >
 		
-				<mx:HBox>
+				<mx:VBox>
 					
 					<mx:Panel title="Tab Control">
 						<mx:HBox>
@@ -155,9 +159,14 @@
 						</mx:HBox>
 					
 						<mx:Button label="Remove All" click="nav.removeAllChildren()" />
+						<mx:HBox>
 						<mx:Button id="btnBack" label="切换" click="this.currentState = 'PUPPET_LAUNCH'"/>
+						<mx:NumericStepper id="puppetStepper" right="218" bottom="10" minimum="1" maximum="10" stepSize="1" value="4"/>
+						<mx:Button id="btnStartPuppet" label="Start a Puppet for Red 5 Game" bottom="10" right="10" />
+						</mx:HBox>
 					</mx:Panel>
-				</mx:HBox>
+					
+				</mx:VBox>
 				
 				<mx:Spacer height="20" />
 		
