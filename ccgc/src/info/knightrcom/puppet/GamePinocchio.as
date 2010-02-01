@@ -9,7 +9,7 @@ package info.knightrcom.puppet
     
     import info.knightrcom.state.red5game.Red5Game;
     import info.knightrcom.util.ListenerBinder;
-    import info.knightrcom.util.PuppetProxy;
+    import info.knightrcom.util.PuppetEngine;
 
     /**
      *
@@ -127,7 +127,7 @@ package info.knightrcom.puppet
          */
         public function loginPlatform():void
         {
-            PuppetProxy.loginPlatform(_username, _password);
+            PuppetEngine.loginPlatform(_username, _password);
         }
 
         /**
@@ -136,7 +136,7 @@ package info.knightrcom.puppet
          */
         public function enterRoom():Boolean
         {
-            return PuppetProxy.enterRoom(_roomId);
+            return PuppetEngine.enterRoom(_roomId);
         }
 
         /**
@@ -145,7 +145,16 @@ package info.knightrcom.puppet
          */
         public function joinGame():void
         {
-            PuppetProxy.joinGame();
+            PuppetEngine.joinGame();
+        }
+        
+        /**
+         *
+         * @param event
+         *
+         */
+        public function startGame(event:GamePinocchioEvent):void
+        {
         }
 
         /**
