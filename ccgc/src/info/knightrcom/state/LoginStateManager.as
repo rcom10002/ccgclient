@@ -21,8 +21,8 @@ package info.knightrcom.state {
          * @param myState
          *
          */
-        public function LoginStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
-            super(socketProxy, gameClient, myState);
+        public function LoginStateManager(socketProxy:GameSocketProxy, myState:State):void {
+            super(socketProxy, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
         }
 
