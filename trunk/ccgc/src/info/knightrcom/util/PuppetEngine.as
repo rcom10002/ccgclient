@@ -16,11 +16,10 @@ package info.knightrcom.util {
     import mx.managers.ISystemManager;
     
     /**
-     *
-     * TODO: This class may be moduled so that a swf can be created and invoked by other program
-     *       This proxy should be created by
+     * 该类用于为所有的Puppet实现提供必要的公共方法，如登录、进入房间、加入游戏等功能
+     * 
      */
-    public class PuppetProxy {
+    public class PuppetEngine {
         
         private static const INTERVAL_LOGIN:int = 5000;
         
@@ -28,14 +27,15 @@ package info.knightrcom.util {
         
         private static const INTERVAL_JOIN_GAME:int = 60000;
         
-        private static const INTERVAL_GAME_PLAYING:int = 3000;
-        
-        public function PuppetProxy() {
+        public function PuppetEngine() {
             throw Error("This class can not be initialized!");
         }
         
         /**
          *
+         * 创建Puppet实例对象
+         * 
+         * @param securityPassword
          * @param classPrefix Red5, FightLandlord ...
          * @param username
          * @param password
@@ -49,7 +49,6 @@ package info.knightrcom.util {
             // var gamePuppetType:Class = getDefinitionByName("info.knightrcom.puppet.Red5GamePinocchio") as Class;
             var puppet:GamePinocchio =  /*new gamePuppetType(username, password, roomId);
                  //puppet = */new Red5GamePinocchio(username, password, roomId, gameSetting);
-            CCGameRed5.puppet = puppet as Red5GamePinocchio;
 
 			// 登录游戏平台，每隔 N 秒执行一次登录操作直到进入平台为止
             puppet.prepareActionTimer(INTERVAL_LOGIN, function():void {
@@ -64,32 +63,26 @@ package info.knightrcom.util {
                                 puppet.resetActionTimer();
                             }).start();
                     } else {
-                        iterateAllModelWindow(null, true);
+                        // FIXME This should be fixed for removing all model windows
+                        // iterateAllModelWindow(null, true);
                         puppet.loginPlatform();
                     }
                 }).start();
             // 运行时相关
-            // ===> 游戏设置开始，从游戏中选择游戏设置内容
-            ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_START, function(e:Event):void {
-//                    puppet.prepareActionTimer(INTERVAL_GAME_PLAYING, function():void {
-//                            iterateAllModelWindow(function(target:*):void {
-//                                    if (target is PlatformAlertUI) {
-//                                        puppet.selectGameSetting();
-//                                        puppet.resetActionTimer();
-//                                    }
-//                                });
-//                        }).start();
-                });
+            // ===> 游戏开始，整理牌型
+            ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_START, function (event:GamePinocchioEvent):void {
+                puppet.startGame(event);
+            });
 			// ===> 游戏进行，游戏设置
 			ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_SETTING, function (event:GamePinocchioEvent):void {
-                    puppet.prepareActionTimer(randomInRange(), function():void {
+                    puppet.prepareActionTimer(intervalRandom(), function():void {
                         puppet.selectGameSetting(event)
                         puppet.resetActionTimer();
                     }).start();
                 });
 			// ===> 游戏进行，智能出牌
             ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_BOUT, function (event:GamePinocchioEvent):void {
-                    puppet.prepareActionTimer(randomInRange(), function():void {
+                    puppet.prepareActionTimer(intervalRandom(2, 6), function():void {
                         puppet.operateGame(event);
                         puppet.resetActionTimer();
                     }).start();
@@ -110,14 +103,15 @@ package info.knightrcom.util {
 //                                puppet.resetActionTimer();
 //                            }
 //                        }).start();
-                    puppet.prepareActionTimer(randomInRange(), function():void {
+                    puppet.prepareActionTimer(intervalRandom(), function():void {
                         puppet.backToLobby(event);
                         puppet.resetActionTimer();
                         // var joinGameFunc:Function = function (e:Event):void {
                             // 每隔 M 秒执行一次加入游戏
                             puppet.prepareActionTimer(INTERVAL_JOIN_GAME, function():void {
                                 if (Application.application.currentState == "LOBBY") {
-                                    iterateAllModelWindow(null, true);
+                                    // FIXME This should be fixed for removing all model windows
+                                    // iterateAllModelWindow(null, true);
                                     puppet.joinGame();
                                 } else {
                                     puppet.resetActionTimer();
@@ -161,67 +155,70 @@ package info.knightrcom.util {
         
         /**
          *
+         * 加入游戏
          *
          */
         public static function joinGame():void {
             Application.application.gameControlBar.btnGameJoin.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
         }
         
-        /**
-         *
-         *
-         */
-        public static function backToLobby():void {
-            iterateAllModelWindow(function(target:*):void {
-                    if (target is Scoreboard) {
-                        (target as Scoreboard).btnClose.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                    }
-                });
-        }
-        
-        /**
-         *
-         * 遍历所有的模态窗口<br>
-         *
-         * @param callbackFunc 每当遍历到一个模态窗口，就会将当前窗口传递给回调函数callbackFunc
-         * @param removeInvoked 是否删除所有模态窗口
-         *
-         */
-        public static function iterateAllModelWindow(callbackFunc:Function = null, removeInvoked:Boolean = false):void {
-            // code reference "http://blog.flexmonkeypatches.com/2007/10/04/flex-close-all-popups/"
-            var systemManager:ISystemManager = Application.application.systemManager;
-			// if you scope your popups to PopUpManagerChildList.POPUP
-			// this is all you should have to check to clear all popups
-//			while(systemManager.popUpChildren.numChildren > 0){
-//				if (callbackFunc != null) {
-//					callbackFunc(systemManager.popUpChildren.getChildAt(0));
-//				}
-//				if (removeInvoked) {
-////					PopUpManager.removePopUp(systemManager.popUpChildren.getChildAt(0) as IFlexDisplayObject);
-////					systemManager.removeChildAt(0);
-//					systemManager.popUpChildren.removeChildAt(0);
-//				}
-//			}
-			// if you scope your popups to other than PopUpManagerChildList.POPUP
-			// you need to scan this and check the class name to decide if you need to remove the child
-//			for (var i:int = systemManager.numChildren - 1; i >= 0; i--) {
-//				if (callbackFunc != null) {
-//					callbackFunc(systemManager.getChildAt(i));
-//				}
-//				if(/*getQualifiedClassName(systemManager.getChildAt(i)) == "Popup" && */removeInvoked){
-//					systemManager.removeChildAt(i);
-//				}
-//			}
-        }
+//        /**
+//         *
+//         *
+//         */
+//        public static function backToLobby():void {
+//            iterateAllModelWindow(function(target:*):void {
+//                    if (target is Scoreboard) {
+//                        (target as Scoreboard).btnClose.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+//                    }
+//                });
+//        }
+//        
+//        /**
+//         *
+//         * 遍历所有的模态窗口<br>
+//         *
+//         * @param callbackFunc 每当遍历到一个模态窗口，就会将当前窗口传递给回调函数callbackFunc
+//         * @param removeInvoked 是否删除所有模态窗口
+//         *
+//         */
+//        public static function iterateAllModelWindow(callbackFunc:Function = null, removeInvoked:Boolean = false):void {
+//            // code reference "http://blog.flexmonkeypatches.com/2007/10/04/flex-close-all-popups/"
+//            var systemManager:ISystemManager = Application.application.systemManager;
+//			// if you scope your popups to PopUpManagerChildList.POPUP
+//			// this is all you should have to check to clear all popups
+////			while(systemManager.popUpChildren.numChildren > 0){
+////				if (callbackFunc != null) {
+////					callbackFunc(systemManager.popUpChildren.getChildAt(0));
+////				}
+////				if (removeInvoked) {
+//////					PopUpManager.removePopUp(systemManager.popUpChildren.getChildAt(0) as IFlexDisplayObject);
+//////					systemManager.removeChildAt(0);
+////					systemManager.popUpChildren.removeChildAt(0);
+////				}
+////			}
+//			// if you scope your popups to other than PopUpManagerChildList.POPUP
+//			// you need to scan this and check the class name to decide if you need to remove the child
+////			for (var i:int = systemManager.numChildren - 1; i >= 0; i--) {
+////				if (callbackFunc != null) {
+////					callbackFunc(systemManager.getChildAt(i));
+////				}
+////				if(/*getQualifiedClassName(systemManager.getChildAt(i)) == "Popup" && */removeInvoked){
+////					systemManager.removeChildAt(i);
+////				}
+////			}
+//        }
 
         /**
+         * 
+         * 返回随机时间间隔，默认为3至8秒之间
          * 
          * @param min
          * @param max
          * @return 
          * 
          */
-        private static function randomInRange(min:Number = 3, max:Number = 8):Number {
+        private static function intervalRandom(min:Number = 3, max:Number = 8):Number {
             var scale:Number = max - min;
             return Math.round(Math.random() * scale + min) * 1000;
         }

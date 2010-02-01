@@ -31,6 +31,15 @@ package info.knightrcom.state.red5game
         }
         
         /**
+         * 
+         * @param event
+         * 
+         */
+        public override function startGame(event:GamePinocchioEvent) : void {
+            this._myPuppet.tips = event.tag;
+        }
+        
+        /**
          *
 		 * @param event
          *
@@ -51,7 +60,7 @@ package info.knightrcom.state.red5game
 		 *
 		 */
 		public override function operateGame(event:GamePinocchioEvent):void {
-			var red5GameStateManager:Red5GameStateManager = Application.application.getGameStateManager(Red5GameStateManager);
+			// var red5GameStateManager:Red5GameStateManager = Application.application.getGameStateManager(Red5GameStateManager);
 			var currentNumber:int = Red5GameStateManager.currentNextNumber;
 			var currentNextNumber:int = Red5GameStateManager.currentNextNumber;
 			var localNumber:int = Red5GameStateManager.localNumber;
