@@ -1,33 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+<app:CCGameClientApplication xmlns:mx="http://www.adobe.com/2006/mxml"
                 layout="absolute"
                 minWidth="800"
                 minHeight="600"
                 xmlns:cmpext="component.*"
                 xmlns:service="component.service.*"
-                xmlns:ccgame="*">
+                xmlns:ccgame="*"
+                xmlns:app="info.knightrcom.*">
     <mx:Style source="style/ccgskin.css"/>
     <mx:Style source="style/ccgskin-ext.css"/>
     <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
-	<mx:Script>
-		<![CDATA[
-			import info.knightrcom.GameSocketProxy;
-			import info.knightrcom.assets.CommonResource;
-			import info.knightrcom.state.AbstractGameStateManager;
-			import info.knightrcom.state.BaseStateManager;
-			import info.knightrcom.state.FightLandlordGameStateManager;
-			import info.knightrcom.state.LobbyStateManager;
-			import info.knightrcom.state.LoginStateManager;
-			import info.knightrcom.state.PushdownWinGameStateManager;
-			import info.knightrcom.state.QiongWinGameStateManager;
-			import info.knightrcom.state.Red5GameStateManager;
-			import info.knightrcom.util.BrowserAddressUtil;
-			import info.knightrcom.util.PuppetProxy;
-			
-			import mx.utils.URLUtil;
-		]]>
-	</mx:Script>
-    <mx:states>
+    <mx:Script source="info/knightrcom/CCGameClientResource.as" />
+    <mx:Script source="info/knightrcom/CCGameClientExternalScript.as" />
+    <app:states>
         <!-- 登录界面 -->
         <mx:State id="loginState"
                   name="LOGIN">
@@ -176,7 +161,7 @@
                 </ccgame:CCGameHelp>
             </mx:AddChild>
         </mx:State>
-    </mx:states>
+    </app:states>
 	<!-- 系统消息显示区域 -->
     <mx:Canvas id="instantMessageTip" left="0" top="0" right="0" height="40" backgroundColor="white" backgroundAlpha="0.85" visible="false">
     	<mx:Text left="10" top="10" right="40" id="txtSysNotification" color="blue" />
@@ -196,7 +181,7 @@
                             requiredFieldError="密码不能为空！"/>
     </mx:Array>
     <!-- 转换效果 -->
-    <mx:transitions>
+    <app:transitions>
         <mx:Transition fromState="*"
                        toState="LOGIN">
             <mx:Blur target="{loginLayout}"
@@ -207,58 +192,5 @@
             <mx:Blur target="{platformLayout}"
                      duration="1500"/>
         </mx:Transition>
-    </mx:transitions>
-	<mx:Script>
-		<![CDATA[
-			public static var str:String;
-			private var stateManagers:Object = new Object();
-
-			public function getGameStateManager(gameStateManagerClass:*):AbstractGameStateManager
-			{
-				return stateManagers[getQualifiedClassName(gameStateManagerClass)] as AbstractGameStateManager;
-			}
-		]]>
-	</mx:Script>
-    <mx:applicationComplete>
-        <![CDATA[
-        //var socketProxy:GameSocketProxy = new GameSocketProxy(URLUtil.getServerName(Application.application.loaderInfo.url), 2009);
-        var socketProxy:GameSocketProxy = new GameSocketProxy("127.0.0.1", 2009);
-        var baseStateManager:BaseStateManager = new BaseStateManager(socketProxy, this);
-        var loginStateManager:LoginStateManager = new LoginStateManager(socketProxy, this, loginState);
-        var lobbyStateManager:LobbyStateManager = new LobbyStateManager(socketProxy, this, lobbyState);
-        var red5GameStateManager:Red5GameStateManager = new Red5GameStateManager(socketProxy, this, red5GameState);
-        var fightLandlordGameStateManager:FightLandlordGameStateManager = new FightLandlordGameStateManager(socketProxy, this, fightLandlordGameState);
-        var pushdownWinGameStateManager:PushdownWinGameStateManager = new PushdownWinGameStateManager(socketProxy, this, pushdownWinGameState);
-        var qiongWinGameStateManager:QiongWinGameStateManager = new QiongWinGameStateManager(socketProxy, this, qiongWinGameState);
-		for each (var eachGameStateManager:* in [
-				{key: getQualifiedClassName(Red5GameStateManager), value: red5GameStateManager}, 
-				{key: getQualifiedClassName(FightLandlordGameStateManager), value: fightLandlordGameStateManager}, 
-				{key: getQualifiedClassName(PushdownWinGameStateManager), value: pushdownWinGameStateManager}, 
-				{key: getQualifiedClassName(QiongWinGameStateManager), value: qiongWinGameStateManager}]) {
-			stateManagers[eachGameStateManager.key] = eachGameStateManager.value;
-		}
-        baseStateManager.init();
-        // 全屏效果
-        // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
-		// login the platform through a unique identifier
-		var securityPassword:String = this.root.loaderInfo.parameters["securityPassword"];
-		var classPrefix:String = this.root.loaderInfo.parameters["classPrefix"];
-		var username:String = this.root.loaderInfo.parameters["username"];
-		var password:String = this.root.loaderInfo.parameters["password"];
-		var roomId:String = this.root.loaderInfo.parameters["roomId"];
-		var gameSetting:String = this.root.loaderInfo.parameters["gameSetting"];
-		/*
-		var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
-		var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
-		var username:String = BrowserAddressUtil.getParameterValue("username");
-		var password:String = BrowserAddressUtil.getParameterValue("password");
-		var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
-		var gameSetting:String = BrowserAddressUtil.getParameterValue("gameSetting");
-		*/
-		if (securityPassword) {
-			PuppetProxy.createPinocchioPuppet(securityPassword, classPrefix, username, password, roomId, gameSetting);
-		}
-		
-        ]]>
-    </mx:applicationComplete>
-</mx:Application>
+    </app:transitions>
+</app:CCGameClientApplication>
