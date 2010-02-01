@@ -21,6 +21,7 @@ package info.knightrcom.state {
     import mx.controls.Alert;
     import mx.controls.Button;
     import mx.controls.ProgressBarMode;
+    import mx.core.Application;
     import mx.events.FlexEvent;
     import mx.events.ItemClickEvent;
     import mx.states.State;
@@ -131,8 +132,8 @@ package info.knightrcom.state {
          * @param myState
          *
          */
-        public function PushdownWinGameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
-            super(socketProxy, gameClient, myState);
+        public function PushdownWinGameStateManager(socketProxy:GameSocketProxy, myState:State):void {
+            super(socketProxy, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
             batchBindGameEvent(PushdownWinGameEvent.EVENT_TYPE, new Array(
                     GameEvent.GAME_WAIT, gameWaitHandler,

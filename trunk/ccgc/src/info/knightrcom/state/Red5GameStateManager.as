@@ -183,8 +183,8 @@ package info.knightrcom.state {
          * @param myState
          *
          */
-        public function Red5GameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
-            super(socketProxy, gameClient, myState);
+        public function Red5GameStateManager(socketProxy:GameSocketProxy, myState:State):void {
+            super(socketProxy, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
             batchBindGameEvent(Red5GameEvent.EVENT_TYPE, new Array(
                     GameEvent.GAME_WAIT, gameWaitHandler,
@@ -404,7 +404,10 @@ package info.knightrcom.state {
 						}
             		}
             );
-			CCGameRed5.puppet.tips = currentGame.candidatedDown.getChildren();
+            this._myPuppet.dispatchEvent(new GamePinocchioEvent(
+                GamePinocchioEvent.GAME_SETTING, 
+                null, 
+                currentGame.candidatedDown.getChildren()));
 //            // 七独八天判断
 //            var myCards:String = currentGame.candidatedDown.getChildren().join(",");
 //            // 去除5、大小王
@@ -462,7 +465,7 @@ package info.knightrcom.state {
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             if (firstPlayerNumber == localNumber) {
-				CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 					GamePinocchioEvent.GAME_SETTING, 
 					null, 
 					PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect)));
@@ -585,7 +588,7 @@ package info.knightrcom.state {
                     case Red5GameSetting.EXTINCT_RUSH:
                         return;
                 }
-				CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 					GamePinocchioEvent.GAME_SETTING, 
 					null, 
 					PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect)));
@@ -825,7 +828,7 @@ package info.knightrcom.state {
             		GAME_SETTING : gameSetting, 
             		GAME_FINAL_SETTING_PLAYER_NUMBER : gameFinalSettingPlayerNumber,
             		TITLE : Red5GameSetting.getDisplayName(gameSetting)}; 
-			CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+			this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 				GamePinocchioEvent.GAME_END, 
 				null, 
 				new Scoreboard().popUp(localNumber, scoreboardInfo, currentGameId,
@@ -1250,7 +1253,7 @@ package info.knightrcom.state {
             // 计算提示
             Red5Game.refreshTips(currentGame.candidatedDown.getChildren().join(","));
 			
-			CCGameRed5.puppet.dispatchEvent(new GamePinocchioEvent(
+			this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 				GamePinocchioEvent.GAME_BOUT, null));
 		}
 

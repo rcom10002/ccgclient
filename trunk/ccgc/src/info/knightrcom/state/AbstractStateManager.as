@@ -1,14 +1,14 @@
 package info.knightrcom.state {
     import info.knightrcom.GameSocketProxy;
-    import info.knightrcom.util.ListenerBinder;
     
+    import mx.core.Application;
     import mx.states.State;
 
     public class AbstractStateManager {
 
-        public function AbstractStateManager(socketManager:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
+        public function AbstractStateManager(socketManager:GameSocketProxy, myState:State):void {
             this.socketProxy = socketManager;
-            this.gameClient = gameClient;
+            this.gameClient = Application.application as CCGameClient;
             this.myState = myState;
         }
 

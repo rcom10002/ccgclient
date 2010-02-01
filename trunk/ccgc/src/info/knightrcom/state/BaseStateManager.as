@@ -29,8 +29,8 @@ package info.knightrcom.state {
          * @param myStage
          *
          */
-        public function BaseStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myStage:State = null):void {
-            super(socketProxy, gameClient, myState);
+        public function BaseStateManager(socketProxy:GameSocketProxy, myStage:State = null):void {
+            super(socketProxy, myState);
         }
 
         /**

@@ -195,9 +195,9 @@ package info.knightrcom.state
 		 * @param myState
 		 *
 		 */
-		public function FightLandlordGameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void
+		public function FightLandlordGameStateManager(socketProxy:GameSocketProxy, myState:State):void
 		{
-			super(socketProxy, gameClient, myState);
+			super(socketProxy, myState);
 			ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
 			batchBindGameEvent(FightLandlordGameEvent.EVENT_TYPE, new Array(
 					GameEvent.GAME_WAIT, gameWaitHandler, 

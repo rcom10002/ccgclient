@@ -131,8 +131,8 @@ package info.knightrcom.state {
          * @param myState
          *
          */
-        public function QiongWinGameStateManager(socketProxy:GameSocketProxy, gameClient:CCGameClient, myState:State):void {
-            super(socketProxy, gameClient, myState);
+        public function QiongWinGameStateManager(socketProxy:GameSocketProxy, myState:State):void {
+            super(socketProxy, myState);
             ListenerBinder.bind(myState, FlexEvent.ENTER_STATE, init);
             batchBindGameEvent(QiongWinGameEvent.EVENT_TYPE, new Array(
                     GameEvent.GAME_WAIT, gameWaitHandler,
