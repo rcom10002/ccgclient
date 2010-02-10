@@ -1,7 +1,7 @@
 package info.knightrcom.util {
     import flash.utils.Dictionary;
 
-    public class Model {
+    public dynamic class Model {
 
         /**
          *
