@@ -8,6 +8,7 @@ package info.knightrcom.state.red5game
 	import info.knightrcom.puppet.GamePinocchio;
 	import info.knightrcom.puppet.GamePinocchioEvent;
 	import info.knightrcom.state.Red5GameStateManager;
+    import info.knightrcom.state.red5game.Red5GameBox;
 	
 	import mx.controls.Button;
 	import mx.core.Application;
@@ -18,16 +19,17 @@ package info.knightrcom.state.red5game
 	 */
     public dynamic class Red5GamePinocchio extends GamePinocchio {
 
-		/**
+        private var _gameBox:Red5GameBox = null;
+
+        /**
 		 * 
 		 * @param username
 		 * @param password
 		 * @param roomId
-		 * @param gameSetting
 		 * 
 		 */
-		public function Red5GamePinocchio(username:String, password:String, roomId:String, gameSetting:String = null) {
-            super(username, password, roomId, gameSetting);
+		public function Red5GamePinocchio(username:String, password:String, roomId:String) {
+            super(username, password, roomId);
         }
         
         /**
@@ -36,7 +38,7 @@ package info.knightrcom.state.red5game
          * 
          */
         public override function startGame(event:GamePinocchioEvent) : void {
-            this._myPuppet.tips = event.tag;
+            this.tips = event.tag;
         }
         
         /**
@@ -71,7 +73,7 @@ package info.knightrcom.state.red5game
 				boutCards = null;
 			}
 			// 判断出牌者是否为己方、牌型以及大小
-			for each (var eachCardsStyle:Array in tips) {
+			for each (var eachCardsStyle:Array in this.tips) {
 				for each (var eachItem:Array in eachCardsStyle) {
                     if (boutCards == null || Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
                         prepareCandidatedCards(eachCardsStyle, eachItem);
@@ -82,18 +84,28 @@ package info.knightrcom.state.red5game
 			// 执行不要操作
 			Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
 		}
-		
+        
         /**
+         * 
+         * @param value
+         */
+        public function set gameBox(value:*):void {
+            this._gameBox = value;
+        }
+
+        /**
+         * 出牌
          * 
          * @param eachCardsStyle
          * @param eachItem
          * 
          */
         private function prepareCandidatedCards(eachCardsStyle:Array, eachItem:Array):void {
+            // 重选
             Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_RESELECT).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
             eachCardsStyle.splice(eachCardsStyle.indexOf(eachItem), 1);
             if (eachCardsStyle.length == 0) {
-                tips.splice(tips.indexOf(eachCardsStyle), 1);
+                this.tips.splice(this.tips.indexOf(eachCardsStyle), 1);
             }
             // 准备出牌
             var i:int = 0;
@@ -105,9 +117,43 @@ package info.knightrcom.state.red5game
                     i++;
                 }
             }
+            // 开始出牌
             if (Application.application.red5GameModule.btnBarPokers.visible) {
                 Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
             }
+        }
+        
+        /**
+         * 是否是同盟关系
+         */
+        private function isAlliance():Boolean {
+            if (Red5GameStateManager.gameFinalSettingPlayerNumber == Red5GameSetting.NO_RUSH) {
+                // 游戏最终设置为不独时，所有玩家彼此均为敌对
+                return false;
+            }
+            // 游戏最终设置为独派或天独或天外天时
+            var isMyRush:Boolean = (Red5GameStateManager.gameFinalSettingPlayerNumber == Red5GameStateManager.localNumber);
+            if (isMyRush) {
+                // 当前玩家独时，与其它所有玩家敌对
+                return false;
+            } else {
+                if (Red5GameStateManager.gameFinalSettingPlayerNumber == Red5GameStateManager.currentNumber) {
+                    // 当前玩家以外的玩家独时，与游戏最终设置的玩家敌对
+                    return false
+                }
+                // 当前玩家以外的玩家独时，与游戏非最终设置的玩家为友邦
+                return true;
+            }
+        }
+        
+        /**
+         * 
+         * @param currentNumber
+         * @param currentBout
+         * @return 
+         */
+        private function besieged(currentNumber:int, currentBout:String):Boolean {
+            return false;
         }
 
 		/**

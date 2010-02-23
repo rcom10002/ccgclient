@@ -1,5 +1,6 @@
 package info.knightrcom
 {
+    import info.knightrcom.util.BrowserAddressUtil;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.Model;
     
@@ -19,21 +20,11 @@ package info.knightrcom
             ListenerBinder.bind(this, FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
             super();
         }
-//
-//        /**
-//         * 
-//         * @param gameStateManagerClass
-//         * @return 
-//         */
-//        public function getGameStateManager(gameStateManagerClass:*):AbstractGameStateManager
-//        {
-//            return stateManagers[getQualifiedClassName(gameStateManagerClass)] as AbstractGameStateManager;
-//        }
 
         protected function applicationCompleteHandler(event:FlexEvent):void {
         }
         
-        protected var _launchInfo:Model = new Model();
+        protected var _launchInfo:Model = null;
         
         /**
          * 
@@ -43,6 +34,16 @@ package info.knightrcom
             this._launchInfo = value;
             if (!this._launchInfo.remoteAddr) {
                 this._launchInfo.remoteAddr = URLUtil.getServerName(Application.application.loaderInfo.url);
+                var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
+                var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
+                var username:String = BrowserAddressUtil.getParameterValue("username");
+                var password:String = BrowserAddressUtil.getParameterValue("password");
+                var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
+                this._launchInfo.securityPassword = securityPassword;
+                this._launchInfo.classPrefix = classPrefix;
+                this._launchInfo.username = username;
+                this._launchInfo.password = password;
+                this._launchInfo.roomId = roomId;
             }
         }
     }

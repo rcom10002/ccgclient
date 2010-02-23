@@ -7,6 +7,7 @@ import info.knightrcom.state.LoginStateManager;
 import info.knightrcom.state.PushdownWinGameStateManager;
 import info.knightrcom.state.QiongWinGameStateManager;
 import info.knightrcom.state.Red5GameStateManager;
+import info.knightrcom.util.BrowserAddressUtil;
 import info.knightrcom.util.PuppetEngine;
 import info.knightrcom.GameSocketProxy;
 
@@ -37,23 +38,46 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
     // 全屏效果
     // PlatformRepresentationUtil.toggleStageDisplayState(Application.application.stage);
     // login the platform through a unique identifier
-//    var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
-//    var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
-//    var username:String = BrowserAddressUtil.getParameterValue("username");
-//    var password:String = BrowserAddressUtil.getParameterValue("password");
-//    var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
-//    var gameSetting:String = BrowserAddressUtil.getParameterValue("gameSetting");
-    var securityPassword:String = this._launchInfo.securityPassword;
-    var classPrefix:String = this._launchInfo.classPrefix;
-    var username:String = this._launchInfo.username;
-    var password:String = this._launchInfo.password;
-    var roomId:String = this._launchInfo.roomId;
-    var gameType:String = this._launchInfo.gameType;
-    if (securityPassword) {
-        switch (gameType) {
-            case 1:
-                red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
-                    securityPassword, classPrefix, username, password, roomId, gameType);
-        }
+    
+    // 设置PUPPET入口
+    var securityPassword:String = null;
+    var classPrefix:String = null;
+    var username:String = null;
+    var password:String = null;
+    var roomId:String = null;
+    var gameType:String = null;
+    // URL入口
+    securityPassword = BrowserAddressUtil.getParameterValue("securityPassword");
+    classPrefix = BrowserAddressUtil.getParameterValue("classPrefix");
+    username = BrowserAddressUtil.getParameterValue("username");
+    password = BrowserAddressUtil.getParameterValue("password");
+    roomId = BrowserAddressUtil.getParameterValue("roomId");
+    gameType = BrowserAddressUtil.getParameterValue("gameType"); // 判别游戏类型
+    if (securityPassword &&
+        classPrefix &&
+        username &&
+        password &&
+        roomId &&
+        gameType) {
+        red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
+            securityPassword, classPrefix, username, password, roomId);
+        return;
+    }
+    // LAUNCHER入口
+    securityPassword = this._launchInfo.securityPassword;
+    classPrefix = this._launchInfo.classPrefix;
+    username = this._launchInfo.username;
+    password = this._launchInfo.password;
+    roomId = this._launchInfo.roomId;
+    gameType = this._launchInfo.gameType; // 判别游戏类型
+    if (securityPassword &&
+        classPrefix &&
+        username &&
+        password &&
+        roomId &&
+        gameType) {
+        red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
+            securityPassword, classPrefix, username, password, roomId);
+        return;
     }
 }
