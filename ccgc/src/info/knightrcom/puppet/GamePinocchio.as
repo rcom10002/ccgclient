@@ -30,15 +30,13 @@ package info.knightrcom.puppet
          * @param username
          * @param password
          * @param roomId
-		 * @param gameSetting
          *
          */
-        public function GamePinocchio(username:String, password:String, roomId:String, gameSetting:String = null)
+        public function GamePinocchio(username:String, password:String, roomId:String)
         {
             this._username = username;
             this._password = password;
             this._roomId = roomId;
-            this._gameSetting = gameSetting;
         }
 
 		/**

@@ -696,29 +696,55 @@ package info.knightrcom.state.red5game {
         }
 
 		/**
-		 * 根据现有牌，按照顺子、同张、单张的优先顺序组合出唯一的牌型
-		 * 
+		 * 根据现有牌，按照顺子、同张、单张的优先顺序组合出唯一的牌型<br>
+		 * 最大化顺子、同张，使剩余牌最少，尽量保证一次性出最多的牌
+         * 
+         * 基本牌型分析(格式为=>总牌数: 同张数 * 顺子长度)
+         * 15: 5 * 3, 3 * 5 => 2种情况
+         * 12: 4 * 3, 3 * 4 => 2种情况
+         * 10: 2 * 5        => 1种情况
+         * 9:  3 * 3        => 1种情况
+         * 8:  2 * 4        => 1种情况
+         * 6:  2 * 3        => 1种情况
+         * 5:  1 * 5        => 1种情况
+         * 4:  1 * 4        => 1种情况
+         * 
+         * 牌型组合分析
+         * ----------------------------
+         * 张数|组合数量|组合样式|
+         * 15   (4) 5 * 3, 3 * 5, 3 * 3 + 2 * 3, 2 * 3 + 1 * 4 + 1 * 5
+         * 14   (3) 2 * 5 + 1 * 4, 3 * 3 + 1 * 5, 2 * 4 + 2 * 3
+         * 13   (2) 3 * 3 + 1 * 4, 2 * 4 + 1 * 5
+         * 12   (4) 4 * 3, 3 * 4, 2 * 4 + 1 * 4, 2 * 3 + 2 * 3
+         * 11   (1) 2 * 3 + 1 * 5
+         * 10   (2) 2 * 5, 2 * 3 + 1 * 4
+         * 9    (2) 1 * 4, 1 * 5
+         * 8    (2) 1 * 4, 1 * 4
+         * 6    (1) 2 * 3
+         * 5    (1) 1 * 5
+         * 4    (1) 1 * 4
+         * 
 		 * @param myCards
 		 * @return 
 		 * 
 		 */
 		public static function analyzeCandidateCards(myCards:Array):Array {
-			var allStyles:Object = [{multiple: 4, numSeq: 3, key: TIPC_FOURFOLD_SEQ3}, 
-									{multiple: 3, numSeq: 5, key: TIPC_TRIPLE_SEQ5}, 
-									{multiple: 3, numSeq: 4, key: TIPC_TRIPLE_SEQ4}, 
-									{multiple: 3, numSeq: 3, key: TIPC_TRIPLE_SEQ3}, 
-									{multiple: 2, numSeq: 5, key: TIPB_DOUBLE_SEQ5}, 
-									{multiple: 2, numSeq: 4, key: TIPB_DOUBLE_SEQ4}, 
-									{multiple: 2, numSeq: 3, key: TIPB_DOUBLE_SEQ3}, 
-									{multiple: 1, numSeq: 5, key: TIPB_SEQ5}, 
-									{multiple: 1, numSeq: 4, key: TIPB_SEQ4}, 
-									{multiple: 8, key: TIPA_MUTIPLE8}, 
-									{multiple: 7, key: TIPA_MUTIPLE7}, 
-									{multiple: 6, key: TIPA_MUTIPLE6}, 
-									{multiple: 5, key: TIPA_MUTIPLE5}, 
-									{multiple: 4, key: TIPA_MUTIPLE4}, 
-									{multiple: 3, key: TIPA_MUTIPLE3}, 
-									{multiple: 2, key: TIPA_MUTIPLE2}];
+			var allStyles:Object = [{multiple: 3, numSeq: 5, key: TIPC_TRIPLE_SEQ5}, // 三同张五连顺
+                                    {multiple: 4, numSeq: 3, key: TIPC_FOURFOLD_SEQ3}, // 四同张三连顺
+									{multiple: 3, numSeq: 4, key: TIPC_TRIPLE_SEQ4}, // 三同张四连顺
+									{multiple: 3, numSeq: 3, key: TIPC_TRIPLE_SEQ3}, // 三同张五连顺
+									{multiple: 2, numSeq: 5, key: TIPB_DOUBLE_SEQ5}, // 对子五连顺
+									{multiple: 2, numSeq: 4, key: TIPB_DOUBLE_SEQ4}, // 对子四连顺
+									{multiple: 2, numSeq: 3, key: TIPB_DOUBLE_SEQ3}, // 对子三连顺，可能有两套
+									{multiple: 1, numSeq: 5, key: TIPB_SEQ5}, // 五连顺
+									{multiple: 1, numSeq: 4, key: TIPB_SEQ4}, // 四连顺，可能有两套
+									{multiple: 8, key: TIPA_MUTIPLE8}, // 八同张
+									{multiple: 7, key: TIPA_MUTIPLE7}, // 七同张，可能有两套
+									{multiple: 6, key: TIPA_MUTIPLE6}, // 六同张，可能有两套
+									{multiple: 5, key: TIPA_MUTIPLE5}, // 五同张，可能有三套
+									{multiple: 4, key: TIPA_MUTIPLE4}, // 四同张，可能有三套
+									{multiple: 3, key: TIPA_MUTIPLE3}, // 三同张，可能有五套
+									{multiple: 2, key: TIPA_MUTIPLE2}];// 对子，可能有七套
             var i:int = 0;
             var eachCard:String = null;
 			var myCardsString:String = myCards.join(",");
@@ -726,10 +752,12 @@ package info.knightrcom.state.red5game {
 			var myUniqueCardsStyleArray:Array = new Array();
 			for each (var eachStyle:* in allStyles) {
 				if (eachStyle.numSeq) {
-					// 获取备选方案
+					// 获取顺子备选方案
 					myUniqueCardsStyleArray.push(grabSequence(eachStyle.multiple, eachStyle.numSeq, myCardsArray));
+                    // 扩展顺子，JQK=>10JQK, JQKA, 10JQKA
+                    // TODO
 				} else {
-					// 获取备选方案
+					// 获取同张备选方案
 					myUniqueCardsStyleArray.push(grabMultiple(eachStyle.multiple, myCardsArray));
 				}
 				// 查找已使用过的牌

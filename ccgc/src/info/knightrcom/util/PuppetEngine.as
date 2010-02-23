@@ -43,12 +43,12 @@ package info.knightrcom.util {
          * @return
          *
          */
-        public static function createPinocchioPuppet(securityPassword:String, classPrefix:String, username:String, password:String, roomId:String, gameSetting:String = null):GamePinocchio {
+        public static function createPinocchioPuppet(securityPassword:String, classPrefix:String, username:String, password:String, roomId:String):GamePinocchio {
             // 创建实例对象
             // var gamePuppetType:Class = getDefinitionByName("info.knightrcom.puppet." + classPrefix + "GamePinocchio") as Class;
             // var gamePuppetType:Class = getDefinitionByName("info.knightrcom.puppet.Red5GamePinocchio") as Class;
             var puppet:GamePinocchio =  /*new gamePuppetType(username, password, roomId);
-                 //puppet = */new Red5GamePinocchio(username, password, roomId, gameSetting);
+                 //puppet = */new Red5GamePinocchio(username, password, roomId);
 
 			// 登录游戏平台，每隔 N 秒执行一次登录操作直到进入平台为止
             puppet.prepareActionTimer(INTERVAL_LOGIN, function():void {
