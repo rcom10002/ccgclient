@@ -45,7 +45,7 @@ package info.knightrcom.util
 					}
                     HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
 				}
-			}, false, 0, true);
+			});
 		}
 
 		/**
@@ -77,7 +77,7 @@ package info.knightrcom.util
 					}
 					HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
 				}
-			}, false, 0, true);
+			});
 		}
 // TODO THIS IS A TODO IMPLEMENTATION
 //		/**
