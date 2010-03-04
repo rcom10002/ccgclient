@@ -5,7 +5,6 @@
 			import mx.managers.PopUpManager;
 			import mx.validators.Validator;
 			import mx.events.ListEvent;
-			import mx.automation.events.ListItemSelectEvent;
 			import info.knightrcom.util.ListenerBinder;
 			import info.knightrcom.util.HttpServiceProxy;
 			import mx.controls.Alert;
