@@ -21,7 +21,7 @@ package info.knightrcom.puppet
         private var _username:String;
         private var _password:String;
         private var _roomId:String;
-        private var _gameSetting:String;
+        private var _gameType:String;
         private var _actionTimer:Timer = new Timer(3000);
 		private var _tips:Array;
 
@@ -32,11 +32,12 @@ package info.knightrcom.puppet
          * @param roomId
          *
          */
-        public function GamePinocchio(username:String, password:String, roomId:String)
+        public function GamePinocchio(username:String, password:String, roomId:String, gameType:String = null)
         {
             this._username = username;
             this._password = password;
             this._roomId = roomId;
+            this._gameType = gameType;
         }
 
 		/**
@@ -67,8 +68,8 @@ package info.knightrcom.puppet
 		 * @return 
 		 * 
 		 */
-		public function get gameSetting():String {
-			return this._gameSetting;
+		public function get gameType():String {
+			return this._gameType;
 		}
 
 		/**
@@ -146,6 +147,15 @@ package info.knightrcom.puppet
             PuppetEngine.joinGame();
         }
         
+        /**
+         *
+         * @param value
+         *
+         */
+        public function set gameBox(value:*):void
+        {
+        }
+
         /**
          *
          * @param event

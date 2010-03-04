@@ -24,7 +24,7 @@ package info.knightrcom
         protected function applicationCompleteHandler(event:FlexEvent):void {
         }
         
-        protected var _launchInfo:Model = null;
+        protected var _launchInfo:Model = new Model();
         
         /**
          * 
@@ -32,19 +32,19 @@ package info.knightrcom
          */
         public function set launchInfo(value:Model):void {
             this._launchInfo = value;
-            if (!this._launchInfo.remoteAddr) {
-                this._launchInfo.remoteAddr = URLUtil.getServerName(Application.application.loaderInfo.url);
-                var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
-                var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
-                var username:String = BrowserAddressUtil.getParameterValue("username");
-                var password:String = BrowserAddressUtil.getParameterValue("password");
-                var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
-                this._launchInfo.securityPassword = securityPassword;
-                this._launchInfo.classPrefix = classPrefix;
-                this._launchInfo.username = username;
-                this._launchInfo.password = password;
-                this._launchInfo.roomId = roomId;
-            }
+//            if (!this._launchInfo.remoteAddr) {
+//                this._launchInfo.remoteAddr = URLUtil.getServerName(Application.application.loaderInfo.url);
+//                var securityPassword:String = BrowserAddressUtil.getParameterValue("securityPassword");
+//                var classPrefix:String = BrowserAddressUtil.getParameterValue("classPrefix");
+//                var username:String = BrowserAddressUtil.getParameterValue("username");
+//                var password:String = BrowserAddressUtil.getParameterValue("password");
+//                var roomId:String = BrowserAddressUtil.getParameterValue("roomId");
+//                this._launchInfo.securityPassword = securityPassword;
+//                this._launchInfo.classPrefix = classPrefix;
+//                this._launchInfo.username = username;
+//                this._launchInfo.password = password;
+//                this._launchInfo.roomId = roomId;
+//            }
         }
     }
 }

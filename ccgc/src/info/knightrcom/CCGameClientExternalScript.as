@@ -11,7 +11,9 @@ import info.knightrcom.util.BrowserAddressUtil;
 import info.knightrcom.util.PuppetEngine;
 import info.knightrcom.GameSocketProxy;
 
+import mx.core.Application;
 import mx.events.FlexEvent;
+import mx.utils.URLUtil;
 
 /**
  * 
@@ -19,6 +21,9 @@ import mx.events.FlexEvent;
  */
 protected override function applicationCompleteHandler(event:FlexEvent):void {
     var myApp:CCGameClient = application as CCGameClient;
+    if (!this._launchInfo.remoteAddr) {
+        this._launchInfo.remoteAddr = URLUtil.getServerName(Application.application.loaderInfo.url);
+    }
     var socketProxy:GameSocketProxy = new GameSocketProxy(this._launchInfo.remoteAddr, 2009);
     // 基础状态管理器
     var baseStateManager:BaseStateManager = new BaseStateManager(socketProxy);
@@ -57,8 +62,8 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
         classPrefix &&
         username &&
         password &&
-        roomId &&
-        gameType) {
+        roomId/* &&
+        gameType*/) {
         red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
             securityPassword, classPrefix, username, password, roomId);
         return;
@@ -74,8 +79,8 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
         classPrefix &&
         username &&
         password &&
-        roomId &&
-        gameType) {
+        roomId/* &&
+        gameType*/) {
         red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
             securityPassword, classPrefix, username, password, roomId);
         return;
