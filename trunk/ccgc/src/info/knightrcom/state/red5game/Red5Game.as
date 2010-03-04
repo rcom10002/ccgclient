@@ -176,20 +176,20 @@ package info.knightrcom.state.red5game {
          * @return
          *
          */
-        private static function isSingleStyle(boutCards:String):Boolean {
+        public static function isSingleStyle(boutCards:String):Boolean {
             var ptn:RegExp = /^[0-4]V([^,]+)$/;
             return ptn.test(boutCards);
         }
         
         /**
          *
-         * 成倍且不成顺子
+         * 同张，至少要有两张值一样的牌，成倍且不成顺子
          *
          * @param boutCards
          * @return
          *
          */
-        private static function isSeveralFoldStyle(boutCards:String):Boolean {
+        public static function isSeveralFoldStyle(boutCards:String):Boolean {
             if (RED5_PAIR == boutCards) {
                 // 双红五时
                 return true;
@@ -209,7 +209,7 @@ package info.knightrcom.state.red5game {
          * @return
          *
          */
-        private static function isStraightStyle(boutCards:String):Boolean {
+        public static function isStraightStyle(boutCards:String):Boolean {
             var ptn:RegExp = /^.*V[25XY].*$/;
             if (ptn.test(boutCards)) {
                 // 2、5、王不能作为顺子的内容
@@ -493,7 +493,7 @@ package info.knightrcom.state.red5game {
          * @return 
          * 
          */
-        private static function grabTips(myCards:String):Object {
+        public static function grabTips(myCards:String):Object {
             var tempTipsHolder:Object = new Object();
             tempTipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
             tempTipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
@@ -547,7 +547,6 @@ package info.knightrcom.state.red5game {
 		 * @return
          */
         public static function getBrainPowerTip(myCards:Array, boutCards:Array, enableFoolish:Boolean = true):Array {
-            var resultArrayArray:Array = new Array();
             var boutCardsString:String = null;
 			if (boutCards) {
 				boutCardsString = boutCards.join(",");

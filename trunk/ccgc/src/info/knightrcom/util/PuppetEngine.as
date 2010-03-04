@@ -83,7 +83,9 @@ package info.knightrcom.util {
 			// ===> 游戏进行，智能出牌
             ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_BOUT, function (event:GamePinocchioEvent):void {
                     puppet.prepareActionTimer(intervalRandom(2, 6), function():void {
+                        puppet.tips = Application.application.red5GameModule.candidatedDown.getChildren();
                         puppet.operateGame(event);
+                        puppet.tips = Application.application.red5GameModule.candidatedDown.getChildren();
                         puppet.resetActionTimer();
                     }).start();
                 });

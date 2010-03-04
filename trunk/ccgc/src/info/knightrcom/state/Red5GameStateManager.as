@@ -405,7 +405,7 @@ package info.knightrcom.state {
             		}
             );
             this._myPuppet.dispatchEvent(new GamePinocchioEvent(
-                GamePinocchioEvent.GAME_SETTING, 
+                GamePinocchioEvent.GAME_START, 
                 null, 
                 currentGame.candidatedDown.getChildren()));
 //            // 七独八天判断
@@ -465,6 +465,7 @@ package info.knightrcom.state {
 //        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
 //        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             if (firstPlayerNumber == localNumber) {
+                this._myPuppet.gameBox = pokerBox;
 				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 					GamePinocchioEvent.GAME_SETTING, 
 					null, 
@@ -569,6 +570,7 @@ package info.knightrcom.state {
                 }
             } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH) {
                 // 游戏设置途中有天外天时，等候天独玩家发牌
+                currentNextNumber = gameFinalSettingPlayerNumber;
             } else if (currentNextNumber == localNumber) {
                 // 当前设置为不独或非最后一个玩家的独牌、天独，则继续进行游戏设置
                 var alertButtons:Array = null;
@@ -588,6 +590,7 @@ package info.knightrcom.state {
                     case Red5GameSetting.EXTINCT_RUSH:
                         return;
                 }
+                this._myPuppet.gameBox = pokerBox;
 				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 					GamePinocchioEvent.GAME_SETTING, 
 					null, 
@@ -1230,7 +1233,7 @@ package info.knightrcom.state {
             }
         }
 
-		/**
+        /**
 		 * 
 		 * 轮到当前玩家出牌时，开始倒计时，时间到则自动进行pass，若为首发牌，打出最小的一张牌
          * 
@@ -1252,10 +1255,10 @@ package info.knightrcom.state {
             CursorManager.removeBusyCursor();
             // 计算提示
             Red5Game.refreshTips(currentGame.candidatedDown.getChildren().join(","));
-			
-			this._myPuppet.dispatchEvent(new GamePinocchioEvent(
-				GamePinocchioEvent.GAME_BOUT, null));
-		}
+            // 激活PUPPET引擎
+            this._myPuppet.dispatchEvent(new GamePinocchioEvent(
+                GamePinocchioEvent.GAME_BOUT, null));
+        }
 
 		/**
 		 * 
