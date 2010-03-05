@@ -33,7 +33,7 @@
 						"&username=" + entity.userId + 
 						"&password=" + entity.userId +
 						"&roomId=" + values[2] // Red5Fresh
-						"&gameSetting=" + values[3];
+						"&gameType=" + values[3];
 						ExternalInterface.call("window.open", finalTargetURL);
 					}
 				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
