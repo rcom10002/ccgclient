@@ -88,8 +88,9 @@ package info.knightrcom.util {
                 timer.stop();
                 timer = null;
             }
-            PopUpManager.removePopUp(platformAlertUI);
+            platformAlertUI.visible = false;
             platformAlertUI.dispatchEvent(new PlatformAlertEvent(PLATFORM_EVENT, String(Button(e.currentTarget).data)));
+            PopUpManager.removePopUp(platformAlertUI);
         }
 
     }

@@ -729,6 +729,7 @@ package info.knightrcom.state {
          *
          */
         private function gameInterruptedHandler(event:Red5GameEvent):void {
+            this._myPuppet.dispatchEvent(new GamePinocchioEvent(GamePinocchioEvent.GAME_END, null));
             gameClient.currentState = "LOBBY";
             gameClient.txtSysMessage.text += "游戏中断！请重新加入游戏！\n";
             CursorManager.removeBusyCursor();

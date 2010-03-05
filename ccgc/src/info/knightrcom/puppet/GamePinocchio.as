@@ -190,7 +190,9 @@ package info.knightrcom.puppet
          */
         public function backToLobby(event:GamePinocchioEvent):void
         {
-            (event.tag as Scoreboard).btnClose.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            if (event.tag is Scoreboard) {
+                (event.tag as Scoreboard).btnClose.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            }
         }
     }
 
