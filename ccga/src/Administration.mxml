@@ -5,29 +5,11 @@
 				layout="absolute"
 				minWidth="1000"
 				minHeight="600"
-				currentState="LOGIN">
+				currentState="LOGIN"
+                initialize="ListenerBinder.bind(this, FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);">
 	<mx:Style source="style/ccgskin.css"/>
 	<mx:Style source="style/ccgskin-ext.css"/>
-	<mx:applicationComplete>
-		<![CDATA[
-		import mx.states.State;
-		import mx.events.ListEvent;
-		import flash.events.MouseEvent;
-		import info.knightrcom.UIManager;
-		import mx.events.ItemClickEvent;
-		import info.knightrcom.util.ListenerBinder;
-
-		for each (var currentState:State in this.states) {
-			trace(currentState.name);
-			this.currentState = currentState.name;
-		}
-		this.currentState = "LOGIN";
-		UIManager.adminApp = this;
-		ListenerBinder.bind(menuTree, ListEvent.ITEM_CLICK, UIManager.itemClickHandler);
-		ListenerBinder.bind(btnSubmit, MouseEvent.CLICK, UIManager.btnSubmitClickHandler);
-		ListenerBinder.bind(btnReset, MouseEvent.CLICK, UIManager.btnResetClickHandler);
-		]]>
-	</mx:applicationComplete>
+    <mx:Script source="info/knightrcom/AdministrationExternalScript.as" />
 	<mx:String id="currentProfileId"></mx:String>
 	<mx:String id="currentUserId"></mx:String>
 	<mx:String id="currentRlsPath"></mx:String>
@@ -210,12 +192,14 @@
 					<node label="动态报表分析器"/>
 				</node>
 			</node>
+            <node label="Puppetry插件管理">
+                <node label="自主牌型设置"/>
+                <node label="でく・ロボット"/>
+            </node>
 			<node label="帮助">
 				<node label="管理员帮助手册"/>
 				<node label="关于管理平台"/>
-			</node>
-			<node label="自主牌型设置"/>
-			<node label="でく・ロボット"/>
+            </node>
 			<node label="注销登录" />
 		</root>
 	</mx:XML>
