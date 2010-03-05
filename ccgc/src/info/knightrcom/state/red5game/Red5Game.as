@@ -253,7 +253,7 @@ package info.knightrcom.state.red5game {
          * @return
          *
          */
-        private static function getMultiple(boutCards:String):int {
+        public static function getMultiple(boutCards:String):int {
             // 去花色
             var resultCards:String = (boutCards + ",").replace(/\b\dV/g, "V");
             // 去重复项目
@@ -269,7 +269,7 @@ package info.knightrcom.state.red5game {
          * @return
          *
          */
-        private static function getStraightLength(boutCards:String):int {
+        public static function getStraightLength(boutCards:String):int {
             return boutCards.split(",").length / getMultiple(boutCards);
         }
         
