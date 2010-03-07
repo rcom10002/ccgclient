@@ -191,27 +191,22 @@ package info.knightrcom.state.red5game
             this._gameBox = value;
         }
 
+        /**
+         * 出牌处理
+         * 
+         * @param myTipCount
+         */
         private function processDiscard(myTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array = null;
-            
-            if (myTipCount <= 4) {
-                // 按照从小到大，从多到少的规则进行出牌
-                for each (eachCardsStyle in this.tips) {
-                    for each (eachItem in eachCardsStyle) {
-                        if (isBigRush(true, true, myTipCount) || Red5GameStateManager.gameSetting == Red5GameSetting.DEADLY_RUSH || Red5GameStateManager.gameSetting == Red5GameSetting.EXTINCT_RUSH) {
-                            // 天外天或天独时
-                            if (isInvincible(eachItem)) {
-                                // 首次发牌或有与上家发牌对应的牌时
-                                prepareCandidatedCards(eachItem);
-                                // 开始出牌
-                                if (Application.application.red5GameModule.btnBarPokers.visible) {
-                                    Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                                    return;
-                                }
-                            }
-                        }
-                        if (Red5Game.isStraightStyle(eachItem.join(",").replace(/(?<!\\d)V/g, "4V"))) {
-                            // 优先出顺子
+
+            for each (eachCardsStyle in this.tips) {
+                for each (eachItem in eachCardsStyle) {
+                    if (isBigRush(true, true, myTipCount) || 
+                            Red5GameStateManager.gameSetting == Red5GameSetting.DEADLY_RUSH || 
+                            Red5GameStateManager.gameSetting == Red5GameSetting.EXTINCT_RUSH) {
+                        // 天外天或天独时
+                        if (isInvincible(eachItem, false)) {
+                            // 首次发牌或有与上家发牌对应的牌时
                             prepareCandidatedCards(eachItem);
                             // 开始出牌
                             if (Application.application.red5GameModule.btnBarPokers.visible) {
@@ -220,9 +215,18 @@ package info.knightrcom.state.red5game
                             }
                         }
                     }
+                    if (myTipCount <= 4 && Red5Game.isStraightStyle(eachItem.join(",").replace(/(?<!\\d)V/g, "4V"))) {
+                        // 优先出顺子
+                        prepareCandidatedCards(eachItem);
+                        // 开始出牌
+                        if (Application.application.red5GameModule.btnBarPokers.visible) {
+                            Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                            return;
+                        }
+                    }
                 }
-            } // end of tipCount() <= 4
-            // 从默认的备选牌型中提取含有最小值的牌型
+            }
+            // 按照从小到大
             var minValue:Array = null;
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
@@ -249,10 +253,22 @@ package info.knightrcom.state.red5game
             }
         }
         
+        /**
+         * 独牌时跟牌处理(包括独牌玩家与非独牌玩家的处理方案)
+         * 
+         * @param boutCards
+         * @param currentTipCount
+         */
         private function processRushFollow(boutCards:String, currentTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array, myCardArray:Array = null;
             var myCards:String = "";
             
+            if (Red5GameStateManager.localNumber == Red5GameStateManager.gameFinalSettingPlayerNumber) {
+                // 独牌玩家
+            } else {
+                // 非独牌玩家
+            }
+
             // 拆非顺子牌跟
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
@@ -263,10 +279,9 @@ package info.knightrcom.state.red5game
                     }
                 }
             }
-            // 非顺子牌组合
             myCards = Red5Game.sortPokers(myCards.replace(/^,|,$/g, "")).join(",").replace(/(?<!\d)V/g, "4V");
             myCardArray = Red5Game.getBrainPowerTip(myCards.replace(/(?<!\d)V/g, "4V").split(","), boutCards.split(","), false);
-            myCardArray = new Array(new Array(myCardArray ? myCardArray : []));
+            myCardArray = new Array(new Array(myCardArray ? myCardArray : [])); // 非顺子牌组合
             if (tipCount(myCardArray) > 0) {
                 for each (eachCardsStyle in myCardArray) {
                     for each (eachItem in eachCardsStyle) {
@@ -282,6 +297,7 @@ package info.knightrcom.state.red5game
                     }
                 }
             }
+
             // 拆顺子牌跟
             if (Red5GameStateManager.gameFinalSettingPlayerNumber == Red5GameStateManager.localNumber) {
                 // 当前玩家独牌
@@ -304,6 +320,13 @@ package info.knightrcom.state.red5game
             }
         }
         
+        /**
+         * 非独牌，各自为战时跟牌操作
+         * 
+         * @param boutCards
+         * @param myTipCount
+         * @param currentTipCount
+         */
         private function processNoRushFollow(boutCards:String, myTipCount:int, currentTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array, myCardArray:Array = null;
             var myCards:String = "";
@@ -446,16 +469,16 @@ package info.knightrcom.state.red5game
         /**
          * 是否为全局最大牌，即无任何玩家可以跟牌
          * 
-         * @param boutingCards 要检验的牌
-         * @param useRule      按照一定的逻辑规则检验
+         * @param boutingCards    要检验的牌
+         * @param applyFriendRule 启用友邦验证规则
          */
-        private function isInvincible(boutingCards:Array, useRule:Boolean = true):Boolean {
+        private function isInvincible(boutingCards:Array, applyFriendRule):Boolean {
             for (var i:int = 0; i < this._gameBox.cardsOfPlayers.length; i++) {
                 if (i + 1 == Red5GameStateManager.localNumber) {
                     // 跳过当前玩家
                     continue;
                 }
-                if (useRule && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
+                if (applyFriendRule && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
                     // 有人独牌的情况
                     if (Red5GameStateManager.localNumber == Red5GameStateManager.gameFinalSettingPlayerNumber) {
                         // 当前玩家为独牌者，目标玩家未独牌
@@ -474,7 +497,14 @@ package info.knightrcom.state.red5game
             return true;
         }
 
-        // 天独判断
+        /**
+         * 天独或天外天判断，或者是类似于天独天外天的牌
+         *  
+         * @param forDeadly  执行天独判断逻辑
+         * @param forExtinct 执行天外天判断逻辑
+         * @param myTipCount 当前手中牌型套数
+         * @return 
+         */
         private function isBigRush(forDeadly:Boolean, forExtinct:Boolean, myTipCount:int):Boolean {
             var invicibleCount:int = 0;
             for each (var eachCardsStyle:Array in tips) {
