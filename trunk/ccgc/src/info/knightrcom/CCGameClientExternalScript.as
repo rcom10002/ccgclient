@@ -1,5 +1,6 @@
 // ActionScript file
 
+import info.knightrcom.GameSocketProxy;
 import info.knightrcom.state.BaseStateManager;
 import info.knightrcom.state.FightLandlordGameStateManager;
 import info.knightrcom.state.LobbyStateManager;
@@ -9,7 +10,6 @@ import info.knightrcom.state.QiongWinGameStateManager;
 import info.knightrcom.state.Red5GameStateManager;
 import info.knightrcom.util.BrowserAddressUtil;
 import info.knightrcom.util.PuppetEngine;
-import info.knightrcom.GameSocketProxy;
 
 import mx.core.Application;
 import mx.events.FlexEvent;
@@ -23,6 +23,9 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
     var myApp:CCGameClient = application as CCGameClient;
     if (!this._launchInfo.remoteAddr) {
         this._launchInfo.remoteAddr = URLUtil.getServerName(Application.application.loaderInfo.url);
+    }
+    if (!this._launchInfo.remoteAddr) {
+    	this._launchInfo.remoteAddr = "127.0.0.1";
     }
     var socketProxy:GameSocketProxy = new GameSocketProxy(this._launchInfo.remoteAddr, 2009);
     // 基础状态管理器
@@ -52,29 +55,22 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
     var roomId:String = null;
     var gameType:String = null;
     // URL入口
-    securityPassword = BrowserAddressUtil.getParameterValue("securityPassword");
-    classPrefix = BrowserAddressUtil.getParameterValue("classPrefix");
-    username = BrowserAddressUtil.getParameterValue("username");
-    password = BrowserAddressUtil.getParameterValue("password");
-    roomId = BrowserAddressUtil.getParameterValue("roomId");
-    gameType = BrowserAddressUtil.getParameterValue("gameType"); // 判别游戏类型
-    if (securityPassword &&
-        classPrefix &&
-        username &&
-        password &&
-        roomId/* &&
-        gameType*/) {
-        red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
-            securityPassword, classPrefix, username, password, roomId);
-        return;
+    try {
+	    securityPassword = BrowserAddressUtil.getParameterValue("securityPassword");
+	    classPrefix = BrowserAddressUtil.getParameterValue("classPrefix");
+	    username = BrowserAddressUtil.getParameterValue("username");
+	    password = BrowserAddressUtil.getParameterValue("password");
+	    roomId = BrowserAddressUtil.getParameterValue("roomId");
+	    gameType = BrowserAddressUtil.getParameterValue("gameType"); // 判别游戏类型
+    } catch (e:Error) {
+	    // LAUNCHER入口
+	    securityPassword = this.root.loaderInfo.parameters["securityPassword"];
+	    classPrefix = this.root.loaderInfo.parameters["classPrefix"];
+	    username = this.root.loaderInfo.parameters["username"];
+	    password = this.root.loaderInfo.parameters["password"];
+	    roomId = this.root.loaderInfo.parameters["roomId"];
+	    gameType = this.root.loaderInfo.parameters["gameType"]; // 判别游戏类型
     }
-    // LAUNCHER入口
-    securityPassword = this._launchInfo.securityPassword;
-    classPrefix = this._launchInfo.classPrefix;
-    username = this._launchInfo.username;
-    password = this._launchInfo.password;
-    roomId = this._launchInfo.roomId;
-    gameType = this._launchInfo.gameType; // 判别游戏类型
     if (securityPassword &&
         classPrefix &&
         username &&
