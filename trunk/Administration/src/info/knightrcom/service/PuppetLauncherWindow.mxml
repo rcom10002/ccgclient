@@ -131,13 +131,16 @@
 			
 			private function closeT(lab:String):void {
 				var arr:Array = nav.getChildren();
-					var canvas:Canvas = arr[0] as Canvas;
-					if (canvas.getChildAt(0).isPrototypeOf(SWFLoader)) {
-						var swfLoader:SWFLoader = canvas.getChildAt(0) as SWFLoader
+				var canvas:Canvas = arr[0] as Canvas;
+				var canvasArr:Array = canvas.getChildren();
+				for (var i:int = 0; i < canvasArr.length; i++) {
+					if (canvasArr[i] is SWFLoader) {
+						var swfLoader:SWFLoader = canvasArr[i] as SWFLoader
 						swfLoader.unloadAndStop();
 						canvas.removeAllChildren();
 						nav.removeChild(canvas);
 					}
+				}
 			}
 			
 			public function closePuppet(event:MouseEvent):void {
