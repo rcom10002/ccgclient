@@ -136,44 +136,18 @@ package info.knightrcom.state.red5game
 
                 // 计算发牌者手中牌型套数
                 var currentTipCount:int = tipCount(Red5Game.analyzeCandidateCards(this._gameBox.cardsOfPlayers[Red5GameStateManager.currentNumber - 1] as Array));
-                // 从默认的备选牌型中提取牌型
-                for each (eachCardsStyle in this.tips) {
-                    for each (eachItem in eachCardsStyle) {
-                        if (Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
-                            // 如果当前玩家牌与被跟玩家为友邦且牌值相差较大
-                            if (eachItem.join(",").match(/V[5XY]/)) {
-                                if (!isAlliance && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
-                                    // 有人独牌，且出牌者与已出牌玩家敌对
-                                } else if (!isAlliance) {
-                                    // 无人独牌，且当前玩家与出已牌者敌对
-                                    if (boutCards.match(/[25XY]/) || currentTipCount < 4) {
-                                        // 敌方出二、五、王或是剩余三种牌型时
-                                    } else {
-                                        continue;
-                                    }
-                                } else if (isAlliance && boutCards.match(/V[25XY]/)) {
-                                    // 与出牌者友邦关系，且出牌者的牌为二、草五、王中之一
-                                    continue;
-                                }
-                            }
-                            // 首次发牌或有与上家发牌对应的牌时
-                            prepareCandidatedCards(eachItem);
-                            // 开始出牌
-                            if (Application.application.red5GameModule.btnBarPokers.visible) {
-                                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                                return;
-                            }
-                        }
-                    }
-                }
+
                 // 没默认牌型跟时
                 if (!isAlliance && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
                     // 敌对时，有玩家独牌
-                    processRushFollow(boutCards, currentTipCount);
+                    processHostileRushFollow(boutCards, currentTipCount);
                 } else if (!isAlliance) {
                     // 敌对时，各自为战
-                    processNoRushFollow(boutCards, myTipCount, currentTipCount);
-                }// 非敌对时可以什么都不做
+                    processHostileNoRushFollow(boutCards, myTipCount, currentTipCount);
+                } else {
+                    // 同盟时，即有玩家独牌且已出牌者与当前玩家为友邦关系
+                    processAlliedRushFollow(boutCards, myTipCount, currentTipCount);
+                }
             }
 
             // 执行不要操作
@@ -192,7 +166,7 @@ package info.knightrcom.state.red5game
         }
 
         /**
-         * 出牌处理
+         * 出牌处理 TODO 分解敌对与同盟的处理
          * 
          * @param myTipCount
          */
@@ -228,6 +202,21 @@ package info.knightrcom.state.red5game
             }
             // 按照从小到大
             var minValue:Array = null;
+            // ******************************************* 考虑独牌
+//            , singleTips:Array = null;
+//            singleTips = [];
+//            if (Red5GameStateManager.gameSetting == Red5GameSetting.NO_RUSH && 
+//                    (this._gameBox.cardsOfPlayers[Red5GameStateManager.localNextNumber - 1] as Array).length == 1) {
+//                for each (eachCardsStyle in this.tips) {
+//                    for each (eachItem in eachCardsStyle) {
+//                        var eachTip:Array = eachItem.join(",").match(/\d?V[\dXY]+/g);
+//                        if (eachTip && eachTip.length == 1) {
+//                            singleTips.push(eachTip[0]);
+//                        }
+//                    }
+//                }
+//                Red5Game.getBrainPowerTip(singleTips, this._gameBox.cardsOfPlayers[localNextNumber - 1], false);
+//            }
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
                     if (minValue == null) {
@@ -239,6 +228,10 @@ package info.knightrcom.state.red5game
                     if ((Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH && (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length == 1) || 
                         (Red5GameStateManager.gameSetting == Red5GameSetting.NO_RUSH && (this._gameBox.cardsOfPlayers[Red5GameStateManager.localNextNumber - 1] as Array).length == 1)) {
                         if (minValue.length == 1 && eachItem.length > 1) {
+                            if (Red5GameStateManager.gameSetting == Red5GameSetting.NO_RUSH) {
+                                // 各自为战情况下，己方剩余的单牌个数多于一个且均没有下家牌大时，先从最小的牌出
+                                continue;
+                            }
                             minValue = eachItem;
                         }
                     }
@@ -254,19 +247,53 @@ package info.knightrcom.state.red5game
         }
         
         /**
-         * 独牌时跟牌处理(包括独牌玩家与非独牌玩家的处理方案)
+         * 敌对状态且有玩家独牌时跟牌处理(包括独牌玩家与非独牌玩家的处理方案)
          * 
          * @param boutCards
          * @param currentTipCount
          */
-        private function processRushFollow(boutCards:String, currentTipCount:int):void {
+        private function processHostileRushFollow(boutCards:String, currentTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array, myCardArray:Array = null;
             var myCards:String = "";
-            
-            if (Red5GameStateManager.localNumber == Red5GameStateManager.gameFinalSettingPlayerNumber) {
-                // 独牌玩家
-            } else {
-                // 非独牌玩家
+            var isAlliance:Boolean = false;
+
+            var attack:Boolean = false;
+            // 从默认的备选牌型中提取牌型
+            for each (eachCardsStyle in this.tips) {
+                for each (eachItem in eachCardsStyle) {
+                    if (Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
+                        // 如果当前玩家牌与被跟玩家已经出的牌值相差较大
+                        if (eachItem.join(",").match(/V[5XY]/)) {
+                            if (Red5GameStateManager.localNumber == Red5GameStateManager.gameFinalSettingPlayerNumber) {
+                                // 当前玩家为独牌玩家
+                                if (boutCards.match(/V[25XY]/)) {
+                                    attack = true;
+                                }
+                                // 任何一个非独牌玩家牌少于10张
+                                for (var i:int = 0; i < this._gameBox.cardsOfPlayers.length; i++) {
+                                    if ((this._gameBox.cardsOfPlayers[i] as Array).length < 10) {
+                                        attack = true;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                // 当前玩家为独牌玩家
+                                if (boutCards.match(/V[25XY]/) || (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length < 10) {
+                                    attack = true;
+                                }
+                            }
+                        }
+                        if (attack) {
+                            // 首次发牌或有与上家发牌对应的牌时
+                            prepareCandidatedCards(eachItem);
+                            // 开始出牌
+                            if (Application.application.red5GameModule.btnBarPokers.visible) {
+                                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                                return;
+                            }
+                        }
+                    }
+                }
             }
 
             // 拆非顺子牌跟
@@ -321,16 +348,53 @@ package info.knightrcom.state.red5game
         }
         
         /**
-         * 非独牌，各自为战时跟牌操作
+         * 处理敌对时的各自为战跟牌操作
          * 
          * @param boutCards
          * @param myTipCount
          * @param currentTipCount
          */
-        private function processNoRushFollow(boutCards:String, myTipCount:int, currentTipCount:int):void {
+        private function processHostileNoRushFollow(boutCards:String, myTipCount:int, currentTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array, myCardArray:Array = null;
             var myCards:String = "";
-            
+            var isAlliance:Boolean = false;
+
+            // 从默认的备选牌型中提取牌型
+            for each (eachCardsStyle in this.tips) {
+                for each (eachItem in eachCardsStyle) {
+                    if (Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
+                        // 如果当前玩家牌与被跟玩家为友邦且牌值相差较大
+                        if (eachItem.join(",").match(/V[5XY]/)) {
+//                            if (!isAlliance && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
+//                                // 有人独牌，且出牌者与已出牌玩家敌对
+//                            } else if (!isAlliance) {
+                                // 无人独牌，且当前玩家与出已牌者敌对
+                                if (boutCards.match(/[25XY]/) || currentTipCount < 4) {
+                                    // 敌方出二、五、王或是剩余三种牌型时
+                                    if ((this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).join(",").match(/[XY]/)
+                                            && (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length > 2
+                                            && eachItem.join(",") == "1V5,1V5") {
+                                        continue;
+                                    }
+                                } else {
+                                    continue;
+                                }
+//                            } else if (isAlliance && boutCards.match(/V[25XY]/)) {
+//                                // 与出牌者友邦关系，且出牌者的牌为二、草五、王中之一
+//                                continue;
+//                            }
+                        }
+                        // 首次发牌或有与上家发牌对应的牌时
+                        prepareCandidatedCards(eachItem);
+                        // 开始出牌
+                        if (Application.application.red5GameModule.btnBarPokers.visible) {
+                            Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                            return;
+                        }
+                    }
+                }
+            }
+
             // 拆非顺子牌跟
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
@@ -372,6 +436,61 @@ package info.knightrcom.state.red5game
                 Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_HINT).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
                 Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
                 return;
+            }
+        }
+
+        /**
+         * 处理同盟时的跟牌处理
+         * 
+         * @param boutCards
+         * @param currentTipCount
+         */
+        private function processAlliedRushFollow(boutCards:String, myTipCount:int, currentTipCount:int):void {
+            var eachCardsStyle:Array, eachItem:Array = null;
+            
+            // ******************************************* 考虑独牌
+//            var bigRush:Boolean = isBigRush(true, true, myTipCount);
+//
+//            // 友邦已经出的牌比独牌者备用牌大
+//            eachItem = Red5Game.getBrainPowerTip(this._gameBox.cardsOfPlayers[Red5GameStateManager.currentNumber - 1] as Array, 
+//                this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array, false);
+//            if (!bigRush && eachItem && eachItem.length > 0) {
+//                return;
+//            }
+            
+            // 从默认的备选牌型中提取牌型
+            for each (eachCardsStyle in this.tips) {
+                for each (eachItem in eachCardsStyle) {
+                    if (Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
+                        // 如果当前玩家牌与被跟玩家为友邦且牌值相差较大
+                        if (eachItem.join(",").match(/V[5XY]/)) {
+//                            if (!isAlliance && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
+//                                // 有人独牌，且出牌者与已出牌玩家敌对
+//                            } else if (!isAlliance) {
+//                                // 无人独牌，且当前玩家与出已牌者敌对
+//                                if (boutCards.match(/[25XY]/) || currentTipCount < 4) {
+//                                    // 敌方出二、五、王或是剩余三种牌型时
+//                                } else {
+//                                    continue;
+//                                }
+//                            } else if (isAlliance && boutCards.match(/V[25XY]/)) {
+//                                // 与出牌者友邦关系，且出牌者的牌为二、草五、王中之一
+//                                continue;
+//                            }
+                            if (boutCards.match(/V[25XY]/)) {
+                                // 与出牌者友邦关系，且出牌者的牌为二、草五、王中之一
+                                continue;
+                            }
+                        }
+                        // 首次发牌或有与上家发牌对应的牌时
+                        prepareCandidatedCards(eachItem);
+                        // 开始出牌
+                        if (Application.application.red5GameModule.btnBarPokers.visible) {
+                            Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                            return;
+                        }
+                    }
+                }
             }
         }
 
@@ -470,15 +589,15 @@ package info.knightrcom.state.red5game
          * 是否为全局最大牌，即无任何玩家可以跟牌
          * 
          * @param boutingCards    要检验的牌
-         * @param applyFriendRule 启用友邦验证规则
+         * @param applyFriendRule 启用忽略友邦规则
          */
-        private function isInvincible(boutingCards:Array, applyFriendRule):Boolean {
+        private function isInvincible(boutingCards:Array, applySkipFriendRule:Boolean):Boolean {
             for (var i:int = 0; i < this._gameBox.cardsOfPlayers.length; i++) {
                 if (i + 1 == Red5GameStateManager.localNumber) {
                     // 跳过当前玩家
                     continue;
                 }
-                if (applyFriendRule && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
+                if (applySkipFriendRule && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
                     // 有人独牌的情况
                     if (Red5GameStateManager.localNumber == Red5GameStateManager.gameFinalSettingPlayerNumber) {
                         // 当前玩家为独牌者，目标玩家未独牌
