@@ -5,6 +5,7 @@ package info.knightrcom.state {
     import flash.external.ExternalInterface;
     
     import info.knightrcom.GameSocketProxy;
+    import info.knightrcom.command.PlatformCommand;
     import info.knightrcom.event.PlatformEvent;
     import info.knightrcom.util.ListenerBinder;
     
@@ -46,6 +47,7 @@ package info.knightrcom.state {
                 ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_DISCONNECTED, globalEventHandler);
                 ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_IO_ERROR, globalEventHandler);
                 ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_SECURITY_ERROR, globalEventHandler);
+                ListenerBinder.bind(socketProxy, PlatformEvent.SERVER_IDLE_TEST, globalEventHandler);
                 ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_INSTANT_MESSAGE_BROADCASTED, globalEventHandler);
                 ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_CONSOLE_MESSAGE_BROADCASTED, globalEventHandler);
                 // 全屏
@@ -89,6 +91,9 @@ package info.knightrcom.state {
                     Alert.show("网络通信安全设置有错误！", "错误", 4, gameClient, function():void {
                     	flash.external.ExternalInterface.call("location.reload", true);
                     });
+                    break;
+                case PlatformEvent.SERVER_IDLE_TEST:
+                    this.socketProxy.sendPlatformData(PlatformCommand.PLATFORM_IDLE_ECHO, "Wahaha, I'm still alive!");
                     break;
                 case PlatformEvent.PLATFORM_INSTANT_MESSAGE_BROADCASTED:
                     // 显示系统消息
