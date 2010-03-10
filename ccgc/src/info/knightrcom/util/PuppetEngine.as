@@ -85,7 +85,6 @@ package info.knightrcom.util {
                     puppet.prepareActionTimer(intervalRandom(2, 6), function():void {
                         puppet.tips = Application.application.red5GameModule.candidatedDown.getChildren();
                         puppet.operateGame(event);
-                        puppet.tips = Application.application.red5GameModule.candidatedDown.getChildren();
                         puppet.resetActionTimer();
                     }).start();
                 });
