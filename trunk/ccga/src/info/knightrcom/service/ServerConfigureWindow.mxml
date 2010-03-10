@@ -229,11 +229,11 @@
 						 right="0"
 						 top="0"
 						 bottom="40">
-					<mx:FormItem label="变量名">
-						<mx:TextInput id="variableName"/>
+					<mx:FormItem label="变量名" width="100%">
+						<mx:TextInput id="variableName" width="100%"/>
 					</mx:FormItem>
-					<mx:FormItem label="变量值">
-						<mx:TextInput id="variableValue"/>
+					<mx:FormItem label="变量值" width="100%" height="100%">
+						<mx:TextArea id="variableValue" width="100%" height="100%"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:AddChild>
@@ -318,9 +318,9 @@
         <mx:StringValidator source="{variableValue}"
                             required="true"
                             property="text"
-                            minLength="1" maxLength="50"  
+                            minLength="1" maxLength="2000"  
 					    	tooShortError="变量值字数最少1个字符！"
-					    	tooLongError="变量值字数最多50个字符！"
+					    	tooLongError="变量值字数最多2000个字符！"
                             requiredFieldError="变量值不能为空！"/>
     </mx:Array>
 	<mx:Number id="CURRENT_PAGE">{infoService.lastResult.pagination.currentPage}</mx:Number>
