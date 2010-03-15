@@ -2,6 +2,7 @@
 <FunctionWindow xmlns="info.knightrcom.service.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" creationComplete="creationCompleteHandler()" title="自主牌型设置">
 	<mx:Script>
 		<![CDATA[
+			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.validators.Validator;
 			import mx.events.ListEvent;
@@ -16,6 +17,7 @@
 	        private static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
 	        private static const RED5:String = "1V5";
 	        private static const RED5_PAIR:String = "1V5,1V5";
+	        public static var adminApp:Administration;
 	        
 	        /**
 	         * 初始化
@@ -27,6 +29,7 @@
 				ListenerBinder.bind(btnUp, MouseEvent.CLICK, btnUpClickHandler);
 				ListenerBinder.bind(btnDown, MouseEvent.CLICK, btnDownClickHandler);
 				ListenerBinder.bind(btnSave, MouseEvent.CLICK, btnSaveClickHandler);
+				ListenerBinder.bind(btnDelete, MouseEvent.CLICK, btnDeleteClickHandler);
 				ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnRefreshClickHandler);
 				ListenerBinder.bind(customPokerList, ListEvent.ITEM_CLICK, itemClickHandler);
 				ListenerBinder.bind(btnAdd, MouseEvent.CLICK, btnAddClickHandler);
@@ -102,6 +105,38 @@
 			
 			private function btnRefreshClickHandler(event:MouseEvent):void {
 				loadCustomList();
+			}
+			
+			/**
+	         * 删除
+	         * @param event
+	         * @return
+	         *
+	         */
+			private function btnDeleteClickHandler(event:MouseEvent):void {
+				Alert.yesLabel = "确认";
+				Alert.noLabel = "取消";
+			    Alert.show( "确定要删除？",
+						"消息", 
+						Alert.YES | Alert.NO,
+						adminApp,
+						function handleAlert(event:CloseEvent):void {
+						    if(event.detail == Alert.YES)
+						    {
+								HttpServiceProxy.send(LocalCustomPokerService.DELETE_CUSTOM_POKER, {ID:txtId.text}, null, 
+								        function (event:ResultEvent):void 
+		    							{
+		    								Alert.show("删除牌型信息成功！", "消息");
+		    								loadCustomList();
+		    							},
+		    							function (event:FaultEvent):void {
+	    									Alert.show("删除牌型信息失败！", "错误");
+	    								}
+		    					);
+				 			}
+						},
+						null,
+						Alert.YES);
 			}
 			
 			/**
@@ -318,13 +353,13 @@
 	        private function itemClickHandler(event:ListEvent):void {
 	        	var config:* = customPokerList.selectedItem.value;
 	        	var results:Array = config.value.split("~");
-				if (results.length == 3) {
+				if (results.length == 2) {
 					txtId.text = config.globalConfigId;
 					txtName.text = config.name;
 					showUpPoker(results[0]);
 	            	showDownPoker(results[1]);
-	            	showType(int(results[2]));
-	            	chkDisable.selected = config.status == "false" ? false : true;
+//	            	showType(int(results[2]));
+//	            	chkDisable.selected = config.status == "false" ? false : true;
 				} else {
 					showUpPoker(null);
 					showDownPoker(results[0]);
@@ -358,9 +393,9 @@
 								<mx:Button label="新增" id="btnAdd"/>
 							</mx:HBox>
 							<mx:TitleWindow width="100%" height="100%" layout="absolute" title="已选牌区">
-								<mx:HBox id="candidatedUp" top="10" horizontalGap="-55"
-					             horizontalAlign="left" verticalAlign="middle" left="10" right="10" bottom="10">
-					             </mx:HBox>
+								<mx:HBox id="candidatedUp" horizontalGap="-55"
+							          horizontalAlign="left" verticalAlign="middle" width="659" height="130">
+					            </mx:HBox>
 							</mx:TitleWindow>
 							<mx:HBox width="100%">
 								<mx:Spacer width="40%"/>
@@ -388,6 +423,7 @@
 								</mx:ComboBox>
 								<mx:CheckBox label="启用" id="chkDisable" right="80" bottom="10"/>
 								<mx:Button label="保存" right="20" bottom="10" id="btnSave"/>
+								<mx:Button label="删除" right="20" bottom="10" id="btnDelete" enabled="{txtId.text.length == 0 ? false : true}"/>
 								<mx:Button label="批量生成" id="btnBatchCreate" right="150" bottom="10"/>
 							</mx:HBox>
 						</mx:Form>
