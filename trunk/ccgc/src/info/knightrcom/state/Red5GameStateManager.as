@@ -469,7 +469,7 @@ package info.knightrcom.state {
 				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 					GamePinocchioEvent.GAME_SETTING, 
 					null, 
-					PlatformAlert.show("游戏设置", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect)));
+					PlatformAlert.show("10", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect)));
             }
             updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber);
         }
@@ -497,28 +497,28 @@ package info.knightrcom.state {
                 gameFinalSettingPlayerNumber = localNumber;
                 if (setting == Red5GameSetting.EXTINCT_RUSH) {
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
-                    // 准备出牌
-                    currentGame.btnBarPokers.visible = true;
-                    // 首次出牌需要禁用"不要"按键
-                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
+//                    // 准备出牌
+//                    currentGame.btnBarPokers.visible = true;
+//                    // 首次出牌需要禁用"不要"按键
+//                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
                 updateTip(localNumber, localNextNumber);
             } else if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 当前玩家为最后一个玩家时，马上可以开始游戏
                 if (setting != Red5GameSetting.NO_RUSH) {
                     // 游戏设置为独牌或天独时
-                    socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
+                    socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                     gameSetting = setting;
                     gameFinalSettingPlayerNumber = localNumber;
-                    // 准备出牌
-                    currentGame.btnBarPokers.visible = true;
-                    // 首次出牌需要禁用"不要"按键
-                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
+//                    // 准备出牌
+//                    currentGame.btnBarPokers.visible = true;
+//                    // 首次出牌需要禁用"不要"按键
+//                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 } else {
                     // 游戏设置为不独时
-                    socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
+                    socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
                     updateTip(currentNumber, gameFinalSettingPlayerNumber);
                 }
             } else if (setting == Red5GameSetting.NO_RUSH) {
@@ -532,15 +532,15 @@ package info.knightrcom.state {
                 gameFinalSettingPlayerNumber = localNumber;
                 updateTip(localNumber, localNextNumber);
             } else if (setting == Red5GameSetting.EXTINCT_RUSH) {
-                socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                 // 非首次和末次，天外天时，发送本次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
+                socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
                 gameSetting = setting;
                 gameFinalSettingPlayerNumber = localNumber;
-                // 准备出牌
-                currentGame.btnBarPokers.visible = true;
-                // 首次出牌需要禁用"不要"按键
-                Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
+//                // 准备出牌
+//                currentGame.btnBarPokers.visible = true;
+//                // 首次出牌需要禁用"不要"按键
+//                Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
             }
         }
 
@@ -561,13 +561,13 @@ package info.knightrcom.state {
             gameFinalSettingPlayerNumber = currentNumber;
             currentNextNumber = (gameSettingUpdateTimes == playerCogameNumber ? gameFinalSettingPlayerNumber : results[2]);
             if (gameSettingUpdateTimes == playerCogameNumber) {
-                // 每个玩家都进行过游戏设置，则可以开始游戏
-                if (localNumber == currentNumber) {
-                    // 游戏设置结束，准备出牌
-                    currentGame.btnBarPokers.visible = true;
-                    // 首次出牌需要禁用"不要"按键
-                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
-                }
+//                // 每个玩家都进行过游戏设置，则可以开始游戏
+//                if (localNumber == currentNumber) {
+//                    // 游戏设置结束，准备出牌
+//                    currentGame.btnBarPokers.visible = true;
+//                    // 首次出牌需要禁用"不要"按键
+//                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
+//                }
             } else if (gameSetting == Red5GameSetting.EXTINCT_RUSH) {
                 // 游戏设置途中有天外天时，等候天独玩家发牌
                 currentNextNumber = gameFinalSettingPlayerNumber;
@@ -594,7 +594,7 @@ package info.knightrcom.state {
 				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
 					GamePinocchioEvent.GAME_SETTING, 
 					null, 
-					PlatformAlert.show("游戏设置", "信息", alertButtons, gameSettingSelect)));
+					PlatformAlert.show("10", "信息", alertButtons, gameSettingSelect)));
             }
             // 从画面中清除已经使用过的倒计时
             for each (var eachDealed:Container in cardsDealedArray) {
@@ -613,24 +613,34 @@ package info.knightrcom.state {
         private function gameSettingOverHandler(event:Red5GameEvent):void {
             var results:Array = event.incomingData.split("~");
             gameFinalSettingPlayerNumber = results[0];
+            currentNumber = results[0];
             gameSetting = results[1];
+            // 每个玩家都进行过游戏设置，则可以开始游戏
+            if (localNumber == currentNumber) {
+                // 游戏设置结束，准备出牌
+                currentGame.btnBarPokers.visible = true;
+                // 首次出牌需要禁用"不要"按键
+                Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
+            }
             if (gameSetting == Red5GameSetting.NO_RUSH) {
+                // 非独牌时
                 updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
-                return;
+            } else {
+                // 独牌时，添加独牌提示图标
+                var gameSettingImage:Image = new Image();
+                switch (gameSetting) {
+                    case Red5GameSetting.RUSH:
+                        gameSettingImage.source = Red5GameResource.RUSH;
+                        break;
+                    case Red5GameSetting.DEADLY_RUSH:
+                        gameSettingImage.source = Red5GameResource.DEADLY_RUSH;
+                        break;
+                    case Red5GameSetting.EXTINCT_RUSH:
+                        gameSettingImage.source = Red5GameResource.EXTINCT_RUSH;
+                        break;
+                }
+                (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);
             }
-            var gameSettingImage:Image = new Image();
-            switch (gameSetting) {
-                case Red5GameSetting.RUSH:
-                    gameSettingImage.source = Red5GameResource.RUSH;
-                    break;
-                case Red5GameSetting.DEADLY_RUSH:
-                    gameSettingImage.source = Red5GameResource.DEADLY_RUSH;
-                    break;
-                case Red5GameSetting.EXTINCT_RUSH:
-                    gameSettingImage.source = Red5GameResource.EXTINCT_RUSH;
-                    break;
-            }
-            (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);
             // updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
         }
 
