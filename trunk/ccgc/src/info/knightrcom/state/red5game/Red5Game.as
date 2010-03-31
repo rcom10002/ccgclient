@@ -12,7 +12,7 @@ package info.knightrcom.state.red5game {
         }
         
         /** VV仅作为占位符使用，因5不能作为顺子的组成部分，VV不会与任何内容匹配，所以3、4也就不可能成为顺子的一部分 */
-        private static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
+        public static const prioritySequence:String = "V3,V4,VV,V6,V7,V8,V9,V10,VJ,VQ,VK,VA,V2,V5,VX,VY";
         private static const RED5:String = "1V5";
         private static const RED5_PAIR:String = "1V5,1V5";
         
@@ -564,6 +564,10 @@ package info.knightrcom.state.red5game {
 				}
 				return myCardsString.split(/,/g)[0];
 			}
+            // 当前玩家手中牌数比要压制的牌数少时
+            if (myCards && boutCards && (myCards.length < boutCards.length)) {
+                return null;
+            }
             // 三张草五
             if (new RegExp("^[234]V5(,[234]V5){2,}$").test(boutCardsString)) {
                 return null;
@@ -573,7 +577,7 @@ package info.knightrcom.state.red5game {
                 return null;
             }
             // 单双红五
-            if ("1V5" == boutCardsString || "1V5,1V5" == boutCardsString) {
+            if (boutCardsString.indexOf("1V5") > -1) {
                 return null;
             }
             // 七张二
