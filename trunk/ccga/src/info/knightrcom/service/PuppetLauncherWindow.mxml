@@ -4,18 +4,30 @@
 				width="100%"
 				height="100%"
 				title="でく・ロボット">
-	<mx:Button id="btnStartPuppet" label="Start a Puppet for Red 5 Game" bottom="10" right="10" />
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.List;
-			import info.knightrcom.util.HttpServiceProxy;
-			import info.knightrcom.util.ListenerBinder;
+            import info.knightrcom.util.HttpServiceProxy;
+            import info.knightrcom.util.ListenerBinder;
+            
+            import mx.containers.Canvas;
+            import mx.controls.Alert;
+            import mx.controls.SWFLoader;
+            import mx.events.FlexEvent;
+            import mx.managers.SystemManager;
+            import mx.rpc.events.FaultEvent;
+            import mx.rpc.events.ResultEvent;
+            
+            protected function btnListPuppetClickHandler(event:MouseEvent):void
+            {
+                getListPuppetInfo();
+            }
 
-			import mx.controls.Alert;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			
-			protected function btnStartPuppetClickHandler(event:MouseEvent):void
+            [Bindable]
+            private var ccgcArray:Array = [];
+
+            // TODO PUPPET USE ITS USERID AND USERID TO LOGIN, BUT THAT SHOULD BE USERID AND PASSWORD
+            
+			protected function btnWebStartPuppetClickHandler(event:MouseEvent):void
 			{
 				HttpServiceProxy.send(
 						LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
@@ -30,8 +42,8 @@
 						var finalTargetURL:String = targetURL + 
 						"?securityPassword=test" + 
 						"&classPrefix=" + values[1] + 
-						"&username=" + entity.userId + 
-						"&password=" + entity.userId +
+						"&username=" + entity.userId.text() + 
+						"&password=" + entity.userId.text() +
 						"&roomId=" + values[2] // Red5Fresh
 						"&gameType=" + values[3];
 						ExternalInterface.call("window.open", finalTargetURL);
@@ -39,16 +51,67 @@
 				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
 			}
 
-			protected function btnListPuppetClickHandler(event:MouseEvent):void
-			{
-				getListPuppetInfo();
-			}
-			
-			protected function onTimer(event:TimerEvent):void{ 
-		         trace("on timer"); 
-		         getListPuppetInfo();
-			} 
-			
+            protected function btnLocalStartPuppetClickHandler(event:MouseEvent):void {
+                // 本地装载CCGC
+                HttpServiceProxy.send(
+                    LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
+                    {GAME_TYPE : "Red5", MAX_RESULTS_SIZE : puppetStepper.value}, 
+                    null, function (e:ResultEvent):void {
+                        var result:* = e.result;
+                        for each (var entity:* in result.entityList.PlayerProfile) {
+                            var values:Array = entity.status.split(/~/g);
+                            var launchInfo:Object = new Object();
+                            launchInfo.securityPassword = "test";
+                            launchInfo.classPrefix = values[1];
+                            launchInfo.username = entity.userId.text();
+                            launchInfo.password = entity.userId.text();
+                            launchInfo.roomId = values[2];
+                            launchInfo.gameType = values[3];
+                            launchInfo.securityPassword = "test";
+                            var loaderContext:LoaderContext = new LoaderContext();
+                            loaderContext.securityDomain = SecurityDomain.currentDomain;
+                            loaderContext.applicationDomain = new ApplicationDomain();
+                            var loader:SWFLoader = new SWFLoader();
+                            loader.loaderContext = loaderContext;
+                            ListenerBinder.bind(loader, Event.COMPLETE, function (event:Event):void {
+                                // this method is used to specify loaded swf's startup arguments and call laterInitialization method
+                                ListenerBinder.bind(loader.content, FlexEvent.APPLICATION_COMPLETE, function (event:*):void {
+                                    Object(loader.content).application.launchInfo = launchInfo;
+                                    Object(loader.content).application.swfInitialize();
+                                });
+                            });
+                            // loader.autoLoad = true;
+                            var swfCanvas:Canvas = new Canvas();
+                            swfCanvas.addChild(loader);
+                            addChild(swfCanvas);
+                            loader.load("http://localhost:8080/f3s/content/ccgc/CCGameClient.swf");
+                            ccgcArray.push({key: launchInfo.username, launchInfo: launchInfo, loader: loader, loaderContext: loaderContext});
+                        }
+                    }, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+
+                // 保存装载信息
+                // puppet名称
+
+                /*
+                HOW TO UNLOAD A LOADED SWF FILE
+                Unloading applications with the SWFLoader control 
+                To unload a sub-application that you loaded with the SWFLoader control, call the SWFLoader control’s unloadAndStop() method, as the following example shows:
+                myLoader.unloadAndStop(true);
+                You can also set the SWFLoader’s source property to null. This results in a call to the SWFLoaderObject.content.loaderInfo.loader.unload() method. You can call this method explicitly, but only for trusted applications.
+                
+                To free up the memory that was used by the loaded sub-application, ensure that no references to objects or classes in the sub-application exist. The unload() method frees the loader’s reference to the sub-application’s bytes, but if code in the sub-application is still in use, then it is not garbage collected.
+                
+                Flash Player also unloads a sub-application when the same SWFLoader control loads a new sub-application. The original content is removed before the new application is loaded. 
+                
+                If the sub-application contains any user interface classes that are not in the main application, the styles for those classes are loaded into the main application’s StyleManager. The sub-application will not free up the sub-application’s memory. In this case, load styles before loading the sub-application by using compiler options or loading run-time style sheets.
+                */
+            }
+            
+            protected function onTimer(event:TimerEvent):void{ 
+                trace("on timer"); 
+                getListPuppetInfo();
+            }
+
 			private function getListPuppetInfo():void {
 				HttpServiceProxy.send(
 						LocalPuppetConsoleService.LIST_PUPPET_INFO, 
@@ -61,14 +124,15 @@
 	</mx:Script>
 	<creationComplete>
 		<![CDATA[
-			var timer:Timer = new Timer(5000); 
-			ListenerBinder.bind(btnStartPuppet, MouseEvent.CLICK, btnStartPuppetClickHandler);
-			ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
-			ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
-			timer.start();
+            var timer:Timer = new Timer(60 * 1000); 
+            ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
+            ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
+            ListenerBinder.bind(btnWebStartPuppet, MouseEvent.CLICK, btnWebStartPuppetClickHandler);
+            ListenerBinder.bind(btnLocalStartPuppet, MouseEvent.CLICK, btnLocalStartPuppetClickHandler);
+            timer.start();
 		]]>
 	</creationComplete>
-	<mx:DataGrid id="datagrid" left="10" top="10" right="70" bottom="50">
+	<mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="40">
 		<mx:columns>
 			<mx:DataGridColumn headerText="puppet名称" dataField="pupuetname"/>
 			<mx:DataGridColumn headerText="当前分数" dataField="currentscore"/>
@@ -78,6 +142,19 @@
 			<mx:DataGridColumn headerText="运行时间(秒)" dataField="runingtime"/>
 		</mx:columns>
 	</mx:DataGrid>
-	<mx:Button id="btnRefresh" label="刷新" right="10" top="10"/>
-	<mx:NumericStepper id="puppetStepper" right="218" bottom="10" minimum="1" maximum="10" stepSize="1" value="4"/>
+	<mx:Button label="刷新" id="btnRefresh" bottom="10" left="10"/>
+	<mx:RadioButtonGroup id="radiogroupLaunchMode"/>
+    <mx:NumericStepper id="puppetStepper" right="170" bottom="10" minimum="1" maximum="100" stepSize="1" value="4"/>
+	<mx:RadioButton label="本地装载" id="localMode" groupName="radiogroupLaunchMode"  right="314" bottom="10"/>
+	<mx:RadioButton label="Web启动" id="webMode" groupName="radiogroupLaunchMode" right="236" bottom="10"/>
+    <mx:Button label="Web启动" id="btnWebStartPuppet" bottom="10" right="88" />
+	<mx:Button label="本地装载" id="btnLocalStartPuppet" right="10" bottom="10"/>
+    <mx:ViewStack id="swfVideo"
+                  x="30" y="32"
+                  width="452" height="339"
+                  selectedIndex="-1"
+                  visible="false">
+    </mx:ViewStack>
+    <mx:Label text="{ccgcArray.length}" right="323" bottom="10"/>
+    <mx:Label text="本地装载" bottom="10" right="437"/>
 </FunctionWindow>
