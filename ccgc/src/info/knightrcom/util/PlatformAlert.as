@@ -30,8 +30,8 @@ package info.knightrcom.util {
             // 创建UI对象
             platformAlertUI = new PlatformAlertUI();
             platformAlertUI = PlatformAlertUI(PopUpManager.createPopUp(Application.application as DisplayObject, PlatformAlertUI, true));
-            platformAlertUI.msg.text = msg
-            platformAlertUI.title.text = title
+            platformAlertUI.msg.text = msg;
+            platformAlertUI.title.text = title;
 
             // 注册关闭事件
             if (closeHandler != null) {

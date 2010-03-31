@@ -45,17 +45,17 @@ package info.knightrcom {
                 socket = new XMLSocket();
                 base64Encoder = new Base64Encoder();
                 base64Decoder = new Base64Decoder();
+                ListenerBinder.bind(socket, Event.CLOSE, closeHandler);
+                ListenerBinder.bind(socket, Event.CONNECT, connectHandler);
+                ListenerBinder.bind(socket, DataEvent.DATA, dataHandler);
+                ListenerBinder.bind(socket, IOErrorEvent.IO_ERROR, ioErrorHandler);
+                ListenerBinder.bind(socket, SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
                 if (testConnection) {
                     socket.connect(host, port);
                 }
             } catch (err:Error) {
                 trace(err.message);
             }
-            ListenerBinder.bind(socket, Event.CLOSE, closeHandler);
-            ListenerBinder.bind(socket, Event.CONNECT, connectHandler);
-            ListenerBinder.bind(socket, DataEvent.DATA, dataHandler);
-            ListenerBinder.bind(socket, IOErrorEvent.IO_ERROR, ioErrorHandler);
-            ListenerBinder.bind(socket, SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
         }
 
         // 通信事件句柄定义开始

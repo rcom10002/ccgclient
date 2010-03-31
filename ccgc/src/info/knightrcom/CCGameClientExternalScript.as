@@ -1,6 +1,7 @@
 // ActionScript file
 
 import info.knightrcom.GameSocketProxy;
+import info.knightrcom.service.LocalAbstractService;
 import info.knightrcom.state.BaseStateManager;
 import info.knightrcom.state.FightLandlordGameStateManager;
 import info.knightrcom.state.LobbyStateManager;
@@ -26,6 +27,7 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
     }
     if (!this._launchInfo.remoteAddr) {
     	this._launchInfo.remoteAddr = "127.0.0.1";
+        LocalAbstractService.RemoteServerURI = "127.0.0.1:8080";
     }
     var socketProxy:GameSocketProxy = new GameSocketProxy(this._launchInfo.remoteAddr, 2009);
     // 基础状态管理器
