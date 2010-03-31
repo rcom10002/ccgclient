@@ -24,13 +24,13 @@ package info.knightrcom
         protected function applicationCompleteHandler(event:FlexEvent):void {
         }
         
-        protected var _launchInfo:Model = new Model();
+        protected var _launchInfo:Object = new Object();
         
         /**
          * 
          * @param value
          */
-        public function set launchInfo(value:Model):void {
+        public function set launchInfo(value:Object):void {
             this._launchInfo = value;
 //            if (!this._launchInfo.remoteAddr) {
 //                this._launchInfo.remoteAddr = URLUtil.getServerName(Application.application.loaderInfo.url);
