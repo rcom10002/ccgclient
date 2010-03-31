@@ -17,9 +17,13 @@ package info.knightrcom.service
 
 		private var uri:String;
 
-		private static var REMOTE_SERVER_URI:String = "http://" + URLUtil.getServerNameWithPort(Application.application.loaderInfo.url) +  "/f3s/#.f3s"
+		private static var REMOTE_SERVER_URI:String = "http://" + URLUtil.getServerNameWithPort(Application.application.loaderInfo.url) +  "/f3s/#.f3s";
 
-		/**
+        public static function set RemoteServerURI(uri:String):void {
+            REMOTE_SERVER_URI = "http://" + uri +  "/f3s/#.f3s";
+        }
+
+        /**
 		 *
 		 * @param service
 		 * @param processId

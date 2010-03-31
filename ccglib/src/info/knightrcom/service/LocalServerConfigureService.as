@@ -12,7 +12,7 @@ package info.knightrcom.service
 		public static const DELETE_SERVER_CONFIGURE:LocalAbstractService=new LocalServerConfigureService("ServerConfigureService", "DELETE_SERVER_CONFIGURE");
 		public static const RETRIEVE_SERVER_STATUS:LocalAbstractService=new LocalServerConfigureService("ServerConfigureService", "RETRIEVE_SERVER_STATUS");
 		public static const RETRIEVE_LOBBY_STATUS:LocalAbstractService=new LocalServerConfigureService("ServerConfigureService", "RETRIEVE_LOBBY_STATUS");
-		
+        public static const GET_CONFIGURE_PARAM:LocalAbstractService=new LocalServerConfigureService("ServerConfigureService", "GET_CONFIGURE_PARAM");
 
 		public function LocalServerConfigureService(serviceId:String, processId:String=null)
 		{
