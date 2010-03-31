@@ -9,7 +9,9 @@ package info.knightrcom.service
 		
 		public static const BATCH_CUSTOM_POKER:LocalAbstractService=new LocalCustomPokerService("CustomPokerService", "BATCH_CUSTOM_POKER");
 
-		public function LocalCustomPokerService(serviceId:String, processId:String=null)
+        public static const DELETE_CUSTOM_POKER:LocalAbstractService=new LocalCustomPokerService("CustomPokerService", "DELETE_CUSTOM_POKER");
+
+        public function LocalCustomPokerService(serviceId:String, processId:String=null)
 		{
 			super(serviceId, processId);
 		}
