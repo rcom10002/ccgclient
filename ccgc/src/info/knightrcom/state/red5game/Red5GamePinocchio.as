@@ -368,15 +368,57 @@ package info.knightrcom.state.red5game
             var myCards:String = "";
             var isAlliance:Boolean = false;
 
-            // 车的情况
-            if (boutCards.match(/25XY/) && (this._gameBox.cardsOfPlayers[Red5GameStateManager.currentNumber - 1] as Array).length == 0) {
-                // 开始出牌
-                if (Application.application.red5GameModule.btnBarPokers.visible) {
+            // 特殊的【2、5、王】放行情况
+            var isPassOK:Boolean = !isBigRush(true, true, myTipCount); // 是否允许【PASS】操作
+            if (isPassOK && boutCards.match(/[25XY]/g) && currentTipCount > 1 && Red5GameStateManager.localNumber == getNextNumber(Red5GameStateManager.currentNextNumber) && 
+                (Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER || 
+                    Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.currentNumber)) {
+                // 上家出【2、5、王】，且并未产生二皇上或是上家就是二皇上，且上家手中仍然有多余一套的牌，且己方非“天独/天外天”牌型
+                isPassOK = false;
+                if (Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.currentNumber) {
+                    // 车的情况
+                    isPassOK = true;
+                } else if (boutCards.split(",").length > 1) {
+                    // 非车的情况，且上家出对子或同张
+                    isPassOK = true;
+                } else if (boutCards.indexOf("V2") == -1) {
+                    // 非车的情况，且上家出非【2】的牌
+                    isPassOK = true;
+                } else if (boutCards.replace(/V2/g, "").length == 1) {
+                    // 单张【2】的情况
+                }
+                // 执行【PASS】操作
+                if (isPassOK && Application.application.red5GameModule.btnBarPokers.visible) {
                     Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
                     return;
                 }
-            } // 2010/03/29
-
+            }
+//            // 车的情况
+//            if (boutCards.match(/25XY/) && (this._gameBox.cardsOfPlayers[Red5GameStateManager.currentNumber - 1] as Array).length == 0) {
+//                // 开始出牌
+//                if (Application.application.red5GameModule.btnBarPokers.visible) {
+//                    Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+//                    return;
+//                }
+//            } // 2010/03/29
+//
+//            // TODO 回旋打法的优先级高于下面的规则
+//            myCardArray = boutCards.match(/[25XY]/g);
+//            // 当没有玩家独牌，上家出2、5、王且他手中提示牌型大于【1】或玩家手中没有牌时，尽量放上家走，原因上家很可能出小牌，这样就可以顺牌
+//            if (myCardArray && Red5GameStateManager.localNumber == Red5GameStateManager.currentNextNumber && 
+//                    (Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER || 
+//                     (this._gameBox.cardsOfPlayers[Red5GameStateManager.currentNumber - 1] as Array).length == 0)) {
+//                if (boutCards.replace(/V2/g, "").length == 1) {
+//                    // 单独出一张【2】的时候
+////                    if (boutCards.match(/[25XY]/).length > 1 && Application.application.red5GameModule.candidatedDown.getChildren().join(",").match(/[XY]/) < 2) {
+////                        // 上家出对子或同张2、5、王，且当前玩家手中【5】和王总数小于三时
+////                    } else if (boutCards.match(/[5XY]/)) {
+////                        // 上家出单张5、王时
+////                    }
+//                } else if (myCardArray && myCardArray.length > 1) {
+//                    // 非单张并且
+//                }
+//            }
             // 从默认的备选牌型中提取牌型
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
@@ -482,10 +524,10 @@ package info.knightrcom.state.red5game
         private function processAlliedRushFollow(boutCards:String, myTipCount:int, currentTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array = null;
 
-            // 当独牌玩家只有一张牌时，当前玩家手中任意提示牌型均高于独牌玩家最后一张牌时
-            // TODO 该规则同样适用于独牌玩家手中只有单牌的情况
+            // 当独牌玩家只有一张牌或是多张单牌时，当前玩家手中任意提示牌型均高于独牌玩家最后一张牌时
             var attack:Boolean = false;
-            if ((this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length == 1) {
+            if ((this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length == 1 ||
+                (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).join(",").match(/(V\w+),\d\1/)) {
                 for each (eachCardsStyle in this.tips) {
                     for each (eachItem in eachCardsStyle) {
                         if (eachItem.join(",").indexOf(",") > -1 || 
@@ -536,6 +578,9 @@ package info.knightrcom.state.red5game
 //                                // 与出牌者友邦关系，且出牌者的牌为二、草五、王中之一
 //                                continue;
 //                            }
+                            if (!isBigRush(true, true, myTipCount)) {
+                                continue;
+                            }
                             if (boutCards.match(/V[25XY]/)) {
                                 // 与出牌者友邦关系，且出牌者的牌为二、草五、王中之一
                                 continue;
@@ -698,6 +743,29 @@ package info.knightrcom.state.red5game
             } else if (forExtinct && invicibleCount == myTipCount) {
                 return true;
             }
+            return false;
+        }
+        
+        /**
+         * 
+         * @param number 目标玩家编号
+         * @return 目标玩家的下家编号
+         */
+        private function getNextNumber(number:int, firstTime:Boolean = true):int {
+            // 下家编号通常比上家编号大一，四号玩家除外
+            var nextNumber:int = (number == 4) ? 1 : number + 1;
+            if (nextNumber == Red5GameStateManager.firstPlaceNumber || nextNumber == Red5GameStateManager.secondPlaceNumber) {
+                return getNextNumber(nextNumber);
+            }
+            return nextNumber;
+        }
+
+        /**
+         * 
+         * @return 
+         */
+        private function isWeakBigRush():Boolean {
+            // 找出大牌与其呼应的任意小牌牌型，形成对儿
             return false;
         }
     }

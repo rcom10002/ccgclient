@@ -24,18 +24,26 @@ package info.knightrcom {
     import mx.utils.Base64Decoder;
     import mx.utils.Base64Encoder;
 
+    /**
+     * 
+     * Socket包装类
+     * 
+     */
     public class GameSocketProxy extends EventDispatcher {
+
         private var port:int = -1;
         private var host:String;
         private var socket:XMLSocket;
+        private var _timeout:int = 30 * 1000;
         private var base64Encoder:Base64Encoder;
         private var base64Decoder:Base64Decoder;
 
         /**
-         *
+         * 
          * @param host
          * @param port
-         *
+         * @param testConnection
+         * 
          */
         public function GameSocketProxy(host:String, port:uint, testConnection:Boolean = true) {
             try {
@@ -56,6 +64,22 @@ package info.knightrcom {
             } catch (err:Error) {
                 trace(err.message);
             }
+        }
+
+        /**
+         * 返回超时时间，单位毫秒
+         */
+        public function get timeout():int {
+            return this._timeout;
+        }
+
+        /**
+         * 设置超时时间
+         * 
+         * @param value 超时时间，单位毫秒
+         */
+        public function set timeout(value:int):void {
+            this._timeout = value;
         }
 
         // 通信事件句柄定义开始
@@ -105,39 +129,77 @@ package info.knightrcom {
         public function securityErrorHandler(event:SecurityErrorEvent):void {
             dispatchEvent(new PlatformEvent(PlatformEvent.SERVER_SECURITY_ERROR));
         }
-
         // 通信事件句柄定义结束
 
-        // 自定义方法定义开始
-        //=================== Socket Send Fragment START ==================
+        /**
+         * 发送系统平台数据
+         * 
+         * @param command
+         * @param content
+         * 
+         */
         public function sendPlatformData(command:PlatformCommand, content:String = null):void {
             var message:Array = new Array(command.type, command.number, command.signature, content);
             sendSocket(message.join("~"));
         }
 
+        /**
+         * 发送游戏数据
+         * 
+         * @param command
+         * @param content
+         * 
+         */
         public function sendGameData(command:GameCommand, content:String = null):void {
             var message:Array = new Array(command.type, command.number, command.signature, content);
             sendSocket(message.join("~"));
         }
 
+        /**
+         * 发送玩家数据
+         * 
+         * @param command
+         * @param content
+         * 
+         */
         public function sendPlayerData(command:PlayerCommand, content:String = null):void {
             var message:Array = new Array(command.type, command.number, command.signature, content);
             sendSocket(message.join("~"));
         }
 
-        //=================== Socket Send Fragment END ==================
+        /**
+         * 
+         * 执行连接操作
+         * 
+         */
         public function connect():void {
             socket.connect(this.host, this.port);
         }
 
+        /**
+         * 
+         * 断开连接
+         * 
+         */
         public function disconnect():void {
             socket.close();
         }
 
-        public function isConnected():Boolean {
+        /**
+         * 
+         * @return 
+         * 
+         */
+        public function get connected():Boolean {
             return socket.connected;
         }
 
+        /**
+         * 发送Socket数据
+         * 
+         * @param data
+         * 
+         */
         private function sendSocket(data:String):void {
             try {
                 socket.send(encodeForBase64String(data));
@@ -148,6 +210,12 @@ package info.knightrcom {
             }
         }
 
+        /**
+         * 
+         * @param data
+         * @return 
+         * 
+         */
         private function encodeForBase64String(data:String):String {
             base64Encoder.encode(data);
             var encodedData:String = new String(base64Encoder.flush());
@@ -155,6 +223,12 @@ package info.knightrcom {
             return encodedData;
         }
 
+        /**
+         * 
+         * @param data
+         * @return 
+         * 
+         */
         private function decodeForBase64String(data:String):String {
             base64Decoder.decode(data);
             var decodedData:String = new String(base64Decoder.flush());

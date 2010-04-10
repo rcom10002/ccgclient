@@ -77,7 +77,7 @@ package info.knightrcom.state {
          * 连接按钮动作
          */
         private function connectClick(event:Event):void {
-            if (socketProxy.isConnected()) {
+            if (socketProxy.connected) {
                 Alert.show("连接已经完成！", "信息");
                 return;
             }
@@ -90,7 +90,7 @@ package info.knightrcom.state {
         private function submitClick(event:Event):void {
             if (Validator.validateAll(gameClient.loginValidators).length == 0) {
                 var data:Array = new Array(gameClient.txtUsername.text, gameClient.txtPassword.text);
-                if (!socketProxy.isConnected()) {
+                if (!socketProxy.connected) {
                     socketProxy.connect();
                 }
                 socketProxy.sendPlayerData(PlayerCommand.LOGIN_SIGN_IN, data.join("~"));
