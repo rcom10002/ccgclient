@@ -123,8 +123,8 @@
 	<mx:Array id="popupMenuItems">
 		<mx:Object label="" data="" id="nullItem"/>
 		<mx:Object label="大连红五" data="Red5Game" id="red5"/>
-		<!--
 		<mx:Object label="斗地主" data="FightLandlordGame" id="fightLandlord"/>
+		<!--
 		<mx:Object label="推倒胡" data="PushdownWinGame" id="pushdownWin"/>
 		<mx:Object label="穷胡" data="QiongWinGame" id="qiongWin"/>
 		-->
