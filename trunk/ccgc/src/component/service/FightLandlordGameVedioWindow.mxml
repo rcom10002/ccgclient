@@ -2,6 +2,7 @@
 <AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="斗地主游戏录像">
 	<mx:Script>
 		<![CDATA[
+			import info.knightrcom.assets.PokerResource;
 			import mx.validators.Validator;
 			import mx.core.Application;
 			import info.knightrcom.state.BaseStateManager;
@@ -203,7 +204,7 @@
 					var pokers:Array = FightLandlordGame.sortPokers(initPokers[eachPokersIndex].toString().replace(/~.*/, "").split(","));
 					for each (var eachPokerName:String in pokers) {
 		                var poker:PokerButton = new PokerButton();
-		                poker.source = "image/poker/" + eachPokerName + ".png";
+		                poker.source = PokerResource.load(eachPokerName);
 		                poker.allowSelect = false;
 		                cardsCandidatedArray[eachPokersIndex].addChild(poker);
 					}
@@ -213,7 +214,7 @@
 				for (var j:int=0; j < cardsCandidatedArray.length; j++)
 				{
 					var pokerHide:PokerButton = new PokerButton();
-					pokerHide.source="image/poker/back.png";
+					pokerHide.source = PokerResource.load("back");
 					pokerHide.allowSelect=false;
 					cardsCandidatedUp.addChild(pokerHide);
 					// 添加空牌位，以方便显示三张底牌的全部牌面
@@ -253,7 +254,7 @@
 						cardsCandidatedUp.removeAllChildren();
 						for each (var eachPokerNameHander:String in pokersHander) {
 							var pokerHander:PokerButton = new PokerButton();
-			                pokerHander.source = "image/poker/" + eachPokerNameHander + ".png";
+			                pokerHander.source = PokerResource.load(eachPokerNameHander);
 			                pokerHander.allowSelect = false;
 							cardsCandidatedUp.addChild(pokerHander);
 							// 添加空牌位，以方便显示三张底牌的全部牌面
@@ -265,7 +266,7 @@
 						// 重新插入到地主手中
 						for each (var eachPokerNameExt:String in pokersExt) {
 			                var pokerExt:PokerButton = new PokerButton();
-			                pokerExt.source = "image/poker/" + eachPokerNameExt + ".png";
+			                pokerExt.source = PokerResource.load(eachPokerNameExt);
 			                pokerExt.allowSelect = false;
 			                cardsCandidatedArray[startPokersIndex].addChild(pokerExt);
 						}
@@ -327,7 +328,7 @@
 					if (currentTurn.length == 4 && currentTurn[3].toString().indexOf("pass") > -1) {
 						// 当前玩家不出牌，现实pass字样
 						var passLabel:Label = new Label();
-						passLabel.text = "不要";
+						passLabel.text = "PASS";
 						Box(cardsDealedArray[playerIndex]).addChild(passLabel);
 							if (currentNumber == nextNumber) {
 								setTimeout(function ():void {
