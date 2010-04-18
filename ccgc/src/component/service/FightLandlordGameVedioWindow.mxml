@@ -436,7 +436,7 @@
 	    <mx:showCloseButton>true</mx:showCloseButton>
 		<mx:Form x="10" y="10">
 			<mx:FormItem label="游戏ID" required="true">
-				<mx:TextInput id="gameId" text="08c0e318-cf9e-4c93-b56a-9e20689df95d"/>
+				<mx:TextInput id="gameId"/>
 			</mx:FormItem>
 			<mx:FormItem label="播放速度">
 				<mx:HSlider id="gameSpeed" minimum="1" maximum="5" snapInterval="1" value="3" showDataTip="false" />
