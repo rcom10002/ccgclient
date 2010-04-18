@@ -514,6 +514,7 @@ package info.knightrcom.state
 				if (setting == FightLandlordGameSetting.THREE_RUSH)
 				{
 					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
+					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_UPDATE_FINISH, localNumber + "~" + setting);
 					// 准备出牌
 					currentGame.btnBarPokers.visible=true;
 					// 首次出牌需要禁用"不要"按键
@@ -528,6 +529,7 @@ package info.knightrcom.state
 					// 游戏设置为1分或2分时
 					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
 					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
+					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_UPDATE_FINISH, localNumber + "~" + setting);
 					gameSetting=setting;
 					gameFinalSettingPlayerNumber=localNumber;
 					// 准备出牌
@@ -546,6 +548,7 @@ package info.knightrcom.state
 					}
 					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
 					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
+					socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_UPDATE_FINISH, currentNumber + "~" + gameSetting);
 				}
 			}
 			else if (setting == FightLandlordGameSetting.NO_RUSH)
@@ -562,9 +565,10 @@ package info.knightrcom.state
 			}
 			else if (setting == FightLandlordGameSetting.THREE_RUSH)
 			{
-				socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_FINISH, localNumber + "~" + gameSetting);
+				socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_FINISH, localNumber + "~" + setting);
 				// 非首次和末次，3分时，发送本次的游戏设置
 				socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
+				socketProxy.sendGameData(FightLandlordGameCommand.GAME_SETTING_UPDATE_FINISH, localNumber + "~" + setting);
 				gameSetting=setting;
 				gameFinalSettingPlayerNumber=localNumber;
 				// 准备出牌
@@ -748,7 +752,7 @@ package info.knightrcom.state
                     gameSettingImage.source = FightLandlordGameResource.THREE_RUSH;
                     break;
             }
-            (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);
+            (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);  
 //            updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
         }
 
@@ -823,14 +827,6 @@ package info.knightrcom.state
 				}
 			}
 
-			// 全都"不要"时的首发牌，清除桌面上所有牌
-			if (currentNumber == currentNextNumber)
-			{
-				for each (tempTile in cardsDealedArray)
-				{
-					tempTile.removeAllChildren();
-				}
-			}
 // 2009/10/13 该功能可能需要保留
 //            // 全都"不要"时的首发牌，清除桌面上所有牌
 //            if (currentNumber == currentNextNumber) {

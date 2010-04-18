@@ -1,5 +1,6 @@
 package info.knightrcom.state {
     import flash.events.Event;
+    import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     
     import info.knightrcom.GameSocketProxy;
@@ -42,10 +43,16 @@ package info.knightrcom.state {
                 ListenerBinder.bind(gameClient.btnConnect, MouseEvent.CLICK, connectClick);
                 ListenerBinder.bind(gameClient.btnSubmit, MouseEvent.CLICK, submitClick);
                 ListenerBinder.bind(gameClient.btnReset, MouseEvent.CLICK, resetClick);
+                ListenerBinder.bind(gameClient.loginLayout, KeyboardEvent.KEY_DOWN, checkKey);
                 // 设置初始化标识
                 setInitialized(true);
             }
         }
+        
+        private function checkKey(event:KeyboardEvent):void{
+            if(event.charCode == 13)
+                 gameClient.btnSubmit.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+    	}
 
         /**
          * 登录结果响应
