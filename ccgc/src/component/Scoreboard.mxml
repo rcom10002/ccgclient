@@ -70,6 +70,15 @@
 	            				}
 	            			}
 	            		}
+	            	} else if ("FightLandlordGame" == this._gameType) {
+	            		this.title += " - " + misc.TITLE;
+            			for each (var dataRow:Object in scoreboardDataArray) {
+            				if (dataRow.currentNumber == misc.GAME_FINAL_SETTING_PLAYER_NUMBER) {
+            					dataRow["character"] = "地主";
+            				} else {
+            					dataRow["character"] = "农民";
+            				}
+            			}
 	            	}
 	            }
 	            // 调整显示顺序
