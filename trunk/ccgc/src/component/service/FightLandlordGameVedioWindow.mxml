@@ -84,7 +84,7 @@
 								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,3}).*/, "$1"), ";");
 								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
 								// 三张底牌
-								var part0:String = removeBothSides(gameRecord.replace(/((\d?V.,){2}\d?V.~\d).*/, "$1"), ";");
+								var part0:String = removeBothSides(gameRecord.replace(/(\d?V.{1,2},\d?V.{1,2},\d?V.{1,2}~\d).*/, "$1"), ";");
 								gameRecord = removeBothSides(gameRecord.replace(part0, ""), ";");
 								var part3:String = removeBothSides(gameRecord, ";");
 								btnExecute.enabled = false;
