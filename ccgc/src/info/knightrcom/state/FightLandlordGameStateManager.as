@@ -238,17 +238,17 @@ package info.knightrcom.state
                     // 自动放弃缩短至3秒
                     if (currentGame.btnBarPokers.visible && Button(currentGame.btnBarPokers.getChildAt(FightLandlordGame.OPTR_GIVEUP)).enabled) {
                         // 当前玩家出牌时
-//                        var brainpowerTips:Array = FightLandlordGame.getBrainPowerTip(
-//                                currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
-//                        if (brainpowerTips == null || brainpowerTips.length == 0) {
-//                            currentGame.timerTip.label = "智能放弃【" + timer.currentCount + "】";
-//                            if (timer.currentCount == 3) {
-//                                // 可以选择不要按钮时，则进行不要操作
-//                                itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_GIVEUP));
-//                            }
-//                            currentGame.candidatedTipDownExt.removeAllChildren();
-//                            return;
-//                        }
+                        var brainpowerTips:Array = FightLandlordGame.getBrainPowerTip(
+                                currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
+                        if (brainpowerTips == null || brainpowerTips.length == 0) {
+                            currentGame.timerTip.label = "智能放弃【" + timer.currentCount + "】";
+                            if (timer.currentCount == 3) {
+                                // 可以选择不要按钮时，则进行不要操作
+                                itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_GIVEUP));
+                            }
+                            currentGame.candidatedTipDownExt.removeAllChildren();
+                            return;
+                        }
                     }
                     // 常规计时
 					currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
@@ -286,12 +286,14 @@ package info.knightrcom.state
                 ListenerBinder.bind(currentGame.btnBarPokersTipA, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipB, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 ListenerBinder.bind(currentGame.btnBarPokersTipC, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
+                ListenerBinder.bind(currentGame.btnBarPokersTipD, ItemClickEvent.ITEM_CLICK, btnBarPokersTipHandler);
                 
                 ListenerBinder.bind(currentGame, FlexEvent.UPDATE_COMPLETE, function (event:Event):void {
                     var eachButton:Button = null;
                     for each (var eachBar:ButtonBar in [currentGame.btnBarPokersTipA, 
                                                         currentGame.btnBarPokersTipB, 
-                                                        currentGame.btnBarPokersTipC]) {
+                                                        currentGame.btnBarPokersTipC, 
+                                                        currentGame.btnBarPokersTipD]) {
                             for each (eachButton in eachBar.getChildren()) {
                                 eachButton.styleName = "gameButton";
                             }
@@ -357,6 +359,7 @@ package info.knightrcom.state
             currentGame.btnBarPokersTipA.visible = false;
             currentGame.btnBarPokersTipB.visible = false;
             currentGame.btnBarPokersTipC.visible = false;
+            currentGame.btnBarPokersTipD.visible = false;
 			currentGame.timerTip.label="剩余时间：";
 			currentGame.timerTip.minimum=0;
 			currentGame.timerTip.maximum=MAX_CARDS_SELECT_TIME;
@@ -1101,22 +1104,22 @@ package info.knightrcom.state
 					{
 						PokerButton(currentGame.candidatedDown.getChildAt(FightLandlordGame.OPTR_RESELECT)).setSelected(true);
 					} else {
-//                        var tipArray:Array = FightLandlordGame.getBrainPowerTip(
-//                                currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","), false);
-//                        var i:int = 0;
-//                        var eachPokerButton:PokerButton = null;
-//                        if (tipArray) {
-//                            for each (eachPokerButton in currentGame.candidatedDown.getChildren()) {
-//                                // 不计花色比较
-//                                if (eachPokerButton.value.replace(/\d/, "") == tipArray[i] || eachPokerButton.value == tipArray[i]) {
-//                                    eachPokerButton.setSelected(true);
-//                                    i++;
-//                                }
-//                            }
-//                        } else {
-//                            // 没有备选牌的情况下，自动放弃
-//                            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_GIVEUP));
-//                        }
+                        var tipArray:Array = FightLandlordGame.getBrainPowerTip(
+                                currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","), false);
+                        var i:int = 0;
+                        var eachPokerButton:PokerButton = null;
+                        if (tipArray) {
+                            for each (eachPokerButton in currentGame.candidatedDown.getChildren()) {
+                                // 不计花色比较
+                                if (eachPokerButton.value.replace(/\d/, "") == tipArray[i] || eachPokerButton.value == tipArray[i]) {
+                                    eachPokerButton.setSelected(true);
+                                    i++;
+                                }
+                            }
+                        } else {
+                            // 没有备选牌的情况下，自动放弃
+                            itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_GIVEUP));
+                        }
                     }
 					break;
 				case 3:
@@ -1239,13 +1242,16 @@ package info.knightrcom.state
             itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_RESELECT));
             var tipArray:Array = null;
             if (event.currentTarget == currentGame.btnBarPokersTipA) {
-                // 对子、三同张、四同张、五同张、六同张、七同张、八同张
+                // 对子、三同张、四同张
                 tipArray = FightLandlordGame.nextTipCards(event.index + 101);
             } else if (event.currentTarget == currentGame.btnBarPokersTipB) {
-                // 四连顺、五连顺、对子三连顺、对子四连顺、对子五连顺
+                // 四连顺、五连顺、六连顺、七连顺、八连顺、九连顺、十连顺、十一连顺、十二连顺
                 tipArray = FightLandlordGame.nextTipCards(event.index + 201);
             } else if (event.currentTarget == currentGame.btnBarPokersTipC) {
-                // 三同张三连顺、三同张四连顺、三同张五连顺、四同张三连顺
+                // 对子三连顺、对子四连顺、对子五连顺、对子六连顺、对子七连顺、对子八连顺、对子九连顺、对子十连顺
+                tipArray = FightLandlordGame.nextTipCards(event.index + 209);
+            } else if (event.currentTarget == currentGame.btnBarPokersTipD) {
+                // 三同张三连顺、三同张四连顺、三同张五连顺、三同张六连顺、四同张三连顺、四同张四连顺、四同张五连顺
                 tipArray = FightLandlordGame.nextTipCards(event.index + 301);
             }
             var i:int = 0;

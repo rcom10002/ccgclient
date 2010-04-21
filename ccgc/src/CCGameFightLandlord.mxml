@@ -131,8 +131,8 @@
 	<mx:VBox horizontalAlign="center"
 			 left="128"
 			 right="128"
-			 bottom="120"
-			 height="128"
+			 bottom="140"
+			 height="135"
              verticalGap="2"
              verticalScrollPolicy="off">
 		<mx:ButtonBar id="btnBarPokers" borderStyle="solid" horizontalGap="5">
@@ -148,27 +148,41 @@
 				<mx:String>对子</mx:String>
 				<mx:String>三同张</mx:String>
 				<mx:String>四同张</mx:String>
-				<mx:String>五同张</mx:String>
-				<mx:String>六同张</mx:String>
-				<mx:String>七同张</mx:String>
-				<mx:String>八同张</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
 		<mx:ButtonBar id="btnBarPokersTipB" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
 			<mx:dataProvider>
-				<mx:String>四连顺</mx:String>
 				<mx:String>五连顺</mx:String>
-				<mx:String>对子三连顺</mx:String>
-				<mx:String>对子四连顺</mx:String>
-				<mx:String>对子五连顺</mx:String>
+				<mx:String>六连顺</mx:String>
+				<mx:String>七连顺</mx:String>
+				<mx:String>八连顺</mx:String>
+				<mx:String>九连顺</mx:String>
+				<mx:String>十连顺</mx:String>
+				<mx:String>十一连顺</mx:String>
+				<mx:String>十二连顺</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
 		<mx:ButtonBar id="btnBarPokersTipC" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
 			<mx:dataProvider>
+				<mx:String>对子三连顺</mx:String>
+				<mx:String>对子四连顺</mx:String>
+				<mx:String>对子五连顺</mx:String>
+				<mx:String>对子六连顺</mx:String>
+				<mx:String>对子七连顺</mx:String>
+				<mx:String>对子八连顺</mx:String>
+				<mx:String>对子九连顺</mx:String>
+				<mx:String>对子十连顺</mx:String>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		<mx:ButtonBar id="btnBarPokersTipD" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
+			<mx:dataProvider>
 				<mx:String>三同张三连顺</mx:String>
 				<mx:String>三同张四连顺</mx:String>
 				<mx:String>三同张五连顺</mx:String>
+				<mx:String>三同张六连顺</mx:String>
 				<mx:String>四同张三连顺</mx:String>
+				<mx:String>四同张四连顺</mx:String>
+				<mx:String>四同张五连顺</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
 	</mx:VBox>

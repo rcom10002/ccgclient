@@ -30,7 +30,9 @@ package info.knightrcom.state.fightlandlordgame
 
 		// 三带单中三同顺的连续个数 333444-》2 333444555-》3
 		private static var followStyleCount:int=0;
-
+		
+		private static var followCardMap:*;
+		
 		/**
 		 * 对服务器端洗牌后分配的尚未排序过的扑克进行排序
 		 *
@@ -580,6 +582,7 @@ package info.knightrcom.state.fightlandlordgame
 					}
 				}
 			}
+			followCardMap = map;
 			var newCardArray:Array=new Array();
 			for each (var cardAf:String in cardArray)
 			{
@@ -865,31 +868,197 @@ package info.knightrcom.state.fightlandlordgame
             return resultArrayArray;
         }
         
+        /**
+         * 三带单，三单对
+         * 
+         * @param multiple >= 2
+         * @param myCards
+         * @param boutCards
+         * 
+         * @return an array of an array
+         * 
+         */
+        public static function grabFollow(multiple:int, myCards:String, boutCards:String = null):Array {
+            var resultArrayArray:Array = new Array();
+
+			// 去花色，并在结尾添加一个逗号
+            var myCardsStringHold:String = (myCards + ",").replace(/\dV/g, "V");
+            // 排除主牌（3，4）找出带牌
+            var myCardsString:String = myCardsStringHold.replace(new RegExp("(V[^,]*,)\\1{2,}", "g"), "");
+            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
+            var matchedCardsArray:Array = myCardsStringHold.match(new RegExp("(V[^,]*,)\\1{2}", "g"));
+			var multiplePair:int = 0;
+			var multipleSingle:int = 0;
+			var boutCardsString:String = reMakeCardArray(boutCards);
+			var key:String = "";
+			for (var obj:Object in followCardMap) {
+				if (int(followCardMap[obj]) == 3) {
+					key += obj + ",";
+					multiple += 1;
+				} else if (int(followCardMap[obj]) == 2) {
+					multiplePair += 1;
+				} else if (int(followCardMap[obj]) == 1) {
+					multipleSingle += 1;
+				} 
+			}
+			key = key.replace(/,$/,"");
+			// 连顺
+			if (multiple > 1) {
+				var orgKey:String = "";
+				for each (var eachCardsString:String in matchedCardsArray) {
+	                eachCardsString = eachCardsString.replace(/,$/, "");
+	                var eachCardsArray:Array = eachCardsString.split(",");
+	                orgKey += eachCardsArray[0].replace(/V[2XY],/g, "") + ","
+	            }
+				orgKey = orgKey.replace(/,$/,"");
+				if (orgKey.length == 0){
+					return null;
+				}
+				// 确定组合样式
+	            var testStyleArray:Array = new Array();
+	            var cardsArr:Array = prioritySequence.replace(/,V[2XY]/g, "").split(",");
+				var cards:String = "";
+				for (var n:int = 0; n < cardsArr.length; n++) {
+					if (multiple + n > cardsArr.length){
+						break;
+					}
+					for(var j:int = n; j < multiple + n; j++) {
+						cards += cardsArr[j] + ",";
+					}
+					testStyleArray.push(cards);
+					cards="";
+				}
+				// 按照给定的序列倍数扩大确定下来的样式
+	            for (var i:int = 0; i < testStyleArray.length; i++) {
+	                var testStyle:String = testStyleArray[i].toString().replace(/(V[^,]*,)/g, "$1$1$1");
+	                testStyleArray[i] = testStyle;
+	            }
+	            // 将已经构造出来的，可能出现的样式，应用到玩家手中的牌中
+	            // 去花色去无效数据"2 X Y"
+	            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
+	            myCardsStringHold = myCardsStringHold.replace(new RegExp("(V[^,]*,)\\1{" + (multiple) + ",}", "g"), "$1$1$1");
+	            for (i = 0; i < testStyleArray.length; i++) {
+	                if (myCardsStringHold.indexOf(testStyleArray[i]) > -1) {
+	                } else {
+	                    // 去除不满足条件
+	                    testStyleArray[i] = null;
+	                }
+	            }
+	            // 整理数据，将null内容过滤掉
+	            for each (var eachStyle:String in testStyleArray) {
+	                if (eachStyle) {
+	                    resultArrayArray.push(eachStyle.replace(/,$/, "").split(","));
+	                }
+	            }
+				if (resultArrayArray == null || resultArrayArray.length == 0) {
+					return null;
+				}
+				
+				var followType:int = 1
+				if (multiplePair > 0) {
+					// 带对
+					followType = 2;
+				}
+				var followFinalString:String = "";
+				while (multiple-- > 0) {
+	                var myFollowCards:String = getFollowCards(myCardsString, followType);
+	                if (myFollowCards == null) {
+	                	return null;
+	                }
+	                myCardsString = myCardsString.replace(new RegExp(myFollowCards, "g"), "");
+	                followFinalString += myFollowCards;
+	            }
+	            followFinalString = followFinalString.replace(/,$/g, "");
+				var followFinalArr:Array = followFinalString.split(",");
+				resultArrayArray.push(followFinalArr);
+			} else {
+				// 非连顺
+				var followCards:String = ""
+				if (multiplePair > 0) {
+					// 带对
+					var pairArr:Array = myCardsString.replace(/((V[^,]*,){1,})\\1/g, "$$").split(",");
+					if (pairArr != null && pairArr.length >= 2) {
+						followCards = pairArr[0] + "," + pairArr[1];
+					} else {
+						return null;
+					}
+				}
+				if (multipleSingle > 0) {
+					// 带单
+					var singleArr:Array = myCardsString.replace(/(V[^,]*,)\\1/g, "$").split(",");
+					if (singleArr != null && singleArr.length > 0) {
+						followCards = singleArr[0];
+					} else {
+						return null;
+					}
+				}
+	            for each (var eachCardsString:String in matchedCardsArray) {
+	                eachCardsString = eachCardsString + followCards;
+	                var eachCardsArray:Array = eachCardsString.split(",");
+	                resultArrayArray.push(eachCardsArray);
+	            }
+			}
+			
+            return resultArrayArray;
+        }
+        
+        public static function getFollowCards(myCardsString:String, type:int):String {
+        	var pairArr:Array = null;
+        	if (type == 2) {
+        		pairArr = myCardsString.match(new RegExp("(V[^,]*,)\\1{1,}", "g"));
+        	} else {
+        		pairArr = myCardsString.match(new RegExp("V([^,]+)", "g"));
+        	}
+        	if (pairArr != null && pairArr.length > 0) {
+        		if (type == 2) {
+        			return pairArr[0];
+        		} else {
+        			return pairArr[0] + ",";
+        		}
+        	}
+        	return null;
+        }
+        
         /** 对子 */
         public static const TIPA_MUTIPLE2:int = 101;
         /** 三同张 */
         public static const TIPA_MUTIPLE3:int = 102;
         /** 四同张 */
         public static const TIPA_MUTIPLE4:int = 103;
-        /** 五同张 */
-        public static const TIPA_MUTIPLE5:int = 104;
-        /** 六同张 */
-        public static const TIPA_MUTIPLE6:int = 105;
-        /** 七同张 */
-        public static const TIPA_MUTIPLE7:int = 106;
-        /** 八同张 */
-        public static const TIPA_MUTIPLE8:int = 107;
         
-        /** 四连顺 */
-        public static const TIPB_SEQ4:int = 201;
         /** 五连顺 */
-        public static const TIPB_SEQ5:int = 202;
+        public static const TIPB_SEQ5:int = 201;
+        /** 六连顺 */
+        public static const TIPB_SEQ6:int = 202;
+        /** 七连顺 */
+        public static const TIPB_SEQ7:int = 203;
+        /** 八连顺 */
+        public static const TIPB_SEQ8:int = 204;
+        /** 九连顺 */
+        public static const TIPB_SEQ9:int = 205;
+        /** 十连顺 */
+        public static const TIPB_SEQ10:int = 206;
+        /** 十一连顺 */
+        public static const TIPB_SEQ11:int = 207;
+        /** 十二连顺 */
+        public static const TIPB_SEQ12:int = 208;
+        
         /** 对子三连顺 */
-        public static const TIPB_DOUBLE_SEQ3:int = 203;
+        public static const TIPB_DOUBLE_SEQ3:int = 209;
         /** 对子四连顺 */
-        public static const TIPB_DOUBLE_SEQ4:int = 204;
+        public static const TIPB_DOUBLE_SEQ4:int = 210;
         /** 对子五连顺 */
-        public static const TIPB_DOUBLE_SEQ5:int = 205;
+        public static const TIPB_DOUBLE_SEQ5:int = 211;
+        /** 对子六连顺 */
+        public static const TIPB_DOUBLE_SEQ6:int = 212;
+        /** 对子七连顺 */
+        public static const TIPB_DOUBLE_SEQ7:int = 213;
+        /** 对子八连顺 */
+        public static const TIPB_DOUBLE_SEQ8:int = 214;
+        /** 对子九连顺 */
+        public static const TIPB_DOUBLE_SEQ9:int = 215;
+        /** 对子十连顺 */
+        public static const TIPB_DOUBLE_SEQ10:int = 216;
         
         /** 三同张三连顺 */
         public static const TIPC_TRIPLE_SEQ3:int = 301;
@@ -897,16 +1066,63 @@ package info.knightrcom.state.fightlandlordgame
         public static const TIPC_TRIPLE_SEQ4:int = 302;
         /** 三同张五连顺 */
         public static const TIPC_TRIPLE_SEQ5:int = 303;
-        /** 四同张三连顺 */
-        public static const TIPC_FOURFOLD_SEQ3:int = 304;
+        /** 三同张六连顺 */
+        public static const TIPC_TRIPLE_SEQ6:int = 304;
         
+        /** 四同张三连顺 */
+        public static const TIPC_FOURFOLD_SEQ3:int = 305;
+        /** 四同张四连顺 */
+        public static const TIPC_FOURFOLD_SEQ4:int = 306;
+        /** 四同张五连顺 */
+        public static const TIPC_FOURFOLD_SEQ5:int = 307;
+        
+        /** 三(单独)带一*/
+        public static const TIPC_THREE_ONE1:int = 306;
+        /** 三(二连顺)带二 */
+        public static const TIPC_THREE_ONE2:int = 307;
+        /** 三(三连顺)带三 */
+        public static const TIPC_THREE_ONE3:int = 308;
+        /** 三(四连顺)带四 */
+        public static const TIPC_THREE_ONE4:int = 309;
+        /** 三(五连顺)带五 */
+        public static const TIPC_THREE_ONE5:int = 310;
+        
+        /** 三(单独)带一对*/
+        public static const TIPC_THREE_DOUBLE1:int = 311;
+        /** 三(二连顺)带二对 */
+        public static const TIPC_THREE_DOUBLE2:int = 312;
+        /** 三(三连顺)带三对 */
+        public static const TIPC_THREE_DOUBLE3:int = 313;
+        /** 三(四连顺)带四对 */
+        public static const TIPC_THREE_DOUBLE4:int = 314;
+        
+        
+        /** 四(单独)带单二*/
+        public static const TIPC_FOUR_ONE1:int = 315;
+        /** 四(二连顺)带单四*/
+        public static const TIPC_FOUR_ONE2:int = 316;
+        /** 四(三连顺)带单六 */
+        public static const TIPC_FOUR_ONE3:int = 317;
+        
+        /** 四(单独)带对*/
+        public static const TIPC_FOUR_DOUBLE1:int = 318;
+        /** 四(二连顺)带两对*/
+        public static const TIPC_FOUR_DOUBLE2:int = 319;
+        /** 四(三连顺)带三对*/
+        public static const TIPC_FOUR_DOUBLE3:int = 320;
         /**
          * 
          */
-        private static const allTipIds:Array = new Array(TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4, 
-            TIPA_MUTIPLE5, TIPA_MUTIPLE6, TIPA_MUTIPLE7, TIPA_MUTIPLE8, TIPB_SEQ4, TIPB_SEQ5, 
-            TIPB_DOUBLE_SEQ3, TIPB_DOUBLE_SEQ4, TIPB_DOUBLE_SEQ5, TIPC_TRIPLE_SEQ3, TIPC_TRIPLE_SEQ4, 
-            TIPC_TRIPLE_SEQ5, TIPC_FOURFOLD_SEQ3);
+        private static const allTipIds:Array = new Array(
+        	TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4,  
+            TIPB_SEQ5, TIPB_SEQ6, TIPB_SEQ7, TIPB_SEQ8, TIPB_SEQ9, TIPB_SEQ10, TIPB_SEQ11, TIPB_SEQ12, 
+            TIPB_DOUBLE_SEQ3, TIPB_DOUBLE_SEQ4, TIPB_DOUBLE_SEQ5, TIPB_DOUBLE_SEQ6, TIPB_DOUBLE_SEQ7, TIPB_DOUBLE_SEQ8, TIPB_DOUBLE_SEQ9, TIPB_DOUBLE_SEQ10,  
+            TIPC_TRIPLE_SEQ3, TIPC_TRIPLE_SEQ4, TIPC_TRIPLE_SEQ5, TIPC_TRIPLE_SEQ6, 
+            TIPC_FOURFOLD_SEQ3, TIPC_FOURFOLD_SEQ4, TIPC_FOURFOLD_SEQ5, 
+            TIPC_THREE_ONE1, TIPC_THREE_ONE2, TIPC_THREE_ONE3, TIPC_THREE_ONE4, TIPC_THREE_ONE5,
+            TIPC_THREE_DOUBLE1, TIPC_THREE_DOUBLE2, TIPC_THREE_DOUBLE3, TIPC_THREE_DOUBLE4,
+            TIPC_FOUR_ONE1, TIPC_FOUR_ONE2, TIPC_FOUR_ONE3,
+            TIPC_FOUR_DOUBLE1, TIPC_FOUR_DOUBLE2, TIPC_FOUR_DOUBLE3);
 
         /**
          * 提示容器
@@ -958,21 +1174,52 @@ package info.knightrcom.state.fightlandlordgame
             tempTipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
             tempTipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
             tempTipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
-            tempTipsHolder[TIPA_MUTIPLE5] = {STATUS : -1, TIPS : grabMultiple(5, myCards.split(","))};
-            tempTipsHolder[TIPA_MUTIPLE6] = {STATUS : -1, TIPS : grabMultiple(6, myCards.split(","))};
-            tempTipsHolder[TIPA_MUTIPLE7] = {STATUS : -1, TIPS : grabMultiple(7, myCards.split(","))};
-            tempTipsHolder[TIPA_MUTIPLE8] = {STATUS : -1, TIPS : grabMultiple(8, myCards.split(","))};
             
-            tempTipsHolder[TIPB_SEQ4] = {STATUS : -1, TIPS : grabSequence(1, 4, myCards.split(","))};
             tempTipsHolder[TIPB_SEQ5] = {STATUS : -1, TIPS : grabSequence(1, 5, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ6] = {STATUS : -1, TIPS : grabSequence(1, 6, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ7] = {STATUS : -1, TIPS : grabSequence(1, 7, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ8] = {STATUS : -1, TIPS : grabSequence(1, 8, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ9] = {STATUS : -1, TIPS : grabSequence(1, 9, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ10] = {STATUS : -1, TIPS : grabSequence(1, 10, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ11] = {STATUS : -1, TIPS : grabSequence(1, 11, myCards.split(","))};
+            tempTipsHolder[TIPB_SEQ12] = {STATUS : -1, TIPS : grabSequence(1, 12, myCards.split(","))};
+            
             tempTipsHolder[TIPB_DOUBLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(2, 3, myCards.split(","))};
             tempTipsHolder[TIPB_DOUBLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(2, 4, myCards.split(","))};
             tempTipsHolder[TIPB_DOUBLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(2, 5, myCards.split(","))};
+            tempTipsHolder[TIPB_DOUBLE_SEQ6] = {STATUS : -1, TIPS : grabSequence(2, 6, myCards.split(","))};
+            tempTipsHolder[TIPB_DOUBLE_SEQ7] = {STATUS : -1, TIPS : grabSequence(2, 7, myCards.split(","))};
+            tempTipsHolder[TIPB_DOUBLE_SEQ8] = {STATUS : -1, TIPS : grabSequence(2, 8, myCards.split(","))};
+            tempTipsHolder[TIPB_DOUBLE_SEQ9] = {STATUS : -1, TIPS : grabSequence(2, 9, myCards.split(","))};
+            tempTipsHolder[TIPB_DOUBLE_SEQ10] = {STATUS : -1, TIPS : grabSequence(2, 10, myCards.split(","))};
             
             tempTipsHolder[TIPC_TRIPLE_SEQ3] = {STATUS : -1, TIPS : grabSequence(3, 3, myCards.split(","))};
             tempTipsHolder[TIPC_TRIPLE_SEQ4] = {STATUS : -1, TIPS : grabSequence(3, 4, myCards.split(","))};
             tempTipsHolder[TIPC_TRIPLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(3, 5, myCards.split(","))};
+            tempTipsHolder[TIPC_TRIPLE_SEQ6] = {STATUS : -1, TIPS : grabSequence(3, 6, myCards.split(","))};
+            
             tempTipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+            tempTipsHolder[TIPC_FOURFOLD_SEQ4] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+            tempTipsHolder[TIPC_FOURFOLD_SEQ5] = {STATUS : -1, TIPS : grabSequence(4, 5, myCards.split(","))};
+            
+//            tempTipsHolder[TIPC_THREE_ONE1] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_ONE2] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_ONE3] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_ONE4] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_ONE5] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            
+//            tempTipsHolder[TIPC_THREE_DOUBLE1] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_DOUBLE2] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_DOUBLE3] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_THREE_DOUBLE4] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            
+//            tempTipsHolder[TIPC_FOUR_ONE1] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOUR_ONE2] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOUR_ONE3] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            
+//            tempTipsHolder[TIPC_FOUR_DOUBLE1] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOUR_DOUBLE2] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOUR_DOUBLE3] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
             return tempTipsHolder;
         }
         
@@ -1051,7 +1298,7 @@ package info.knightrcom.state.fightlandlordgame
                 var boutValue:String = null;
                 var eachTargetTip:Array = null;
                 var tempTargeTip:String = null;
-                if (isSeveralFoldStyle(boutCardsString)) {
+                if (isSeveralFoldStyle(boutCardsString) || isBombStyle(boutCardsString)) {
                     // 成倍且不成顺子
                     multipleId = 99 + multiple;
                     targetTips = allTips[multipleId].TIPS as Array;
@@ -1065,13 +1312,53 @@ package info.knightrcom.state.fightlandlordgame
                             }
                         }
                     }
+                } else if (isFollowStyle(boutCardsString)) {
+                	// 三带单或三带对
+                	targetTips = grabFollow(0, myCardsString, boutCardsString);
+					for each (eachTargetTip in targetTips) {
+                        var boutFirst:String = boutCardsString.replace(/\dV/, "V").split(",")[0];
+                        var targetFirst:String = eachTargetTip[0];
+                        if (prioritySequence.indexOf(boutFirst) < prioritySequence.indexOf(targetFirst)) {
+                            return eachTargetTip;
+                        }
+                    }
+                } else if (isFourByTwoStyle(boutCardsString)) {
+                	// 四带二 四张牌＋任意两套张数相同的牌
                 } else {
                     // 顺子，不含五连顺
                     var stlength:int = getStraightLength(boutCardsString);
                     multipleId = -1;
-                    if (multiple == 1 && stlength == 4) {
-                        // 四连顺 
-                        multipleId = TIPB_SEQ4;
+                    if (multiple == 1 && stlength == 5) {
+                        // 五连顺 
+                        multipleId = TIPB_SEQ5;
+                    }
+                    if (multiple == 1 && stlength == 6) {
+                        // 六连顺 
+                        multipleId = TIPB_SEQ6;
+                    }
+                    if (multiple == 1 && stlength == 7) {
+                        // 七连顺 
+                        multipleId = TIPB_SEQ7;
+                    }
+                    if (multiple == 1 && stlength == 8) {
+                        // 八连顺 
+                        multipleId = TIPB_SEQ8;
+                    }
+                    if (multiple == 1 && stlength == 9) {
+                        // 九连顺 
+                        multipleId = TIPB_SEQ9;
+                    }
+                    if (multiple == 1 && stlength == 10) {
+                        // 十连顺 
+                        multipleId = TIPB_SEQ10;
+                    }
+                    if (multiple == 1 && stlength == 11) {
+                        // 十一连顺 
+                        multipleId = TIPB_SEQ11;
+                    }
+                    if (multiple == 1 && stlength == 12) {
+                        // 十二连顺 
+                        multipleId = TIPB_SEQ12;
                     }
                     if (multiple == 2 && stlength == 3) {
                         // 对子三连顺
@@ -1081,6 +1368,23 @@ package info.knightrcom.state.fightlandlordgame
                         // 对子四连顺
                         multipleId = TIPB_DOUBLE_SEQ4;
                     }
+                    if (multiple == 2 && stlength == 5) {
+                        // 对子五连顺
+                        multipleId = TIPB_DOUBLE_SEQ5;
+                    }
+                    if (multiple == 2 && stlength == 6) {
+                        // 对子六连顺
+                        multipleId = TIPB_DOUBLE_SEQ6;
+                    }
+                    if (multiple == 2 && stlength == 7) {
+                        // 对子七连顺
+                        multipleId = TIPB_DOUBLE_SEQ7;
+                    }
+                    if (multiple == 2 && stlength == 8) {
+                        // 对子八连顺
+                        multipleId = TIPB_DOUBLE_SEQ8;
+                    }
+                    
                     if (multiple == 3 && stlength == 3) {
                         // 三同张三连顺
                         multipleId = TIPC_TRIPLE_SEQ3;
@@ -1089,9 +1393,18 @@ package info.knightrcom.state.fightlandlordgame
                         // 三同张四连顺
                         multipleId = TIPC_TRIPLE_SEQ4;
                     }
+                    if (multiple == 3 && stlength == 5) {
+                        // 三同张五连顺
+                        multipleId = TIPC_TRIPLE_SEQ5;
+                    }
+                    
                     if (multiple == 4 && stlength == 3) {
                         // 四同张三连顺
                         multipleId = TIPC_FOURFOLD_SEQ3;
+                    }
+                    if (multiple == 4 && stlength == 4) {
+                        // 四同张四连顺
+                        multipleId = TIPC_FOURFOLD_SEQ4;
                     }
                     targetTips = allTips[multipleId].TIPS as Array;
                     // 将手中顺子的首位与打出牌的首位比较
@@ -1105,6 +1418,22 @@ package info.knightrcom.state.fightlandlordgame
                         }
                     }
                 }
+            }
+            if (!isBombStyle(boutCardsString)) {
+            	// 手中牌型无比相应牌型大的牌时，判断手是中否有炸弹
+            	var allTipsTips:Object = grabTips(myCardsString.replace(/,$/, ""));
+	            var targetTipsTips:Array = allTipsTips[103].TIPS as Array;
+	            // 是否有比打出牌大的牌在手中
+	            if (targetTipsTips.length > 0) {
+	                for each (eachTargetTip in targetTipsTips) {
+	                    tempTargeTip = eachTargetTip.join(",").replace(/^\d|,.*$/g, ""); // 去花色重复项
+	                    return eachTargetTip;
+	                }
+	            }
+            }
+            if (myCardsString.replace(/,$/, "").indexOf("0VX,0VY") > 0) {
+            	// 判断手是中否有火箭
+            	return myCardsString.replace(/,$/, "").replace("/.*(0VX,0VY).*/", "$1").match(new RegExp("(0VX)|(0VY)", "g"));
             }
             return null;
         }
