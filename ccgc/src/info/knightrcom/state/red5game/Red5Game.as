@@ -732,13 +732,13 @@ package info.knightrcom.state.red5game {
 		 * 
 		 */
 		public static function analyzeCandidateCards(myCards:Array):Array {
-			var allStyles:Object = [{multiple: 3, numSeq: 5, key: TIPC_TRIPLE_SEQ5}, // 三同张五连顺
+			var allStyles:Object = [/*{multiple: 3, numSeq: 5, key: TIPC_TRIPLE_SEQ5}, // 三同张五连顺
                                     {multiple: 4, numSeq: 3, key: TIPC_FOURFOLD_SEQ3}, // 四同张三连顺
 									{multiple: 3, numSeq: 4, key: TIPC_TRIPLE_SEQ4}, // 三同张四连顺
 									{multiple: 3, numSeq: 3, key: TIPC_TRIPLE_SEQ3}, // 三同张五连顺
 									{multiple: 2, numSeq: 5, key: TIPB_DOUBLE_SEQ5}, // 对子五连顺
 									{multiple: 2, numSeq: 4, key: TIPB_DOUBLE_SEQ4}, // 对子四连顺
-									{multiple: 2, numSeq: 3, key: TIPB_DOUBLE_SEQ3}, // 对子三连顺，可能有两套
+									{multiple: 2, numSeq: 3, key: TIPB_DOUBLE_SEQ3}, // 对子三连顺，可能有两套*/
 									{multiple: 1, numSeq: 5, key: TIPB_SEQ5}, // 五连顺
 									{multiple: 1, numSeq: 4, key: TIPB_SEQ4}, // 四连顺，可能有两套
 									{multiple: 8, key: TIPA_MUTIPLE8}, // 八同张
@@ -753,6 +753,22 @@ package info.knightrcom.state.red5game {
 			var myCardsString:String = myCards.join(",");
 			var myCardsArray:Array = myCards.slice(0, myCards.length);
 			var myUniqueCardsStyleArray:Array = new Array();
+            // 分析多倍数顺子牌，将对子三连顺、三同张三连顺、四同张三连顺扩展至四连顺或五连顺
+            var multipleSequence:Array = analyzeMultipleSequence(myCardsArray);
+            if (multipleSequence && multipleSequence.length > 0) {
+                // 将下面的三连顺扩展为四连顺或五连顺
+                myUniqueCardsStyleArray.push(multipleSequence);
+                // 删除使用过的牌
+                var regexPattern:String = "";
+                for each (var eachArray:Array in (myUniqueCardsStyleArray[myUniqueCardsStyleArray.length - 1] as Array)) {
+                    regexPattern += eachArray.join(",") + ",";
+                }
+                for each (var eachValue:String in regexPattern.replace(/,$/, "").split(",")) {
+                    eachValue = myCardsArray.join(",").match(new RegExp("\\d" + eachValue))[0];
+                    myCardsArray.splice(myCardsArray.indexOf(eachValue), 1);
+                }
+            }
+            // 准备常规牌分析
 			for each (var eachStyle:* in allStyles) {
 				if (eachStyle.numSeq) {
 					// 获取顺子备选方案
@@ -814,5 +830,321 @@ package info.knightrcom.state.red5game {
 			}
 			return myUniqueCardsStyleArray;
 		}
+        
+        /**
+         * 
+         * @param myCards
+         * @return 
+         * 
+         */
+        public static function analyzeMultipleSequence(myCards:Array):Array {
+            var results:Array = null;
+            var singlePrototype:String = null;
+            var eachCard:String = null;
+            var seqGroup:Object = null;
+            var myCardsArray:Array = myCards.slice(0, myCards.length);
+            // 去花色
+            myCardsArray = myCardsArray.join(",").replace(/\dV/g, "V").split(",");
+            // 四同张三连顺
+            results = (myCards.join(",").match(/V(10|[JQKA])/g).length) >= 12 ? grabSequence(4, 3, myCardsArray) : null;
+            if (results && results.length > 0) {
+                // 去重复项定位单顺内容
+                singlePrototype = String(results[0]).replace(/(V(10|[JQKA]))(,V\w+){3}/g, "$1").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+                // 去掉已使用过的牌
+                for each (eachCard in singlePrototype.split(",")) {
+                    
+                    myCardsArray = myCardsArray.join(",").replace(new RegExp("(,?" + eachCard + "){4}", ""), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "").split(",");
+                }
+                // 每次抽出一组扩展成四连顺或五连顺，最后合并同类项
+                seqGroup = {
+                    seq1: singlePrototype, 
+                    seq2: singlePrototype, 
+                    seq3: singlePrototype, 
+                    seq4: singlePrototype,
+                    seqPrototype: singlePrototype,
+                    curPos: 4,
+                    length: 4
+                };
+            }
+            // 两套对子三连顺
+            results = (myCards.join(",").match(/V(10|[JQKA])/g).length) >= 12 ? grabSequence(2, 3, myCardsArray) : null;
+            if (results && results.length > 1) {
+                // 处理特殊的对子三连顺，因为有时会出现十二张牌组成两套或三套对子三连顺
+                var styles:Object = {
+                    "V10,V10,VJ,VJ,VQ,VQ,VQ,VQ,VK,VK,VA,VA": new Array("V10,VJ,VQ", "VQ,VK,VA"),
+                    "V10,V10,VJ,VJ,VJ,VJ,VQ,VQ,VQ,VQ,VK,VK": new Array("V10,VJ,VQ", "VJ,VQ,VK"),
+                    "VJ,VJ,VQ,VQ,VQ,VQ,VK,VK,VK,VK,VA,VA": new Array("VJ,VQ,VK", "VQ,VK,VA")};
+                for (eachCard in styles) {
+                    if (myCardsArray.join(",").indexOf(eachCard) > -1) {
+                        styles.found = true;
+                        break;
+                    }
+                }
+                if (styles.found) {
+                    // 删除已用过的牌并从剩余牌中选取【10、J、K、A】
+                    myCardsArray = myCardsArray.join(",").replace(new RegExp(eachCard), "").match(/V(10|[JKA])/g);
+                    if (myCardsArray.length > 1) {
+                        singlePrototype = (styles[eachCard] as Array)[0];
+                        seqGroup = {
+                            seq1: (styles[eachCard] as Array)[0], 
+                            seq2: (styles[eachCard] as Array)[0], 
+                            seqPrototype: singlePrototype,
+                            curPos: 2,
+                            length: 2
+                        };
+                        extendSeq(seqGroup, myCardsArray);
+                    }
+                    if (myCardsArray.length > 1) {
+                        singlePrototype = (styles[eachCard] as Array)[1];
+                        seqGroup = {
+                            seq1: (styles[eachCard] as Array)[1], 
+                            seq2: (styles[eachCard] as Array)[1], 
+                            seqPrototype: singlePrototype,
+                            curPos: 2,
+                            length: 2
+                        };
+                        extendSeq(seqGroup, myCardsArray);
+                    }
+                    if (!seqGroup) {
+                        return new Array(
+                            (styles[eachCard] as Array)[0].toString().replace(/(V\w+)/g, "$1,$1").split(","),
+                            (styles[eachCard] as Array)[1].toString().replace(/(V\w+)/g, "$1,$1").split(","));
+                    }
+                    seqGroup = {
+                        seq1: (styles[eachCard] as Array).join(",").replace(singlePrototype, "").replace(/^,|,$/g, ""), 
+                        seq2: (styles[eachCard] as Array).join(",").replace(singlePrototype, "").replace(/^,|,$/g, ""),
+                        seq3: seqGroup.seq1,
+                        seq4: seqGroup.seq2,
+                        curPos: 4,
+                        length: 4
+                    };
+                }
+            }
+            // 三同张三连顺
+            results = (myCards.join(",").match(/V(10|[JQKA])/g).length) >= 9 ? grabSequence(3, 3, myCardsArray) : null;
+            if (results && results.length > 0) {
+                // 去重复项定位单顺内容
+                singlePrototype = String(results[0]).replace(/(V(10|[JQKA]))(,V\w+){2}/g, "$1").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+                // 去掉已使用过的牌
+                for each (eachCard in singlePrototype.split(",")) {
+                    myCardsArray = myCardsArray.join(",").replace(new RegExp("(,?" + eachCard + "){3}", ""), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "").split(",");
+                }
+                // 每次抽出一组扩展成四连顺或五连顺，最后合并同类项
+                seqGroup = {
+                    seq1: singlePrototype, 
+                    seq2: singlePrototype, 
+                    seq3: singlePrototype, 
+                    seqPrototype: singlePrototype,
+                    curPos: 3,
+                    length: 3
+                };
+            }
+            // 对子三连顺
+            results = (myCards.join(",").match(/V(10|[JQKA])/g).length) >= 6 ? grabSequence(2, 3, myCardsArray) : null;
+            if (results && results.length > 0) {
+                // 去重复项定位单顺内容
+                singlePrototype = String(results[0]).replace(/(V(10|[JQKA]))(,V\w+){1}/g, "$1").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+                // 去掉已使用过的牌
+                for each (eachCard in singlePrototype.split(",")) {
+                    myCardsArray = myCardsArray.join(",").replace(new RegExp("(,?" + eachCard + "){2}", ""), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "").split(",");
+                }
+                // 每次抽出一组扩展成四连顺或五连顺，最后合并同类项
+                seqGroup = {
+                    seq1: singlePrototype, 
+                    seq2: singlePrototype, 
+                    seqPrototype: singlePrototype,
+                    curPos: 2,
+                    length: 2
+                };
+            }
+            if (!seqGroup) {
+                return null;
+            }
+            // 扩展顺子
+            if (seqGroup.seqPrototype) {
+                extendSeq(seqGroup, myCardsArray);
+            }
+            // 合并同类项并整理成数组
+            seqGroup.props = "";
+            for (var i:int = 1; i <= seqGroup.length; i++) {
+                // 获取起始牌值与当前顺子长度，组成【牌值.长度】作为建
+                var propName:String = seqGroup["seq" + i].toString().match(/V\w+/)[0] + "." + getStraightLength(seqGroup["seq" + i]);
+                if (seqGroup[propName] is Array) {
+                    (seqGroup[propName] as Array).push(seqGroup["seq" + i]);
+                } else {
+                    seqGroup[propName] = new Array();
+                    (seqGroup[propName] as Array).push(seqGroup["seq" + i]);
+                    seqGroup.props += propName + ","
+                }
+            }
+            seqGroup.props = String(seqGroup.props).replace(/,$/, "");
+            // 整理数组
+            results = new Array();
+            for each (propName in String(seqGroup.props).split(",")) {
+                i = (seqGroup[propName] as Array).length;
+                var replacementMeta:String = new Array("$1", "$1", "$1", "$1").splice(0, i).join(",");
+                results.push(seqGroup[propName][0].toString().replace(/(V\w+)/g, replacementMeta).split(","));
+            }
+            return results;
+        }
+
+        /**
+         * 将对子三连顺、三同张三连顺、四同张三连顺扩展为四连顺五连顺
+         * 
+         * 
+         * 
+         * @param seqGroup
+         * @param myCards
+         * @param num
+         * @return 
+         */
+        private static function extendSeq(seqGroup:Object, myCards:Array):Object {
+            var style:String = "V10,VJ,VQ,VK,VA";
+            var cardsAB:Array = style.replace(seqGroup.seqPrototype, "").replace(/^,|,$/, "").split(/,+/g);
+            var indexA:int, indexB:int = -1;
+            var myCardsString:String = myCards.join(",");
+            // 仅剩余对子三连顺时
+            // 同时处理两条三连顺
+            if (seqGroup.curPos == 2) {
+                switch (cardsAB.join(",")) {
+                    case "VK,VA":
+                        // VK,VK,VA或VK,VK,VA,VA
+                        if (myCardsString.match(/VK,VK,VA,VA/)) {
+                            myCards.splice(myCards.indexOf("VK"), 1);
+                            myCards.splice(myCards.indexOf("VK"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style;
+                        } else if (myCardsString.match(/VK,VK,VA/)) {
+                            myCards.splice(myCards.indexOf("VK"), 1);
+                            myCards.splice(myCards.indexOf("VK"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style.replace(/,VA/, "");
+                        }
+                        break;
+                    case "V10,VA":
+                        // V10,V10,VA,VA或V10,V10,VA或V10,VA,VA或V10,V10或VA,VA或V10,VA
+                        if (myCardsString.match(/V10,V10.*VA,VA/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style;
+                        } else if (myCardsString.match(/V10,V10.*VA/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style.replace(/,VA/, "");
+                        } else if (myCardsString.match(/V10.*VA,VA/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style.replace(/V10,/, "");
+                        } else if (myCardsString.match(/VA,VA/)) {
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style.replace(/V10,/, "");
+                            seqGroup.seq2 = style.replace(/V10,/, "");
+                        } else if (myCardsString.match(/V10,V10/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            seqGroup.seq1 = style.replace(/,VA/, "");
+                            seqGroup.seq2 = style.replace(/,VA/, "");
+                        } else if (myCardsString.match(/V10.*VA/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("VA"), 1);
+                            seqGroup.seq1 = style.replace(/V10,/, "");
+                            seqGroup.seq2 = style.replace(/,VA/, "");
+                        }
+                        break;
+                    case "V10,VJ":
+                        // V10,VJ,VJ或V10,V10,VJ,VJ
+                        if (myCardsString.match(/V10,V10,VJ,VJ/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("VJ"), 1);
+                            myCards.splice(myCards.indexOf("VJ"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style;
+                        } else if (myCardsString.match(/V10,VJ,VJ/)) {
+                            myCards.splice(myCards.indexOf("V10"), 1);
+                            myCards.splice(myCards.indexOf("VJ"), 1);
+                            myCards.splice(myCards.indexOf("VJ"), 1);
+                            seqGroup.seq1 = style;
+                            seqGroup.seq2 = style.replace(/V10,/, "");
+                        }
+                        break;
+                    default:
+                        throw new Error("An unexpected single sequence prototype is found!");
+                }
+                seqGroup.curPos = seqGroup.length;
+                return seqGroup;
+            }
+            // 除了对子三连顺外，还有其它三连顺牌需要处理时
+            // 每次只扩展一条三同张三连顺
+            switch (cardsAB.join(",")) {
+                case "VK,VA":
+                    indexA = myCards.indexOf("VK");
+                    indexB = myCards.indexOf("VA");
+                    if (indexA > -1 && indexB > -1) {
+                        myCards.splice(indexB, 1);
+                        myCards.splice(indexA, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style;
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    } else if (indexA > -1) {
+                        myCards.splice(indexA, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style.replace(/,VA/, "");
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    }
+                    break;
+                case "V10,VA":
+                    indexA = myCards.indexOf("V10");
+                    indexB = myCards.indexOf("VA");
+                    if (indexA > -1 && indexB > -1) {
+                        myCards.splice(indexB, 1);
+                        myCards.splice(indexA, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style;
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    } else if (indexA > -1) {
+                        myCards.splice(indexA, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style.replace(/,VA/, "");
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    } else if (indexB > -1) {
+                        myCards.splice(indexB, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style.replace(/V10,/, "");
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    }
+                    break;
+                case "V10,VJ":
+                    indexA = myCards.indexOf("V10");
+                    indexB = myCards.indexOf("VJ");
+                    if (indexA > -1 && indexB > -1) {
+                        myCards.splice(indexB, 1);
+                        myCards.splice(indexA, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style;
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    } else if (indexB > -1) {
+                        myCards.splice(indexA, 1);
+                        seqGroup["seq" + seqGroup.curPos] = style.replace(/V10,/, "");
+                        seqGroup.curPos--;
+                        extendSeq(seqGroup, myCards);
+                    }
+                    break;
+                default:
+                    throw new Error("An unexpected single sequence prototype is found!");
+            }
+            return null;
+        }
     }
 }

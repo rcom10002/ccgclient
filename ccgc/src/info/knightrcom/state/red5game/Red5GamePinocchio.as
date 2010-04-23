@@ -692,8 +692,8 @@ package info.knightrcom.state.red5game
         /**
          * 是否为全局最大牌，即无任何玩家可以跟牌
          * 
-         * @param boutingCards    要检验的牌
-         * @param applyFriendRule 启用忽略友邦规则
+         * @param boutingCards        要检验的牌
+         * @param applySkipFriendRule 启用忽略友邦规则(仅当独牌、天独、天外天时该功能才有效)
          */
         private function isInvincible(boutingCards:Array, applySkipFriendRule:Boolean):Boolean {
             for (var i:int = 0; i < this._gameBox.cardsOfPlayers.length; i++) {
@@ -767,6 +767,99 @@ package info.knightrcom.state.red5game
         private function isWeakBigRush():Boolean {
             // 找出大牌与其呼应的任意小牌牌型，形成对儿
             return false;
+        }
+
+        /**
+         * 
+         * 统计出所有的无敌大牌与小牌，让大牌与小牌配对
+         * 
+         * @param dummyTips 所有提示牌型
+         * @return 当没有可用的迂回策略时，返回null，否则返回迂回策略结果
+         */
+        private function testRoundabout(dummyTips:Array):Object {
+            if (false) {
+                // TODO 只剩下一个对手时
+            }
+            // 整理提示牌型
+            var xxx:Object = {
+                invincible: new Array(),
+                vincible: new Array(),
+                invincibleSeq: new Array(),
+                vincibleSeq: new Array(),
+                maxLengthVincible: null // 牌数最多的非顺子牌型
+            };
+            for each (var eachTips:Array in dummyTips) {
+                for each (var tipCards:Array in eachTips) {
+                    if (isInvincible(tipCards, false)) {
+                        // 无敌大牌
+                        if (Red5Game.isStraightStyle(tipCards.join(","))) {
+                            (xxx.invincibleSeq as Array).push(tipCards);
+                        } else {
+                            (xxx.invincible as Array).push(tipCards);
+                        }
+                    } else {
+                        // 非无敌大牌
+                        if (Red5Game.isStraightStyle(tipCards.join(","))) {
+                            (xxx.vincibleSeq as Array).push(tipCards);
+                        } else {
+                            (xxx.vincible as Array).push(tipCards);
+                            // 设置牌数最多的非顺子牌型
+                            if (xxx.maxLengthVincible) {
+                                xxx.maxLengthVincible = xxx.maxLengthVincible.length < tipCards.length ? tipCards : xxx.maxLengthVincible;
+                            } else {
+                                xxx.maxLengthVincible = tipCards;
+                            }
+                        }
+                    }
+                }
+            }
+            if (xxx.vincibleSeq.length > 1) {
+                return null;
+            } else if (xxx.vincibleSeq.length == 1) {
+                // 存在一种顺子非无敌大牌
+                if (xxx.invincible.length < xxx.vincible.length) {
+                    return null;
+                }
+            } else {
+                //
+                if (xxx.invincible.length < xxx.vincible.length - xxx.maxLengthVincible.length) {
+                    return null;
+                }
+            }
+            // 组合迂回对儿，即相同牌型的一个非无敌大牌对应一个无敌大牌
+            // 
+            var invincibleCards:Object = {}; // 全局最大牌，可能是单张也可能是同张，如果是同张，需要标明是否可以拆分
+            return invincibleCards;
+        }
+
+        /**
+         * 
+         * @param xxx
+         * @return 
+         * 
+         */
+        private function testMatch(xxx:Object):Object {
+            // 将对子及同张的无敌大牌继续拆分成多个张数更少的牌型
+            var tempArray:Array = [];
+            for each (var eachInvicible:Array in (xxx.invicible as Array)) {
+                if (/^V(10|[JQKA])$/.test(eachInvicible[0]) || eachInvicible.length == 1) {
+                    // 
+                    tempArray.push(eachInvicible);
+                    continue;
+                }
+                // 开始拆分
+                if ("1V5,1V5" == eachInvicible.toString()) {
+                    // 对红五
+                } else if ("0VX,0VX,0VY,0VY".indexOf(eachInvicible.toString()) > -1) {
+                    // 对大王或对小王
+                } else if (eachInvicible[0].toString().indexOf("V5") > -1) {
+                    // 草五
+                } else {
+                    // 2
+                    
+                }
+            }
+            return null;
         }
     }
 }
