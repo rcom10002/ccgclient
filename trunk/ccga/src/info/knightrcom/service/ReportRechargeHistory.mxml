@@ -135,7 +135,7 @@
 						<mx:TextInput id="toPlayer"/>
 					</mx:FormItem>
 					<mx:Label text="充值月份"/>
-					<mx:DateField id="createMonth" formatString="YYYY年MM月">
+					<mx:DateField id="createMonth" formatString="YYYY年MM月" yearNavigationEnabled="true" dayNames="[日,一,二,三,四,五,六]" monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]">
 					</mx:DateField>
 					<mx:Button id="btnSearch"
 							   label="查询"/>
