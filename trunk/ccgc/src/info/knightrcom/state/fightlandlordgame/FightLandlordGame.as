@@ -751,6 +751,50 @@ package info.knightrcom.state.fightlandlordgame
         private static function getStraightLength(boutCards:String):int {
             return boutCards.split(",").length / getMultiple(boutCards);
         }
+        
+        /**
+         * 对子、三同张、四同张 …… N同张
+         * 
+         * @param multiple >= 2
+         * @param myCards
+         * @param boutCards
+         * 
+         * @return an array of an array
+         * 
+         */
+        public static function grabMultiple(multiple:int, myCards:Array, boutCards:Array = null):Array {
+            var resultArrayArray:Array = new Array();
+            // 按照给定的序列倍数扩大确定下来的样式
+            var extStyle:String = "";
+            while (multiple-- > 0) {
+                extStyle += "$1";
+            }
+            multiple = extStyle.length / 2;
+            // 去花色，并在结尾添加一个逗号
+            var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
+            // 去除特殊数据"X Y"
+            myCardsString = myCardsString.replace(/V[XY],/g, "");
+            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
+            myCardsString = myCardsString.replace(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + ",}", "g"), extStyle);
+            var matchedCardsArray:Array = myCardsString.match(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + "}", "g"));
+            for each (var eachCardsString:String in matchedCardsArray) {
+                eachCardsString = eachCardsString.replace(/,$/, "");
+                var eachCardsArray:Array = eachCardsString.split(",");
+                resultArrayArray.push(eachCardsArray);
+            }
+            // 处理大小王与红五
+            if (multiple == 2) {
+                if (myCards.join(",").indexOf("0VX,0VX") > -1) {
+                    // 小王
+                    resultArrayArray.push(new Array("0VX", "0VX"));
+                }
+                if (myCards.join(",").indexOf("0VY,0VY") > -1) {
+                    // 大王
+                    resultArrayArray.push(new Array("0VY", "0VY"));
+                }
+            }
+            return resultArrayArray;
+        }
 
 		/**
          * 对子、三同张、四同张
@@ -763,91 +807,77 @@ package info.knightrcom.state.fightlandlordgame
          * @return an array of an array
          * 
          */
-        public static function grabMultiple(multiple:int, myCards:Array, tail:int = 0, boutCards:Array = null):Array {
+        public static function grabTriple(myCards:Array, tail:int = 0, boutCards:Array = null):Array {
             var resultArrayArray:Array = new Array();
             // 去花色 TODO 也应该去大小王，单独处理大小王
             var myCardsArray:Array = myCards.join(",").replace(/\dV/g, "V").split(",");
             var matchResults:Array = null;
             var unusedCards:String = null;
+            var multiple:int = 0;
             if (boutCards && boutCards.length > 0) {
                 // 对方出牌时，倍数 + 配牌逻辑参考“当前玩家出牌时”
                 switch (boutCards.length) {
-                    case 2:
-                        // 找出所有的对子牌
-                        matchResults = myCardsArray.join(",").match(/(V\w+),\1/g);
-                        
-                        break;
                     case 3 + 1:
+                    	multiple = 3;
+                    	tail = 1;
                         break;
-                    case 5:
-                        if (boutCards.join(",").match(/(V\w+)(,\1){3}/)) {
-                            // 4 + 1
-                        } else {
-                            // 3 + 2
-                        }
+                    case 3 + 2:
+                    	multiple = 3;
+                    	tail = 2;
                         break;
                     case 4 + 2:
+                    	multiple = 4;
+                    	tail = 2;
+                        break;
+                    case 4 + 2 + 2:
+                    	multiple = 4;
+                    	tail = 2 + 2;
                         break;
                 }
-            } else {
-                // 当前玩家出牌时，先按照倍数来找出对子或三同张或四同张
-                matchResults = myCardsArray.join(",").match(new RegExp("(V\w+)(,\1){" + (multiple - 1) + "}", "g"));
-                if (matchResults && matchResults.length > 0) {
-                    for each (var eachMatch:String in matchResults) {
-                        // 找配牌且保证配牌与主牌不一样
-                        var tailCard:String = null;
-                        // 去掉已经使用过的牌，即从未使用的牌中找配牌
-                        unusedCards = myCardsArray.join(",").replace(eachMatch, "").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
-                        if (tail == 1) {
-                            // 确定单张配牌
-                            // => 删除所有倍数牌 unusedCards.replace(/(V\w+),\1{1,}/g, "")
-                            // => 如果有牌剩下，unusedCards.replace(/(V\w+),\1{1,}/g, "").match(/V\w+/)[0]就是配牌
-                            // => 如果没有牌剩下，unusedCards.match(/V\w+/)[0]就是配牌
-                        } else if (tail == 2) {
-                            // 确定对子配牌
+            }
+            // 当前玩家出牌时，先按照倍数来找出对子或三同张或四同张
+            matchResults = myCardsArray.join(",").concat(",").match(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + "}", "g"));
+            if (matchResults && matchResults.length > 0) {
+                for each (var eachMatch:String in matchResults) {
+                    // 找配牌且保证配牌与主牌不一样
+                    var tailCard:String = null;
+                    // 去掉已经使用过的牌，即从未使用的牌中找配牌
+                    unusedCards = myCardsArray.join(",").concat(",").replace(eachMatch, "").replace(/^,|,$/, "");
+                    if (tail == 1) {
+                        // 确定单张配牌
+                        // => 删除所有倍数牌 unusedCards.replace(/(V\w+),\1{1,}/g, "")
+                        // => 如果有牌剩下，unusedCards.replace(/(V\w+),\1{1,}/g, "").match(/V\w+/)[0]就是配牌
+                        // => 如果没有牌剩下，unusedCards.match(/V\w+/)[0]就是配牌
+                        if (unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
+                        	tailCard = unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
+                        } else if (unusedCards.match(/V\w+/)){
+                        	tailCard = unusedCards.match(/V\w+/)[0];
                         }
-                        if (tailCard && eachMatch.substr(1, 1) > tailCard.substr(1, 1)) {
-                            // 配牌值小于主牌值
-                            resultArrayArray.push(String(tailCard + "," + eachMatch).split(","));
-                        } else if (tailCard && eachMatch.substr(1, 1) < tailCard.substr(1, 1)) {
-                            // 配牌值大于主牌值
-                            resultArrayArray.push(String(eachMatch + "," + tailCard).split(","));
-                        } else {
-                            // 没有配牌的时候
-                            resultArrayArray.push(eachMatch.split(","));
+                    } else if (multiple == 3 && tail == 2) {
+                        // 确定对子配牌
+                        if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
+                        	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
                         }
+                    } else if (multiple == 4 && tail == 2) {
+                        // 确定两张单张配牌
+                        if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
+                        	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
+                        }
+                    } else if (tail == 2 + 2) {
+                        // 确定两对子配牌
+                        if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
+                        	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
+                        }
+                    }
+                    if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(tailCard.split(",")[0])) {
+                        // 配牌值小于主牌值
+                        resultArrayArray.push(String(tailCard + "," + eachMatch.replace(/^,|,$/, "")).split(","));
+                    } else if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) < prioritySequence.indexOf(tailCard.split(",")[0])) {
+                        // 配牌值大于主牌值
+                        resultArrayArray.push(String(eachMatch.replace(/^,|,$/, "") + "," + tailCard).split(","));
                     }
                 }
             }
-//            // 按照给定的序列倍数扩大确定下来的样式
-//            var extStyle:String = "";
-//            while (multiple-- > 0) {
-//                extStyle += "$1";
-//            }
-//            multiple = extStyle.length / 2;
-//            // 去花色，并在结尾添加一个逗号
-//            var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
-//            // 去除特殊数据"X Y"
-//            myCardsString = myCardsString.replace(/V[XY],/g, "");
-//            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
-//            myCardsString = myCardsString.replace(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + ",}", "g"), extStyle);
-//            var matchedCardsArray:Array = myCardsString.match(new RegExp("(V[^,]*,)\\1{" + (multiple - 1) + "}", "g"));
-//            for each (var eachCardsString:String in matchedCardsArray) {
-//                eachCardsString = eachCardsString.replace(/,$/, "");
-//                var eachCardsArray:Array = eachCardsString.split(",");
-//                resultArrayArray.push(eachCardsArray);
-//            }
-//            // 处理大小王与红五
-//            if (multiple == 2) {
-//                if (myCards.join(",").indexOf("0VX,0VX") > -1) {
-//                    // 小王
-//                    resultArrayArray.push(new Array("0VX", "0VX"));
-//                }
-//                if (myCards.join(",").indexOf("0VY,0VY") > -1) {
-//                    // 大王
-//                    resultArrayArray.push(new Array("0VY", "0VY"));
-//                }
-//            }
             return resultArrayArray;
         }
         
