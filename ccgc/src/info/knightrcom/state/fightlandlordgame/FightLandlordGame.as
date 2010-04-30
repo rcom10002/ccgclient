@@ -814,8 +814,10 @@ package info.knightrcom.state.fightlandlordgame
             var matchResults:Array = null;
             var unusedCards:String = null;
             var multiple:int = 0;
+            var boutMatchCards:String = null;
             if (boutCards && boutCards.length > 0) {
                 // 对方出牌时，倍数 + 配牌逻辑参考“当前玩家出牌时”
+                boutMatchCards = boutCards.join(",").replace(/\dV/g, "V").concat(",").match(/(V[^,]*,)\1{2,}/)[0].toString().split(",")[0];
                 switch (boutCards.length) {
                     case 3 + 1:
                     	multiple = 3;
@@ -871,10 +873,14 @@ package info.knightrcom.state.fightlandlordgame
                     }
                     if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(tailCard.split(",")[0])) {
                         // 配牌值小于主牌值
-                        resultArrayArray.push(String(tailCard + "," + eachMatch.replace(/^,|,$/, "")).split(","));
+                        if (prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
+                        	resultArrayArray.push(String(tailCard + "," + eachMatch.replace(/^,|,$/, "")).split(","));
+                        }
                     } else if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) < prioritySequence.indexOf(tailCard.split(",")[0])) {
                         // 配牌值大于主牌值
-                        resultArrayArray.push(String(eachMatch.replace(/^,|,$/, "") + "," + tailCard).split(","));
+                        if (prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
+                        	resultArrayArray.push(String(eachMatch.replace(/^,|,$/, "") + "," + tailCard).split(","));
+                        }
                     }
                 }
             }
