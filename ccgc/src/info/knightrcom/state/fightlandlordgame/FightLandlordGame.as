@@ -862,13 +862,30 @@ package info.knightrcom.state.fightlandlordgame
                         }
                     } else if (multiple == 4 && tail == 2) {
                         // 确定两张单张配牌
-                        if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
-                        	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
+                        if (unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
+                        	tailCard = unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
+                        	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
+                        		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
+                        	} else {
+                        		tailCard = null;
+                        	}
+                        } else if (unusedCards.match(/V\w+/)){
+                        	tailCard = unusedCards.match(/V\w+/)[0];
+                        	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").match(/V\w+/)){
+                        		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").match(/V\w+/)[0];
+                        	} else {
+                        		tailCard = null;
+                        	}
                         }
                     } else if (tail == 2 + 2) {
                         // 确定两对子配牌
                         if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
                         	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
+                        	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").match(/(V[^,]*,)\1{1,}/)) {
+                        		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
+                        	} else {
+                        		tailCard = null;
+                        	}
                         }
                     }
                     if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(tailCard.split(",")[0])) {
@@ -956,140 +973,6 @@ package info.knightrcom.state.fightlandlordgame
                     resultArrayArray.push(eachStyle.replace(/,$/, "").split(","));
                 }
             }
-            return resultArrayArray;
-        }
-        
-        /**
-         * 三带单，三单对
-         * 
-         * @param multiple >= 2
-         * @param myCards
-         * @param boutCards
-         * 
-         * @return an array of an array
-         * 
-         */
-        public static function grabFollow(multiple:int, myCards:String, boutCards:String = null):Array {
-            var resultArrayArray:Array = new Array();
-
-			// 去花色，并在结尾添加一个逗号
-            var myCardsStringHold:String = (myCards + ",").replace(/\dV/g, "V");
-            // 排除主牌（3，4）找出带牌
-            var myCardsString:String = myCardsStringHold.replace(new RegExp("(V[^,]*,)\\1{2,}", "g"), "");
-            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
-            var matchedCardsArray:Array = myCardsStringHold.match(new RegExp("(V[^,]*,)\\1{2}", "g"));
-			var multiplePair:int = 0;
-			var multipleSingle:int = 0;
-			var boutCardsString:String = reMakeCardArray(boutCards);
-			var key:String = "";
-			for (var obj:Object in followCardMap) {
-				if (int(followCardMap[obj]) == 3) {
-					key += obj + ",";
-					multiple += 1;
-				} else if (int(followCardMap[obj]) == 2) {
-					multiplePair += 1;
-				} else if (int(followCardMap[obj]) == 1) {
-					multipleSingle += 1;
-				} 
-			}
-			key = key.replace(/,$/,"");
-			// 连顺
-			if (multiple > 1) {
-				var orgKey:String = "";
-				for each (var eachCardsString:String in matchedCardsArray) {
-	                eachCardsString = eachCardsString.replace(/,$/, "");
-	                var eachCardsArray:Array = eachCardsString.split(",");
-	                orgKey += eachCardsArray[0].replace(/V[2XY],/g, "") + ","
-	            }
-				orgKey = orgKey.replace(/,$/,"");
-				if (orgKey.length == 0){
-					return null;
-				}
-				// 确定组合样式
-	            var testStyleArray:Array = new Array();
-	            var cardsArr:Array = prioritySequence.replace(/,V[2XY]/g, "").split(",");
-				var cards:String = "";
-				for (var n:int = 0; n < cardsArr.length; n++) {
-					if (multiple + n > cardsArr.length){
-						break;
-					}
-					for(var j:int = n; j < multiple + n; j++) {
-						cards += cardsArr[j] + ",";
-					}
-					testStyleArray.push(cards);
-					cards="";
-				}
-				// 按照给定的序列倍数扩大确定下来的样式
-	            for (var i:int = 0; i < testStyleArray.length; i++) {
-	                var testStyle:String = testStyleArray[i].toString().replace(/(V[^,]*,)/g, "$1$1$1");
-	                testStyleArray[i] = testStyle;
-	            }
-	            // 将已经构造出来的，可能出现的样式，应用到玩家手中的牌中
-	            // 去花色去无效数据"2 X Y"
-	            // 将超过指定倍数的每个样式的牌的个数都缩小至指定的倍数
-	            myCardsStringHold = myCardsStringHold.replace(new RegExp("(V[^,]*,)\\1{" + (multiple) + ",}", "g"), "$1$1$1");
-	            for (i = 0; i < testStyleArray.length; i++) {
-	                if (myCardsStringHold.indexOf(testStyleArray[i]) > -1) {
-	                } else {
-	                    // 去除不满足条件
-	                    testStyleArray[i] = null;
-	                }
-	            }
-	            // 整理数据，将null内容过滤掉
-	            for each (var eachStyle:String in testStyleArray) {
-	                if (eachStyle) {
-	                    resultArrayArray.push(eachStyle.replace(/,$/, "").split(","));
-	                }
-	            }
-				if (resultArrayArray == null || resultArrayArray.length == 0) {
-					return null;
-				}
-				
-				var followType:int = 1
-				if (multiplePair > 0) {
-					// 带对
-					followType = 2;
-				}
-				var followFinalString:String = "";
-				while (multiple-- > 0) {
-	                var myFollowCards:String = getFollowCards(myCardsString, followType);
-	                if (myFollowCards == null) {
-	                	return null;
-	                }
-	                myCardsString = myCardsString.replace(new RegExp(myFollowCards, "g"), "");
-	                followFinalString += myFollowCards;
-	            }
-	            followFinalString = followFinalString.replace(/,$/g, "");
-				var followFinalArr:Array = followFinalString.split(",");
-				resultArrayArray.push(followFinalArr);
-			} else {
-				// 非连顺
-				var followCards:String = ""
-				if (multiplePair > 0) {
-					// 带对
-					var pairArr:Array = myCardsString.replace(/((V[^,]*,){1,})\\1/g, "$$").split(",");
-					if (pairArr != null && pairArr.length >= 2) {
-						followCards = pairArr[0] + "," + pairArr[1];
-					} else {
-						return null;
-					}
-				}
-				if (multipleSingle > 0) {
-					// 带单
-					var singleArr:Array = myCardsString.replace(/(V[^,]*,)\\1/g, "$").split(",");
-					if (singleArr != null && singleArr.length > 0) {
-						followCards = singleArr[0];
-					} else {
-						return null;
-					}
-				}
-	            for each (var eachCardsString:String in matchedCardsArray) {
-	                eachCardsString = eachCardsString + followCards;
-	                var eachCardsArray:Array = eachCardsString.split(",");
-	                resultArrayArray.push(eachCardsArray);
-	            }
-			}
-			
             return resultArrayArray;
         }
         
@@ -1403,18 +1286,12 @@ package info.knightrcom.state.fightlandlordgame
                             }
                         }
                     }
-                } else if (isFollowStyle(boutCardsString)) {
-                	// 三带单或三带对
-                	targetTips = grabFollow(0, myCardsString, boutCardsString);
-					for each (eachTargetTip in targetTips) {
-                        var boutFirst:String = boutCardsString.replace(/\dV/, "V").split(",")[0];
-                        var targetFirst:String = eachTargetTip[0];
-                        if (prioritySequence.indexOf(boutFirst) < prioritySequence.indexOf(targetFirst)) {
-                            return eachTargetTip;
-                        }
+                } else if (isFollowStyle(boutCardsString) || isFourByTwoStyle(boutCardsString)) {
+                	// 三带单或三带对 或 四带二 四张牌＋任意两套张数相同的牌
+                	targetTips = grabTriple(myCards, 0, boutCards);
+					if (targetTips){
+						return targetTips[0];
                     }
-                } else if (isFourByTwoStyle(boutCardsString)) {
-                	// 四带二 四张牌＋任意两套张数相同的牌
                 } else {
                     // 顺子，不含五连顺
                     var stlength:int = getStraightLength(boutCardsString);
