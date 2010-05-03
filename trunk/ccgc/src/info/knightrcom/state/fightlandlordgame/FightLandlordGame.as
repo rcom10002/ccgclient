@@ -702,7 +702,7 @@ package info.knightrcom.state.fightlandlordgame
 						return false;
 					}
 				}
-				else if (multiple > 2)
+				else if (multiple == 3)
 				{
 					// 三顺
 					if (resultCards.replace(/,$/, "").split(",").length < 2)
@@ -710,9 +710,15 @@ package info.knightrcom.state.fightlandlordgame
 						return false;
 					}
 				}
+				else if (multiple > 3)
+				{
+					// 四顺为炸弹排除掉
+					return false;
+				}
 				else
 				{
 					throw Error("顺子处理出错！");
+					return false;
 				}
 				// 间隔值判断，相邻的牌必须连续
 				return prioritySequence.indexOf(resultCards) > -1;
@@ -783,14 +789,10 @@ package info.knightrcom.state.fightlandlordgame
                 resultArrayArray.push(eachCardsArray);
             }
             // 处理大小王与红五
-            if (multiple == 2) {
-                if (myCards.join(",").indexOf("0VX,0VX") > -1) {
-                    // 小王
-                    resultArrayArray.push(new Array("0VX", "0VX"));
-                }
-                if (myCards.join(",").indexOf("0VY,0VY") > -1) {
-                    // 大王
-                    resultArrayArray.push(new Array("0VY", "0VY"));
+            if (multiple == 5) {
+                if (myCards.join(",").indexOf("0VX,0VY") > -1) {
+                    // 大小王
+                    resultArrayArray.push(new Array("VX", "VY"));
                 }
             }
             return resultArrayArray;
@@ -815,6 +817,9 @@ package info.knightrcom.state.fightlandlordgame
             var unusedCards:String = null;
             var multiple:int = 0;
             var boutMatchCards:String = null;
+            var boutStraightCards:String = null;
+            var boutTailCards:String = null;
+            var tempMatchBox:String = "";
             if (boutCards && boutCards.length > 0) {
                 // 对方出牌时，倍数 + 配牌逻辑参考“当前玩家出牌时”
                 boutMatchCards = boutCards.join(",").replace(/\dV/g, "V").concat(",").match(/(V[^,]*,)\1{2,}/)[0].toString().split(",")[0];
@@ -828,13 +833,23 @@ package info.knightrcom.state.fightlandlordgame
                     	tail = 2;
                         break;
                     case 4 + 2:
-                    	multiple = 4;
-                    	tail = 2;
+                		multiple = 4;
+                		tail = 2;
                         break;
                     case 4 + 2 + 2:
-                    	multiple = 4;
-                    	tail = 2 + 2;
+                    	var boutCardsMutiple:Array = boutCards.join(",").replace(/\dV/g, "V").concat(",").match(/(V[^,]*,)\1{3}/g);
+                    	if (boutCardsMutiple && boutCardsMutiple.length > 0) {
+                    		multiple = 4;
+                    		tail = 2 + 2;
+                    	} else {
+                    		multiple = 3;
+                    		tail = 3;
+                    	}
                         break;
+                    default:
+                    	// 飞机 
+                    	multiple = 3;
+                    	tail = 3;
                 }
             }
             // 当前玩家出牌时，先按照倍数来找出对子或三同张或四同张
@@ -844,8 +859,8 @@ package info.knightrcom.state.fightlandlordgame
                     // 找配牌且保证配牌与主牌不一样
                     var tailCard:String = null;
                     // 去掉已经使用过的牌，即从未使用的牌中找配牌
-                    unusedCards = myCardsArray.join(",").concat(",").replace(eachMatch, "").replace(/^,|,$/, "");
-                    if (tail == 1) {
+                    unusedCards = myCardsArray.join(",").concat(",").replace(new RegExp(eachMatch.split(",")[0], "g"), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+                    if (multiple == 3 && tail == 1) {
                         // 确定单张配牌
                         // => 删除所有倍数牌 unusedCards.replace(/(V\w+),\1{1,}/g, "")
                         // => 如果有牌剩下，unusedCards.replace(/(V\w+),\1{1,}/g, "").match(/V\w+/)[0]就是配牌
@@ -877,7 +892,7 @@ package info.knightrcom.state.fightlandlordgame
                         		tailCard = null;
                         	}
                         }
-                    } else if (tail == 2 + 2) {
+                    } else if (multiple == 4 && tail == 2 + 2) {
                         // 确定两对子配牌
                         if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
                         	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
@@ -887,18 +902,92 @@ package info.knightrcom.state.fightlandlordgame
                         		tailCard = null;
                         	}
                         }
+                    } else {
+                    	// 飞机牌型 3,444,555,6 33,444,555,66
+                    	var boutStraightArr:Array = boutCards.join(",").replace(/\dV/g, "V").concat(",").match(/(V[^,]*,)\1{2}/g);
+                    	boutStraightCards = boutStraightArr.join(",").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+                		boutTailCards = boutCards.join(",").replace(/\dV/g, "V").replace(boutStraightCards, "").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+                		
+                		// 手中三同张去除重复
+                		var finalResults:String = matchResults.join(",").replace(/,{2,}/g, ",").replace(/(V[^,]*,)\1{1,}/g, "$1");
+                		finalResults = finalResults.replace(tempMatchBox, "").replace(/^,|,$/, "");
+                		// 间隔值判断，相邻的牌必须连续 
+						if (prioritySequence.indexOf(finalResults) > -1) {
+							// 手中顺牌大于对方三带顺牌
+							var finalResultString:String = "";
+							if (finalResults.split(",").length < boutStraightArr.length) {
+								continue;
+							}
+							for (var ind:int = 0; ind < boutStraightArr.length; ind++) {
+								for (var indx:int = 0; indx < 3; indx++) {
+									finalResultString += finalResults.split(",")[ind] + ",";
+								}
+							}
+							finalResultString = finalResultString.replace(/^,|,$/, "");
+							if (prioritySequence.indexOf(finalResultString.split(",")[0]) >  prioritySequence.indexOf(boutStraightCards.split(",")[0])) {
+								// 去掉已经使用过的牌，即从未使用的牌中找配牌
+                    			unusedCards = myCardsArray.join(",").concat(",").replace(new RegExp(finalResultString.split(",").join("|"), "g"), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "");
+								if (boutTailCards.split(",").length - boutStraightArr.length == 0) {
+		                			// 三带单
+		                			var taildArray:Array = unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V[^,]*,/g);
+		                			var taildArrayArray:Array = unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/g);
+	                				if (taildArray && taildArray.length > 0) {
+	                					var taildCount:int = boutStraightArr.length;
+	                					tailCard = "";
+	                					var taildCountCount:int = 0;
+	                					while (taildCount) {
+	                						var tempTaildString:String = taildArray[boutStraightArr.length - taildCount];
+	                						if (tempTaildString) {
+	                							// 手中有单张配牌时
+	                							tailCard += tempTaildString;
+	                						} else {
+	                							// 无单张配牌时
+	                							if (taildArrayArray && taildArrayArray[taildCountCount]) {
+			                						tailCard += taildArrayArray[taildCountCount].toString().split(",")[0] + ",";
+			                						taildCountCount++;
+			                					}
+	                						}
+	                						taildCount--;
+	                					}
+			                        } else if (taildArrayArray && taildArrayArray.length >= boutStraightArr.length){
+			                        	tailCard = "";
+	                					for (var taildIndex:int = 0; taildIndex < boutStraightArr.length; taildIndex++) {
+	                						tailCard += taildArrayArray[taildIndex].toString().split(",")[0] + ",";
+	                					}  
+			                        }
+		                		} else {
+		                			// 三带对
+		                			var taildArrayArrayArray:Array = unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/g);
+		                			if (taildArrayArrayArray && taildArrayArrayArray.length >= boutStraightArr.length){
+			                        	tailCard = "";
+	                					for (taildIndex = 0; taildIndex < boutStraightArr.length; taildIndex++) {
+	                						tailCard += taildArrayArrayArray[taildIndex].toString().split(",")[0] + "," + taildArrayArrayArray[taildIndex].toString().split(",")[1] + ",";
+	                					}  
+			                        }
+		                		}
+		                		// 存储配牌值和主牌值
+		                		if (tailCard && tailCard.split(",").length >= boutStraightArr.length) {
+		                			resultArrayArray.push(sortPokers(tailCard + finalResultString));
+		                		}
+							}
+						}
+						tempMatchBox += eachMatch.split(",")[0] + ",";
                     }
-                    if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(tailCard.split(",")[0])) {
-                        // 配牌值小于主牌值
-                        if (prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
-                        	resultArrayArray.push(String(tailCard + "," + eachMatch.replace(/^,|,$/, "")).split(","));
-                        }
-                    } else if (tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) < prioritySequence.indexOf(tailCard.split(",")[0])) {
-                        // 配牌值大于主牌值
-                        if (prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
-                        	resultArrayArray.push(String(eachMatch.replace(/^,|,$/, "") + "," + tailCard).split(","));
-                        }
-                    }
+                    
+//                    if (tail != 3 && tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(tailCard.split(",")[0])) {
+//                        // 配牌值小于主牌值
+//                        if (prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
+//                        	resultArrayArray.push(String(tailCard + "," + eachMatch.replace(/^,|,$/, "")).split(","));
+//                        }
+//                    } else if (tail != 3 && tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) < prioritySequence.indexOf(tailCard.split(",")[0])) {
+//                        // 配牌值大于主牌值
+//                        if (prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
+//                        	resultArrayArray.push(String(eachMatch.replace(/^,|,$/, "") + "," + tailCard).split(","));
+//                        }
+//                    }
+					if (tail != 3 && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
+                        resultArrayArray.push(sortPokers(eachMatch.replace(/^,|,$/, "") + "," + tailCard));
+     				}
                 }
             }
             return resultArrayArray;
@@ -997,8 +1086,10 @@ package info.knightrcom.state.fightlandlordgame
         public static const TIPA_MUTIPLE2:int = 101;
         /** 三同张 */
         public static const TIPA_MUTIPLE3:int = 102;
-        /** 四同张 */
+        /** 炸弹 */
         public static const TIPA_MUTIPLE4:int = 103;
+        /** 火箭 */
+        public static const TIPA_MUTIPLE5:int = 104;
         
         /** 五连顺 */
         public static const TIPB_SEQ5:int = 201;
@@ -1043,12 +1134,12 @@ package info.knightrcom.state.fightlandlordgame
         /** 三同张六连顺 */
         public static const TIPC_TRIPLE_SEQ6:int = 304;
         
-        /** 四同张三连顺 */
-        public static const TIPC_FOURFOLD_SEQ3:int = 305;
-        /** 四同张四连顺 */
-        public static const TIPC_FOURFOLD_SEQ4:int = 306;
-        /** 四同张五连顺 */
-        public static const TIPC_FOURFOLD_SEQ5:int = 307;
+//        /** 四同张三连顺 */
+//        public static const TIPC_FOURFOLD_SEQ3:int = 305;
+//        /** 四同张四连顺 */
+//        public static const TIPC_FOURFOLD_SEQ4:int = 306;
+//        /** 四同张五连顺 */
+//        public static const TIPC_FOURFOLD_SEQ5:int = 307;
         
         /** 三(单独)带一*/
         public static const TIPC_THREE_ONE1:int = 306;
@@ -1088,11 +1179,11 @@ package info.knightrcom.state.fightlandlordgame
          * 
          */
         private static const allTipIds:Array = new Array(
-        	TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4,  
+        	TIPA_MUTIPLE2, TIPA_MUTIPLE3, TIPA_MUTIPLE4, TIPA_MUTIPLE5, 
             TIPB_SEQ5, TIPB_SEQ6, TIPB_SEQ7, TIPB_SEQ8, TIPB_SEQ9, TIPB_SEQ10, TIPB_SEQ11, TIPB_SEQ12, 
             TIPB_DOUBLE_SEQ3, TIPB_DOUBLE_SEQ4, TIPB_DOUBLE_SEQ5, TIPB_DOUBLE_SEQ6, TIPB_DOUBLE_SEQ7, TIPB_DOUBLE_SEQ8, TIPB_DOUBLE_SEQ9, TIPB_DOUBLE_SEQ10,  
             TIPC_TRIPLE_SEQ3, TIPC_TRIPLE_SEQ4, TIPC_TRIPLE_SEQ5, TIPC_TRIPLE_SEQ6, 
-            TIPC_FOURFOLD_SEQ3, TIPC_FOURFOLD_SEQ4, TIPC_FOURFOLD_SEQ5, 
+//            TIPC_FOURFOLD_SEQ3, TIPC_FOURFOLD_SEQ4, TIPC_FOURFOLD_SEQ5, 
             TIPC_THREE_ONE1, TIPC_THREE_ONE2, TIPC_THREE_ONE3, TIPC_THREE_ONE4, TIPC_THREE_ONE5,
             TIPC_THREE_DOUBLE1, TIPC_THREE_DOUBLE2, TIPC_THREE_DOUBLE3, TIPC_THREE_DOUBLE4,
             TIPC_FOUR_ONE1, TIPC_FOUR_ONE2, TIPC_FOUR_ONE3,
@@ -1148,6 +1239,7 @@ package info.knightrcom.state.fightlandlordgame
             tempTipsHolder[TIPA_MUTIPLE2] = {STATUS : -1, TIPS : grabMultiple(2, myCards.split(","))};
             tempTipsHolder[TIPA_MUTIPLE3] = {STATUS : -1, TIPS : grabMultiple(3, myCards.split(","))};
             tempTipsHolder[TIPA_MUTIPLE4] = {STATUS : -1, TIPS : grabMultiple(4, myCards.split(","))};
+            tempTipsHolder[TIPA_MUTIPLE5] = {STATUS : -1, TIPS : grabMultiple(5, myCards.split(","))};
             
             tempTipsHolder[TIPB_SEQ5] = {STATUS : -1, TIPS : grabSequence(1, 5, myCards.split(","))};
             tempTipsHolder[TIPB_SEQ6] = {STATUS : -1, TIPS : grabSequence(1, 6, myCards.split(","))};
@@ -1172,9 +1264,9 @@ package info.knightrcom.state.fightlandlordgame
             tempTipsHolder[TIPC_TRIPLE_SEQ5] = {STATUS : -1, TIPS : grabSequence(3, 5, myCards.split(","))};
             tempTipsHolder[TIPC_TRIPLE_SEQ6] = {STATUS : -1, TIPS : grabSequence(3, 6, myCards.split(","))};
             
-            tempTipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
-            tempTipsHolder[TIPC_FOURFOLD_SEQ4] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
-            tempTipsHolder[TIPC_FOURFOLD_SEQ5] = {STATUS : -1, TIPS : grabSequence(4, 5, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOURFOLD_SEQ3] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOURFOLD_SEQ4] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
+//            tempTipsHolder[TIPC_FOURFOLD_SEQ5] = {STATUS : -1, TIPS : grabSequence(4, 5, myCards.split(","))};
             
 //            tempTipsHolder[TIPC_THREE_ONE1] = {STATUS : -1, TIPS : grabSequence(4, 3, myCards.split(","))};
 //            tempTipsHolder[TIPC_THREE_ONE2] = {STATUS : -1, TIPS : grabSequence(4, 4, myCards.split(","))};
@@ -1239,10 +1331,6 @@ package info.knightrcom.state.fightlandlordgame
                 myCardsString = myCardsString.replace(/\dV/g, "V");
                 // 是否有比打出牌大的牌在手中
                 var myLastCard:String = myCardsString.replace(/.*,(\w+),/, "$1");
-                // 比较除了红五以外的牌
-                if (prioritySequence.indexOf(myLastCard.replace(/\dV/, "V")) <= prioritySequence.indexOf(boutCardsString)) {
-                    return null;
-                }
                 // 单张优先，判断是否有比打出牌大的单张
                 // 完全去除重复的项目，不保留任何内容
                 var singleCard:String = null;
@@ -1272,7 +1360,7 @@ package info.knightrcom.state.fightlandlordgame
                 var boutValue:String = null;
                 var eachTargetTip:Array = null;
                 var tempTargeTip:String = null;
-                if (isSeveralFoldStyle(boutCardsString) || isBombStyle(boutCardsString)) {
+                if (isSeveralFoldStyle(boutCardsString) || isBombStyle(boutCardsString) || isRocketStyle(boutCardsString)) {
                     // 成倍且不成顺子
                     multipleId = 99 + multiple;
                     targetTips = allTips[multipleId].TIPS as Array;
@@ -1289,7 +1377,7 @@ package info.knightrcom.state.fightlandlordgame
                 } else if (isFollowStyle(boutCardsString) || isFourByTwoStyle(boutCardsString)) {
                 	// 三带单或三带对 或 四带二 四张牌＋任意两套张数相同的牌
                 	targetTips = grabTriple(myCards, 0, boutCards);
-					if (targetTips){
+					if (targetTips && targetTips.length > 0){
 						return targetTips[0];
                     }
                 } else {
@@ -1366,14 +1454,14 @@ package info.knightrcom.state.fightlandlordgame
                         multipleId = TIPC_TRIPLE_SEQ5;
                     }
                     
-                    if (multiple == 4 && stlength == 3) {
-                        // 四同张三连顺
-                        multipleId = TIPC_FOURFOLD_SEQ3;
-                    }
-                    if (multiple == 4 && stlength == 4) {
-                        // 四同张四连顺
-                        multipleId = TIPC_FOURFOLD_SEQ4;
-                    }
+//                    if (multiple == 4 && stlength == 3) {
+//                        // 四同张三连顺
+//                        multipleId = TIPC_FOURFOLD_SEQ3;
+//                    }
+//                    if (multiple == 4 && stlength == 4) {
+//                        // 四同张四连顺
+//                        multipleId = TIPC_FOURFOLD_SEQ4;
+//                    }
                     targetTips = allTips[multipleId].TIPS as Array;
                     // 将手中顺子的首位与打出牌的首位比较
                     if (targetTips.length > 0) {

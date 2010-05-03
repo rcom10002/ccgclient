@@ -147,7 +147,8 @@
 			<mx:dataProvider>
 				<mx:String>对子</mx:String>
 				<mx:String>三同张</mx:String>
-				<mx:String>四同张</mx:String>
+				<mx:String>炸弹</mx:String>
+				<mx:String>火箭</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
 		<mx:ButtonBar id="btnBarPokersTipB" borderStyle="solid" horizontalGap="5" visible="{btnBarPokers.visible}">
@@ -180,9 +181,6 @@
 				<mx:String>三同张四连顺</mx:String>
 				<mx:String>三同张五连顺</mx:String>
 				<mx:String>三同张六连顺</mx:String>
-				<mx:String>四同张三连顺</mx:String>
-				<mx:String>四同张四连顺</mx:String>
-				<mx:String>四同张五连顺</mx:String>
 			</mx:dataProvider>
 		</mx:ButtonBar>
 	</mx:VBox>

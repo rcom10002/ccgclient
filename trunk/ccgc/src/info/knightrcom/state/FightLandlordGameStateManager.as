@@ -316,13 +316,8 @@ package info.knightrcom.state
                 currentGame.setChildIndex(currentGame.arrowTip, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
-                // 设置倍数
-                var gameBombClock:GameWaiting = new GameWaiting();
-                gameBombClock.tipText = String(1);
-                var lab:Label = new Label();
-                lab.text = "倍数：";
-                currentGame.candidatedTipUpExt.addChild(lab);
-                currentGame.candidatedTipUpExt.addChild(gameBombClock);
+                // 设置倍数指示板
+                setGameBombLabel();
 				setInitialized(true);
 			}
 
@@ -364,6 +359,20 @@ package info.knightrcom.state
 			currentGame.timerTip.minimum=0;
 			currentGame.timerTip.maximum=MAX_CARDS_SELECT_TIME;
 			currentGame.timerTip.mode=ProgressBarMode.MANUAL;
+		}
+		
+		/**
+		 *  设置倍数指示板
+		 *
+		 */
+		private function setGameBombLabel():void {
+			currentGame.candidatedTipUpExt.removeAllChildren();
+			var gameBombClock:GameWaiting = new GameWaiting();
+            gameBombClock.tipText = String(1);
+            var lab:Label = new Label();
+            lab.text = "倍数：";
+            currentGame.candidatedTipUpExt.addChild(lab);
+            currentGame.candidatedTipUpExt.addChild(gameBombClock);
 		}
 
 		/**
@@ -447,6 +456,8 @@ package info.knightrcom.state
 						}
             		}
             );
+            // 设置倍数指示板
+            setGameBombLabel();
 		}
 
 		/**
@@ -726,6 +737,8 @@ package info.knightrcom.state
 				}
 				index++;
 			}
+			// 计算提示
+            FightLandlordGame.refreshTips(currentGame.candidatedDown.getChildren().join(","));
 		}
 		
 		/**
@@ -1159,15 +1172,17 @@ package info.knightrcom.state
 					var cardsLeftNumber:int=cardsCandicateNumber - cardsDealedNumber;
 
 					// 非地主玩家是否出过牌
-					if (gameFinalSettingPlayerNumber != localNumber)
+					if (currentBoutCards && currentBoutCards.length > 0)
 					{
 						isHaveOut=true;
 					}
 					// 地主玩家是否出过第二手牌
-					if (gameFinalSettingPlayerNumber == localNumber)
+					// TODO
+					if (currentNumber == gameFinalSettingPlayerNumber)
 					{
 						holderOutTimes++;
 					}
+					Alert.show(currentNumber+"~"+gameFinalSettingPlayerNumber + "~" + holderOutTimes);
 					if (cardsLeftNumber == 0)
 					{
 						// 设置游戏冠军玩家
@@ -1242,7 +1257,7 @@ package info.knightrcom.state
             itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, FightLandlordGame.OPTR_RESELECT));
             var tipArray:Array = null;
             if (event.currentTarget == currentGame.btnBarPokersTipA) {
-                // 对子、三同张、四同张
+                // 对子、三同张、炸弹、火箭
                 tipArray = FightLandlordGame.nextTipCards(event.index + 101);
             } else if (event.currentTarget == currentGame.btnBarPokersTipB) {
                 // 四连顺、五连顺、六连顺、七连顺、八连顺、九连顺、十连顺、十一连顺、十二连顺
