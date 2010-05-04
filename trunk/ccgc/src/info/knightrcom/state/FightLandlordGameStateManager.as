@@ -805,6 +805,12 @@ package info.knightrcom.state
 			{
 				holderOutTimes++;
 			}
+			
+			// 非地主玩家是否出过牌
+			if (currentNumber != gameFinalSettingPlayerNumber && !passed)
+			{
+				isHaveOut=true;
+			}
 			// 上局待发牌区域
 			var cardsCandidated:Box=cardsCandidatedArray[Number(currentNumber) - 1];
 			// 上局已发牌区域
@@ -1180,11 +1186,6 @@ package info.knightrcom.state
 					// 打出后剩余牌数
 					var cardsLeftNumber:int=cardsCandicateNumber - cardsDealedNumber;
 
-					// 非地主玩家是否出过牌
-					if (localNumber != gameFinalSettingPlayerNumber && currentBoutCards && currentBoutCards.length > 0)
-					{
-						isHaveOut=true;
-					}
 					if (cardsLeftNumber == 0)
 					{
 						// 设置游戏冠军玩家
