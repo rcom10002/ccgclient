@@ -20,6 +20,8 @@ package info.knightrcom.state.red5game
 
         private var _gameBox:Red5GameBox = null;
 
+        private var roundabout:Object = null;
+
         /**
 		 * 
 		 * @param username
@@ -127,9 +129,23 @@ package info.knightrcom.state.red5game
 
             // 重选备用牌
             Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_RESELECT).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            
+            
+            // 2010-04-27 ADDED [摆渡牌判断与出牌] BEGIN 
+            if (roundabout) {
+                // 按照【roundabout】方式出牌或跟牌
+                processRoundaboutDiscard();
+            }
+            // 2010-04-27 ADDED [摆渡牌判断与出牌] END
 
             if (!boutCards) {
                 // 当前玩家出牌***规则定义
+                // 2010-04-27 ADDED [摆渡牌判断与出牌] BEGIN 
+                if (roundabout) {
+                    // 进行【roundabout】测试
+                    this.roundabout = testRoundabout(this.tips);
+                }
+                // 2010-04-27 ADDED [摆渡牌判断与出牌] END
                 processDiscard(myTipCount);
             } else {
                 // 当前玩家跟牌***规则定义
@@ -163,6 +179,25 @@ package info.knightrcom.state.red5game
          */
         public override function set gameBox(value:*):void {
             this._gameBox = value;
+        }
+
+        /**
+         * 处理摆渡牌
+         * 
+         */
+        private function processRoundaboutDiscard():void {
+            if (Red5GameStateManager.gameSetting == Red5GameSetting.DEADLY_RUSH || 
+                Red5GameStateManager.gameSetting == Red5GameSetting.EXTINCT_RUSH) {
+                // 天独或天外天时，不做摆渡处理
+                return;
+            }
+            // 首次发牌或有与上家发牌对应的牌时
+            prepareCandidatedCards([]);
+            // 开始出牌
+            if (Application.application.red5GameModule.btnBarPokers.visible) {
+                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                return;
+            }
         }
 
         /**
@@ -317,7 +352,7 @@ package info.knightrcom.state.red5game
             }
             myCards = Red5Game.sortPokers(myCards.replace(/^,|,$/g, "")).join(",").replace(/(?<!\d)V/g, "4V");
             myCardArray = Red5Game.getBrainPowerTip(myCards.replace(/(?<!\d)V/g, "4V").split(","), boutCards.split(","), false);
-            myCardArray = new Array(new Array(myCardArray ? myCardArray : [])); // 非顺子牌组合
+            myCardArray = [[myCardArray ? myCardArray : []]]; // 非顺子牌组合
             if (tipCount(myCardArray) > 0) {
                 for each (eachCardsStyle in myCardArray) {
                     for each (eachItem in eachCardsStyle) {
@@ -484,7 +519,7 @@ package info.knightrcom.state.red5game
             // 非顺子牌组合
             myCards = Red5Game.sortPokers(myCards).join(",").replace(/^,|,$/g, "").replace(/(?<!\d)V/g, "4V");
             myCardArray = Red5Game.getBrainPowerTip(Red5Game.sortPokers(myCards), boutCards.split(","), false);
-            myCardArray = new Array(new Array(myCardArray ? myCardArray : []));
+            myCardArray = [[myCardArray ? myCardArray : []]];
             if (tipCount(myCardArray) > 0) { // TODO myCardArray may be null value.
                 for each (eachCardsStyle in myCardArray) {
                     for each (eachItem in eachCardsStyle) {
@@ -774,19 +809,20 @@ package info.knightrcom.state.red5game
          * 统计出所有的无敌大牌与小牌，让大牌与小牌配对
          * 
          * @param dummyTips 所有提示牌型
-         * @return 当没有可用的迂回策略时，返回null，否则返回迂回策略结果
+         * @return 当没有可用的摆渡策略时，返回null，否则返回摆渡策略结果
          */
         private function testRoundabout(dummyTips:Array):Object {
+            return null;
             if (false) {
                 // TODO 只剩下一个对手时
             }
-            // 整理提示牌型
+            // 整理提示牌型，数组形式为：[【V10】,【V5】],[【VJ,VJ】],[【V10,VJ,VQ,VK】]
             var xxx:Object = {
-                invincible: new Array(),
-                vincible: new Array(),
-                invincibleSeq: new Array(),
-                vincibleSeq: new Array(),
-                maxLengthVincible: null // 牌数最多的非顺子牌型
+                invincible: [],
+                vincible: [],
+                invincibleSeq: [],
+                vincibleSeq: [],
+                maxLengthVincible: [] // 牌数最多的非顺子牌型
             };
             for each (var eachTips:Array in dummyTips) {
                 for each (var tipCards:Array in eachTips) {
@@ -814,49 +850,214 @@ package info.knightrcom.state.red5game
                 }
             }
             if (xxx.vincibleSeq.length > 1) {
+                // 存在一种以上的非无敌顺子大牌
                 return null;
             } else if (xxx.vincibleSeq.length == 1) {
                 // 存在一种顺子非无敌大牌
-                if (xxx.invincible.length < xxx.vincible.length) {
+                if (xxx.invincible.toString().length < xxx.vincible.toString().length) {
+                    // 无敌牌型的牌数少于非无敌牌型的牌数
                     return null;
                 }
             } else {
-                //
-                if (xxx.invincible.length < xxx.vincible.length - xxx.maxLengthVincible.length) {
+                // 不存在顺子牌的情况下
+                if (xxx.invincible.toString().length < xxx.vincible.toString().length - xxx.maxLengthVincible.length) {
                     return null;
                 }
+                if (xxx.invincible.toString().length <= xxx.vincible.toString().length) {
+                    // 去除牌数最多的非无敌大牌
+                    // TOOD
+                }
             }
-            // 组合迂回对儿，即相同牌型的一个非无敌大牌对应一个无敌大牌
-            // 
-            var invincibleCards:Object = {}; // 全局最大牌，可能是单张也可能是同张，如果是同张，需要标明是否可以拆分
-            return invincibleCards;
+            // 组合摆渡对儿，即相同牌型的一个非无敌大牌对应一个无敌大牌
+            return testMatch(xxx);
         }
 
         /**
-         * 
+         *  // 整理提示牌型，数组形式为：["V10","V5","VJ,VJ"],["V10,VJ,VQ,VK"],["1V5,1V5"]
+         *  var xxx:Object = {
+         *      invincible: [],
+         *      vincible: [],
+         *      invincibleSeq: [],
+         *      vincibleSeq: [],
+         *      maxLengthVincible: [] // 牌数最多的非顺子牌型
+         *  };
          * @param xxx
          * @return 
          * 
          */
         private function testMatch(xxx:Object):Object {
+            // 筛选非无敌大牌(不包含顺子)
+            var tempVincibleArray:Array = [];
+            for each (var eachVincible:Array in (xxx.vincible as Array)) {
+                tempVincibleArray.push(eachVincible);
+            }
             // 将对子及同张的无敌大牌继续拆分成多个张数更少的牌型
-            var tempArray:Array = [];
-            for each (var eachInvicible:Array in (xxx.invicible as Array)) {
-                if (/^V(10|[JQKA])$/.test(eachInvicible[0]) || eachInvicible.length == 1) {
-                    // 
-                    tempArray.push(eachInvicible);
+            var tempInvincibleArray:Array = [];
+            for each (var eachInvincible:Array in (xxx.invincible as Array)) {
+                if (/^V(10|[JQKA])$/.test(eachInvincible[0]) || eachInvincible.length == 1) {
+                    // 跳过单张或是以10、J、Q、K、A开头的牌
+                    tempInvincibleArray.push(eachInvincible);
                     continue;
                 }
                 // 开始拆分
-                if ("1V5,1V5" == eachInvicible.toString()) {
-                    // 对红五
-                } else if ("0VX,0VX,0VY,0VY".indexOf(eachInvicible.toString()) > -1) {
-                    // 对大王或对小王
-                } else if (eachInvicible[0].toString().indexOf("V5") > -1) {
+                if ("1V5,1V5,0VX,0VX,0VY,0VY".indexOf("," + eachInvincible[0].toString()) > -1) {
+                    // 对红五或对大王或对小王
+                    if (eachInvincible.toString().indexOf("0VX") > -1 && isInvincible(["0VX"], false)) {
+                        tempInvincibleArray.push(["0VX"]);
+                        tempInvincibleArray.push(["0VX"]);
+                    } else if (eachInvincible.toString().indexOf("0VY") > -1 && isInvincible(["0VY"], false)) {
+                        tempInvincibleArray.push(["0VY"]);
+                        tempInvincibleArray.push(["0VY"]);
+                    } else if (eachInvincible.toString().indexOf("1V5") > -1) {
+                        tempInvincibleArray.push(["1V5"]);
+                        tempInvincibleArray.push(["1V5"]);
+                    } else {
+                        tempInvincibleArray.push(eachInvincible);
+                    }
+                } else if (eachInvincible[0].toString().indexOf("V5") > -1) {
                     // 草五
+                    if (eachInvincible.length <= 3 && isInvincible(["V5"], false)) {
+                        eachInvincible.forEach(function(item:*, index:int, array:Array):void {
+                            tempInvincibleArray.push(["V5"]);
+                        });
+                    } else if (eachInvincible.length > 3 && isInvincible(["V5", "V5"], false)) {
+                        // 四张或更多草五时
+                        switch (eachInvincible.length) {
+                            case 4:
+                                tempInvincibleArray.push(["V5", "V5"]);
+                                tempInvincibleArray.push(["V5", "V5"]);
+                                break;
+                            case 5:
+                                tempInvincibleArray.push(["V5", "V5"]);
+                                tempInvincibleArray.push(["V5", "V5", "V5"]);
+                                break;
+                            case 6:
+                                tempInvincibleArray.push(["V5", "V5"]);
+                                tempInvincibleArray.push(["V5", "V5"]);
+                                tempInvincibleArray.push(["V5", "V5"]);
+                                break;
+                        }
+                    } else {
+                        tempInvincibleArray.push(eachInvincible);
+                    }
+                } else if (false) {
+                    // TODO 暂时不拆分2，如果拆分，拆成3张+X张，X可能为vincible
+                    //                    // 2
+                    //                    if (isInvincible(["0VX"], false)) {
+                    //                        
+                    //                    }
                 } else {
-                    // 2
-                    
+                    tempInvincibleArray.push(eachInvincible);
+                }
+            }
+            // 考虑效率问题，暂时只处理张数在【7】以内的无敌大牌
+            if (tempInvincibleArray.length > 7) {
+                return null;
+            }
+            // 开始进行大牌与小牌进行配对
+            var invincibleItems:Array = [];
+            var vincibleItems:Array = [];
+            for each (var eachInvincibleItems:Array in tempInvincibleArray) {
+                invincibleItems.push(eachInvincibleItems.length);
+            }
+            for each (var eachVincibleItems:Array in tempVincibleArray) {
+                vincibleItems.push(eachVincibleItems.length);
+            }
+            vincibleItems = vincibleItems.sort(Array.NUMERIC);
+            invincibleItems = invincibleItems.sort(Array.NUMERIC);
+            var tempVincibleString:String = null;
+            var tempinvincibleString:String = null;
+            // 拼凑辅助性小牌与无敌大牌的字符串
+            var pieces:Array = [];
+            tempVincibleArray.forEach(function(item:*, index:int, array:Array):void {
+                pieces.push((item as Array).toString());
+            });
+            tempVincibleString = pieces.join(";");
+            pieces = [];
+            tempInvincibleArray.forEach(function(item:*, index:int, array:Array):void {
+                pieces.push((item as Array).toString());
+            });
+            tempinvincibleString = pieces.join(";");
+            // 生成摆渡方案
+            // 组合形式为：2,=2,1,2,=3,3,=3,1,4,=5,1
+            var discardOrderArray:Array = findAllCases(invincibleItems.sort(Array.NUMERIC), vincibleItems);
+            // 将匹配的内容进行处理，TODO合并
+            if (discardOrderArray && discardOrderArray.length > 0) {
+                discardOrderArray = discardOrderArray.toString().split(/(?<==\d),/g);
+                for each (var eachDiscardOrder:String in discardOrderArray) {
+                    // 利用取得的拆分方案，对现有的无敌大牌，小牌进行拆分组合
+                    // eachDiscardOrder为一个组合方案或是天外天
+                    if (eachDiscardOrder.charAt(0) == "=") {
+                        // 处理小牌
+                    } else {
+                        // 处理无敌大牌
+                    }
+                }
+                return {
+                    invincible:   tempInvincibleArray,
+                    vincible:     tempVincibleArray,
+                    discardOrder: discardOrderArray
+                };
+            } else {
+                return null;
+            }
+        }
+        
+        /**
+         * 根据给定的大牌牌型和小牌牌型，让大小牌配对，匹配不上的大牌不做处理。<br />
+         * 小牌的牌数总和小于大牌的牌数总和。
+         * 
+         * @param invincibleItems 无敌大牌
+         * @param vincibleItems   送死小牌
+         * @param filters         辅助参数，可以忽略
+         * @param singleFilter    辅助参数，可以忽略
+         * @param finalResults    辅助参数，可以忽略
+         * @return 
+         * 
+         */
+        private function findAllCases(invincibleItems:Array, vincibleItems:Array, finalResults:Array = null, filters:String = "", singleFilter:String = ""):Array {
+            var tempItems:Array = null;
+            var discardOrder:Array = [];
+            if (!finalResults) {
+                finalResults = [];
+            }
+            if (filters.length == 0) {
+                tempItems = invincibleItems;
+            } else {
+                tempItems = invincibleItems.toString().replace(new RegExp("[" + singleFilter + "]"), "").replace(/,{2,}/g, ",").replace(/^,|,$/g, "").split(",");
+            }
+            if (tempItems[0].toString().length == 0) {
+                finalResults.push(filters);
+                return null;
+            }
+            for (var i:int = 0; i < tempItems.length; i++) {
+                if (int(filters.charAt(0)) > vincibleItems[0]) {
+                    break;
+                }
+                findAllCases(tempItems, vincibleItems, finalResults, filters + tempItems[i], tempItems[i]);
+            }
+            if (filters.length == 0) {
+                // 摆独匹配
+                for each (var eachItem:String in finalResults) {
+                    var sumValue:int = 0;
+                    i = 0;
+                    tempItems = eachItem.split("");
+                    for each (eachItem in tempItems) {
+                        sumValue += int(eachItem);
+                        discardOrder.push(int(eachItem));
+                        if (sumValue == vincibleItems[i]) {
+                            discardOrder.push("=" + sumValue);
+                            sumValue = 0;
+                            i++;
+                        } else if (sumValue > vincibleItems[i]) {
+                            discardOrder = [];
+                            break;
+                        }
+                    }
+                    if (i == vincibleItems.length) {
+                        tempItems = discardOrder;
+                        return tempItems;
+                    }
                 }
             }
             return null;
