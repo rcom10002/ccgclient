@@ -898,8 +898,8 @@ package info.knightrcom.state.fightlandlordgame
                         // 确定两对子配牌
                         if (unusedCards.concat(",").match(/(V[^,]*,)\1{1,}/)){
                         	tailCard = unusedCards.concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
-                        	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").match(/(V[^,]*,)\1{1,}/)) {
-                        		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
+                        	if (unusedCards.replace(new RegExp(tailCard.split(",")[0],"g"), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "").concat(",").match(/(V[^,]*,)\1{1,}/)) {
+                        		tailCard += "," +  unusedCards.replace(new RegExp(tailCard.split(",")[0],"g"), "").replace(/,{2,}/g, ",").replace(/^,|,$/, "").concat(",").match(/(V[^,]*,)\1{1}/)[0].replace(/^,|,$/, "");
                         	} else {
                         		tailCard = null;
                         	}
@@ -913,6 +913,8 @@ package info.knightrcom.state.fightlandlordgame
                 		// 手中三同张去除重复
                 		var finalResults:String = matchResults.join(",").replace(/,{2,}/g, ",").replace(/(V[^,]*,)\1{1,}/g, "$1");
                 		finalResults = finalResults.replace(tempMatchBox, "").replace(/^,|,$/, "");
+                		// 去除无效数据"2 X Y"
+            			finalResults = finalResults.replace(/V[2XY],/g, "");
                 		// 间隔值判断，相邻的牌必须连续 
 						if (prioritySequence.indexOf(finalResults) > -1) {
 							// 手中顺牌大于对方三带顺牌
