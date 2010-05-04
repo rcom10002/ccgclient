@@ -53,6 +53,7 @@
 	            });
 	            scoreboardDataArray = scoreboardDataArray.reverse();
 	            if (misc) {
+                    var dataRow:Object = null;
             		this._gameType = misc.GAME_TYPE;
 	            	if ("Red5Game" == this._gameType) {
 	            		this.title += " - " + misc.TITLE;
@@ -62,7 +63,7 @@
 	            				scoreboardDataArray[i]["character"] = red5Characters[i];
 	            			}
 	            		} else {
-	            			for each (var dataRow:Object in scoreboardDataArray) {
+	            			for each (dataRow in scoreboardDataArray) {
 	            				if (dataRow.currentNumber == misc.GAME_FINAL_SETTING_PLAYER_NUMBER) {
 	            					dataRow["character"] = "独牌玩家";
 	            				} else {
@@ -72,7 +73,7 @@
 	            		}
 	            	} else if ("FightLandlordGame" == this._gameType) {
 	            		this.title += " - " + misc.TITLE;
-            			for each (var dataRow:Object in scoreboardDataArray) {
+            			for each (dataRow in scoreboardDataArray) {
             				if (dataRow.currentNumber == misc.GAME_FINAL_SETTING_PLAYER_NUMBER) {
             					dataRow["character"] = "地主";
             				} else {
