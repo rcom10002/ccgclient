@@ -118,6 +118,7 @@
 						{GAME_TYPE : "Red5"}, 
 						null, function (e:ResultEvent):void {
 							datagrid.dataProvider = new XML(e.result).tag.map;
+                            // TODO lblTip.text = "运行中Puppet数：" + "" + "个";
 						}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
 			}
 		]]>
@@ -143,10 +144,7 @@
 		</mx:columns>
 	</mx:DataGrid>
 	<mx:Button label="刷新" id="btnRefresh" bottom="10" left="10"/>
-	<mx:RadioButtonGroup id="radiogroupLaunchMode"/>
     <mx:NumericStepper id="puppetStepper" right="170" bottom="10" minimum="1" maximum="100" stepSize="1" value="4"/>
-	<mx:RadioButton label="本地装载" id="localMode" groupName="radiogroupLaunchMode"  right="314" bottom="10"/>
-	<mx:RadioButton label="Web启动" id="webMode" groupName="radiogroupLaunchMode" right="236" bottom="10"/>
     <mx:Button label="Web启动" id="btnWebStartPuppet" bottom="10" right="88" />
 	<mx:Button label="本地装载" id="btnLocalStartPuppet" right="10" bottom="10"/>
     <mx:ViewStack id="swfVideo"
@@ -155,6 +153,9 @@
                   selectedIndex="-1"
                   visible="false">
     </mx:ViewStack>
-    <mx:Label text="{ccgcArray.length}" right="323" bottom="10"/>
-    <mx:Label text="本地装载" bottom="10" right="437"/>
+    <!--
+    <mx:Label text="本地装载" bottom="10" right="501"/>
+    <mx:Label text="{ccgcArray.length}" right="387" bottom="10"/>
+    -->
+    <mx:Label id="lblTip" right="243" bottom="10" textAlign="right"/>
 </FunctionWindow>
