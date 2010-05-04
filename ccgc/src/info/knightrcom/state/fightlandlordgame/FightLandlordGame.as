@@ -879,17 +879,17 @@ package info.knightrcom.state.fightlandlordgame
                         // 确定两张单张配牌
                         if (unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
                         	tailCard = unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
-                        	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
-                        		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
-                        	} else if (unusedCards.replace(tailCard, "").match(/V\w+/)){
-                        		tailCard += "," + unusedCards.replace(tailCard, "").match(/V\w+/)[0];
+                        	if (unusedCards.replace(new RegExp(tailCard, "g"), "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
+                        		tailCard += "," +  unusedCards.replace(new RegExp(tailCard, "g"), "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
+                        	} else if (unusedCards.replace(new RegExp(tailCard, "g"), "").match(/V\w+/)){
+                        		tailCard += "," + unusedCards.replace(new RegExp(tailCard, "g"), "").match(/V\w+/)[0];
                         	} else {
                         		tailCard = null;
                         	}
                         } else if (unusedCards.match(/V\w+/)){
                         	tailCard = unusedCards.match(/V\w+/)[0];
-                        	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").match(/V\w+/)){
-                        		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").match(/V\w+/)[0];
+                        	if (unusedCards.replace(new RegExp(tailCard, "g"), "").replace(/^,|,$/, "").match(/V\w+/)){
+                        		tailCard += "," +  unusedCards.replace(new RegExp(tailCard, "g"), "").replace(/^,|,$/, "").match(/V\w+/)[0];
                         	} else {
                         		tailCard = null;
                         	}
