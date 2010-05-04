@@ -1178,7 +1178,7 @@ package info.knightrcom.state
 					var cardsLeftNumber:int=cardsCandicateNumber - cardsDealedNumber;
 
 					// 非地主玩家是否出过牌
-					if (currentBoutCards && currentBoutCards.length > 0)
+					if (localNumber != gameFinalSettingPlayerNumber && currentBoutCards && currentBoutCards.length > 0)
 					{
 						isHaveOut=true;
 					}
