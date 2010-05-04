@@ -739,6 +739,9 @@ package info.knightrcom.state
 			}
 			// 计算提示
             FightLandlordGame.refreshTips(currentGame.candidatedDown.getChildren().join(","));
+            // 加倍参数重置
+            holderOutTimes = 0;
+            isHaveOut = false;
 		}
 		
 		/**
