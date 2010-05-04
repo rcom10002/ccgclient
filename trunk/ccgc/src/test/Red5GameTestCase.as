@@ -4,6 +4,8 @@ package test
     
     import info.knightrcom.state.red5game.Red5Game;
     
+    import mx.controls.Alert;
+    
     public class Red5GameTestCase
     {		
         [Before]
@@ -25,7 +27,71 @@ package test
         public static function tearDownAfterClass():void
         {
         }
-        
+
+        /**
+         * 
+         * @param invincibleItems
+         * @param vincibleItems
+         * @param filters
+         * @param singleFilter
+         * @param finalResults
+         * @return 
+         * 
+         */
+        private function findAllCases(invincibleItems:Array, vincibleItems:Array, finalResults:Array = null, filters:String = "", singleFilter:String = ""):Array {
+            var tempItems:Array = null;
+            var discardOrder:Array = [];
+            if (!finalResults) {
+                finalResults = [];
+            }
+            if (filters.length == 0) {
+                tempItems = invincibleItems;
+            } else {
+                tempItems = invincibleItems.toString().replace(new RegExp("[" + singleFilter + "]"), "").replace(/,{2,}/g, ",").replace(/^,|,$/g, "").split(",");
+            }
+            if (tempItems[0].toString().length == 0) {
+                finalResults.push(filters);
+                return null;
+            }
+            for (var i:int = 0; i < tempItems.length; i++) {
+                if (int(filters.charAt(0)) > vincibleItems[0]) {
+                    break;
+                }
+                findAllCases(tempItems, vincibleItems, finalResults, filters + tempItems[i], tempItems[i]);
+            }
+            if (filters.length == 0) {
+                // 摆独匹配
+                for each (var eachItem:String in finalResults) {
+                    var sumValue:int = 0;
+                    i = 0;
+                    tempItems = eachItem.split("");
+                    for each (eachItem in tempItems) {
+                        sumValue += int(eachItem);
+                        discardOrder.push(int(eachItem));
+                        if (sumValue == vincibleItems[i]) {
+                            discardOrder.push("=" + sumValue);
+                            sumValue = 0;
+                            i++;
+                        } else if (sumValue > vincibleItems[i]) {
+                            discardOrder = [];
+                            break;
+                        }
+                    }
+                    if (i == vincibleItems.length) {
+                        tempItems = discardOrder;
+                        return tempItems;
+                    }
+                }
+            }
+            return null;
+        }
+
+        [Test]
+        public function testMe():void
+        {
+            Assert.assertNotNull([["V10", "V10"], ["2VQ", "2VQ", "4VQ"], ["2V5", "3V5", "4V5"]].join(";"));
+            Assert.assertNotNull(findAllCases([1, 1, 1, 2, 2, 3, 4], [2, 3, 3, 5], []));
+        }
 //        [Test]
 //        public function testAnalyzeCandidateCards():void
 //        {

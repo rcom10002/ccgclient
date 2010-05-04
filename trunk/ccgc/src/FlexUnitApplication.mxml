@@ -5,15 +5,16 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" xmlns:flexui="flexunit.flexui.*" creationComplete="onCreationComplete()">
     <mx:Script>
         <![CDATA[
+            import test.EasyCodeTestCase;
             import test.Red5GameTestCase;
             
             public function currentRunTestSuite():Array
             {
                 var testsToRun:Array = new Array();
                 testsToRun.push(test.Red5GameTestCase);
+                testsToRun.push(test.EasyCodeTestCase);
                 return testsToRun;
             }
-            
             
             private function onCreationComplete():void
             {

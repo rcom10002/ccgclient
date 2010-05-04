@@ -139,7 +139,7 @@ package info.knightrcom {
          * 
          */
         public function sendPlatformData(command:PlatformCommand, content:String = null):void {
-            var message:Array = new Array(command.type, command.number, command.signature, content);
+            var message:Array = [command.type, command.number, command.signature, content];
             sendSocket(message.join("~"));
         }
 
@@ -151,7 +151,7 @@ package info.knightrcom {
          * 
          */
         public function sendGameData(command:GameCommand, content:String = null):void {
-            var message:Array = new Array(command.type, command.number, command.signature, content);
+            var message:Array = [command.type, command.number, command.signature, content];
             sendSocket(message.join("~"));
         }
 
@@ -163,7 +163,7 @@ package info.knightrcom {
          * 
          */
         public function sendPlayerData(command:PlayerCommand, content:String = null):void {
-            var message:Array = new Array(command.type, command.number, command.signature, content);
+            var message:Array = [command.type, command.number, command.signature, content];
             sendSocket(message.join("~"));
         }
 

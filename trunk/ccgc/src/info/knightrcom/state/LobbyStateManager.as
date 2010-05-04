@@ -129,12 +129,12 @@ package info.knightrcom.state {
             var lobby:Model = null;
             var room:Model = null;
             var index:String = "";
-            var lobbyKeys:Array = new Array();
-            var roomKeys:Array = new Array();
+            var lobbyKeys:Array = [];
+            var roomKeys:Array = [];
             // 构造排序函数
             var sort:Function = function(container:Container):void {
             	// 构造临时数组
-                var children:Array = new Array();
+                var children:Array = [];
                 var eachChild:DisplayObject = null;
                 for each (eachChild in container.getChildren()) {
                 	children.push(eachChild);

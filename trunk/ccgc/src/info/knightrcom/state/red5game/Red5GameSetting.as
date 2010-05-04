@@ -11,14 +11,33 @@ package info.knightrcom.state.red5game {
         public function Red5GameSetting() {
         }
 
+        /**
+         * 不独
+         */
         public static const NO_RUSH:int = 0;
 
+        /**
+         * 独牌
+         */
         public static const RUSH:int = 1;
-
+        
+        /**
+         * 天独
+         */
         public static const DEADLY_RUSH:int = 2;
-
+        
+        /**
+         * 天外天
+         */
         public static const EXTINCT_RUSH:int = 3;
 
+        /**
+         * 根据游戏设置的编号代码来显示对应的游戏设置名称
+         * 
+         * @param red5GameSetting
+         * @return 
+         * 
+         */
         public static function getDisplayName(red5GameSetting:int):String {
             var displayName:String = null;
             switch (red5GameSetting) {

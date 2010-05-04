@@ -284,7 +284,7 @@ package info.knightrcom.state.red5game {
          * 
          */
         public static function grabMultiple(multiple:int, myCards:Array, boutCards:Array = null):Array {
-            var resultArrayArray:Array = new Array();
+            var resultArrayArray:Array = [];
             // 按照给定的序列倍数扩大确定下来的样式
             var extStyle:String = "";
             while (multiple-- > 0) {
@@ -346,7 +346,7 @@ package info.knightrcom.state.red5game {
          * 
          */
         public static function grabSequence(multiple:int, numSeq:int, myCards:Array, boutCards:Array = null):Array {
-            var resultArrayArray:Array = new Array();
+            var resultArrayArray:Array = [];
             var i:int = 0;
             // 1.去花色，并在结尾添加一个逗号
             var myCardsString:String = (myCards.join(",") + ",").replace(/\dV/g, "V");
@@ -359,7 +359,7 @@ package info.knightrcom.state.red5game {
                 return resultArrayArray;
             }
             // 确定组合样式
-            var testStyleArray:Array = new Array();
+            var testStyleArray:Array = [];
             switch (numSeq) {
                 case 5:
                     // 五张连
@@ -585,7 +585,7 @@ package info.knightrcom.state.red5game {
                 return null;
             }
             if (enableFoolish) {
-                return new Array();
+                return [];
             }
             if (isSingleStyle(boutCardsString)) {
                 // 单张判断
@@ -752,7 +752,7 @@ package info.knightrcom.state.red5game {
             var eachCard:String = null;
 			var myCardsString:String = myCards.join(",");
 			var myCardsArray:Array = myCards.slice(0, myCards.length);
-			var myUniqueCardsStyleArray:Array = new Array();
+			var myUniqueCardsStyleArray:Array = [];
             // 分析多倍数顺子牌，将对子三连顺、三同张三连顺、四同张三连顺扩展至四连顺或五连顺
             var multipleSequence:Array = analyzeMultipleSequence(myCardsArray);
             if (multipleSequence && multipleSequence.length > 0) {
@@ -780,7 +780,7 @@ package info.knightrcom.state.red5game {
 					myUniqueCardsStyleArray.push(grabMultiple(eachStyle.multiple, myCardsArray));
 				}
 				// 查找已使用过的牌
-				var cardsToDelete:Array = new Array();
+				var cardsToDelete:Array = [];
 				var cardsInStyle:String = null;
 				var uniqueCardsStyle:Array = myUniqueCardsStyleArray[myUniqueCardsStyleArray.length - 1];
 				if (eachStyle.numSeq && uniqueCardsStyle && uniqueCardsStyle.length > 0) {
@@ -823,7 +823,7 @@ package info.knightrcom.state.red5game {
 				myCardsArray[i] = myCardsArray[i].toString().replace(/\dV/, "V");
 			}
 			if (myCardsArray.length > 0) {
-				myUniqueCardsStyleArray.push(new Array());
+				myUniqueCardsStyleArray.push([]);
 			}
 			for each (eachCard in myCardsArray) {
 				myUniqueCardsStyleArray[myUniqueCardsStyleArray.length - 1].push([eachCard]);
@@ -972,14 +972,14 @@ package info.knightrcom.state.red5game {
                 if (seqGroup[propName] is Array) {
                     (seqGroup[propName] as Array).push(seqGroup["seq" + i]);
                 } else {
-                    seqGroup[propName] = new Array();
+                    seqGroup[propName] = [];
                     (seqGroup[propName] as Array).push(seqGroup["seq" + i]);
                     seqGroup.props += propName + ","
                 }
             }
             seqGroup.props = String(seqGroup.props).replace(/,$/, "");
             // 整理数组
-            results = new Array();
+            results = [];
             for each (propName in String(seqGroup.props).split(",")) {
                 i = (seqGroup[propName] as Array).length;
                 var replacementMeta:String = new Array("$1", "$1", "$1", "$1").splice(0, i).join(",");

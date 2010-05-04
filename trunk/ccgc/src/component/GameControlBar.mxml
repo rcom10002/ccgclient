@@ -8,7 +8,7 @@
     <mx:HBox horizontalAlign="center"
              width="100%">
         <mx:Label id="lblSystemInfo"
-                  text="百家乐游戏平台(0.9.6.1 Beta)"/>
+                  text="百家乐游戏平台(0.9.6.8 MC Beta)"/>
     </mx:HBox>
     <mx:HBox horizontalAlign="right">
         <mx:Button id="btnSystemInfo"

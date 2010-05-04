@@ -96,7 +96,7 @@ package info.knightrcom.state {
          */
         private function submitClick(event:Event):void {
             if (Validator.validateAll(gameClient.loginValidators).length == 0) {
-                var data:Array = new Array(gameClient.txtUsername.text, gameClient.txtPassword.text);
+                var data:Array = [gameClient.txtUsername.text, gameClient.txtPassword.text];
                 if (!socketProxy.connected) {
                     socketProxy.connect();
                 }
