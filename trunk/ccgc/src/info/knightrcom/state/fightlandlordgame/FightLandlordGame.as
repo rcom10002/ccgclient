@@ -881,6 +881,8 @@ package info.knightrcom.state.fightlandlordgame
                         	tailCard = unusedCards.concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
                         	if (unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)) {
                         		tailCard += "," +  unusedCards.replace(tailCard, "").replace(/^,|,$/, "").concat(",").replace(/(V[^,]*,)\1{1,}/g, "").match(/V\w+/)[0];
+                        	} else if (unusedCards.replace(tailCard, "").match(/V\w+/)){
+                        		tailCard += "," + unusedCards.replace(tailCard, "").match(/V\w+/)[0];
                         	} else {
                         		tailCard = null;
                         	}
@@ -985,7 +987,7 @@ package info.knightrcom.state.fightlandlordgame
 //                        	resultArrayArray.push(String(eachMatch.replace(/^,|,$/, "") + "," + tailCard).split(","));
 //                        }
 //                    }
-					if (tail != 3 && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
+					if (tail != 3 && tailCard && prioritySequence.indexOf(eachMatch.split(",")[0]) > prioritySequence.indexOf(boutMatchCards)) {
                         resultArrayArray.push(sortPokers(eachMatch.replace(/^,|,$/, "") + "," + tailCard));
      				}
                 }
