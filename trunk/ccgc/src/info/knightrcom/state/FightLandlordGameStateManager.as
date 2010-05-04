@@ -789,12 +789,18 @@ package info.knightrcom.state
 			var passed:Boolean=false;
 			var count:int=0;
 			var tempTile:Container=null;
-
+			
 			// 在桌面上显示最近新出的牌
 			if (results.length == 5)
 			{
 				// 获取"不要"标识
 				passed=("pass" == results[3]);
+			}
+			
+			// 地主玩家是否出过第二手牌
+			if (currentNumber == gameFinalSettingPlayerNumber && !passed)
+			{
+				holderOutTimes++;
 			}
 			// 上局待发牌区域
 			var cardsCandidated:Box=cardsCandidatedArray[Number(currentNumber) - 1];
@@ -1176,13 +1182,6 @@ package info.knightrcom.state
 					{
 						isHaveOut=true;
 					}
-					// 地主玩家是否出过第二手牌
-					// TODO
-					if (currentNumber == gameFinalSettingPlayerNumber)
-					{
-						holderOutTimes++;
-					}
-					Alert.show(currentNumber+"~"+gameFinalSettingPlayerNumber + "~" + holderOutTimes);
 					if (cardsLeftNumber == 0)
 					{
 						// 设置游戏冠军玩家
