@@ -53,8 +53,8 @@
 		</mx:State>
 		<mx:State name="MAIN">
 			<mx:AddChild position="lastChild">
-				<mx:HDividedBox top="41"
-								bottom="10"
+				<mx:HDividedBox top="40"
+								bottom="40"
 								left="10"
 								right="10">
 					<mx:HBox height="100%"
@@ -79,6 +79,11 @@
 					</mx:HBox>
 				</mx:HDividedBox>
 			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:ControlBar bottom="0" left="0" right="0" height="30" label="This is a test string">
+					<mx:Label color="#E1E100" id="lblLogger"/>
+				</mx:ControlBar>
+			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	<mx:ApplicationControlBar left="0"
@@ -86,7 +91,7 @@
 							  top="0"
 							  id="applicationControlBar"
 							  horizontalAlign="center">
-		<mx:Label text="百乐汇游戏平台 - 后台管理(Beta 0.8)"/>
+		<mx:Label text="百乐汇游戏平台 - 后台管理(0.8.2 Beta)"/>
 	</mx:ApplicationControlBar>
     <!-- 高级用户界面菜单配置 -->
 	<mx:XML id="GroupUserMenuXML">
