@@ -9,6 +9,7 @@
             import info.knightrcom.util.HttpServiceProxy;
             import info.knightrcom.util.ListenerBinder;
             
+            import mx.core.Application;
             import mx.containers.Canvas;
             import mx.controls.Alert;
             import mx.controls.SWFLoader;
@@ -119,7 +120,9 @@
 						null, function (e:ResultEvent):void {
 							datagrid.dataProvider = new XML(e.result).tag.map;
                             // TODO lblTip.text = "运行中Puppet数：" + "" + "个";
-						}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+                            Application.application.log("");
+						}, function (e:FaultEvent):void { Application.application.log("通信错误，无法从Web服务器取得数据！");
+                });
 			}
 		]]>
 	</mx:Script>
@@ -140,13 +143,13 @@
 			<mx:DataGridColumn headerText="当前状态" dataField="currentstatus"/>
 			<mx:DataGridColumn headerText="最后一次游戏时间" dataField="lastgametime"/>
 			<mx:DataGridColumn headerText="启动时间" dataField="starttime"/>
-			<mx:DataGridColumn headerText="运行时间(秒)" dataField="runingtime"/>
+			<mx:DataGridColumn headerText="运行时间" dataField="runingtime"/>
 		</mx:columns>
 	</mx:DataGrid>
 	<mx:Button label="刷新" id="btnRefresh" bottom="10" left="10"/>
     <mx:NumericStepper id="puppetStepper" right="170" bottom="10" minimum="1" maximum="100" stepSize="1" value="4"/>
     <mx:Button label="Web启动" id="btnWebStartPuppet" bottom="10" right="88" />
-	<mx:Button label="本地装载" id="btnLocalStartPuppet" right="10" bottom="10"/>
+	<mx:Button label="本地装载" id="btnLocalStartPuppet" right="10" bottom="10" enabled="false"/>
     <mx:ViewStack id="swfVideo"
                   x="30" y="32"
                   width="452" height="339"
