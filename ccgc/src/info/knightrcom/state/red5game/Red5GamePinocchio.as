@@ -129,21 +129,28 @@ package info.knightrcom.state.red5game
 
             // 重选备用牌
             Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_RESELECT).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-            
-            
+
             // 2010-04-27 ADDED [摆渡牌判断与出牌] BEGIN 
-            if (roundabout) {
+            if (Red5GameStateManager.gameSetting != Red5GameSetting.DEADLY_RUSH && Red5GameStateManager.gameSetting != Red5GameSetting.EXTINCT_RUSH && this.roundabout) {
                 // 按照【roundabout】方式出牌或跟牌
-                processRoundaboutDiscard();
+                if (processRoundaboutDiscard(boutCards)) {
+                    return;
+                }
             }
             // 2010-04-27 ADDED [摆渡牌判断与出牌] END
 
             if (!boutCards) {
                 // 当前玩家出牌***规则定义
                 // 2010-04-27 ADDED [摆渡牌判断与出牌] BEGIN 
-                if (roundabout) {
+                if (Red5GameStateManager.gameSetting != Red5GameSetting.DEADLY_RUSH && Red5GameStateManager.gameSetting != Red5GameSetting.EXTINCT_RUSH && !this.roundabout) {
                     // 进行【roundabout】测试
-                    this.roundabout = testRoundabout(this.tips);
+                    this.roundabout = testRoundabout(this.tips, myTipCount);
+                    if (this.roundabout) {
+                        // 按照【roundabout】方式出牌或跟牌
+                        if (processRoundaboutDiscard(boutCards)) {
+                            return;
+                        }
+                    }
                 }
                 // 2010-04-27 ADDED [摆渡牌判断与出牌] END
                 processDiscard(myTipCount);
@@ -184,20 +191,41 @@ package info.knightrcom.state.red5game
         /**
          * 处理摆渡牌
          * 
+         *  roundabout = {
+         *      invincible: [],
+         *      vincible: [],
+         *      invincibleSeq: [],
+         *      vincibleSeq: [],
+         *      maxLengthVincible: [], // 牌数最多的非顺子牌型
+         *      discardOrder: null,    // 最终的摆渡提示方案，可能为null
+         *      currentStep: 0
+         *  };
+         * 
+         * @param boutCards
+         * 
          */
-        private function processRoundaboutDiscard():void {
+        private function processRoundaboutDiscard(boutCards:String):Boolean {
             if (Red5GameStateManager.gameSetting == Red5GameSetting.DEADLY_RUSH || 
                 Red5GameStateManager.gameSetting == Red5GameSetting.EXTINCT_RUSH) {
                 // 天独或天外天时，不做摆渡处理
-                return;
+                return false;
+            } else if ((this.roundabout.discardCards as Array).length == this.roundabout.discardIndex) {
+                return false;
             }
             // 首次发牌或有与上家发牌对应的牌时
-            prepareCandidatedCards([]);
+            if (!Red5Game.isRuleFollowed(this.roundabout.discardCards[this.roundabout.discardIndex].toString(), boutCards)) {
+                this.roundabout = null;
+                return false;
+            }
+            prepareCandidatedCards(roundabout.discardCards[roundabout.discardIndex]);
             // 开始出牌
             if (Application.application.red5GameModule.btnBarPokers.visible) {
                 Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                return;
+                this.roundabout.discardIndex++;
+                return true;
             }
+            this.roundabout = null;
+            return false;
         }
 
         /**
@@ -405,10 +433,10 @@ package info.knightrcom.state.red5game
 
             // 特殊的【2、5、王】放行情况
             var isPassOK:Boolean = !isBigRush(true, true, myTipCount); // 是否允许【PASS】操作
-            if (isPassOK && boutCards.match(/[25XY]/g) && currentTipCount > 1 && Red5GameStateManager.localNumber == getNextNumber(Red5GameStateManager.currentNextNumber) && 
+            if (isPassOK && boutCards.match(/V[25XY]/) && (currentTipCount > 1) && Red5GameStateManager.localNumber == getNextNumber(Red5GameStateManager.currentNumber) && 
                 (Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER || 
                     Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.currentNumber)) {
-                // 上家出【2、5、王】，且并未产生二皇上或是上家就是二皇上，且上家手中仍然有多余一套的牌，且己方非“天独/天外天”牌型
+                // 当前玩家牌型不是天独或天外天，出牌者为直接上家，上家出【2、5、王】，且并未产生二皇上或是上家就是二皇上，且上家手中仍然有多余一套的牌
                 isPassOK = false;
                 if (Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.currentNumber) {
                     // 车的情况
@@ -464,7 +492,7 @@ package info.knightrcom.state.red5game
 //                                // 有人独牌，且出牌者与已出牌玩家敌对
 //                            } else if (!isAlliance) {
                             // 无人独牌，且当前玩家与出已牌者敌对
-                            if (boutCards.match(/[25XY]/) || currentTipCount < 4) {
+                            if (boutCards.match(/V[25XY]/) || currentTipCount < 4) {
                                 // 敌方出二、五、王或是剩余三种牌型时
                                 if (eachItem.join(",") == "1V5,1V5"
                                         && (this._gameBox.cardsOfPlayers[Red5GameStateManager.currentNumber - 1] as Array).join(",").match(/[XY]/)
@@ -479,7 +507,7 @@ package info.knightrcom.state.red5game
                                         if (i + 1 == Red5GameStateManager.currentNumber || i + 1 == Red5GameStateManager.localNumber) {
                                             continue;
                                         }
-                                        if ((this._gameBox.cardsOfPlayers[i] as Array).join(",").match(/[XY]/g)) {
+                                        if ((this._gameBox.cardsOfPlayers[i] as Array).join(",").match(/[XY]/)) {
                                             xyCount += (this._gameBox.cardsOfPlayers[i] as Array).join(",").match(/[XY]/g).length;
                                         }
                                     }
@@ -524,9 +552,9 @@ package info.knightrcom.state.red5game
                 for each (eachCardsStyle in myCardArray) {
                     for each (eachItem in eachCardsStyle) {
                         // 2010-03-09 REMOVED BEGIN if (Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
-                            if (!boutCards.match(/V[25XY]/) && eachItem.join(",").match(/[5XY]/)) {
+                            if (!boutCards.match(/V[25XY]/) && eachItem.join(",").match(/V[5XY]/)) {
                                 // 敌方未出二、草五、王、红五，但我方需出草五、王、红五时，需要审核
-                                if (myTipCount > 4 && currentTipCount > 4) {
+                                if (myTipCount >= 4 && currentTipCount >= 4) {
                                     continue;
                                 }
                             }
@@ -786,7 +814,7 @@ package info.knightrcom.state.red5game
          * @param number 目标玩家编号
          * @return 目标玩家的下家编号
          */
-        private function getNextNumber(number:int, firstTime:Boolean = true):int {
+        private function getNextNumber(number:int):int {
             // 下家编号通常比上家编号大一，四号玩家除外
             var nextNumber:int = (number == 4) ? 1 : number + 1;
             if (nextNumber == Red5GameStateManager.firstPlaceNumber || nextNumber == Red5GameStateManager.secondPlaceNumber) {
@@ -808,13 +836,13 @@ package info.knightrcom.state.red5game
          * 
          * 统计出所有的无敌大牌与小牌，让大牌与小牌配对
          * 
-         * @param dummyTips 所有提示牌型
+         * @param dummyTips  所有提示牌型
+         * @param myTipCount 玩家当前手中的牌型个数
          * @return 当没有可用的摆渡策略时，返回null，否则返回摆渡策略结果
          */
-        private function testRoundabout(dummyTips:Array):Object {
-            return null;
-            if (false) {
-                // TODO 只剩下一个对手时
+        private function testRoundabout(dummyTips:Array, myTipCount:int):Object {
+            if (myTipCount < 3) {
+                return null;
             }
             // 整理提示牌型，数组形式为：[【V10】,【V5】],[【VJ,VJ】],[【V10,VJ,VQ,VK】]
             var xxx:Object = {
@@ -852,24 +880,44 @@ package info.knightrcom.state.red5game
             if (xxx.vincibleSeq.length > 1) {
                 // 存在一种以上的非无敌顺子大牌
                 return null;
-            } else if (xxx.vincibleSeq.length == 1) {
+            }
+            if (xxx.vincibleSeq.length == 1) {
                 // 存在一种顺子非无敌大牌
-                if (xxx.invincible.toString().length < xxx.vincible.toString().length) {
-                    // 无敌牌型的牌数少于非无敌牌型的牌数
-                    return null;
-                }
-            } else {
-                // 不存在顺子牌的情况下
-                if (xxx.invincible.toString().length < xxx.vincible.toString().length - xxx.maxLengthVincible.length) {
-                    return null;
-                }
-                if (xxx.invincible.toString().length <= xxx.vincible.toString().length) {
-                    // 去除牌数最多的非无敌大牌
-                    // TOOD
-                }
+                xxx.hasSeqTail = true;
+            }
+            if (tipCount(xxx.invincible) < tipCount(xxx.vincible)) {
+                // 当无敌大牌总和大于无敌小牌总和时，需要最后一个出牌数最多的小牌
+                xxx.hasVincibleTail = true;
+            }
+            if (xxx.hasSeqTail && xxx.hasVincibleTail) {
+                // 需要最后出顺子小牌和非无敌大牌时
+                return null;
+            }
+            if (xxx.hasVincibleTail && (tipCount(xxx.invincible) < tipCount(xxx.vincible) - xxx.maxLengthVincible.length)) {
+                // 需要最后一个出非无敌大牌，且无敌大牌个数的总和小于无敌小牌个数的总和与牌数最多的小牌的个数差时
+                return null;
+            }
+            if (xxx.hasSeqTail && (tipCount(xxx.invincible) < tipCount(xxx.vincible))) {
+                // 最后一个出的不是顺子，且无敌大牌的牌数少于非无敌大牌的牌数
+                return null;
             }
             // 组合摆渡对儿，即相同牌型的一个非无敌大牌对应一个无敌大牌
-            return testMatch(xxx);
+            if (xxx.hasVincibleTail) {
+                // 从xxx的非无敌大牌中，去除牌数最多的非无敌大牌
+                (xxx.vincible as Array).splice((xxx.vincible as Array).indexOf(xxx.maxLengthVincible), 1);
+            }
+            xxx.discardCards = testMatch(xxx);
+            // 补充尾牌
+            if (xxx.discardCards) {
+                var tailCards:Array = null;
+                if (xxx.hasVincibleTail) {
+                    (xxx.discardCards as Array).push(xxx.maxLengthVincible);
+                } else if (xxx.hasSeqTail) {
+                    (xxx.discardCards as Array).push(xxx.vincibleSeq[0]);
+                }
+            }
+            xxx.discardIndex = 0;
+            return xxx.discardCards ? xxx : null;
         }
 
         /**
@@ -885,9 +933,10 @@ package info.knightrcom.state.red5game
          * @return 
          * 
          */
-        private function testMatch(xxx:Object):Object {
+        private function testMatch(xxx:Object):Array {
             // 筛选非无敌大牌(不包含顺子)
             var tempVincibleArray:Array = [];
+            // 处理小牌
             for each (var eachVincible:Array in (xxx.vincible as Array)) {
                 tempVincibleArray.push(eachVincible);
             }
@@ -933,8 +982,13 @@ package info.knightrcom.state.red5game
                                 break;
                             case 6:
                                 tempInvincibleArray.push(["V5", "V5"]);
-                                tempInvincibleArray.push(["V5", "V5"]);
-                                tempInvincibleArray.push(["V5", "V5"]);
+                                if (isInvincible(["V5"], false)) {
+                                    tempInvincibleArray.push(["V5"]);
+                                    tempInvincibleArray.push(["V5", "V5", "V5"]);
+                                } else {
+                                    tempInvincibleArray.push(["V5", "V5"]);
+                                    tempInvincibleArray.push(["V5", "V5"]);
+                                }
                                 break;
                         }
                     } else {
@@ -950,18 +1004,31 @@ package info.knightrcom.state.red5game
                     tempInvincibleArray.push(eachInvincible);
                 }
             }
-            // 考虑效率问题，暂时只处理张数在【7】以内的无敌大牌
-            if (tempInvincibleArray.length > 7) {
+            // 考虑效率问题，暂时只处理张数在【6】以内的无敌大牌
+            if (tempInvincibleArray.length > 6) {
                 return null;
             }
             // 开始进行大牌与小牌进行配对
             var invincibleItems:Array = [];
             var vincibleItems:Array = [];
+            // 按长度对大牌和小牌进行归类，以便后期处理使用
+            var invincibleItemsLengthMap:Array = [];
+            var vincibleItemsLengthMap:Array = [];
             for each (var eachInvincibleItems:Array in tempInvincibleArray) {
                 invincibleItems.push(eachInvincibleItems.length);
+                // 按长度进行归类
+                if (!invincibleItemsLengthMap["L" + String(eachInvincibleItems.length)]) {
+                    invincibleItemsLengthMap["L" + String(eachInvincibleItems.length)] = [];
+                }
+                (invincibleItemsLengthMap["L" + String(eachInvincibleItems.length)] as Array).push(eachInvincibleItems);
             }
             for each (var eachVincibleItems:Array in tempVincibleArray) {
                 vincibleItems.push(eachVincibleItems.length);
+                // 按长度进行归类
+                if (!vincibleItemsLengthMap["L" + String(eachVincibleItems.length)]) {
+                    vincibleItemsLengthMap["L" + String(eachVincibleItems.length)] = [];
+                }
+                (vincibleItemsLengthMap["L" + String(eachVincibleItems.length)] as Array).push(eachVincibleItems);
             }
             vincibleItems = vincibleItems.sort(Array.NUMERIC);
             invincibleItems = invincibleItems.sort(Array.NUMERIC);
@@ -978,26 +1045,38 @@ package info.knightrcom.state.red5game
                 pieces.push((item as Array).toString());
             });
             tempinvincibleString = pieces.join(";");
-            // 生成摆渡方案
-            // 组合形式为：2,=2,1,2,=3,3,=3,1,4,=5,1
-            var discardOrderArray:Array = findAllCases(invincibleItems.sort(Array.NUMERIC), vincibleItems);
+            // 生成摆渡方案，组合形式为：2,=2,1,2,=3,3,=3,1,4,=5,1
+            // 其中以“=”为前缀的代表小牌的牌型，不带“=”的代表大牌的牌型，这些牌型可以从vincibleItemsLengthMap和invincibleItemsLengthMap中找到
+            var discardOrderArray:Array = findAllCases(invincibleItems, vincibleItems);
             // 将匹配的内容进行处理，TODO合并
             if (discardOrderArray && discardOrderArray.length > 0) {
                 discardOrderArray = discardOrderArray.toString().split(/(?<==\d),/g);
+                var thisVincible:String = null; // 当前正在参与配对的小牌，可能需要分解的
+                var finalDiscardCards:Array = []; // 保存计算好的出牌顺序，形式为小牌,大牌(,小牌,大牌)
                 for each (var eachDiscardOrder:String in discardOrderArray) {
                     // 利用取得的拆分方案，对现有的无敌大牌，小牌进行拆分组合
                     // eachDiscardOrder为一个组合方案或是天外天
-                    if (eachDiscardOrder.charAt(0) == "=") {
-                        // 处理小牌
-                    } else {
-                        // 处理无敌大牌
+                    for each (var eachOrder:String in eachDiscardOrder.split(",")) {
+                        if (eachOrder.charAt(0) == "=") {
+                            // 处理小牌，将标识变量重置为空
+                            thisVincible = null;
+                            continue;
+                        } else {
+                            // 处理无敌大牌
+                            if (!thisVincible && eachDiscardOrder.indexOf("=") > -1) {
+                                // 根据小牌的个数来进行定位并删除
+                                thisVincible = ((vincibleItemsLengthMap["L" + eachOrder] as Array).shift() as Array)[0];
+                            }
+                            // 放入小牌
+                            if (thisVincible) {
+                                finalDiscardCards.push(new Array(eachOrder).toString().replace(/,/g, thisVincible + ",").concat(thisVincible).split(","));
+                            }
+                            // 放入大牌
+                            finalDiscardCards.push((invincibleItemsLengthMap["L" + eachOrder] as Array).shift());
+                        }
                     }
                 }
-                return {
-                    invincible:   tempInvincibleArray,
-                    vincible:     tempVincibleArray,
-                    discardOrder: discardOrderArray
-                };
+                return finalDiscardCards;
             } else {
                 return null;
             }
@@ -1023,6 +1102,9 @@ package info.knightrcom.state.red5game
             }
             if (filters.length == 0) {
                 tempItems = invincibleItems;
+                if (!tempItems) {
+                    return null;
+                }
             } else {
                 tempItems = invincibleItems.toString().replace(new RegExp("[" + singleFilter + "]"), "").replace(/,{2,}/g, ",").replace(/^,|,$/g, "").split(",");
             }
