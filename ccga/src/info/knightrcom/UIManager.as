@@ -30,7 +30,7 @@ package info.knightrcom
 		 */
 		public static function btnSubmitClickHandler(event:MouseEvent):void
 		{
-			HttpServiceProxy.send(LocalAdminLoginService.LOGIN_ADMIN_SERVER, {USERNAME: adminApp.txtUsername.text, PASSWORD: adminApp.txtPassword.text}, null, function(event:ResultEvent):void
+			HttpServiceProxy.send(LocalAdminLoginService.LOGIN_ADMIN_SERVER, {USERNAME: adminApp.txtUsername.text, PASSWORD: adminApp.txtPassword.text, CLIENTVERSION: adminApp.labTitle.text}, null, function(event:ResultEvent):void
 				{
 					if (new XML(event.result).result == "SUCCESS")
 					{
@@ -47,6 +47,8 @@ package info.knightrcom
 					    adminApp.currentRlsPath = entity.rslPath;
 					    adminApp.currentRole = entity.role;
 						adminApp.currentState="MAIN";
+					} else if (new XML(event.result).result == "WARNING") {
+						Alert.show("客户端游戏版本过低，请下载最新的客户端游戏！", "警告");
 					} else {
 						Alert.show("用户登录失败！请检查用户名与密码！", "警告");
 					}
