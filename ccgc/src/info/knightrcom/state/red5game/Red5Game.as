@@ -1022,6 +1022,11 @@ package info.knightrcom.state.red5game {
                             myCards.splice(myCards.indexOf("VA"), 1);
                             seqGroup.seq1 = style;
                             seqGroup.seq2 = style.replace(/,VA/, "");
+                        } else if (myCardsString.match(/VK,VK/)) {
+                            myCards.splice(myCards.indexOf("VK"), 1);
+                            myCards.splice(myCards.indexOf("VK"), 1);
+                            seqGroup.seq1 = style.replace(/,VA/, "");
+                            seqGroup.seq2 = style.replace(/,VA/, "");
                         }
                         break;
                     case "V10,VA":
@@ -1076,6 +1081,11 @@ package info.knightrcom.state.red5game {
                             myCards.splice(myCards.indexOf("VJ"), 1);
                             myCards.splice(myCards.indexOf("VJ"), 1);
                             seqGroup.seq1 = style;
+                            seqGroup.seq2 = style.replace(/V10,/, "");
+                        } else if (myCardsString.match(/VJ,VJ/)) {
+                            myCards.splice(myCards.indexOf("VJ"), 1);
+                            myCards.splice(myCards.indexOf("VJ"), 1);
+                            seqGroup.seq1 = style.replace(/V10,/, "");
                             seqGroup.seq2 = style.replace(/V10,/, "");
                         }
                         break;
