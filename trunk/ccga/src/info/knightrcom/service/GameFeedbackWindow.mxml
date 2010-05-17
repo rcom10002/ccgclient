@@ -185,21 +185,21 @@
 	<mx:HRule height="6" bottom="247" left="10" right="10"/>
 	<mx:TextInput id="txtGameFeedbackId" visible="false"/>
 	<mx:Label text="游戏ID：" bottom="216" left="10"/>
-	<mx:TextInput left="215" bottom="216" id="txtGameId" enabled="false" width="256"/>
+	<mx:TextInput left="215" bottom="216" id="txtGameId" editable="false" width="256"/>
 	<mx:Label text="游戏类型：" bottom="188" left="10"/>
-	<mx:TextInput left="215" bottom="188" id="txtGameType" enabled="false" width="256"/>
+	<mx:TextInput left="215" bottom="188" id="txtGameType" editable="false" width="256"/>
 	<mx:Label text="当时玩家个数：" bottom="40" left="10"/>
-	<mx:TextInput left="215" bottom="40" id="txtPlayerCount" enabled="false" width="256"/>
+	<mx:TextInput left="215" bottom="40" id="txtPlayerCount" editable="false" width="256"/>
 	<mx:Label text="举报标题：" bottom="216" left="500"/>
-	<mx:TextInput left="663" bottom="216" id="txtTitle" enabled="false" width="273"/>
+	<mx:TextInput left="663" bottom="216" id="txtTitle" editable="false" width="273"/>
 	<mx:Label text="所有参与游戏的玩家用户ID：" bottom="188" left="500"/>
-	<mx:TextInput left="663" bottom="188" id="txtPlayerIds" enabled="false" width="273"/>
+	<mx:TextInput left="663" bottom="188" id="txtPlayerIds" editable="false" width="273"/>
 	<mx:Label text="举报内容：" bottom="161" left="500"/>
 	<mx:TextArea
 				 right="10"
 				 bottom="40"
 				 height="110"
-				 left="503" id="txtDescription" enabled="false"/>
+				 left="503" id="txtDescription" editable="false"/>
 	<mx:Label text="当前状态：" bottom="68" left="10"/>
 	<mx:ComboBox id="cmbStatus" left="215" bottom="68">
 		<mx:dataProvider>
@@ -212,11 +212,11 @@
 	</mx:ComboBox>
 	
 	<mx:Label text="当前时间距离举报时间（小时）：" bottom="98" left="10"/>
-	<mx:TextInput left="215" bottom="98" id="txtHours" enabled="false" width="256"/>
+	<mx:TextInput left="215" bottom="98" id="txtHours" editable="false" width="256"/>
 	<mx:Label text="举报人：" bottom="128" left="10"/>
-	<mx:TextInput left="215" bottom="128" id="txtName" enabled="false" width="256"/>
+	<mx:TextInput left="215" bottom="128" id="txtName" editable="false" width="256"/>
 	<mx:Label text="举报时间：" bottom="158" left="10"/>
-	<mx:TextInput left="215" bottom="158" id="txtCreateTime" enabled="false" width="256"/>
+	<mx:TextInput left="215" bottom="158" id="txtCreateTime" editable="false" width="256"/>
 	<mx:Button label="审核" id="btnAudit" right="10" bottom="10"/>				 
 	<!-- 查询导航 -->
     <mx:ControlBar y="394" paddingTop="0" paddingBottom="0" horizontalAlign="right">
