@@ -221,6 +221,7 @@
 								   headerText="系统得分"
 								   dataField="systemscore"
 								   sortCompareFunction="DatagridUtility.commonCompare('systemscore')"/>
+				<mx:DataGridColumn width="230" resizable="false" headerText="备注" dataField="memo"/>
 				<mx:DataGridColumn width="230" resizable="false" headerText="游戏ID" dataField="gameId"/>
 				<mx:DataGridColumn width="170" resizable="false" headerText="游戏时间" dataField="createTime"/>
 			</mx:columns>
