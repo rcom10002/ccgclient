@@ -651,8 +651,9 @@ package info.knightrcom.state.red5game
                             } else {
                                 // 处理对付【2】以下的牌
                                 myCardArray = this._gameBox.cardsOfPlayers[Red5GameStateManager.localNumber - 1];
-                                if (myCardArray.length == myCardArray.toString().match(/[5XY]/g).length) {
-                                    // 剩余的牌全是【5】、大小王时
+                                if (myCardArray.length == myCardArray.toString().match(/[5XY]/g).length ||
+                                    myCardArray.toString().match(/[5XY]/g).length >= 2) {
+                                    // 剩余的牌全是【5】、大小王，或者剩余不少于【2】张的【5】、大小王时
                                     prepareCandidatedCards(eachItem);
                                     // 开始出牌
                                     if (Application.application.red5GameModule.btnBarPokers.visible) {
