@@ -58,6 +58,10 @@ package info.knightrcom.state.red5game
             var myTipCount:int = this.tipCount();
             // 独牌判断
             var isRush:Function = function():Boolean {
+                this.roundabout = testRoundabout(this.tips, myTipCount);
+                if (this.roundabout) {
+                    return true;
+                }
                 var cards:Array = null;
                 // 必须要有红五
                 cards = Application.application.red5GameModule.candidatedDown.getChildren().join(",").match(/1V5/);
@@ -1078,7 +1082,7 @@ package info.knightrcom.state.red5game
             if ((xxx.vincible as Array).length + (xxx.vincibleSeq as Array).length > 1) {
                 return null;
             } else {
-                dummyTips = dummyTips.reverse()
+                dummyTips = dummyTips.reverse();
                 xxx.discardIndex = 0;
                 if ((xxx.vincible as Array).length + (xxx.vincibleSeq as Array).length == 1) {
                     // 存在尾牌的时候
