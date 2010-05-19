@@ -211,7 +211,6 @@ package info.knightrcom.state.red5game
          * 
          */
         private function processRoundaboutDiscard(boutCards:String):Boolean {
-            return false;
             if (Red5GameStateManager.gameSetting == Red5GameSetting.DEADLY_RUSH || 
                 Red5GameStateManager.gameSetting == Red5GameSetting.EXTINCT_RUSH) {
                 // 天独或天外天时，不做摆渡处理
@@ -284,36 +283,35 @@ package info.knightrcom.state.red5game
                 }
             }
 
-            // 当独牌玩家只有一张牌时，尽量不出单牌
-            if (Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH && 
-                    (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length == 0) {
-                for each (eachCardsStyle in this.tips) {
-                    for each (eachItem in eachCardsStyle) {
-                        if (eachItem.join(",").indexOf(",") > -1) {
-                            prepareCandidatedCards(eachItem);
-                            // 开始出牌
-                            if (Application.application.red5GameModule.btnBarPokers.visible) {
-                                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                                return;
-                            }
-                        }
-                    }
-                }
-                // 从最大的单牌开始出
-                (Application.application.red5GameModule.candidatedDown.getChildren()[Application.application.red5GameModule.candidatedDown.getChildren().length - 1] as PokerButton).setSelected(true);
-                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-                return;
-            }
+//            // 当独牌玩家只有一张牌时，尽量不出单牌
+//            if (Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH && 
+//                    (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length == 0) {
+//                for each (eachCardsStyle in this.tips) {
+//                    for each (eachItem in eachCardsStyle) {
+//                        if (eachItem.join(",").indexOf(",") > -1) {
+//                            prepareCandidatedCards(eachItem);
+//                            // 开始出牌
+//                            if (Application.application.red5GameModule.btnBarPokers.visible) {
+//                                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+//                                return;
+//                            }
+//                        }
+//                    }
+//                }
+//                // 从最大的单牌开始出
+//                (Application.application.red5GameModule.candidatedDown.getChildren()[Application.application.red5GameModule.candidatedDown.getChildren().length - 1] as PokerButton).setSelected(true);
+//                Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+//                return;
+//            }
 
-            // 按照从小到大的顺序出牌，但是需要考虑其他玩家手中的牌数
             // 统计全局最少牌
             var minLength:int = 0;
-            if (Red5GameStateManager.gameFinalSettingPlayerNumber == Red5GameSetting.NO_RUSH &&
-                    Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER) {
+            if (Red5GameStateManager.gameFinalSettingPlayerNumber == Red5GameSetting.NO_RUSH /* &&
+                    Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER */) {
                 // 当没人独牌并且剩余多于两个玩家时，统计剩余牌数最少的玩家手中的牌数
                 for (var i:int = 0; i < Red5GameStateManager.playerCogameNumber; i++) {
-                    if ((this._gameBox.cardsOfPlayers[i] as Array).length == 0) {
-                        // 跳过手中无牌的玩家
+                    if ((this._gameBox.cardsOfPlayers[i] as Array).length == 0 || Red5GameStateManager.localNumber == i + 1) {
+                        // 跳过当前玩家和手中无牌的玩家
                         continue;
                     }
                     if (minLength == 0 || minLength > (this._gameBox.cardsOfPlayers[i] as Array).length) {
@@ -324,38 +322,96 @@ package info.knightrcom.state.red5game
                 // 有人独牌
                 minLength = (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length;
             }
-
             minLength = minLength > 3 ? 0 : minLength;
-            // 查找可以使用的最小牌
-            var minValue:Array = null;
-            var isMinRuleUsed:Boolean = false;
+
+            // 按照从小到大的顺序出牌，但是需要考虑其他玩家手中的牌数，查找可以使用的最小牌
+            var minValue:Array = null;   // 当前玩家手中物理最小牌
+            var logicValue:Array = null; // 当前玩家手中可以利用的逻辑最小牌
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
+                    // ===> 初始赋值
                     if (minValue == null) {
                         minValue = eachItem;
-                    } else if (!isMinRuleUsed && Red5GameStateManager.gameSetting == Red5GameSetting.NO_RUSH && 
-                        0 < minLength && minLength <= 3 && minValue.length == minLength && 
-                        eachItem.length != minLength && eachItem.toString().match(/10|[JQKA]/)) {
+                        logicValue = eachItem;
+                        continue;
+                    }
+                    
+                    // ===> 物理最小值
+                    var isSmallerFound:Boolean = Red5Game.isRuleFollowed(logicValue[0].replace(/(?<!\d)V/g, "4V"), eachItem[0].replace(/(?<!\d)V/g, "4V"));
+                    if (isSmallerFound) {
                         minValue = eachItem;
-                        isMinRuleUsed = true;
-                    } else if (!isMinRuleUsed && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH && 
-                        0 < minLength && minLength <= 3 && minValue.length == minLength && 
-                        eachItem.length != minLength && eachItem.toString().match(/10|[JQK]/)) {
-                        minValue = eachItem;
-                        isMinRuleUsed = true;
-                    } else if (Red5Game.isRuleFollowed(minValue[0].replace(/(?<!\d)V/g, "4V"), eachItem[0].replace(/(?<!\d)V/g, "4V"))) {
-                        if (isMinRuleUsed) {
+                    }
+
+                    // ===> 均多于【3】张牌 
+                    if (isSmallerFound && minLength == 0) {
+                        // 这里只需要考虑牌大小，不用考虑其他玩家手中牌数，因为其他每位玩家手中牌数必大于【3】张
+                        logicValue = eachItem;
+                        continue;
+                    }
+
+                    // ===> 存在小于【3】张牌
+                    if (minLength != 0) {
+                        // 存在手中的牌数在【3】张以内的玩家
+                        if (Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
+                            // 独牌时
                             if (eachItem.length != minLength) {
-                                minValue = eachItem;
+                                if (logicValue.length == minLength) {
+                                    logicValue = eachItem;
+                                } else if (isSmallerFound) {
+                                    logicValue = eachItem;
+                                }
                             }
                         } else {
-                            minValue = eachItem;
+                            // 非独牌时
+                            if (Red5GameStateManager.firstPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER ||
+                                Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER) {
+                                // 剩余三个或四个玩家
+                                if (eachItem.length != minLength && eachItem.toString().match(/10|[JQKA]/)) {
+                                    if (logicValue.length == minLength) {
+                                        logicValue = eachItem;
+                                    } else if (isSmallerFound) {
+                                        logicValue = eachItem;
+                                    }
+                                }
+                            } else {
+                                // 剩余两个玩家
+                                if (eachItem.length != minLength) {
+                                    if (logicValue.length == minLength) {
+                                        logicValue = eachItem;
+                                    } else if (isSmallerFound) {
+                                        logicValue = eachItem;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+
+//            // 矫正逻辑可用最小值
+//            if (minLength == 0) {
+//                // 每人手中都超过【3】张牌
+//                logicValue = minValue;
+//            } else {
+//                // 存在手中不超过【3】张牌的玩家
+//                if (Red5GameStateManager.firstPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER ||
+//                    Red5GameStateManager.secondPlaceNumber == Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER) {
+//                    if (logicValue.length == minLength || logicValue.toString().match(/10|[JQKA]/g).length == -1) {
+//                        logicValue = minValue;
+//                    }
+//                } if (logicValue.length == minLength) {
+//                    // 当前玩家手中不存在合适的牌型时，准备拆牌
+//                    if (Red5GameStateManager.secondPlaceNumber != Red5GameStateManager.UNOCCUPIED_PLACE_NUMBER ||
+//                        Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
+//                        // 从右侧最大的牌开始出
+//                    } else {
+//                        logicValue = minValue;
+//                    }
+//                }
+//            }
+
             // 从 A 2 5 X Y 中找到最小值出牌
-            prepareCandidatedCards(minValue);
+            prepareCandidatedCards(logicValue);
             // 开始出牌
             if (Application.application.red5GameModule.btnBarPokers.visible) {
                 Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
@@ -475,6 +531,23 @@ package info.knightrcom.state.red5game
             var eachCardsStyle:Array, eachItem:Array, myCardArray:Array = null;
             var myCards:String = "";
             var isAlliance:Boolean = false;
+            
+            // FIXME 如果启用此功能，要保证出牌前后的提示牌型的数量保持不变
+            //            // 顺子牌可以拆牌跟
+            //            if (Red5Game.isStraightStyle(boutCards)) {
+            //                // 开始出牌
+            //                if (Application.application.red5GameModule.btnBarPokers.visible) {
+            //                    // 重选
+            //                    Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_RESELECT).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            //                    // 提示
+            //                    Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_HINT).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            //                    // 发牌
+            //                    Application.application.red5GameModule.btnBarPokers.getChildAt(Red5Game.OPTR_DISCARD).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            //                }
+            //                if (!Application.application.red5GameModule.btnBarPokers.visible) {
+            //                    return;
+            //                }
+            //            }
 
             // 当有人出【2、5、王】时，可以根据实际情况来采取放行
             // 当前玩家不能
@@ -663,35 +736,29 @@ package info.knightrcom.state.red5game
         private function processAlliedRushFollow(boutCards:String, myTipCount:int, currentTipCount:int):void {
             var eachCardsStyle:Array, eachItem:Array = null;
 
-            // 当独牌玩家只有一张牌或是多张单牌时，当前玩家手中任意提示牌型均高于独牌玩家最后一张牌时
-            var attack:Boolean = false;
-            if ((this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).length == 1 /*||
-                (this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array).join(",").match(/^\d(V\w+),\d\1$/)*/) {
-                for each (eachCardsStyle in this.tips) {
-                    for each (eachItem in eachCardsStyle) {
-//                        if (eachItem.join(",").indexOf(",") > -1 || 
-//                                Red5Game.prioritySequence.indexOf(eachItem.join(",").replace(/\dV/g, "V")) >= 
-//                                Red5Game.prioritySequence.indexOf((this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array)[0].replace(/\dV/g, "V"))) {
-//                            attack = true;
-//                        } else {
-//                            attack = false;
-//                            break;
-//                        }
-                        if (eachItem.length > 1) {
-                            attack = true;
-                        } else {
-                            attack = false;
-                            break;
-                        }
+            // 当前玩家手中任意提示牌型均高于独牌玩家的提示牌型时
+            var deadlyAttack:Boolean = false;
+            for each (eachCardsStyle in this.tips) {
+                for each (eachItem in eachCardsStyle) {
+                    eachItem = Red5Game.getBrainPowerTip(this._gameBox.cardsOfPlayers[Red5GameStateManager.gameFinalSettingPlayerNumber - 1] as Array, 
+                        eachItem.toString().replace(/(?<!\d)V/g, "4V").split(","), false);
+                    if (eachItem && eachItem.length > 1) {
+                        deadlyAttack = true;
+                    } else {
+                        deadlyAttack = false;
+                        break;
                     }
                 }
+            }
+            if (!deadlyAttack) {
+                // TODO FIXME 提供回旋打的机会
             }
 
             // 从默认的备选牌型中提取牌型
             for each (eachCardsStyle in this.tips) {
                 for each (eachItem in eachCardsStyle) {
                     if (Red5Game.isRuleFollowed(eachItem.join(",").replace(/(?<!\d)V/g, "4V"), boutCards)) {
-                        if (attack) {
+                        if (deadlyAttack) {
                             // 当前玩家随意提示牌均大于独牌玩家时，可以利用提示牌攻击友邦
                             // 首次发牌或有与上家发牌对应的牌时
                             prepareCandidatedCards(eachItem);
@@ -709,8 +776,9 @@ package info.knightrcom.state.red5game
                         }
 
                         // 如果当前玩家牌与被跟玩家为友邦且牌值相差较大
-                        if (eachItem.join(",").match(/V[5XY]/)) {
-                            if (!isBigRush(true, true, myTipCount)) {
+                        if (eachItem.join(",").match(/[^1]V[5XY]/)) {
+                            if (!isBigRush(true, true, myTipCount) && boutCards.match(/10|[JQKA]/g).length >= 3) {
+                                // 不能构成天独或天外天，且友邦牌为三同张或更多同张的【10-A】牌
                                 continue;
                             }
                             if (boutCards.match(/V[5XY]/) || boutCards.match(/V2/g).length > 1) {
@@ -933,7 +1001,6 @@ package info.knightrcom.state.red5game
          * @return 当没有可用的摆渡策略时，返回null，否则返回摆渡策略结果
          */
         private function testRoundabout(dummyTips:Array, myTipCount:int):Object {
-            return null;
             if (myTipCount < 3) {
                 return null;
             }
@@ -991,23 +1058,53 @@ package info.knightrcom.state.red5game
                 // 需要最后一个出非无敌大牌，且无敌大牌个数的总和小于无敌小牌个数的总和与牌数最多的小牌的个数差时
                 return null;
             }
-            // 组合摆渡对儿，即相同牌型的一个非无敌大牌对应一个无敌大牌
-            if (xxx.hasVincibleTail) {
-                // 从xxx的非无敌大牌中，去除牌数最多的非无敌大牌
-                (xxx.vincible as Array).splice((xxx.vincible as Array).indexOf(xxx.maxLengthVincible), 1);
-            }
-            xxx.discardCards = testMatch(xxx);
-            // 补充尾牌
-            if (xxx.discardCards) {
-                var tailCards:Array = null;
-                if (xxx.hasVincibleTail) {
-                    (xxx.discardCards as Array).push(xxx.maxLengthVincible);
-                } else if (xxx.hasSeqTail) {
-                    (xxx.discardCards as Array).push(xxx.vincibleSeq[0]);
+            // 不执行拆牌操作，直接匹配
+            dummyTips = [];
+            for each (tipCards in xxx.invincible) {
+                dummyTips.push(tipCards);
+                for each (tipCards in xxx.vincible) {
+                    if ((dummyTips[dummyTips.length - 1] as Array).length == tipCards.length) {
+                        (xxx.vincible as Array).splice((xxx.vincible as Array).indexOf(tipCards), 1);
+                        dummyTips.push(tipCards);
+                        break;
+                    }
+                }
+                if (dummyTips.length % 2 == 1) {
+                    return null;
                 }
             }
-            xxx.discardIndex = 0;
-            return xxx.discardCards ? xxx : null;
+            
+            if ((xxx.vincible as Array).length + (xxx.vincibleSeq as Array).length > 1) {
+                return null;
+            } else {
+                dummyTips = dummyTips.reverse()
+                xxx.discardIndex = 0;
+                if ((xxx.vincible as Array).length + (xxx.vincibleSeq as Array).length == 1) {
+                    // 存在尾牌的时候
+                    dummyTips.push((xxx.vincible as Array).length > 0 ? xxx.vincible : xxx.vincibleSeq);
+                }
+                xxx.discardCards = dummyTips;
+                return xxx;
+            }
+            return null;
+            // TODO The following codes are commented at 2010/05/18
+//            // 组合摆渡对儿，即相同牌型的一个非无敌大牌对应一个无敌大牌
+//            if (xxx.hasVincibleTail) {
+//                // 从xxx的非无敌大牌中，去除牌数最多的非无敌大牌
+//                (xxx.vincible as Array).splice((xxx.vincible as Array).indexOf(xxx.maxLengthVincible), 1);
+//            }
+//            xxx.discardCards = testMatch(xxx);
+//            // 补充尾牌
+//            if (xxx.discardCards) {
+//                var tailCards:Array = null;
+//                if (xxx.hasVincibleTail) {
+//                    (xxx.discardCards as Array).push(xxx.maxLengthVincible);
+//                } else if (xxx.hasSeqTail) {
+//                    (xxx.discardCards as Array).push(xxx.vincibleSeq[0]);
+//                }
+//            }
+//            xxx.discardIndex = 0;
+//            return xxx.discardCards ? xxx : null;
         }
 
         /**
