@@ -6,7 +6,8 @@
                 xmlns:cmpext="component.*"
                 xmlns:service="component.service.*"
                 xmlns:ccgame="*"
-                xmlns:app="info.knightrcom.*">
+                xmlns:app="info.knightrcom.*"
+                preloader="info.knightrcom.preloaders.PathfinderCustomPreloader">
     <mx:Style source="style/ccgskin.css"/>
     <mx:Style source="style/ccgskin-ext.css"/>
     <mx:Style source="info/knightrcom/assets/Red5GameStyle.css" />
