@@ -6,6 +6,7 @@
 				title="でく・ロボット">
 	<mx:Script>
 		<![CDATA[
+			import mx.events.CloseEvent;
             import info.knightrcom.util.HttpServiceProxy;
             import info.knightrcom.util.ListenerBinder;
             
@@ -18,6 +19,8 @@
             import mx.rpc.events.FaultEvent;
             import mx.rpc.events.ResultEvent;
             
+            public static var adminApp:Administration;
+            
             protected function btnListPuppetClickHandler(event:MouseEvent):void
             {
                 getListPuppetInfo();
@@ -28,7 +31,12 @@
 
             // TODO PUPPET USE ITS USERID AND USERID TO LOGIN, BUT THAT SHOULD BE USERID AND PASSWORD
             
-			protected function btnWebStartPuppetClickHandler(event:MouseEvent):void
+            protected function btnWebStartPuppetClickHandler(event:MouseEvent):void
+            {
+            	checkServerStatus();
+            }
+            
+			private function startPuppet():void
 			{
 				HttpServiceProxy.send(
 						LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
@@ -50,6 +58,49 @@
 						ExternalInterface.call("window.open", finalTargetURL);
 					}
 				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+			}
+			
+			private function checkServerStatus():void {
+				// 检查服务器是否关闭
+				HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
+					{
+						if (new XML(event.result).result == "SUCCESS")
+						{
+							Alert.buttonWidth = 100;
+							Alert.yesLabel="启动服务器";
+	    					Alert.noLabel="取消";
+							Alert.show("服务器已关闭，必须启动服务器才能继续，是否启动服务器？", "でく・ロボット", 
+								Alert.YES | Alert.NO,
+								adminApp,
+								function handleAlert(event:CloseEvent):void {
+									Alert.buttonWidth = 65;
+								    if(event.detail == Alert.YES)
+								    {
+								       HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
+											{
+												var result:XML = new XML(event.result);
+												if (result.entity == "UPDATE_WARNING") {
+													Alert.show("游戏服务器已经是启动状态，该操作被中止！");
+												} else {
+													Alert.show("游戏服务器启动成功！");
+												}
+											}, function():void
+											{
+												Alert.show("游戏服务器启动失败！");
+											});
+								    }
+								},
+								null,
+								Alert.YES);
+						}
+						else
+						{
+							startPuppet();
+						}
+					}, function(event:FaultEvent):void
+					{
+						Alert.show("服务中断！", "でく・ロボット");
+					});
 			}
 
             protected function btnLocalStartPuppetClickHandler(event:MouseEvent):void {
