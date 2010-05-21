@@ -116,7 +116,7 @@
 			            	HttpServiceProxy.send(LocalSystemInfoService.PLAY_GAME_VEDIO,
 			            			{GAME_ID: gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, 
 			            			function (event:ResultEvent):void {
-			            				if (new XML(event.result).result == "SUCCESS")
+			            				if (btnExecute.label != "播放" || new XML(event.result).result == "SUCCESS")
 										{
 											playerVedio();
 										}
