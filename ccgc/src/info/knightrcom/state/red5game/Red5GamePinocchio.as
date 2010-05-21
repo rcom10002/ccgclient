@@ -58,8 +58,8 @@ package info.knightrcom.state.red5game
             var myTipCount:int = this.tipCount();
             // 独牌判断
             var isRush:Function = function():Boolean {
-                this.roundabout = testRoundabout(this.tips, myTipCount);
-                if (this.roundabout) {
+                roundabout = testRoundabout(tips, myTipCount);
+                if (roundabout) {
                     return true;
                 }
                 var cards:Array = null;
@@ -239,7 +239,7 @@ package info.knightrcom.state.red5game
         }
 
         /**
-         * 出牌处理 TODO 分解敌对与同盟的处理
+         * 出牌处理分解敌对与同盟的处理
          * 
          * @param myTipCount
          */
@@ -906,15 +906,11 @@ package info.knightrcom.state.red5game
                     // 跳过当前玩家
                     continue;
                 }
-                // TODO complete applySkipFriendRule
+                // 启用友邦跳过，即假定友邦不会阻止当前玩家
                 if (applySkipFriendRule && Red5GameStateManager.gameSetting != Red5GameSetting.NO_RUSH) {
                     // 有人独牌的情况
-                    if (Red5GameStateManager.localNumber == Red5GameStateManager.gameFinalSettingPlayerNumber) {
-                        // 当前玩家为独牌者，目标玩家未独牌
-                    } else if ((i + 1) == Red5GameStateManager.gameFinalSettingPlayerNumber) {
-                        // 当前玩家未独牌，目标玩家独牌
-                    } else {
-                        // 当前玩家未独牌，目标玩家未独牌
+                    if (i + 1 != Red5GameStateManager.gameFinalSettingPlayerNumber) {
+                        // 此次遍历到的玩家非独牌玩家
                         continue;
                     }
                 }
