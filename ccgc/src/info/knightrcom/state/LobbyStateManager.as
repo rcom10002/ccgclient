@@ -3,6 +3,7 @@ package info.knightrcom.state {
     import component.service.SystemInfoWindow;
     
     import flash.display.DisplayObject;
+    import flash.display.StageDisplayState;
     import flash.events.Event;
     import flash.events.MouseEvent;
     import flash.events.TimerEvent;
@@ -32,6 +33,7 @@ package info.knightrcom.state {
     import mx.events.FlexEvent;
     import mx.formatters.DateFormatter;
     import mx.states.State;
+    import flash.display.StageDisplayState;
 
     public class LobbyStateManager extends AbstractStateManager {
 
@@ -65,6 +67,7 @@ package info.knightrcom.state {
             ListenerBinder.bind(gameClient.gameControlBar.btnOption, MouseEvent.CLICK, optionClickHandler);
             ListenerBinder.bind(gameClient.gameControlBar.btnLogout, MouseEvent.CLICK, logoutClickHandler);
             ListenerBinder.bind(gameClient.gameControlBar.btnHelp, MouseEvent.CLICK, helpClickHandler);
+            ListenerBinder.bind(gameClient.gameControlBar.btnStage, MouseEvent.CLICK, stageClickHandler);
 
 			ListenerBinder.bind(gameClient.btnHideLogWindow, MouseEvent.CLICK, btnHideLogWindowClickHandler);
 			ListenerBinder.bind(gameClient.btnCleanLogWindow, MouseEvent.CLICK, btnCleanLogWindowClickHandler);
@@ -343,6 +346,21 @@ package info.knightrcom.state {
 						null,
 						Alert.YES);
 			
+        }
+        
+        /**
+         *
+         * @param event
+         *
+         */
+        private function stageClickHandler(event:Event):void {
+        	if (gameClient.stage.displayState == StageDisplayState.NORMAL){
+        		gameClient.stage.displayState = StageDisplayState.FULL_SCREEN;
+        		gameClient.gameControlBar.btnStage.label = "还原"; 
+        	} else {
+        		gameClient.stage.displayState = StageDisplayState.NORMAL;
+        		gameClient.gameControlBar.btnStage.label = "全屏";
+        	}
         }
 
         /**
