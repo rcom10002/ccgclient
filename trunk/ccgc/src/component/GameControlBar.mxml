@@ -21,6 +21,8 @@
                    label="注销"/>
         <mx:Button id="btnHelp"
                    label="帮助"/>
+		<mx:Button id="btnStage"
+                   label="全屏"/>
     </mx:HBox>
     <!--
          <mx:HBox width="100%">
