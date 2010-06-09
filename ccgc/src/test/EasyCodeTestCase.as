@@ -2,6 +2,8 @@ package test
 {
     import flexunit.framework.Assert;
     
+    import mx.collections.ArrayCollection;
+    
     public class EasyCodeTestCase
     {		
         [Before]
@@ -76,5 +78,119 @@ package test
                 trace("array contains no undefined values.");
             }
         }
+        
+        [Test]
+        public function testAllCasesVersion1():void {
+            var samples:Array = 'A,B,C,D,E'.split(",");
+            var allCases:Array = [];
+            for (var i:int = 0; i < samples.length; i++) {
+                allCases[i] = [];
+                for (var j:int = 0; j < samples.length; j++) {
+                    allCases[i][j] = (i == j) ? samples[i] : samples[i] + samples[j];
+                    // trace(allCases[i][j]);
+                }
+            }
+            var allFinalCases:Array = [];
+            var triedCases:Array = [];
+            var line:int = 1;
+            for (i = 0; i < samples.length; i++) {
+                var finalResult:String = allCases[0][i];
+                while (line < samples.length) {
+                    for (j = 0; j < samples.length; j++) {
+                        finalResult += "," + allCases[line][j];
+                    }
+                    line++;
+                }
+                trace(finalResult);
+                line = 1;
+            }
+        }
+        
+        [Test]
+        public function testAllCasesVersion2():void {
+            var samples:Array = 'A,B,C,D,E'.split(",");
+            var isCircle:String = samples.toString();
+            var absPos:int = samples.length - 2;
+            var relPos:int = 0;
+            var index:int = 0;
+            var target:String = null;
+            var count:int = 0;
+            var results:Array = [];
+            while (true) {
+                count += samples.length * 2;
+                for (index = samples.length - 1; index > 0; index--) {
+                    target = samples[index - 1];
+                    samples[index - 1] = samples[index];
+                    samples[index] = target;
+                    results.push(samples.toString());
+                }
+                // moving element is in first place
+                relPos = absPos-- + 1;
+                target = samples[relPos - 1];
+                samples[relPos - 1] = samples[relPos];
+                samples[relPos] = target;
+                results.push(samples.toString());
+                absPos = (absPos == 0 ? samples.length - 2 : absPos);
+                if (samples.toString() == isCircle) {
+                    break;
+                }
+                for (index = 0; index < samples.length - 1; index++) {
+                    target = samples[index + 1];
+                    samples[index + 1] = samples[index];
+                    samples[index] = target;
+                    results.push(samples.toString());
+                }
+                // moving element is in last place
+                relPos = absPos--;
+                target = samples[relPos - 1];
+                samples[relPos - 1] = samples[relPos];
+                samples[relPos] = target;
+                results.push(samples.toString());
+                absPos = (absPos == 0 ? samples.length - 2 : absPos);
+                if (samples.toString() == isCircle) {
+                    break;
+                } 
+            }
+            
+            trace(results);
+        }
+        
+        [Test]
+        public function testAllCasesVersion3():void {
+//            var samples:Array = 'A'.split(",");
+//            var samples:Array = 'A,B'.split(",");
+//            var samples:Array = 'A,B,C'.split(",");
+//            var samples:Array = 'A,B,C,D'.split(",");
+            var samples:Array = 'A,B,C,D,E'.split(",");
+            var results:Array = [];
+            var finalResults:Array = [];
+trace(new Date());
+            for each (var sample:String in samples) {
+                // sample stands for each element
+                if (results.length == 0) {
+                    results.push([sample]);
+                    continue;
+                }
+                for (var i:int = 0; i < results.length; i++) {
+                    for (var pos:int = 0; pos <= results[i].length; pos++) {
+                        var resultAC:ArrayCollection = new ArrayCollection(results[i].toString().split(","));
+                        resultAC.addItemAt(sample, pos);
+                        finalResults.push(resultAC.toArray());
+                    }
+                }
+                results = finalResults;
+                finalResults = [];
+            }
+trace(new Date());
+            trace(results.length);
+        }
+        
+        [Test]
+        public function testAllCasesVersion4():void {
+            var vincibleLengthArray:Array = [1, 2, 2, 4];
+            var invincibleLengthArray:Array = [1, 1, 2, 2, 3];
+            
+        }
+        
     }
 }
