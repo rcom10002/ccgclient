@@ -74,7 +74,11 @@ package info.knightrcom.state {
 
             ListenerBinder.bind(socketProxy, PlatformEvent.PLATFORM_ENVIRONMENT_INIT, platformEnvironmentInitHandler);
             ListenerBinder.bind(socketProxy, PlayerEvent.LOBBY_ENTER_ROOM, lobbyEnterRoomHandler);
-
+            
+            ListenerBinder.bind(socketProxy, PlayerEvent.LOGIN_CLIENT_VERSION_LIMIT, function (e:Event):void {
+            	Alert.show("客户端游戏版本过低，请下载最新的客户端游戏！", "警告");
+            });
+            
             ListenerBinder.bind(gameClient.txtSysMessage, FlexEvent.VALUE_COMMIT, function (e:Event):void {
 				// 滚动条移动到最下方
 				gameClient.txtSysMessage.verticalScrollPosition = gameClient.txtSysMessage.maxVerticalScrollPosition;
@@ -113,7 +117,8 @@ package info.knightrcom.state {
 			ListenerBinder.bind(gameClient.txtSysMessage, FlexEvent.HIDE, function (e:Event):void {
 				gameClient.btnHideLogWindow.label = "显示消息日志";
 			});
-
+			// 验证客户端版本
+            socketProxy.sendPlatformData(PlatformCommand.CLIENT_VERSION_VALIDATE, gameClient.gameControlBar.lblSystemInfo.text);
             // 请求平台信息
             socketProxy.sendPlatformData(PlatformCommand.PLATFORM_REQUEST_ENVIRONMENT);
             // TODO gameClient.loginState
