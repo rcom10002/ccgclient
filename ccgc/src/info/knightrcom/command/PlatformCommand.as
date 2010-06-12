@@ -13,5 +13,7 @@ package info.knightrcom.command {
         public static const PLATFORM_REQUEST_ENVIRONMENT:PlatformCommand = new PlatformCommand(1238634098443, "PLATFORM_REQUEST_ENVIRONMENT");
         
         public static const PLATFORM_IDLE_ECHO:PlatformCommand = new PlatformCommand(1268183334732, "PLATFORM_IDLE_ECHO");
+        
+        public static const CLIENT_VERSION_VALIDATE:PlatformCommand = new PlatformCommand(1276317983468, "CLIENT_VERSION_VALIDATE");
 	}
 }
