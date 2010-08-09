@@ -36,7 +36,7 @@
 			}
 
 			public function get value():String {
-				return this.source.toString().replace(/^.*\/(\w+)\.(\w+)$/, "$1");
+				return "".concat(this.source).replace(/.+_(\w+)\b.+$/, "$1");
 			}
 
 			public override function toString():String {

@@ -1,10 +1,6 @@
 package info.knightrcom.assets
 {
-    /**
-     * 
-     * @author 任政委
-     * 
-     */
+
     [Bindable]
     public final class MahjongResource
     {
@@ -654,5 +650,277 @@ package info.knightrcom.assets
         [Embed(source="info/knightrcom/assets/image/mahjong/up/standard/DEFAULT.jpg")]
         public static const MAHJONG_up_standard_DEFAULT:Class;
 
+        /**
+         * 直接赋值时需要三个参数，方向、样式、名称<br />
+         * 基于已有对象赋值时需要四个参数，方向、样式、名称、类对象
+         * 
+         * @param direction
+         * @param style
+         * @param name
+         * @param resClass
+         * @return 
+         * 
+         */
+        public static function load(direction:String, style:String, name:String, resClass:* = null):Class {
+            if (resClass) {
+                var arr:Array = "".concat(resClass).replace(/^.+_([^_]+)_([^_]+)_([^_\]]+).*$/, "$1,$2,$3").split(",");
+                if (!direction) {
+                    direction = arr[0].toString();
+                }
+                if (!style) {
+                    style = arr[1].toString();
+                }
+                if (!name) {
+                    name = arr[2].toString();
+                }
+            }
+            if (direction == "down" && style == "dais" && name == "B1") return MAHJONG_down_dais_B1;
+            if (direction == "down" && style == "dais" && name == "B2") return MAHJONG_down_dais_B2;
+            if (direction == "down" && style == "dais" && name == "B3") return MAHJONG_down_dais_B3;
+            if (direction == "down" && style == "dais" && name == "B4") return MAHJONG_down_dais_B4;
+            if (direction == "down" && style == "dais" && name == "B5") return MAHJONG_down_dais_B5;
+            if (direction == "down" && style == "dais" && name == "B6") return MAHJONG_down_dais_B6;
+            if (direction == "down" && style == "dais" && name == "B7") return MAHJONG_down_dais_B7;
+            if (direction == "down" && style == "dais" && name == "B8") return MAHJONG_down_dais_B8;
+            if (direction == "down" && style == "dais" && name == "B9") return MAHJONG_down_dais_B9;
+            if (direction == "down" && style == "dais" && name == "DEFAULT") return MAHJONG_down_dais_DEFAULT;
+            if (direction == "down" && style == "dais" && name == "EAST") return MAHJONG_down_dais_EAST;
+            if (direction == "down" && style == "dais" && name == "GREEN") return MAHJONG_down_dais_GREEN;
+            if (direction == "down" && style == "dais" && name == "NORTH") return MAHJONG_down_dais_NORTH;
+            if (direction == "down" && style == "dais" && name == "RED") return MAHJONG_down_dais_RED;
+            if (direction == "down" && style == "dais" && name == "SOUTH") return MAHJONG_down_dais_SOUTH;
+            if (direction == "down" && style == "dais" && name == "T1") return MAHJONG_down_dais_T1;
+            if (direction == "down" && style == "dais" && name == "T2") return MAHJONG_down_dais_T2;
+            if (direction == "down" && style == "dais" && name == "T3") return MAHJONG_down_dais_T3;
+            if (direction == "down" && style == "dais" && name == "T4") return MAHJONG_down_dais_T4;
+            if (direction == "down" && style == "dais" && name == "T5") return MAHJONG_down_dais_T5;
+            if (direction == "down" && style == "dais" && name == "T6") return MAHJONG_down_dais_T6;
+            if (direction == "down" && style == "dais" && name == "T7") return MAHJONG_down_dais_T7;
+            if (direction == "down" && style == "dais" && name == "T8") return MAHJONG_down_dais_T8;
+            if (direction == "down" && style == "dais" && name == "T9") return MAHJONG_down_dais_T9;
+            if (direction == "down" && style == "dais" && name == "W1") return MAHJONG_down_dais_W1;
+            if (direction == "down" && style == "dais" && name == "W2") return MAHJONG_down_dais_W2;
+            if (direction == "down" && style == "dais" && name == "W3") return MAHJONG_down_dais_W3;
+            if (direction == "down" && style == "dais" && name == "W4") return MAHJONG_down_dais_W4;
+            if (direction == "down" && style == "dais" && name == "W5") return MAHJONG_down_dais_W5;
+            if (direction == "down" && style == "dais" && name == "W6") return MAHJONG_down_dais_W6;
+            if (direction == "down" && style == "dais" && name == "W7") return MAHJONG_down_dais_W7;
+            if (direction == "down" && style == "dais" && name == "W8") return MAHJONG_down_dais_W8;
+            if (direction == "down" && style == "dais" && name == "W9") return MAHJONG_down_dais_W9;
+            if (direction == "down" && style == "dais" && name == "WEST") return MAHJONG_down_dais_WEST;
+            if (direction == "down" && style == "dais" && name == "WHITE") return MAHJONG_down_dais_WHITE;
+            if (direction == "down" && style == "dealed" && name == "B1") return MAHJONG_down_dealed_B1;
+            if (direction == "down" && style == "dealed" && name == "B2") return MAHJONG_down_dealed_B2;
+            if (direction == "down" && style == "dealed" && name == "B3") return MAHJONG_down_dealed_B3;
+            if (direction == "down" && style == "dealed" && name == "B4") return MAHJONG_down_dealed_B4;
+            if (direction == "down" && style == "dealed" && name == "B5") return MAHJONG_down_dealed_B5;
+            if (direction == "down" && style == "dealed" && name == "B6") return MAHJONG_down_dealed_B6;
+            if (direction == "down" && style == "dealed" && name == "B7") return MAHJONG_down_dealed_B7;
+            if (direction == "down" && style == "dealed" && name == "B8") return MAHJONG_down_dealed_B8;
+            if (direction == "down" && style == "dealed" && name == "B9") return MAHJONG_down_dealed_B9;
+            if (direction == "down" && style == "dealed" && name == "DEFAULT") return MAHJONG_down_dealed_DEFAULT;
+            if (direction == "down" && style == "dealed" && name == "EAST") return MAHJONG_down_dealed_EAST;
+            if (direction == "down" && style == "dealed" && name == "GREEN") return MAHJONG_down_dealed_GREEN;
+            if (direction == "down" && style == "dealed" && name == "NORTH") return MAHJONG_down_dealed_NORTH;
+            if (direction == "down" && style == "dealed" && name == "RED") return MAHJONG_down_dealed_RED;
+            if (direction == "down" && style == "dealed" && name == "SOUTH") return MAHJONG_down_dealed_SOUTH;
+            if (direction == "down" && style == "dealed" && name == "T1") return MAHJONG_down_dealed_T1;
+            if (direction == "down" && style == "dealed" && name == "T2") return MAHJONG_down_dealed_T2;
+            if (direction == "down" && style == "dealed" && name == "T3") return MAHJONG_down_dealed_T3;
+            if (direction == "down" && style == "dealed" && name == "T4") return MAHJONG_down_dealed_T4;
+            if (direction == "down" && style == "dealed" && name == "T5") return MAHJONG_down_dealed_T5;
+            if (direction == "down" && style == "dealed" && name == "T6") return MAHJONG_down_dealed_T6;
+            if (direction == "down" && style == "dealed" && name == "T7") return MAHJONG_down_dealed_T7;
+            if (direction == "down" && style == "dealed" && name == "T8") return MAHJONG_down_dealed_T8;
+            if (direction == "down" && style == "dealed" && name == "T9") return MAHJONG_down_dealed_T9;
+            if (direction == "down" && style == "dealed" && name == "W1") return MAHJONG_down_dealed_W1;
+            if (direction == "down" && style == "dealed" && name == "W2") return MAHJONG_down_dealed_W2;
+            if (direction == "down" && style == "dealed" && name == "W3") return MAHJONG_down_dealed_W3;
+            if (direction == "down" && style == "dealed" && name == "W4") return MAHJONG_down_dealed_W4;
+            if (direction == "down" && style == "dealed" && name == "W5") return MAHJONG_down_dealed_W5;
+            if (direction == "down" && style == "dealed" && name == "W6") return MAHJONG_down_dealed_W6;
+            if (direction == "down" && style == "dealed" && name == "W7") return MAHJONG_down_dealed_W7;
+            if (direction == "down" && style == "dealed" && name == "W8") return MAHJONG_down_dealed_W8;
+            if (direction == "down" && style == "dealed" && name == "W9") return MAHJONG_down_dealed_W9;
+            if (direction == "down" && style == "dealed" && name == "WEST") return MAHJONG_down_dealed_WEST;
+            if (direction == "down" && style == "dealed" && name == "WHITE") return MAHJONG_down_dealed_WHITE;
+            if (direction == "down" && style == "standard" && name == "B1") return MAHJONG_down_standard_B1;
+            if (direction == "down" && style == "standard" && name == "B2") return MAHJONG_down_standard_B2;
+            if (direction == "down" && style == "standard" && name == "B3") return MAHJONG_down_standard_B3;
+            if (direction == "down" && style == "standard" && name == "B4") return MAHJONG_down_standard_B4;
+            if (direction == "down" && style == "standard" && name == "B5") return MAHJONG_down_standard_B5;
+            if (direction == "down" && style == "standard" && name == "B6") return MAHJONG_down_standard_B6;
+            if (direction == "down" && style == "standard" && name == "B7") return MAHJONG_down_standard_B7;
+            if (direction == "down" && style == "standard" && name == "B8") return MAHJONG_down_standard_B8;
+            if (direction == "down" && style == "standard" && name == "B9") return MAHJONG_down_standard_B9;
+            if (direction == "down" && style == "standard" && name == "EAST") return MAHJONG_down_standard_EAST;
+            if (direction == "down" && style == "standard" && name == "GREEN") return MAHJONG_down_standard_GREEN;
+            if (direction == "down" && style == "standard" && name == "NORTH") return MAHJONG_down_standard_NORTH;
+            if (direction == "down" && style == "standard" && name == "RED") return MAHJONG_down_standard_RED;
+            if (direction == "down" && style == "standard" && name == "SOUTH") return MAHJONG_down_standard_SOUTH;
+            if (direction == "down" && style == "standard" && name == "T1") return MAHJONG_down_standard_T1;
+            if (direction == "down" && style == "standard" && name == "T2") return MAHJONG_down_standard_T2;
+            if (direction == "down" && style == "standard" && name == "T3") return MAHJONG_down_standard_T3;
+            if (direction == "down" && style == "standard" && name == "T4") return MAHJONG_down_standard_T4;
+            if (direction == "down" && style == "standard" && name == "T5") return MAHJONG_down_standard_T5;
+            if (direction == "down" && style == "standard" && name == "T6") return MAHJONG_down_standard_T6;
+            if (direction == "down" && style == "standard" && name == "T7") return MAHJONG_down_standard_T7;
+            if (direction == "down" && style == "standard" && name == "T8") return MAHJONG_down_standard_T8;
+            if (direction == "down" && style == "standard" && name == "T9") return MAHJONG_down_standard_T9;
+            if (direction == "down" && style == "standard" && name == "W1") return MAHJONG_down_standard_W1;
+            if (direction == "down" && style == "standard" && name == "W2") return MAHJONG_down_standard_W2;
+            if (direction == "down" && style == "standard" && name == "W3") return MAHJONG_down_standard_W3;
+            if (direction == "down" && style == "standard" && name == "W4") return MAHJONG_down_standard_W4;
+            if (direction == "down" && style == "standard" && name == "W5") return MAHJONG_down_standard_W5;
+            if (direction == "down" && style == "standard" && name == "W6") return MAHJONG_down_standard_W6;
+            if (direction == "down" && style == "standard" && name == "W7") return MAHJONG_down_standard_W7;
+            if (direction == "down" && style == "standard" && name == "W8") return MAHJONG_down_standard_W8;
+            if (direction == "down" && style == "standard" && name == "W9") return MAHJONG_down_standard_W9;
+            if (direction == "down" && style == "standard" && name == "WEST") return MAHJONG_down_standard_WEST;
+            if (direction == "down" && style == "standard" && name == "WHITE") return MAHJONG_down_standard_WHITE;
+            if (direction == "left" && style == "dealed" && name == "B1") return MAHJONG_left_dealed_B1;
+            if (direction == "left" && style == "dealed" && name == "B2") return MAHJONG_left_dealed_B2;
+            if (direction == "left" && style == "dealed" && name == "B3") return MAHJONG_left_dealed_B3;
+            if (direction == "left" && style == "dealed" && name == "B4") return MAHJONG_left_dealed_B4;
+            if (direction == "left" && style == "dealed" && name == "B5") return MAHJONG_left_dealed_B5;
+            if (direction == "left" && style == "dealed" && name == "B6") return MAHJONG_left_dealed_B6;
+            if (direction == "left" && style == "dealed" && name == "B7") return MAHJONG_left_dealed_B7;
+            if (direction == "left" && style == "dealed" && name == "B8") return MAHJONG_left_dealed_B8;
+            if (direction == "left" && style == "dealed" && name == "B9") return MAHJONG_left_dealed_B9;
+            if (direction == "left" && style == "dealed" && name == "DEFAULT") return MAHJONG_left_dealed_DEFAULT;
+            if (direction == "left" && style == "dealed" && name == "EAST") return MAHJONG_left_dealed_EAST;
+            if (direction == "left" && style == "dealed" && name == "GREEN") return MAHJONG_left_dealed_GREEN;
+            if (direction == "left" && style == "dealed" && name == "NORTH") return MAHJONG_left_dealed_NORTH;
+            if (direction == "left" && style == "dealed" && name == "RED") return MAHJONG_left_dealed_RED;
+            if (direction == "left" && style == "dealed" && name == "SOUTH") return MAHJONG_left_dealed_SOUTH;
+            if (direction == "left" && style == "dealed" && name == "T1") return MAHJONG_left_dealed_T1;
+            if (direction == "left" && style == "dealed" && name == "T2") return MAHJONG_left_dealed_T2;
+            if (direction == "left" && style == "dealed" && name == "T3") return MAHJONG_left_dealed_T3;
+            if (direction == "left" && style == "dealed" && name == "T4") return MAHJONG_left_dealed_T4;
+            if (direction == "left" && style == "dealed" && name == "T5") return MAHJONG_left_dealed_T5;
+            if (direction == "left" && style == "dealed" && name == "T6") return MAHJONG_left_dealed_T6;
+            if (direction == "left" && style == "dealed" && name == "T7") return MAHJONG_left_dealed_T7;
+            if (direction == "left" && style == "dealed" && name == "T8") return MAHJONG_left_dealed_T8;
+            if (direction == "left" && style == "dealed" && name == "T9") return MAHJONG_left_dealed_T9;
+            if (direction == "left" && style == "dealed" && name == "W1") return MAHJONG_left_dealed_W1;
+            if (direction == "left" && style == "dealed" && name == "W2") return MAHJONG_left_dealed_W2;
+            if (direction == "left" && style == "dealed" && name == "W3") return MAHJONG_left_dealed_W3;
+            if (direction == "left" && style == "dealed" && name == "W4") return MAHJONG_left_dealed_W4;
+            if (direction == "left" && style == "dealed" && name == "W5") return MAHJONG_left_dealed_W5;
+            if (direction == "left" && style == "dealed" && name == "W6") return MAHJONG_left_dealed_W6;
+            if (direction == "left" && style == "dealed" && name == "W7") return MAHJONG_left_dealed_W7;
+            if (direction == "left" && style == "dealed" && name == "W8") return MAHJONG_left_dealed_W8;
+            if (direction == "left" && style == "dealed" && name == "W9") return MAHJONG_left_dealed_W9;
+            if (direction == "left" && style == "dealed" && name == "WEST") return MAHJONG_left_dealed_WEST;
+            if (direction == "left" && style == "dealed" && name == "WHITE") return MAHJONG_left_dealed_WHITE;
+            if (direction == "left" && style == "standard" && name == "DEFAULT") return MAHJONG_left_standard_DEFAULT;
+            if (direction == "right" && style == "dealed" && name == "B1") return MAHJONG_right_dealed_B1;
+            if (direction == "right" && style == "dealed" && name == "B2") return MAHJONG_right_dealed_B2;
+            if (direction == "right" && style == "dealed" && name == "B3") return MAHJONG_right_dealed_B3;
+            if (direction == "right" && style == "dealed" && name == "B4") return MAHJONG_right_dealed_B4;
+            if (direction == "right" && style == "dealed" && name == "B5") return MAHJONG_right_dealed_B5;
+            if (direction == "right" && style == "dealed" && name == "B6") return MAHJONG_right_dealed_B6;
+            if (direction == "right" && style == "dealed" && name == "B7") return MAHJONG_right_dealed_B7;
+            if (direction == "right" && style == "dealed" && name == "B8") return MAHJONG_right_dealed_B8;
+            if (direction == "right" && style == "dealed" && name == "B9") return MAHJONG_right_dealed_B9;
+            if (direction == "right" && style == "dealed" && name == "DEFAULT") return MAHJONG_right_dealed_DEFAULT;
+            if (direction == "right" && style == "dealed" && name == "EAST") return MAHJONG_right_dealed_EAST;
+            if (direction == "right" && style == "dealed" && name == "GREEN") return MAHJONG_right_dealed_GREEN;
+            if (direction == "right" && style == "dealed" && name == "NORTH") return MAHJONG_right_dealed_NORTH;
+            if (direction == "right" && style == "dealed" && name == "RED") return MAHJONG_right_dealed_RED;
+            if (direction == "right" && style == "dealed" && name == "SOUTH") return MAHJONG_right_dealed_SOUTH;
+            if (direction == "right" && style == "dealed" && name == "T1") return MAHJONG_right_dealed_T1;
+            if (direction == "right" && style == "dealed" && name == "T2") return MAHJONG_right_dealed_T2;
+            if (direction == "right" && style == "dealed" && name == "T3") return MAHJONG_right_dealed_T3;
+            if (direction == "right" && style == "dealed" && name == "T4") return MAHJONG_right_dealed_T4;
+            if (direction == "right" && style == "dealed" && name == "T5") return MAHJONG_right_dealed_T5;
+            if (direction == "right" && style == "dealed" && name == "T6") return MAHJONG_right_dealed_T6;
+            if (direction == "right" && style == "dealed" && name == "T7") return MAHJONG_right_dealed_T7;
+            if (direction == "right" && style == "dealed" && name == "T8") return MAHJONG_right_dealed_T8;
+            if (direction == "right" && style == "dealed" && name == "T9") return MAHJONG_right_dealed_T9;
+            if (direction == "right" && style == "dealed" && name == "W1") return MAHJONG_right_dealed_W1;
+            if (direction == "right" && style == "dealed" && name == "W2") return MAHJONG_right_dealed_W2;
+            if (direction == "right" && style == "dealed" && name == "W3") return MAHJONG_right_dealed_W3;
+            if (direction == "right" && style == "dealed" && name == "W4") return MAHJONG_right_dealed_W4;
+            if (direction == "right" && style == "dealed" && name == "W5") return MAHJONG_right_dealed_W5;
+            if (direction == "right" && style == "dealed" && name == "W6") return MAHJONG_right_dealed_W6;
+            if (direction == "right" && style == "dealed" && name == "W7") return MAHJONG_right_dealed_W7;
+            if (direction == "right" && style == "dealed" && name == "W8") return MAHJONG_right_dealed_W8;
+            if (direction == "right" && style == "dealed" && name == "W9") return MAHJONG_right_dealed_W9;
+            if (direction == "right" && style == "dealed" && name == "WEST") return MAHJONG_right_dealed_WEST;
+            if (direction == "right" && style == "dealed" && name == "WHITE") return MAHJONG_right_dealed_WHITE;
+            if (direction == "right" && style == "standard" && name == "DEFAULT") return MAHJONG_right_standard_DEFAULT;
+            if (direction == "up" && style == "dealed" && name == "B1") return MAHJONG_up_dealed_B1;
+            if (direction == "up" && style == "dealed" && name == "B2") return MAHJONG_up_dealed_B2;
+            if (direction == "up" && style == "dealed" && name == "B3") return MAHJONG_up_dealed_B3;
+            if (direction == "up" && style == "dealed" && name == "B4") return MAHJONG_up_dealed_B4;
+            if (direction == "up" && style == "dealed" && name == "B5") return MAHJONG_up_dealed_B5;
+            if (direction == "up" && style == "dealed" && name == "B6") return MAHJONG_up_dealed_B6;
+            if (direction == "up" && style == "dealed" && name == "B7") return MAHJONG_up_dealed_B7;
+            if (direction == "up" && style == "dealed" && name == "B8") return MAHJONG_up_dealed_B8;
+            if (direction == "up" && style == "dealed" && name == "B9") return MAHJONG_up_dealed_B9;
+            if (direction == "up" && style == "dealed" && name == "DEFAULT") return MAHJONG_up_dealed_DEFAULT;
+            if (direction == "up" && style == "dealed" && name == "EAST") return MAHJONG_up_dealed_EAST;
+            if (direction == "up" && style == "dealed" && name == "GREEN") return MAHJONG_up_dealed_GREEN;
+            if (direction == "up" && style == "dealed" && name == "NORTH") return MAHJONG_up_dealed_NORTH;
+            if (direction == "up" && style == "dealed" && name == "RED") return MAHJONG_up_dealed_RED;
+            if (direction == "up" && style == "dealed" && name == "SOUTH") return MAHJONG_up_dealed_SOUTH;
+            if (direction == "up" && style == "dealed" && name == "T1") return MAHJONG_up_dealed_T1;
+            if (direction == "up" && style == "dealed" && name == "T2") return MAHJONG_up_dealed_T2;
+            if (direction == "up" && style == "dealed" && name == "T3") return MAHJONG_up_dealed_T3;
+            if (direction == "up" && style == "dealed" && name == "T4") return MAHJONG_up_dealed_T4;
+            if (direction == "up" && style == "dealed" && name == "T5") return MAHJONG_up_dealed_T5;
+            if (direction == "up" && style == "dealed" && name == "T6") return MAHJONG_up_dealed_T6;
+            if (direction == "up" && style == "dealed" && name == "T7") return MAHJONG_up_dealed_T7;
+            if (direction == "up" && style == "dealed" && name == "T8") return MAHJONG_up_dealed_T8;
+            if (direction == "up" && style == "dealed" && name == "T9") return MAHJONG_up_dealed_T9;
+            if (direction == "up" && style == "dealed" && name == "W1") return MAHJONG_up_dealed_W1;
+            if (direction == "up" && style == "dealed" && name == "W2") return MAHJONG_up_dealed_W2;
+            if (direction == "up" && style == "dealed" && name == "W3") return MAHJONG_up_dealed_W3;
+            if (direction == "up" && style == "dealed" && name == "W4") return MAHJONG_up_dealed_W4;
+            if (direction == "up" && style == "dealed" && name == "W5") return MAHJONG_up_dealed_W5;
+            if (direction == "up" && style == "dealed" && name == "W6") return MAHJONG_up_dealed_W6;
+            if (direction == "up" && style == "dealed" && name == "W7") return MAHJONG_up_dealed_W7;
+            if (direction == "up" && style == "dealed" && name == "W8") return MAHJONG_up_dealed_W8;
+            if (direction == "up" && style == "dealed" && name == "W9") return MAHJONG_up_dealed_W9;
+            if (direction == "up" && style == "dealed" && name == "WEST") return MAHJONG_up_dealed_WEST;
+            if (direction == "up" && style == "dealed" && name == "WHITE") return MAHJONG_up_dealed_WHITE;
+            if (direction == "up" && style == "standard" && name == "DEFAULT") return MAHJONG_up_standard_DEFAULT;
+            return null;
+        }
+        
+        /**
+         * 
+         * @param obj
+         * @param direction
+         * @param style
+         * @param name
+         * @return 
+         * 
+         */
+        public static function getMeta(obj:*, direction:String = null, style:String = null, name:String = null):Array
+        {
+            if (obj) {
+                try {
+                    var str:String = obj.toString();
+                    var arr:Array = str.replace(/_([^_]+)_([^_]+)_([^_]+)$/, "$1,$2,$3").split(",");
+                    if (arr.length != 3) {
+                        throw new Error("Failed to fetch meta information of object[" + obj.toString() + "]");
+                    }
+                    if (direction) {
+                        arr[0] = direction;
+                    }
+                    if (style) {
+                        arr[1] = style;
+                    }
+                    if (name) {
+                        arr[2] = name;
+                    }
+                } catch (err:SecurityError) {
+                    throw err;
+                }
+            }
+            throw new Error("Can't fetch meta information of 'Null' object");
+        }
     }
 }
