@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" creationComplete="application1_creationCompleteHandler(event)" xmlns:component="component.*">
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.MahjongResource;
+            
+            import mx.controls.Alert;
+            import mx.events.FlexEvent;
+
+            protected function application1_creationCompleteHandler(event:FlexEvent):void
+            {
+                img1.source = info.knightrcom.assets.MahjongResource.load("down", "dais", "T7");
+                img2.source = info.knightrcom.assets.MahjongResource.load(null, "dealed", "W8", img1.source);
+                mjBtn.source = info.knightrcom.assets.MahjongResource.load(null, null, "B5", img1.source);
+
+                var mahjong:MahjongButton = mjBtn;
+                mahjong.parent.removeChild(mahjong);
+                // 将牌显示在桌面
+                mahjong.allowSelect = false;
+                mahjong.source = MahjongResource.load(null, "dealed", null, mahjong.source);
+                Application.application.addChild(mahjong);
+            }
+
+            public function callMethod(exprChain:String, obj:* = null, chains:Array = null):* {
+                if (exprChain) {
+                    chains = exprChain.split(/\./g);
+                }
+                if (!obj) {
+                    obj = this;
+                }
+                var currentExpr:String = chains.shift();
+                var exprPair:Array = currentExpr.match(/\w+|\[\d+\]|\(\)/g);
+                if (obj.hasOwnProperty(exprPair[0])) {
+                    if (exprPair.length > 1) {
+                        if (exprPair[1] == "()") {
+                            obj = obj[exprPair[0]]();
+                        } else if (exprPair[1].toString().match(/^\d+$/)) {
+                            obj = obj[exprPair[0]][exprPair[1]];
+                        }
+                    } else {
+                        obj = obj[exprPair[0]];
+                    }
+                }
+                if (chains.length == 0) {
+                    return obj;
+                }
+                return callMethod(null, obj, chains);
+            }
+
+            protected function button1_clickHandler(event:MouseEvent):void
+            {
+                var classPrefix:String = "PushdownWin";
+                var ClassReference:Class = getDefinitionByName("flash.display.Sprite") as Class;
+                flash.utils.getDefinitionByName("info.knightrcom.puppet.PushdownWinGamePinocchio") as Class;
+                var gamePuppetType:Class = flash.utils.getDefinitionByName("info.knightrcom.puppet." + classPrefix + "GamePinocchio") as Class;
+                return;
+                if (txtEval.text.match(/^(\w+(\[\d+\]|\(\))?)(\.\w+(\[\d+\]|\(\))?)*$/g )) {
+                    txtEvalResult.text = callMethod(txtEval.text) as String;
+                } else {
+                    Alert.show("Wrong");
+                }
+            }
+
+        ]]>
+    </mx:Script>
+    <mx:Image id="img1" x="166" y="426"/>
+    <mx:Image id="img2" x="113" y="264"/>
+    <component:MahjongButton id="mjBtn" />
+    <mx:TextArea id="txtEval" x="285" y="97" width="424" height="212" text="Application.application.img1.toString()">
+    </mx:TextArea>
+    <mx:TextArea id="txtEvalResult" x="285" y="347" width="424" height="212">
+    </mx:TextArea>
+    <mx:Button x="644" y="317" label="Button" click="button1_clickHandler(event)"/>
+</mx:Application>

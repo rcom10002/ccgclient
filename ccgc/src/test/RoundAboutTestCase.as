@@ -36,6 +36,10 @@ package test
                 [["V2","V2","V2"]],
                 [["VJ","VJ","VQ","VQ","VK","VK"]]
             ];
+            dummyTips = [
+                [["VK"],["1V5"]],
+                [["VQ","VQ"]]
+            ];
             var result:* = testRoundabout(dummyTips, tipCount(dummyTips));
             trace(result);
         }
