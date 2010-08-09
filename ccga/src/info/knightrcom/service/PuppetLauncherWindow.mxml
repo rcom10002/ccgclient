@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FunctionWindow xmlns="info.knightrcom.service.*"
-				xmlns:mx="http://www.adobe.com/2006/mxml"
-				width="100%"
-				height="100%"
-				title="でく・ロボット">
-	<mx:Script>
-		<![CDATA[
-			import mx.events.CloseEvent;
+                xmlns:mx="http://www.adobe.com/2006/mxml"
+                width="100%"
+                height="100%"
+                title="でく・ロボット">
+    <mx:Script>
+        <![CDATA[
+            import mx.events.CloseEvent;
             import info.knightrcom.util.HttpServiceProxy;
             import info.knightrcom.util.ListenerBinder;
             
@@ -33,75 +33,81 @@
             
             protected function btnWebStartPuppetClickHandler(event:MouseEvent):void
             {
-            	checkServerStatus();
+                checkServerStatus();
             }
             
-			private function startPuppet():void
-			{
-				HttpServiceProxy.send(
-						LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
-						{GAME_TYPE : "Red5", MAX_RESULTS_SIZE : puppetStepper.value}, 
-						null, function (e:ResultEvent):void {
-					var result:* = e.result;
-					var targetURL:String = result.tag;
-					var classPrefix:String = "Red5";
-					for each (var entity:* in result.entityList.PlayerProfile) {
-						// targetURL, securityPassword, classPrefix, username, password
-						var values:Array = entity.status.split(/~/g);
-						var finalTargetURL:String = targetURL + 
-						"?securityPassword=test" + 
-						"&classPrefix=" + values[1] + 
-						"&username=" + entity.userId.text() + 
-						"&password=" + entity.userId.text() +
-						"&roomId=" + values[2] // Red5Fresh
-						"&gameType=" + values[3];
-						ExternalInterface.call("window.open", finalTargetURL);
-					}
-				}, function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
-			}
-			
-			private function checkServerStatus():void {
-				// 检查服务器是否关闭
-				HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
-					{
-						if (new XML(event.result).result == "SUCCESS")
-						{
-							Alert.buttonWidth = 100;
-							Alert.yesLabel="启动服务器";
-	    					Alert.noLabel="取消";
-							Alert.show("服务器已关闭，必须启动服务器才能继续，是否启动服务器？", "でく・ロボット", 
-								Alert.YES | Alert.NO,
-								adminApp,
-								function handleAlert(event:CloseEvent):void {
-									Alert.buttonWidth = 65;
-								    if(event.detail == Alert.YES)
-								    {
-								       HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, function(event:ResultEvent):void
-											{
-												var result:XML = new XML(event.result);
-												if (result.entity == "UPDATE_WARNING") {
-													Alert.show("游戏服务器已经是启动状态，该操作被中止！");
-												} else {
-													Alert.show("游戏服务器启动成功！");
-												}
-											}, function():void
-											{
-												Alert.show("游戏服务器启动失败！");
-											});
-								    }
-								},
-								null,
-								Alert.YES);
-						}
-						else
-						{
-							startPuppet();
-						}
-					}, function(event:FaultEvent):void
-					{
-						Alert.show("服务中断！", "でく・ロボット");
-					});
-			}
+            private function startPuppet():void
+            {
+                HttpServiceProxy.send(
+                        LocalPuppetConsoleService.RETRIEVE_PUPPET_INFO, 
+                        {
+                            GAME_TYPE : cmbGameType.selectedItem.data.split(",")[0], 
+                            MAX_RESULTS_SIZE : puppetStepper.value
+                        },
+                        null,
+                        function (e:ResultEvent):void {
+                            var result:* = e.result;
+                            var targetURL:String = result.tag;
+                            for each (var entity:* in result.entityList.PlayerProfile) {
+                                // targetURL, securityPassword, classPrefix, username, password
+                                var values:Array = entity.status.split(/~/g);
+                                var finalTargetURL:String = targetURL + 
+                                "?securityPassword=test" + 
+                                "&classPrefix=" + values[1] + 
+                                "&username=" + entity.userId.text() + 
+                                "&password=" + entity.userId.text() +
+                                "&roomId=" + values[2] // Red5Fresh
+                                "&gameType=" + values[3];
+                                ExternalInterface.call("window.open", finalTargetURL);
+                            }
+                        }, 
+                        function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+            }
+            
+            private function checkServerStatus():void {
+                // 检查服务器是否关闭
+                HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
+                    {
+                        if (new XML(event.result).result == "SUCCESS")
+                        {
+                            Alert.buttonWidth = 100;
+                            Alert.yesLabel="启动服务器";
+                            Alert.noLabel="取消";
+                            Alert.show("服务器已关闭，必须启动服务器才能继续，是否启动服务器？", "でく・ロボット", 
+                                Alert.YES | Alert.NO,
+                                adminApp,
+                                function handleAlert(event:CloseEvent):void {
+                                    Alert.buttonWidth = 65;
+                                    if(event.detail == Alert.YES)
+                                    {
+                                       HttpServiceProxy.send(LocalApplicationServerOperationService.START_APPLICATION_SERVER, null, null, 
+                                           function(event:ResultEvent):void
+                                           {
+                                                var result:XML = new XML(event.result);
+                                                if (result.entity == "UPDATE_WARNING") {
+                                                    Alert.show("游戏服务器已经是启动状态，该操作被中止！");
+                                                } else {
+                                                    Alert.show("游戏服务器启动成功！");
+                                                }
+                                           },
+                                           function():void
+                                           {
+                                                Alert.show("游戏服务器启动失败！");
+                                           });
+                                    }
+                                },
+                                null,
+                                Alert.YES);
+                        }
+                        else
+                        {
+                            startPuppet();
+                        }
+                    }, function(event:FaultEvent):void
+                    {
+                        Alert.show("服务中断！", "でく・ロボット");
+                    });
+            }
 
             protected function btnLocalStartPuppetClickHandler(event:MouseEvent):void {
                 // 本地装载CCGC
@@ -164,43 +170,43 @@
                 getListPuppetInfo();
             }
 
-			private function getListPuppetInfo():void {
-				HttpServiceProxy.send(
-						LocalPuppetConsoleService.LIST_PUPPET_INFO, 
-						{GAME_TYPE : "Red5"}, 
-						null, function (e:ResultEvent):void {
-							datagrid.dataProvider = new XML(e.result).tag.map;
+            private function getListPuppetInfo():void {
+                HttpServiceProxy.send(
+                        LocalPuppetConsoleService.LIST_PUPPET_INFO, 
+                        {GAME_TYPE : "Red5"}, 
+                        null, function (e:ResultEvent):void {
+                            datagrid.dataProvider = new XML(e.result).tag.map;
                             // TODO lblTip.text = "运行中Puppet数：" + "" + "个";
                             Application.application.log("");
-						}, function (e:FaultEvent):void { Application.application.log("通信错误，无法从Web服务器取得数据！");
+                        }, function (e:FaultEvent):void { Application.application.log("通信错误，无法从Web服务器取得数据！");
                 });
-			}
-		]]>
-	</mx:Script>
-	<creationComplete>
-		<![CDATA[
+            }
+        ]]>
+    </mx:Script>
+    <creationComplete>
+        <![CDATA[
             var timer:Timer = new Timer(60 * 1000); 
             ListenerBinder.bind(timer, TimerEvent.TIMER, onTimer);
             ListenerBinder.bind(btnRefresh, MouseEvent.CLICK, btnListPuppetClickHandler);
             ListenerBinder.bind(btnWebStartPuppet, MouseEvent.CLICK, btnWebStartPuppetClickHandler);
             ListenerBinder.bind(btnLocalStartPuppet, MouseEvent.CLICK, btnLocalStartPuppetClickHandler);
             timer.start();
-		]]>
-	</creationComplete>
-	<mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="40">
-		<mx:columns>
-			<mx:DataGridColumn headerText="puppet名称" dataField="pupuetname"/>
-			<mx:DataGridColumn headerText="当前分数" dataField="currentscore"/>
-			<mx:DataGridColumn headerText="当前状态" dataField="currentstatus"/>
-			<mx:DataGridColumn headerText="最后一次游戏时间" dataField="lastgametime"/>
-			<mx:DataGridColumn headerText="启动时间" dataField="starttime"/>
-			<mx:DataGridColumn headerText="运行时间" dataField="runingtime"/>
-		</mx:columns>
-	</mx:DataGrid>
-	<mx:Button label="刷新" id="btnRefresh" bottom="10" left="10"/>
+        ]]>
+    </creationComplete>
+    <mx:DataGrid id="datagrid" left="10" top="10" right="10" bottom="40">
+        <mx:columns>
+            <mx:DataGridColumn headerText="puppet名称" dataField="pupuetname"/>
+            <mx:DataGridColumn headerText="当前分数" dataField="currentscore"/>
+            <mx:DataGridColumn headerText="当前状态" dataField="currentstatus"/>
+            <mx:DataGridColumn headerText="最后一次游戏时间" dataField="lastgametime"/>
+            <mx:DataGridColumn headerText="启动时间" dataField="starttime"/>
+            <mx:DataGridColumn headerText="运行时间" dataField="runingtime"/>
+        </mx:columns>
+    </mx:DataGrid>
+    <mx:Button label="刷新" id="btnRefresh" bottom="10" left="10"/>
     <mx:NumericStepper id="puppetStepper" right="170" bottom="10" minimum="1" maximum="100" stepSize="1" value="4"/>
     <mx:Button label="Web启动" id="btnWebStartPuppet" bottom="10" right="88" />
-	<mx:Button label="本地装载" id="btnLocalStartPuppet" right="10" bottom="10" enabled="false"/>
+    <mx:Button label="本地装载" id="btnLocalStartPuppet" right="10" bottom="10" enabled="false"/>
     <mx:ViewStack id="swfVideo"
                   x="30" y="32"
                   width="452" height="339"
@@ -211,5 +217,14 @@
     <mx:Label text="本地装载" bottom="10" right="501"/>
     <mx:Label text="{ccgcArray.length}" right="387" bottom="10"/>
     -->
-    <mx:Label id="lblTip" right="243" bottom="10" textAlign="right"/>
+    <mx:Label id="lblTip" right="411" bottom="10" textAlign="right"/>
+    <mx:ComboBox right="243" bottom="10" id="cmbGameType">
+        <mx:dataProvider>
+            <mx:Array>
+                <!-- <mx:Object label="标题" data="游戏名称" enabled="是否启用" /> -->
+                <mx:Object label="红五新手" data="Red5,Red5Fresh" />
+                <mx:Object label="推到胡" data="PushdownWin,PushdownWin" />
+            </mx:Array>
+        </mx:dataProvider>
+    </mx:ComboBox>
 </FunctionWindow>
