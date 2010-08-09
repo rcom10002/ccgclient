@@ -1,55 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="800" minHeight="600" xmlns:component="component.*">
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.MahjongResource;
+        ]]>
+    </mx:Script>
 	<!-- 上侧区域 -->
 	<mx:HBox id="candidatedUp"
 			 height="80"
 			 horizontalGap="0"
-			 horizontalAlign="left"
-			 verticalAlign="bottom"
+			 horizontalAlign="center"
+			 verticalAlign="middle"
 			 top="0"
-			 left="170"
-			 right="150">
+			 width="600" horizontalCenter="40">
 	</mx:HBox>
 	<!-- 右侧区域 -->
 	<mx:VBox id="candidatedRight"
 			 width="80"
-			 top="120"
-			 bottom="80"
 			 right="0"
-			 horizontalAlign="left"
-			 verticalAlign="top"
-			 verticalGap="-20">
+			 horizontalAlign="center"
+			 verticalAlign="middle"
+			 verticalGap="-20" verticalCenter="20" height="400">
 	</mx:VBox>
 	<!-- 下侧区域 -->
 	<mx:HBox id="candidatedDown"
 			 height="80"
 			 horizontalGap="0"
-			 horizontalAlign="right"
-			 left="150"
-			 right="170"
+			 horizontalAlign="center"
 			 bottom="0"
-			 verticalAlign="top">
+			 verticalAlign="middle" horizontalCenter="-40" width="600">
 	</mx:HBox>
 	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
 			 width="80"
-			 top="80"
-			 bottom="120"
-			 left="0"
-			 horizontalAlign="right"
-			 verticalAlign="bottom"
-			 verticalGap="-20">
+			 horizontalAlign="center"
+			 verticalAlign="middle"
+			 verticalGap="-20" x="0" verticalCenter="-20" height="400">
 	</mx:VBox>
-	<mx:Canvas left="150" right="150" top="150" bottom="187">
+	<mx:Canvas left="170" right="170" top="175" bottom="200">
 		<!-- 牌桌区域 -->
 		<mx:Tile id="dealed"
 				 top="0"
 				 left="0"
-				 horizontalGap="2"
-				 verticalGap="2"
+				 horizontalGap="1"
+				 verticalGap="-7"
 				 verticalAlign="middle" right="0" bottom="0">
 		</mx:Tile>
-		<mx:TextArea id="testArea" height="100" left="0" right="50" bottom="0" /><mx:Button id="testFresh" width="50" height="50" right="0" bottom="0"/>
+		<mx:TextArea id="testArea" height="100" left="0" right="0" bottom="40" /><mx:Button id="testFresh" width="50" height="50" right="0" bottom="0"/>
 	</mx:Canvas>
 	<!-- TODO 暂时保留 -->
     <mx:Style>
@@ -72,30 +69,30 @@
     </mx:Style>
 	<!-- TODO 暂时保留 -->
 	<!-- 操作提示区域 -->
-	<mx:HBox left="150" right="150" bottom="187" height="53" horizontalAlign="center">
+	<mx:HBox bottom="185" height="55" horizontalAlign="center" horizontalCenter="0" width="500" verticalAlign="middle">
 		<mx:HBox id="toolTip1" horizontalGap="0" visible="false">
-			<component:MahjongButton source="image/mahjong/down/dealed/RED.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/dealed/GREEN.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/dealed/WHITE.jpg" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 		</mx:HBox>
 		<mx:HBox id="toolTip2" horizontalGap="0" visible="false">
-			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 		</mx:HBox>
 		<mx:HBox id="toolTip3" horizontalGap="0" visible="false">
-			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
-			<component:MahjongButton source="image/mahjong/down/dealed/DEFAULT.jpg" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 		</mx:HBox>
 	</mx:HBox>
 	<!-- 操作区域 -->
 	<mx:HBox horizontalAlign="center"
 			 left="200"
 			 right="200"
-			 bottom="149"
+			 bottom="155"
 			 height="30">
-		<mx:ButtonBar id="btnBarMahjongs" borderStyle="solid" horizontalGap="5" width="300">
+		<mx:ButtonBar id="btnBarMahjongs" borderStyle="solid" horizontalGap="5">
 			<mx:dataProvider>
 				<mx:String>胡</mx:String>
 				<mx:String>杠</mx:String>
@@ -107,75 +104,76 @@
 		</mx:ButtonBar>
 	</mx:HBox>
 	<mx:VBox id="daisLeft"
-			 top="100"
-			 bottom="100"
 			 left="88"
-			 horizontalAlign="right"
+			 horizontalAlign="left"
 			 verticalAlign="middle"
-			 verticalGap="0" width="53">
+			 verticalGap="-8" width="53" verticalCenter="0" height="400">
 	</mx:VBox>
 	<mx:VBox id="daisRight"
 			 width="53"
-			 top="100"
-			 bottom="100"
 			 right="88"
-			 horizontalAlign="left"
+			 horizontalAlign="right"
 			 verticalAlign="middle"
-			 verticalGap="0">
+			 verticalGap="-8" verticalCenter="0" height="400">
 	</mx:VBox>
 	<mx:HBox id="daisDown"
-			 height="53"
+			 height="75"
 			 horizontalGap="0"
 			 horizontalAlign="center"
-			 left="175"
-			 right="175"
-			 bottom="88"
-			 verticalAlign="top">
+			 bottom="80"
+			 verticalAlign="middle" horizontalCenter="0" width="520">
 	</mx:HBox>
 	<mx:HBox id="daisUp"
-			 height="53"
+			 height="75"
 			 horizontalGap="0"
 			 horizontalAlign="center"
-			 verticalAlign="bottom"
-			 top="88"
-			 left="175"
-			 right="175">
+			 verticalAlign="middle"
+			 top="80"
+			 horizontalCenter="0" width="450">
 	</mx:HBox>
 	<mx:VBox id="randLeft"
 			 height="60"
 			 width="80"
-			 bottom="50"
 			 left="0"
 			 horizontalAlign="right"
 			 verticalAlign="middle"
-			 verticalGap="-78">
+			 verticalGap="-78" verticalCenter="220">
 	</mx:VBox>
 	<mx:HBox id="randDown"
 			 height="80"
 			 width="60"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
-			 right="100"
 			 bottom="0"
-			 verticalAlign="top">
+			 verticalAlign="middle" horizontalCenter="300">
 	</mx:HBox>
 	<mx:HBox id="randUp"
 			 height="80"
 			 width="60"
 			 horizontalGap="-55"
 			 horizontalAlign="center"
-			 verticalAlign="bottom"
+			 verticalAlign="middle"
 			 top="0"
-			 left="100">
+ horizontalCenter="-300">
 	</mx:HBox>
 	<mx:VBox id="randRight"
 			 height="60"
 			 width="80"
-			 top="50"
-			 right="1"
+			 right="0"
 			 horizontalAlign="left"
 			 verticalAlign="middle"
-			 verticalGap="-78">
+			 verticalGap="-78" verticalCenter="-220">
 	</mx:VBox>
 	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+    <mx:HBox id="tipDown"
+             verticalScrollPolicy="off"
+             horizontalScrollPolicy="off"
+             width="120" horizontalCenter="0" bottom="220" height="100" horizontalAlign="center" verticalAlign="middle">
+    </mx:HBox>
+    <mx:HBox width="120" height="100" verticalCenter="0" left="120" id="tipLeft" horizontalAlign="center" verticalAlign="middle">
+    </mx:HBox>
+    <mx:HBox width="120" height="100" verticalCenter="0" right="120" id="tipRight" horizontalAlign="center" verticalAlign="middle">
+    </mx:HBox>
+    <mx:HBox width="120" height="100" horizontalCenter="0" top="150" id="tipUp" horizontalAlign="center" verticalAlign="middle">
+    </mx:HBox>
 </mx:Module>
