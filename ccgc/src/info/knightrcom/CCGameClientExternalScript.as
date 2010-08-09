@@ -79,7 +79,10 @@ protected override function applicationCompleteHandler(event:FlexEvent):void {
         password &&
         roomId/* &&
         gameType*/) {
-        red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
+        // gameType 用于指明生成哪种类型的Puppet
+//        red5GameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
+//            securityPassword, classPrefix, username, password, roomId);
+        pushdownWinGameStateManager.myPuppet = PuppetEngine.createPinocchioPuppet(
             securityPassword, classPrefix, username, password, roomId);
         return;
     }
