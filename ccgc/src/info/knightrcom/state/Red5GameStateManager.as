@@ -257,7 +257,6 @@ package info.knightrcom.state {
                     if (currentGame.btnBarPokers.visible) {
                         return;
                     }
-                    currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/【\d+】/g, "【#】".replace(/#/, String(MAX_CARDS_SELECT_TIME - otherTimer.currentCount)));
                     var otherGameWaitingClockParent:Container = Container(cardsDealedArray[currentNextNumber - 1]);
                     var lastChildIndex:int = otherGameWaitingClockParent.numChildren - 1;
                     if (otherGameWaitingClockParent.numChildren > 0 && otherGameWaitingClockParent.getChildAt(lastChildIndex) is GameWaiting) {
@@ -296,7 +295,6 @@ package info.knightrcom.state {
                     currentGame.setChildIndex(eachContainer, currentGame.numChildren - 1);
                 }
                 currentGame.setChildIndex(currentGame.timerTip, currentGame.numChildren - 1);
-                currentGame.setChildIndex(currentGame.arrowTip, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
                 
@@ -395,7 +393,6 @@ package info.knightrcom.state {
             		function (e:ResultEvent):void {
 		            	var e4x:XML = new XML(e.result);
 		            	myScore = Number(e4x.entity.currentScore.text());
-		            	currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/我的当前积分：\d*/, "我的当前积分：" + myScore);
                         currentGame.infoBoardText.text = "我的当前积分：" + myScore;						// 少于500分时设置警戒色
 						if (myScore < 500) {
 							currentGame.infoBoardText.setStyle("color", "red");
@@ -462,8 +459,6 @@ package info.knightrcom.state {
             var firstPoker:Image = new Image();
             firstPoker.source = Red5GameResource.FIRST_POKER_TIP;
             (cardsCandidatedTipArray[firstPlayerNumber - 1] as Box).addChild(firstPoker);
-//        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
-//        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             if (firstPlayerNumber == localNumber) {
                 this._myPuppet.gameBox = pokerBox;
 				this._myPuppet.dispatchEvent(new GamePinocchioEvent(
@@ -471,7 +466,7 @@ package info.knightrcom.state {
 					null, 
 					PlatformAlert.show("10", "信息", Red5GameSetting.getNoRushStyle(), gameSettingSelect)));
             }
-            updateTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber);
+            updateOtherTip(-1, firstPlayerNumber, firstPlayerNumber != localNumber);
         }
 
         /**
@@ -502,7 +497,7 @@ package info.knightrcom.state {
 //                    // 首次出牌需要禁用"不要"按键
 //                    Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled = false;
                 }
-                updateTip(localNumber, localNextNumber);
+                updateOtherTip(localNumber, localNextNumber);
             } else if (gameSettingUpdateTimes == playerCogameNumber) {
                 // 当前玩家为最后一个玩家时，马上可以开始游戏
                 if (setting != Red5GameSetting.NO_RUSH) {
@@ -519,18 +514,18 @@ package info.knightrcom.state {
                     // 游戏设置为不独时
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
                     socketProxy.sendGameData(Red5GameCommand.GAME_SETTING_FINISH, currentNumber + "~" + gameSetting);
-                    updateTip(currentNumber, gameFinalSettingPlayerNumber);
+                    updateOtherTip(currentNumber, gameFinalSettingPlayerNumber);
                 }
             } else if (setting == Red5GameSetting.NO_RUSH) {
                 // 非首次和末次，不独时，直接转发前次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, currentNumber + "~" + gameSetting + "~" + localNextNumber);
-                updateTip(currentNumber, localNextNumber);
+                updateOtherTip(currentNumber, localNextNumber);
             } else if (setting == Red5GameSetting.RUSH || setting == Red5GameSetting.DEADLY_RUSH) {
                 // 非首次和末次，独牌或天独时，发送本次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
                 gameSetting = setting;
                 gameFinalSettingPlayerNumber = localNumber;
-                updateTip(localNumber, localNextNumber);
+                updateOtherTip(localNumber, localNextNumber);
             } else if (setting == Red5GameSetting.EXTINCT_RUSH) {
                 // 非首次和末次，天外天时，发送本次的游戏设置
                 socketProxy.sendGameData(Red5GameCommand.GAME_SETTING, localNumber + "~" + setting + "~" + localNextNumber);
@@ -600,7 +595,7 @@ package info.knightrcom.state {
             for each (var eachDealed:Container in cardsDealedArray) {
                 eachDealed.removeAllChildren();
             }
-            updateTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
+            updateOtherTip(currentNumber, currentNextNumber, currentNextNumber != localNumber);
         }
 
         /**
@@ -624,7 +619,7 @@ package info.knightrcom.state {
             }
             if (gameSetting == Red5GameSetting.NO_RUSH) {
                 // 非独牌时
-                updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
+                updateOtherTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
             } else {
                 // 独牌时，添加独牌提示图标
                 var gameSettingImage:Image = new Image();
@@ -641,7 +636,7 @@ package info.knightrcom.state {
                 }
                 (cardsCandidatedTipArray[gameFinalSettingPlayerNumber - 1] as Container).addChild(gameSettingImage);
             }
-            // updateTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
+            // updateOtherTip(-1, gameFinalSettingPlayerNumber, gameFinalSettingPlayerNumber != localNumber);
         }
 
         /**
@@ -728,7 +723,7 @@ package info.knightrcom.state {
             }
 
             // 更新显示提示
-            updateTip(currentNumber, currentNextNumber, !currentGame.btnBarPokers.visible);
+            updateOtherTip(currentNumber, currentNextNumber, !currentGame.btnBarPokers.visible);
         }
 
         /**
@@ -1034,7 +1029,7 @@ package info.knightrcom.state {
                     // 出牌操作结束后，关闭扑克操作栏
                     currentGame.btnBarPokers.visible = false;
                     // 更新显示提示
-                    updateTip(currentNumber, localNextNumber);
+                    updateOtherTip(currentNumber, localNextNumber);
                     break;
                 case 2:
 					// 提示
@@ -1200,7 +1195,7 @@ package info.knightrcom.state {
                     // 出牌操作结束后，关闭扑克操作栏
                     currentGame.btnBarPokers.visible = false;
                     // 更新显示提示
-                    updateTip(localNumber, localNextNumber);
+                    updateOtherTip(localNumber, localNextNumber);
                     break;
             }
         }
@@ -1294,9 +1289,9 @@ package info.knightrcom.state {
          * @param showOtherTime 是否应用等待其他玩家信息
          * 
          */
-        private function updateTip(lastNumber:int, nextNumber:int, showOtherTime:Boolean = true):void {
+        private function updateOtherTip(lastNumber:int, nextNumber:int, showOtherTime:Boolean = true):void {
             // 参数初始化
-            currentNextNumber = nextNumber;
+            currentNextNumber = nextNumber; // TODO Should this line be removed?
             // 从画面中清除已经使用过的倒计时
             for each (var eachDealed:Container in cardsDealedArray) {
                 if (eachDealed.numChildren > 0 && eachDealed.getChildAt(eachDealed.numChildren - 1) is GameWaiting) {
@@ -1304,33 +1299,23 @@ package info.knightrcom.state {
                 }
             }
             currentGame.candidatedTipDownExt.removeAllChildren();
-            // 显示游戏提示
-            var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
-            var playerDirection:Array = new Array("下", "右", "上", "左");
-            var index:int = 0;
-            while (index != localNumber - 1) {
-                var temp:Object = null;
-                temp = playerDirection.pop();
-                playerDirection.unshift(temp);
-                index++;
-            }
-            // 显示游戏提示：指示当前要出牌的玩家
-            tipString = tipString.replace(/#/, playerDirection[nextNumber - 1]);
-            // 显示游戏提示：指示最后出了牌的玩家，首次发牌时，lastBoutedNumber小于零
-            tipString = tipString.replace(/#/, lastNumber < 0 ? "无" : playerDirection[lastNumber - 1]);
+//            // 显示游戏提示
+//            var tipString:String = "准备出牌玩家：#，\n最后出牌玩家：#。";
+//            var playerDirection:Array = new Array("下", "右", "上", "左");
+//            var index:int = 0;
+//            while (index != localNumber - 1) {
+//                var temp:Object = null;
+//                temp = playerDirection.pop();
+//                playerDirection.unshift(temp);
+//                index++;
+//            }
+//            // 显示游戏提示：指示当前要出牌的玩家
+//            tipString = tipString.replace(/#/, playerDirection[nextNumber - 1]);
+//            // 显示游戏提示：指示最后出了牌的玩家，首次发牌时，lastBoutedNumber小于零
+//            tipString = tipString.replace(/#/, lastNumber < 0 ? "无" : playerDirection[lastNumber - 1]);
 
-            if (gameSetting == -1 || gameSetting == Red5GameSetting.NO_RUSH) {
-                currentGame.arrowTip.text = "游戏没有人独牌！\n" + tipString;
-            } else {
-                currentGame.arrowTip.text = "游戏#方玩家#！\n".replace(/#/, playerDirection[gameFinalSettingPlayerNumber - 1]);
-                currentGame.arrowTip.text = currentGame.arrowTip.text.replace(/#/, Red5GameSetting.getDisplayName(gameSetting < 0 ? 0 : gameSetting));
-                currentGame.arrowTip.text = currentGame.arrowTip.text + tipString;
-            }
-        	currentGame.arrowTip.text = "获得首发牌红心十玩家: " + playerDirection[firstPlayerNumber - 1] + "！\n" + currentGame.arrowTip.text;
-        	currentGame.arrowTip.text = "我的当前积分：" + myScore + "。\n" + currentGame.arrowTip.text;
             if (showOtherTime && !currentGame.btnBarPokers.visible) {
                 // 非当前玩家出牌时，显示动态提示
-                currentGame.arrowTip.text = currentGame.arrowTip.text + "\n其他玩家出牌，剩余【" + MAX_CARDS_SELECT_TIME + "】秒！";
                 if (otherTimer.running) {
                     otherTimer.stop();
                 }
@@ -1430,7 +1415,6 @@ package info.knightrcom.state {
                 cardsCandidatedTip.removeAllChildren();
             }
             if (currentGame) {
-                currentGame.arrowTip.text = "";
                 currentGame.infoBoardText.text = "";
             }
         }
