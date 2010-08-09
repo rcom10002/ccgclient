@@ -4,10 +4,12 @@ package info.knightrcom.util {
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.events.MouseEvent;
+    import flash.utils.getDefinitionByName;
     
     import info.knightrcom.puppet.GamePinocchio;
     import info.knightrcom.puppet.GamePinocchioEvent;
-    import info.knightrcom.state.red5game.Red5GamePinocchio;
+    import info.knightrcom.puppet.Red5GamePinocchio;
+    import info.knightrcom.puppet.PushdownWinGamePinocchio;
     
     import mx.controls.Button;
     import mx.core.Application;
@@ -45,10 +47,10 @@ package info.knightrcom.util {
          */
         public static function createPinocchioPuppet(securityPassword:String, classPrefix:String, username:String, password:String, roomId:String):GamePinocchio {
             // 创建实例对象
-            // var gamePuppetType:Class = getDefinitionByName("info.knightrcom.puppet." + classPrefix + "GamePinocchio") as Class;
-            // var gamePuppetType:Class = getDefinitionByName("info.knightrcom.puppet.Red5GamePinocchio") as Class;
-            var puppet:GamePinocchio =  /*new gamePuppetType(username, password, roomId);
-                 //puppet = */new Red5GamePinocchio(username, password, roomId);
+            var a:Red5GamePinocchio;
+            var b:PushdownWinGamePinocchio;
+            var gamePuppetType:Class = getDefinitionByName("info.knightrcom.puppet." + classPrefix + "GamePinocchio") as Class;
+            var puppet:GamePinocchio = new gamePuppetType(username, password, roomId);
 
 			// 登录游戏平台，每隔 N 秒执行一次登录操作直到进入平台为止
             puppet.prepareActionTimer(INTERVAL_LOGIN, function():void {
@@ -83,13 +85,14 @@ package info.knightrcom.util {
 			// ===> 游戏进行，智能出牌
             ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_BOUT, function (event:GamePinocchioEvent):void {
                     puppet.prepareActionTimer(intervalRandom(2, 6), function():void {
-                        puppet.tips = Application.application.red5GameModule.candidatedDown.getChildren();
+                        puppet.preoperateGame(event);
                         puppet.operateGame(event);
                         puppet.resetActionTimer();
                     }).start();
                 });
             // ===> 游戏结束，游戏结束时关闭积分面板并返回游戏大厅
             ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_END, function(event:GamePinocchioEvent):void {
+// FIXME remove all managed Alert windows
 //                    iterateAllModelWindow(function(target:*):void {
 //                            if (target is Scoreboard) {
 //                                puppet.backToLobby();
