@@ -181,7 +181,6 @@
 	</mx:VBox>
     <!-- 提示区域 -->
     <mx:ProgressBar id="timerTip" x="10" y="-300"/>
-    <mx:Text id="arrowTip" x="10" y="-400" selectable="false"/>
     <mx:Image id="infoBoard" source="{info.knightrcom.assets.Red5GameResource.INFO_BOARD}" x="0" y="0" />
     <mx:Text id="infoBoardText" x="48" y="80" width="160" text="" selectable="false" 
              textAlign="center" fontSize="36" fontFamily="DS-Digital" fontAntiAliasType="advanced" 
