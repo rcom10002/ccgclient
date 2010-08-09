@@ -173,7 +173,16 @@ package info.knightrcom.puppet
         public function selectGameSetting(event:GamePinocchioEvent):void
         {
         }
-
+        
+        /**
+         *
+         * @param event
+         *
+         */
+        public function preoperateGame(event:GamePinocchioEvent):void
+        {
+        }
+        
         /**
          *
          * @param event
