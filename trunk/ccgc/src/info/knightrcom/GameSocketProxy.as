@@ -4,7 +4,9 @@ package info.knightrcom {
     import flash.events.EventDispatcher;
     import flash.events.IOErrorEvent;
     import flash.events.SecurityErrorEvent;
+    import flash.events.TimerEvent;
     import flash.net.XMLSocket;
+    import flash.utils.Timer;
     
     import info.knightrcom.command.GameCommand;
     import info.knightrcom.command.PlatformCommand;
@@ -37,6 +39,7 @@ package info.knightrcom {
         private var _timeout:int = 30 * 1000;
         private var base64Encoder:Base64Encoder;
         private var base64Decoder:Base64Decoder;
+        private var lastEchoTimestamp:Number;
 
         /**
          * 
@@ -88,6 +91,26 @@ package info.knightrcom {
         }
 
         public function connectHandler(event:Event):void {
+            // 自动问候主机，以保持自身的在线状态
+            var autoGreeting:Timer = new Timer(1000 * 45);
+            autoGreeting.addEventListener(
+                TimerEvent.TIMER,
+                function (event:TimerEvent):void {
+                    sendPlatformData(PlatformCommand.PLATFORM_IDLE_ECHO, "Hi, an apple~~~!");
+                }
+            );
+            autoGreeting.start();
+            // 断线检测器
+            var disconnectionDetector:Timer = new Timer(1000 * 60);
+            disconnectionDetector.addEventListener(
+                TimerEvent.TIMER,
+                function (event:TimerEvent):void {
+                    if ((new Date().getTime() - lastEchoTimestamp) > 60 * 1000) {
+                        socket.close();
+                    }
+                }
+            );
+            autoGreeting.start();
             dispatchEvent(new PlatformEvent(PlatformEvent.SERVER_CONNECTED));
         }
 
@@ -95,6 +118,8 @@ package info.knightrcom {
             event.data = decodeForBase64String(event.data);
             if (event.data == null || event.data.length == 0) {
                 return;
+            } else {
+                lastEchoTimestamp = new Date().getTime();
             }
             // 解析消息，消息格式：消息编号、消息反馈结果、消息反馈内容
             var results:Array = event.data.split("~");

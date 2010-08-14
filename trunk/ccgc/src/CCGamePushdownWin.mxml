@@ -37,16 +37,20 @@
 			 verticalAlign="middle"
 			 verticalGap="-20" x="0" verticalCenter="-20" height="400">
 	</mx:VBox>
-	<mx:Canvas left="170" right="170" top="175" bottom="200">
+    <component:MahjongGreatWall id="greatWall" left="150" right="150" top="150" bottom="180">
+    </component:MahjongGreatWall>
+	<mx:Canvas left="220" right="220" top="220" bottom="160">
 		<!-- 牌桌区域 -->
 		<mx:Tile id="dealed"
-				 top="0"
+                 bottom="0"
+                 right="0"
+                 top="0"
 				 left="0"
 				 horizontalGap="1"
 				 verticalGap="-7"
-				 verticalAlign="middle" right="0" bottom="0">
+				 verticalAlign="middle">
 		</mx:Tile>
-		<mx:TextArea id="testArea" height="100" left="0" right="0" bottom="40" /><mx:Button id="testFresh" width="50" height="50" right="0" bottom="0"/>
+		<mx:TextArea id="testArea" height="100" left="0" right="0" bottom="40" visible="false" /><mx:Button id="testFresh" width="50" height="50" right="0" bottom="0"/>
 	</mx:Canvas>
 	<!-- TODO 暂时保留 -->
     <mx:Style>
@@ -135,7 +139,7 @@
 			 height="60"
 			 width="80"
 			 left="0"
-			 horizontalAlign="right"
+			 horizontalAlign="center"
 			 verticalAlign="middle"
 			 verticalGap="-78" verticalCenter="220">
 	</mx:VBox>
@@ -154,13 +158,13 @@
 			 horizontalAlign="center"
 			 verticalAlign="middle"
 			 top="0"
- horizontalCenter="-300">
+             horizontalCenter="-300">
 	</mx:HBox>
 	<mx:VBox id="randRight"
 			 height="60"
 			 width="80"
 			 right="0"
-			 horizontalAlign="left"
+			 horizontalAlign="center"
 			 verticalAlign="middle"
 			 verticalGap="-78" verticalCenter="-220">
 	</mx:VBox>
