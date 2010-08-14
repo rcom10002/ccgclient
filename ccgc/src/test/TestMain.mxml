@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" applicationComplete="application1_applicationCompleteHandler(event)" xmlns:component="component.*">
+    <mx:Script>
+        <![CDATA[
+            import flash.utils.getDefinitionByName;
+            
+            import mx.events.FlexEvent;
+            
+
+            protected function application1_applicationCompleteHandler(event:FlexEvent):void
+            {
+                
+                var typeRef:Class = getDefinitionByName("test.DynamicObject") as Class;
+                new typeRef();
+                new DynamicObject();
+            }
+            
+            
+            protected function button1_clickHandler(event:MouseEvent):void
+            {
+                wall.initWalls();
+                wall.createWalls(2);
+                wall.showAllMahjongs();
+            }
+            
+            protected function button2_clickHandler(event:MouseEvent):void
+            {
+                wall.hideHeadMahjong();
+            }
+
+        ]]>
+    </mx:Script>
+    <component:MahjongGreatWall id="wall" x="224" y="253">
+    </component:MahjongGreatWall>
+    <mx:Button x="10" y="645" label="Show All" click="button1_clickHandler(event)"/>
+    <mx:Button x="100" y="645" label="Hide Head" click="button2_clickHandler(event)"/>
+    <!--
+    <component:MahjongBrick width="640" height="480">
+    </component:MahjongBrick>
+    -->
+</mx:Application>

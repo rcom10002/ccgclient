@@ -80,7 +80,7 @@ package info.knightrcom.util {
                     puppet.prepareActionTimer(intervalRandom(), function():void {
                         puppet.selectGameSetting(event)
                         puppet.resetActionTimer();
-                    }).start();
+                    }, 1).start();
                 });
 			// ===> 游戏进行，智能出牌
             ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_BOUT, function (event:GamePinocchioEvent):void {
@@ -88,7 +88,7 @@ package info.knightrcom.util {
                         puppet.preoperateGame(event);
                         puppet.operateGame(event);
                         puppet.resetActionTimer();
-                    }).start();
+                    }, 1).start();
                 });
             // ===> 游戏结束，游戏结束时关闭积分面板并返回游戏大厅
             ListenerBinder.bind(puppet, GamePinocchioEvent.GAME_END, function(event:GamePinocchioEvent):void {

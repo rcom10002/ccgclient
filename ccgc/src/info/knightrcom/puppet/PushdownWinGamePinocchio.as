@@ -1,5 +1,6 @@
 package info.knightrcom.puppet
 {
+	import component.MahjongButton;
 	import component.PlatformAlertUI;
 	import component.PokerButton;
 	
@@ -8,7 +9,8 @@ package info.knightrcom.puppet
 	import info.knightrcom.puppet.GamePinocchio;
 	import info.knightrcom.puppet.GamePinocchioEvent;
 	import info.knightrcom.state.PushdownWinGameStateManager;
-    import info.knightrcom.state.pushdownwingame.PushdownWinMahjongBox;
+	import info.knightrcom.state.pushdownwingame.PushdownWinGame;
+	import info.knightrcom.state.pushdownwingame.PushdownWinMahjongBox;
 	
 	import mx.controls.Button;
 	import mx.core.Application;
@@ -70,6 +72,16 @@ package info.knightrcom.puppet
             
             // 本地变量
             var boutMahjong:String = PushdownWinGameStateManager.currentBoutMahjong;
+            // 执行操作
+            for each (var eachBtn:Button in Application.application.pushdownWinGameModule.btnBarMahjongs.getChildren().reverse()) {
+                if (eachBtn.enabled) {
+                    eachBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                    break;
+                }
+            }
+            if (Application.application.pushdownWinGameModule.btnBarMahjongs.visible) {
+                (Application.application.pushdownWinGameModule.candidatedDown.getChildAt(0) as MahjongButton).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            }
 //            if (!(Application.application.pushdownWinGameModule.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP) as Button).enabled) {
 //                boutMahjong = null;
 //            }

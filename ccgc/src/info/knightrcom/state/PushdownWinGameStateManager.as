@@ -83,6 +83,11 @@ package info.knightrcom.state {
         public static var isNarrowWin:Boolean = false;
 
         /**
+         * 杠牌标识，用于判断从牌墙的哪个方向摸牌
+         */
+        public static var isKongFlag:Boolean = false;
+
+        /**
          * 未占用的位置
          */
         public static const UNOCCUPIED_PLACE_NUMBER:int = -1;
@@ -91,8 +96,7 @@ package info.knightrcom.state {
 		 * 用户发牌最大等待时间(秒)
 		 */
 		// private static const MAX_CARDS_SELECT_TIME:int = 15;
-		// 测试用时间为10分钟
-		private static const MAX_CARDS_SELECT_TIME:int = 15 * 60;
+		private static const MAX_CARDS_SELECT_TIME:int = 90;
 
         /**
          * 发牌提示区域
@@ -234,8 +238,11 @@ package info.knightrcom.state {
                 ListenerBinder.bind(currentGame.btnBarMahjongs, FlexEvent.HIDE, hide);
 // TEST SIMULATION CODE IS BEGIN
                 ListenerBinder.bind(currentGame.testFresh, MouseEvent.CLICK, function(e:MouseEvent):void {
+                    currentGame.testArea.visible = !currentGame.testArea.visible;
                     currentGame.testArea.text = 
                     new Array(
+                        "Local Number: " + localNumber,
+                        "Current Number: " + currentNumber,
                         new Array(mahjongBox.mahjongsOfPlayers[0].join(","), 
                                   mahjongBox.mahjongsOfPlayers[0].length, 
                                   mahjongBox.mahjongsOfDais[0].join(","), 
@@ -251,10 +258,7 @@ package info.knightrcom.state {
                         new Array(mahjongBox.mahjongsOfPlayers[3].join(","), 
                                   mahjongBox.mahjongsOfPlayers[3].length,
                                   mahjongBox.mahjongsOfDais[3].join(","),
-                                  mahjongBox.mahjongsOfDais[3].length).join("\t"),
-                        mahjongBox.mahjongsOnTable.join(","),
-                        currentGame.dealed.getChildren().join(","),
-                        "Current Number: " + currentNumber).join("\n");
+                                  mahjongBox.mahjongsOfDais[3].length).join("\t")).join("\n");
                 });
 // TEST SIMULATION CODE IS END
                 for each (var eachToolTip:Box in new Array(currentGame.toolTip1, currentGame.toolTip2, currentGame.toolTip3)) {
@@ -271,8 +275,13 @@ package info.knightrcom.state {
                         eachButton.styleName = "gameBigButton";
                     }
                 });
+                currentGame.greatWall.initWalls();
                 setInitialized(true);
             }
+            
+            // 洗牌，创建牌墙
+            currentGame.greatWall.createWalls(localNumber); // 内存更新
+            // FIXME animation currentGame.greatWall.showAllMahjongs(); // 显示更新
 
             // 按照当前玩家序号，进行画面座次安排
             var tempMahjongsTip:Array = new Array(currentGame.tipDown, currentGame.tipRight, currentGame.tipUp, currentGame.tipLeft);
@@ -522,6 +531,13 @@ package info.knightrcom.state {
             // 玩家摸牌时，更新模型
             mahjongBox.randomMahjong();
             mahjongBox.importMahjong(currentNumber - 1, currentBoutMahjong);
+            // 更新牌墙
+            if (isKongFlag) {
+                currentGame.greatWall.hideTailMahjong();
+                isKongFlag = !isKongFlag;
+            } else {
+                currentGame.greatWall.hideHeadMahjong();
+            }
             // 玩家摸牌时，更新布局
         	var boutMahjongButton:MahjongButton = new MahjongButton();
             boutMahjongButton.allowSelect = false;
@@ -691,6 +707,8 @@ package info.knightrcom.state {
         	var removedCount:int = -1;
         	if (operationIndex == PushdownWinGame.OPTR_KONG) {
         		// 杠牌时
+                // 更新杠牌标识
+                isKongFlag = !isKongFlag;
         		// 基于碰牌的杠牌，更新模型与布局
         		if (currentNumber == operatedNumber && 
         		        Box(mahjongsDaisArray[currentNumber - 1]).getChildren().join(",").indexOf(operatedMahjong + "," + operatedMahjong + "," + operatedMahjong) > -1) {
@@ -932,16 +950,23 @@ package info.knightrcom.state {
 	            if (results.length == 4) {
 	            	currentNextNumber = results[2];
 	            }
-                var misc:Object = {GAME_TYPE : "PushdownWinGame",
-                    TITLE : "XXXXXX"}; 
-                this._myPuppet.dispatchEvent(new GamePinocchioEvent(
+            }
+            var misc:Object = {GAME_TYPE : "PushdownWinGame", TITLE : "XXXXXX"}; 
+            this._myPuppet.dispatchEvent(
+                new GamePinocchioEvent(
                     GamePinocchioEvent.GAME_END, 
                     null, 
-                    new Scoreboard().popUp(localNumber, scoreboardInfo, currentGameId,
+                    new Scoreboard().popUp(
+                        localNumber, 
+                        scoreboardInfo, 
+                        currentGameId,
                         function():void {
                             gameClient.currentState = 'LOBBY';
-                        }, misc)));
-            }
+                        }, 
+                        misc)
+                )
+            );
+
             // 停止提示
             if (otherTimer.running) {
                 otherTimer.stop();
@@ -1085,6 +1110,8 @@ package info.knightrcom.state {
                     break;
                 case 1:
                     // 杠
+                    // 更新杠牌标识
+                    isKongFlag = !isKongFlag;
                     var randValueForKong:String = currentGame.randDown.numChildren > 0 ? currentGame.randDown.getChildAt(0).toString() : null;
                     // 基于碰牌的杠，更新内存模型与外观
                     if (randValueForKong && 
@@ -1330,6 +1357,13 @@ package info.knightrcom.state {
                     // 摸牌
                     // 更新内存
                     var mahjongRandValue:String = mahjongBox.randomMahjong();
+                    // 更新牌墙
+                    if (isKongFlag) {
+                        currentGame.greatWall.hideTailMahjong();
+                        isKongFlag = !isKongFlag;
+                    } else {
+                        currentGame.greatWall.hideHeadMahjong();
+                    }
                     if (mahjongRandValue == null) {
                         // 扑、流局
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END);
@@ -1668,6 +1702,7 @@ package info.knightrcom.state {
             }
             if (currentGame) {
                 currentGame.dealed.removeAllChildren();
+                currentGame.greatWall.hideAllMahjongs();
             }
         }
     }

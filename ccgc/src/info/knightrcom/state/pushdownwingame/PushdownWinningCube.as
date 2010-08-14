@@ -22,15 +22,6 @@ package info.knightrcom.state.pushdownwingame
 			this.parentCube = parentCube;
 		}
 
-		/** 碰节点 */
-		private var pongCube:PushdownWinningCube;
-
-		/** 将节点 */
-		private var eyeCube:PushdownWinningCube;
-
-		/** 吃节点 */
-		private var chowCube:PushdownWinningCube;
-
 		/** 父节点 */
 		public var parentCube:PushdownWinningCube;
 
@@ -47,7 +38,7 @@ package info.knightrcom.state.pushdownwingame
 		public var currentTrackResult:String;
 
 		/** 可以胡牌的路径结果 */
-		private var winRoutes:Array = new Array();
+		private var winRoutes:Array = [];
 
 		/**
 		 * 
@@ -63,24 +54,24 @@ package info.knightrcom.state.pushdownwingame
 					// 碰
 					this.currentTrackResult = currentTrack;
 					addWinRoute(this);
-					// return currentTrack;
-				}
-				if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
-					return;
 				} else {
-					var mahjongs:Array = currentTrack.match(/\d/g);
-					if ((int(mahjongs[1]) - int(mahjongs[0]) == 1) && (int(mahjongs[2]) - int(mahjongs[1]) == 1)) {
+                    if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
+                        // 跳过无法形成顺子牌的牌型
+                        return;
+                    }
+					if (createChow(currentTrack)) {
 						// 吃
 						this.currentTrackResult = currentTrack;
 						addWinRoute(this);
-						// return currentTrack;
 					}
-					return;
 				}
-			} else if (currentTrack.split(",").length == 2 && /^(\w+),\1$/.test(currentTrack)) {
-				this.currentTrackResult = currentTrack;
-				addWinRoute(this);
-				// return currentTrack;
+                return;
+			} else if (currentTrack.split(",").length == 2) {
+                if (/^(\w+),\1$/.test(currentTrack)) {
+    				this.currentTrackResult = currentTrack;
+    				addWinRoute(this);
+                }
+                return;
 			}
 
 			// 三张牌以上的情况下，进行递归处理胡牌路径
@@ -94,15 +85,13 @@ package info.knightrcom.state.pushdownwingame
 			if (/^(\w+),\1,\1.*$/.test(currentTrack)) {
 				optrResult = createPong(currentTrack);
 				this.currentTrackResult = optrResult[1];
-				this.pongCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
-				this.pongCube.walkAllRoutes();
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes();
 			}
 			// 对子
 			if (/^(\w+),\1.*$/.test(currentTrack)) {
 				optrResult = createEye(currentTrack);
 				this.currentTrackResult = optrResult[1];
-				this.eyeCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
-				this.eyeCube.walkAllRoutes();
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes();
 			}
 			// 顺子
 			if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
@@ -111,8 +100,7 @@ package info.knightrcom.state.pushdownwingame
 			optrResult = createChow(currentTrack);
 			if (optrResult != null) {
 				this.currentTrackResult = optrResult[1];
-				this.chowCube = new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this);
-				this.chowCube.walkAllRoutes();
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes();
 			}
 		}
 
@@ -127,7 +115,7 @@ package info.knightrcom.state.pushdownwingame
 		private function createPong(currentTrack:String):Array
 		{
 			var result:String = currentTrack.replace(/^((\w+),\2,\2).*$/, "$1");
-			return new Array(tidy(currentTrack.replace(new RegExp("^" + result), "")), result);
+			return [tidy(currentTrack.replace(new RegExp("^" + result), "")), result];
 		}
 
 		/**
@@ -140,22 +128,22 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		private function createChow(currentTrack:String):Array
 		{
-			var result:String = null;
+			var result:String = null; // 吃牌序列
 			var mahjongPattern:String = currentTrack.replace(/^([WBT]\d).*/, "$1");
 			var color:String = mahjongPattern.charAt(0);
 			var value:int = int(mahjongPattern.charAt(1));
 			var mahjong0:String = color + (value + 0);
 			var mahjong1:String = color + (value + 1);
 			var mahjong2:String = color + (value + 2);
-			var mahjongArray:Array = currentTrack.split(",");
+			var mahjongArray:Array = currentTrack.split(","); // 当前麻将序列
 			var mahjongIndex1:int = mahjongArray.indexOf(mahjong1);
 			var mahjongIndex2:int = mahjongArray.indexOf(mahjong2);
 			if (mahjongIndex1 > 0 && mahjongIndex2 > 0) {
 				mahjongArray.splice(mahjongIndex2, 1);
 				mahjongArray.splice(mahjongIndex1, 1);
 				mahjongArray.shift();
-				result = new Array(mahjong0, mahjong1, mahjong2).join(",");
-				return new Array(mahjongArray.join(","), result);
+				result = [mahjong0, mahjong1, mahjong2].join(",");
+				return [mahjongArray.join(","), result];
 			} else {
 				return null;
 			}
@@ -163,7 +151,7 @@ package info.knightrcom.state.pushdownwingame
 
 		/**
 		 *
-		 * 从既存牌序中创建出一个将牌
+		 * 从既存牌序中创建出一个将牌(对子)
 		 * 
 		 * @param mahjongs
 		 * @return
@@ -172,7 +160,7 @@ package info.knightrcom.state.pushdownwingame
 		private function createEye(currentTrack:String):Array
 		{
 			var result:String = currentTrack.replace(/^((\w+),\2).*$/, "$1");
-			return new Array(tidy(currentTrack.replace(new RegExp("^" + result), "")), result);
+			return [tidy(currentTrack.replace(new RegExp("^" + result), "")), result];
 		}
 
 		/**
@@ -183,7 +171,7 @@ package info.knightrcom.state.pushdownwingame
 		 */
 		private function addWinRoute(leafCube:PushdownWinningCube):void {
 			// 构造完整的牌型
-			var groups:Array = new Array();
+			var groups:Array = [];
 			while (leafCube.parentCube != null) {
 				// 添加非根节点处理结果
 				groups.push(leafCube.currentTrackResult);
@@ -198,14 +186,14 @@ package info.knightrcom.state.pushdownwingame
 				// 可分解的牌组超过四组，则跳过
 				return;
 			}
-			for each (var eachCompleteGroup:String in this.rootCube.winRoutes) {
-				if (groups.join("~") == eachCompleteGroup) {
-					// 当前处理结果已经存在，则跳过
-					return;
-				}
-			}
+            // 判断胡牌路径是否已经存在
+            var winRoute:String = groups.join("~");
+            if (this.rootCube.winRoutes.indexOf(winRoute) > -1) {
+                return;
+            }
 
-			this.rootCube.winRoutes.push(groups.join("~"));
+            // 保存胡牌路径
+			this.rootCube.winRoutes.push(winRoute);
 		}
 
 		/**

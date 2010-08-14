@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300">
+    <mx:Script>
+        <![CDATA[
+            import info.knightrcom.assets.MahjongResource;
+            
+            import mx.containers.GridItem;
+            import mx.containers.GridRow;
+            import mx.controls.Image;
+            import mx.core.Container;
+            
+            private var headPos:int = 0;
+            private var tailPos:int = 0;
+            private var allBricks:Array = null;
+
+            private var initFlag:Boolean = false;
+
+            public function initWalls():void {
+                if (initFlag) {
+                    return;
+                }
+
+                var wall:Grid = null;
+                var i:int = -1;
+                var line:GridRow = null;
+                var brick:GridItem = null;
+                wall = downWall;
+                wall.addChild(new GridRow());
+                wall.addChild(new GridRow());
+                for (i = 0; i < 12; i++) {
+                    brick = new GridItem();
+                    ((wall.getChildAt(0) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_down_wall, 29, 22));
+                    ((wall.getChildAt(1) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_down_wall, 29, 22));
+                }
+                wall = rightWall;
+                for (i = 0; i < 12; i++) {
+                    line = wall.addChild(new GridRow()) as GridRow;
+                    (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_right_wall, 22, 33));
+                }
+                wall = rightWallExt;
+                for (i = 0; i < 12; i++) {
+                    line = wall.addChild(new GridRow()) as GridRow;
+                    (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_right_wall, 22, 33));
+                }
+                wall = upWall;
+                wall.addChild(new GridRow());
+                wall.addChild(new GridRow());
+                for (i = 0; i < 12; i++) {
+                    brick = new GridItem();
+                    ((wall.getChildAt(0) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_up_wall, 29, 22));
+                    ((wall.getChildAt(1) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_up_wall, 29, 22));
+                }
+                wall = leftWall;
+                for (i = 0; i < 12; i++) {
+                    line = wall.addChild(new GridRow()) as GridRow;
+                    (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_left_wall, 22, 33));
+                }
+                wall = leftWallExt;
+                for (i = 0; i < 12; i++) {
+                    line = wall.addChild(new GridRow()) as GridRow;
+                    (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_left_wall, 22, 33));
+                }
+                
+                initFlag = true;
+            }
+            
+            public function createWalls(startNumber:int):void {
+                // 初始化
+                var downRightUpLeft:Array = [downWall, rightWall, upWall, leftWall];
+                var rightUpLeftDown:Array = [rightWall, upWall, leftWall, downWall];
+                var upLeftDownRight:Array = [upWall, leftWall, downWall, rightWall];
+                var leftDownRightUp:Array = [leftWall, downWall, rightWall, upWall];
+                var walls:Array = [downRightUpLeft, rightUpLeftDown, upLeftDownRight, leftDownRightUp];
+                walls = walls[startNumber - 1];
+                allBricks = [];
+                headPos = 0;
+                tailPos = 0;
+                var i:int = -1;
+
+                for each (var eachWall:Grid in walls) {
+                    for (i = 0; i < 12; i++) {
+                        switch (eachWall) {
+                            case downWall:
+                                    allBricks[allBricks.length] = ((downWall.getChildAt(1) as Container).getChildAt(i) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((downWall.getChildAt(0) as Container).getChildAt(i) as Container).getChildAt(0);
+                                break;
+                            case rightWall:
+                                    allBricks[allBricks.length] = ((rightWallExt.getChildAt(12 - 1 - i) as Container).getChildAt(0) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((rightWall.getChildAt(12 - 1 - i) as Container).getChildAt(0) as Container).getChildAt(0);
+                                break;
+                            case upWall:
+                                    allBricks[allBricks.length] = ((upWall.getChildAt(1) as Container).getChildAt(12 - 1 - i) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((upWall.getChildAt(0) as Container).getChildAt(12 - 1 - i) as Container).getChildAt(0);
+                                break;
+                            case leftWall:
+                                    allBricks[allBricks.length] = ((leftWallExt.getChildAt(i) as Container).getChildAt(0) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((leftWall.getChildAt(i) as Container).getChildAt(0) as Container).getChildAt(0);
+                                break;
+                        }
+                        (allBricks[allBricks.length - 1] as Image).alpha = 1;
+                        (allBricks[allBricks.length - 2] as Image).alpha = 1;
+                    }
+                }
+                // 隐藏两张尾牌
+                (allBricks[allBricks.length - 1] as Image).alpha = 0;
+                (allBricks[allBricks.length - 2] as Image).alpha = 0;
+            }
+            
+            public function hideHeadMahjong():Boolean {
+                if (headPos + tailPos > allBricks.length - 1) {
+                    return false;
+                }
+                (allBricks[headPos] as Image).alpha = 0;
+                headPos++;
+                return true;
+            }
+            
+            public function hideTailMahjong():Boolean {
+                if (headPos + tailPos > allBricks.length - 1) {
+                    return false;
+                }
+                var tempPos:int = tailPos % 2 == 0 ? tailPos + 1 : tailPos - 1;
+                (allBricks[allBricks.length - 1 - tempPos] as Image).alpha = 0;
+                tailPos++;
+                return true;
+            }
+            
+            public function showAllMahjongs():void {
+                var length:int = (allBricks.length + 1) / 4;
+                while (length-- > 0) {
+                    showMahjong(0 * 12 * 2 + length);
+                    showMahjong(1 * 12 * 2 + length);
+                    showMahjong(2 * 12 * 2 + length);
+                    showMahjong(3 * 12 * 2 + length - 2); // 省掉两张尾牌
+                }
+                /*
+                var intervalFlag:uint = setInterval(function ():void {
+                    length--;
+                    showMahjong(0 * 12 * 2 + length);
+                    showMahjong(1 * 12 * 2 + length);
+                    showMahjong(2 * 12 * 2 + length);
+                    showMahjong(3 * 12 * 2 + length - 2); // 省掉两张尾牌
+                    if (length == 0) {
+                        clearInterval(intervalFlag);
+                        //                        // test begin
+                        //                        var i:Boolean = true;
+                        //                        setInterval(function ():void {
+                        //                            if (i)
+                        //                                hideTailMahjong();
+                        //                            else
+                        //                                hideHeadMahjong();
+                        //                            i = !i;
+                        //                        }, 200);
+                        //                        // test end
+                    }
+                }, 30);
+                */
+            }
+            
+            public function hideAllMahjongs():void {
+                for each (var eachImage:Image in allBricks) {
+                    eachImage.alpha = 0;
+                }
+            }
+            
+            private function showMahjong(pos:int):void {
+                (allBricks[pos] as Image).alpha = 1;
+            }
+            
+            private function createImage(source:Class, width:int, height:int):DisplayObject {
+                var image:Image = new Image();
+                image.source = source;
+                image.alpha = 0;
+                return image;
+            }
+        ]]>
+    </mx:Script>
+    <mx:Grid id="downWall" verticalGap="-38" horizontalGap="0" bottom="0" minHeight="80" horizontalCenter="0" width="320" verticalAlign="middle" horizontalAlign="center">
+    </mx:Grid>
+    <mx:Grid id="rightWall" verticalGap="-4" minWidth="80" right="0" verticalCenter="0" minHeight="240" verticalAlign="middle" horizontalAlign="center">
+    </mx:Grid>
+    <mx:Grid id="rightWallExt" verticalGap="-4" minWidth="80" right="0" verticalCenter="-6" minHeight="240" verticalAlign="middle" horizontalAlign="center">
+    </mx:Grid>
+    <mx:Grid id="upWall" verticalGap="-38" horizontalGap="0" minHeight="80" top="0" horizontalCenter="0" width="320" verticalAlign="middle" horizontalAlign="center">
+    </mx:Grid>
+    <mx:Grid id="leftWall" verticalGap="-4" left="0" minWidth="80" verticalCenter="0" minHeight="240" verticalAlign="middle" horizontalAlign="center">
+    </mx:Grid>
+    <mx:Grid id="leftWallExt" verticalGap="-4" left="0" minWidth="80" verticalCenter="-6" minHeight="240" verticalAlign="middle" horizontalAlign="center">
+    </mx:Grid>
+</mx:Canvas>
