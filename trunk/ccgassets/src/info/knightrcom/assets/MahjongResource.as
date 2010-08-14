@@ -649,9 +649,22 @@ package info.knightrcom.assets
         
         [Embed(source="info/knightrcom/assets/image/mahjong/up/standard/DEFAULT.jpg")]
         public static const MAHJONG_up_standard_DEFAULT:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/mahjong/wall/down.jpg")]
+        public static const MAHJONG_down_wall:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/mahjong/wall/right.jpg")]
+        public static const MAHJONG_right_wall:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/mahjong/wall/up.jpg")]
+        public static const MAHJONG_up_wall:Class;
+        
+        [Embed(source="info/knightrcom/assets/image/mahjong/wall/left.jpg")]
+        public static const MAHJONG_left_wall:Class;
 
         /**
-         * 直接赋值时需要三个参数，方向、样式、名称<br />
+         * 直接赋值一个参数【方向】可以得到墙<br />
+         * 直接赋值三个参数，方向、样式、名称可以得到具体牌<br />
          * 基于已有对象赋值时需要四个参数，方向、样式、名称、类对象
          * 
          * @param direction
@@ -661,7 +674,14 @@ package info.knightrcom.assets
          * @return 
          * 
          */
-        public static function load(direction:String, style:String, name:String, resClass:* = null):Class {
+        public static function load(direction:String, style:String = null, name:String = null, resClass:* = null):Class {
+            if (!style && !name) {
+                if (direction == "down") return MAHJONG_down_wall;
+                if (direction == "right") return MAHJONG_right_wall;
+                if (direction == "up") return MAHJONG_up_wall;
+                if (direction == "left") return MAHJONG_left_wall;
+                return null;
+            }
             if (resClass) {
                 var arr:Array = "".concat(resClass).replace(/^.+_([^_]+)_([^_]+)_([^_\]]+).*$/, "$1,$2,$3").split(",");
                 if (!direction) {
