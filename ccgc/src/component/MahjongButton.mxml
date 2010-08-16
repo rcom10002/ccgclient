@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml">
+<mx:Image xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="creationCompleteHandler(event)" xmlns:model="memorphic.xpath.model.*">
 	<mx:Boolean id="allowSelect">true</mx:Boolean>
 	<mx:Number id="direction">-1</mx:Number>
-	<mx:init>
-		<![CDATA[
-			this.addEventListener(MouseEvent.MOUSE_OVER, toggleSelect);
-			this.addEventListener(MouseEvent.MOUSE_OUT, toggleSelect);
-		]]>
-	</mx:init>
 	<mx:Script>
 		<![CDATA[
-			private var selected:Boolean = false;
+            import info.knightrcom.assets.MahjongResource;
+            
+            import mx.events.FlexEvent;
+
+            private var selected:Boolean = false;
+            private var innerFilters:Array = [new DropShadowFilter(2, 90, StyleManager.getColorName("aquamarine"))];
 
 			private function toggleSelect(event:MouseEvent):void {
 				if (!allowSelect) {
@@ -29,9 +28,9 @@
 				}
 				this.selected = selectedFlag;
 				if (this.selected) {
-					this.y -= 10;
+					this.filters = this.innerFilters;
 				} else {
-					this.y += 10;
+                    this.filters = null;
 				}
 			}
 
@@ -42,6 +41,13 @@
 			public override function toString():String {
 			    return value;
 			}
+
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                this.addEventListener(MouseEvent.MOUSE_OVER, toggleSelect);
+                this.addEventListener(MouseEvent.MOUSE_OUT, toggleSelect);
+            }
+
 		]]>
 	</mx:Script>
 </mx:Image>
