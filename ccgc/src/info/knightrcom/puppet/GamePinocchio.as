@@ -114,8 +114,8 @@ package info.knightrcom.puppet
             }
             if (_actionTimer.running)
             {
-                _actionTimer.reset();
                 _actionTimer.stop();
+                _actionTimer.reset();
             }
             _actionTimer = null;
         }

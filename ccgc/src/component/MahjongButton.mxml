@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Image xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="creationCompleteHandler(event)" xmlns:model="memorphic.xpath.model.*">
-	<mx:Boolean id="allowSelect">true</mx:Boolean>
 	<mx:Number id="direction">-1</mx:Number>
 	<mx:Script>
 		<![CDATA[
@@ -8,27 +7,28 @@
             
             import mx.events.FlexEvent;
 
-            private var selected:Boolean = false;
-            private var innerFilters:Array = [new DropShadowFilter(2, 90, StyleManager.getColorName("aquamarine"))];
+            private var _selected:Boolean = false;
+            private var _innerFilters:Array = [new DropShadowFilter(2, 90, StyleManager.getColorName("aquamarine"))];
+            private var _allowSelect:Boolean = true;
 
 			private function toggleSelect(event:MouseEvent):void {
 				if (!allowSelect) {
 					return;
 				}
-				setSelected(!this.selected);
+				set_selected(!this._selected);
 			}
 
-			public function isSelected():Boolean {
-				return this.selected;
+			public function is_selected():Boolean {
+				return this._selected;
 			}
 
-			public function setSelected(selectedFlag:Boolean):void {
-				if (!allowSelect || this.selected == selectedFlag) {
+			public function set_selected(_selectedFlag:Boolean):void {
+				if (!allowSelect || this._selected == _selectedFlag) {
 					return;
 				}
-				this.selected = selectedFlag;
-				if (this.selected) {
-					this.filters = this.innerFilters;
+				this._selected = _selectedFlag;
+				if (this._selected) {
+					this.filters = this._innerFilters;
 				} else {
                     this.filters = null;
 				}
@@ -37,6 +37,17 @@
 			public function get value():String {
 				return "".concat(this.source).replace(/.+_(\w+)\b.+$/, "$1");
 			}
+
+            public function set allowSelect(allowSelect:Boolean):void {
+                this._allowSelect = allowSelect;
+                if (!this._allowSelect) {
+                    this.filters = null;
+                }
+            }
+
+            public function get allowSelect():Boolean {
+                return this._allowSelect;
+            }
 
 			public override function toString():String {
 			    return value;

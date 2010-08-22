@@ -1276,6 +1276,7 @@ package info.knightrcom.state {
 		private function hide(event:FlexEvent):void {
 			// 进度条隐藏，并重置计时器
 			currentGame.timerTip.visible = false;
+            timer.stop();
 			timer.reset();
             CursorManager.setBusyCursor();
 		}
