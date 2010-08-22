@@ -5,7 +5,7 @@ package info.knightrcom.state.pushdownwingame
 	{
 		public function PushdownWinMahjongBox()
 		{
-		    this.mjOnTable = new Array();
+		    this.mjOnTable = [];
 		}
 
 		/**
@@ -16,7 +16,7 @@ package info.knightrcom.state.pushdownwingame
 		/**
 		 * 当前玩家们手中的麻将
 		 */
-		private var mjOfDais:Array = new Array(new Array(), new Array(), new Array(), new Array());
+		private var mjOfDais:Array = [[], [], [], []];
 
 		/**
 		 * 尚未使用过的麻将
