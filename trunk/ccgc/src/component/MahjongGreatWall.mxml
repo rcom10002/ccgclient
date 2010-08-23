@@ -27,36 +27,36 @@
                 wall = downWall;
                 wall.addChild(new GridRow());
                 wall.addChild(new GridRow());
-                for (i = 0; i < 12; i++) {
+                for (i = 0; i < 11; i++) {
                     brick = new GridItem();
                     ((wall.getChildAt(0) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_down_wall, 29, 22));
                     ((wall.getChildAt(1) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_down_wall, 29, 22));
                 }
                 wall = rightWall;
-                for (i = 0; i < 12; i++) {
+                for (i = 0; i < 10; i++) {
                     line = wall.addChild(new GridRow()) as GridRow;
                     (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_right_wall, 22, 33));
                 }
                 wall = rightWallExt;
-                for (i = 0; i < 12; i++) {
+                for (i = 0; i < 10; i++) {
                     line = wall.addChild(new GridRow()) as GridRow;
                     (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_right_wall, 22, 33));
                 }
                 wall = upWall;
                 wall.addChild(new GridRow());
                 wall.addChild(new GridRow());
-                for (i = 0; i < 12; i++) {
+                for (i = 0; i < 11; i++) {
                     brick = new GridItem();
                     ((wall.getChildAt(0) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_up_wall, 29, 22));
                     ((wall.getChildAt(1) as Container).addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_up_wall, 29, 22));
                 }
                 wall = leftWall;
-                for (i = 0; i < 12; i++) {
+                for (i = 0; i < 10; i++) {
                     line = wall.addChild(new GridRow()) as GridRow;
                     (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_left_wall, 22, 33));
                 }
                 wall = leftWallExt;
-                for (i = 0; i < 12; i++) {
+                for (i = 0; i < 10; i++) {
                     line = wall.addChild(new GridRow()) as GridRow;
                     (line.addChild(new GridItem()) as Container).addChild(createImage(MahjongResource.MAHJONG_left_wall, 22, 33));
                 }
@@ -78,19 +78,20 @@
                 var i:int = -1;
 
                 for each (var eachWall:Grid in walls) {
-                    for (i = 0; i < 12; i++) {
+                    var maxLength:int = ([downWall, upWall].indexOf(eachWall) > -1 ? 11 : 10);
+                    for (i = 0; i < maxLength; i++) {
                         switch (eachWall) {
                             case downWall:
                                     allBricks[allBricks.length] = ((downWall.getChildAt(1) as Container).getChildAt(i) as Container).getChildAt(0);
                                     allBricks[allBricks.length] = ((downWall.getChildAt(0) as Container).getChildAt(i) as Container).getChildAt(0);
                                 break;
                             case rightWall:
-                                    allBricks[allBricks.length] = ((rightWallExt.getChildAt(12 - 1 - i) as Container).getChildAt(0) as Container).getChildAt(0);
-                                    allBricks[allBricks.length] = ((rightWall.getChildAt(12 - 1 - i) as Container).getChildAt(0) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((rightWallExt.getChildAt(maxLength - 1 - i) as Container).getChildAt(0) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((rightWall.getChildAt(maxLength - 1 - i) as Container).getChildAt(0) as Container).getChildAt(0);
                                 break;
                             case upWall:
-                                    allBricks[allBricks.length] = ((upWall.getChildAt(1) as Container).getChildAt(12 - 1 - i) as Container).getChildAt(0);
-                                    allBricks[allBricks.length] = ((upWall.getChildAt(0) as Container).getChildAt(12 - 1 - i) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((upWall.getChildAt(1) as Container).getChildAt(maxLength - 1 - i) as Container).getChildAt(0);
+                                    allBricks[allBricks.length] = ((upWall.getChildAt(0) as Container).getChildAt(maxLength - 1 - i) as Container).getChildAt(0);
                                 break;
                             case leftWall:
                                     allBricks[allBricks.length] = ((leftWallExt.getChildAt(i) as Container).getChildAt(0) as Container).getChildAt(0);
@@ -101,9 +102,6 @@
                         (allBricks[allBricks.length - 2] as Image).alpha = 1;
                     }
                 }
-                // 隐藏两张尾牌
-                (allBricks[allBricks.length - 1] as Image).alpha = 0;
-                (allBricks[allBricks.length - 2] as Image).alpha = 0;
             }
             
             public function hideHeadMahjong():Boolean {
@@ -125,13 +123,19 @@
                 return true;
             }
             
+            // FIXME
             public function showAllMahjongs():void {
-                var length:int = (allBricks.length + 1) / 4;
-                while (length-- > 0) {
-                    showMahjong(0 * 12 * 2 + length);
-                    showMahjong(1 * 12 * 2 + length);
-                    showMahjong(2 * 12 * 2 + length);
-                    showMahjong(3 * 12 * 2 + length - 2); // 省掉两张尾牌
+                var downPos:int = 0;
+                var rightPos:int = downPos + 22;
+                var upPos:int = rightPos + 20;
+                var leftPos:int = upPos + 22;
+                var stepCounter:int = 0;
+                while (stepCounter <= 11) {
+                    showMahjong(stepCounter + downPos);
+                    showMahjong(stepCounter + rightPos);
+                    showMahjong(stepCounter + upPos);
+                    showMahjong(stepCounter + leftPos);
+                    stepCounter++;
                 }
                 /*
                 var intervalFlag:uint = setInterval(function ():void {
@@ -163,6 +167,7 @@
                 }
             }
             
+            // FIXME
             private function showMahjong(pos:int):void {
                 (allBricks[pos] as Image).alpha = 1;
             }
