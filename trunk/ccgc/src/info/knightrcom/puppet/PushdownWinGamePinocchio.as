@@ -14,6 +14,7 @@ package info.knightrcom.puppet
 	
 	import mx.controls.Button;
 	import mx.core.Application;
+	import mx.events.ItemClickEvent;
     
 	/**
 	 *　　万里长城十亿兵,<br/>
@@ -69,7 +70,25 @@ package info.knightrcom.puppet
             if (!Application.application.pushdownWinGameModule.btnBarMahjongs.visible) {
                 return;
             }
+
+            var dummyEvent:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK);
+            if (Button(Application.application.pushdownWinGameModule.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).enabled) {
+                // 执行放弃动作
+                Button(Application.application.pushdownWinGameModule.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_GIVEUP)).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            }
+            if (Button(Application.application.pushdownWinGameModule.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).enabled) {
+                // 执行摸牌动作
+                Button(Application.application.pushdownWinGameModule.btnBarMahjongs.getChildAt(PushdownWinGame.OPTR_RAND)).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+            }
+            if (Application.application.pushdownWinGameModule.randDown.numChildren > 0) {
+                this.dealMahjong(Application.application.pushdownWinGameModule.randDown.getChildAt(0));
+            }
+//            if (Application.application.pushdownWinGameModule.randDown.numChildren > 0) {
+//                // 摸牌区域有牌时，将摸到的牌打出
+//                dealMahjong(MahjongButton(currentGame.randDown.getChildAt(0)));
+//            }
             
+/*
             // 本地变量
             var boutMahjong:String = PushdownWinGameStateManager.currentBoutMahjong;
             // 执行操作
@@ -82,6 +101,7 @@ package info.knightrcom.puppet
             if (Application.application.pushdownWinGameModule.btnBarMahjongs.visible) {
                 (Application.application.pushdownWinGameModule.candidatedDown.getChildAt(0) as MahjongButton).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
             }
+*/
 //            if (!(Application.application.pushdownWinGameModule.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP) as Button).enabled) {
 //                boutMahjong = null;
 //            }

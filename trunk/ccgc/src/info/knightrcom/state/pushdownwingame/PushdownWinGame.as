@@ -283,16 +283,14 @@ package info.knightrcom.state.pushdownwingame {
 		 * @return 
 		 * 
 		 */
-		public static function canKongNow(randMahjong:String, currentMahjongs:Array, daisMahjongs:String):Boolean {
+		public static function canKongNow(randMahjong:String, currentMahjongs:String, daisMahjongs:String):Boolean {
 		    var canKong:Boolean = false;
-		    // 利用摸到的牌进行明杠
-			var oldLength:int = currentMahjongs.join(",").length;
-			var newLength:int = currentMahjongs.join(",").replace(new RegExp(randMahjong, "g"), "").length;
-			canKong ||= ((oldLength - newLength) == randMahjong.length * 4);
-			// 利用摸到的牌进行暗杠
+		    // 利用摸到的牌进行暗杠
+			canKong ||= (currentMahjongs.indexOf("#,#,#".replace(/#/g, randMahjong)) > -1);
+			// 利用摸到的牌进行明杠
 			canKong ||= (daisMahjongs.indexOf("#,#,#".replace(/#/g, randMahjong)) > -1);
             // 利用已有的候选牌暗杠
-            // FIXME canKong ||= (currentMahjongs.match(/(\w+),\1,\1,\1/) != null);
+            canKong ||= (currentMahjongs.match(/(\w+),\1,\1,\1/g).length > 0);
 			return canKong;
 		}
     }

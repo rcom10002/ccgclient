@@ -568,35 +568,38 @@ package info.knightrcom.state {
 
 			// 从非出牌玩家中，找出唯一一个可以进行胡牌、杠牌或碰牌操作的玩家
 			// 玩家的优先权取决于操作权（如胡牌优先权最高，其次是杠牌，再次是碰牌）
-			var finalMixedIndex:int = -1, winMixedIndex:int = -1, kongMixedIndex:int = -1, pongMixedIndex:int = -1;
-			var canWin:Boolean = false, canKong:Boolean = false, canPong:Boolean = false;
-			var indexWin:int = -1, indexKong:int = -1, indexPong:int = -1;
-			// 胡牌情况
-			indexWin = PushdownWinGame.isWin(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
-			canWin = indexWin > -1;
-			if (canWin) {
-			    winMixedIndex = indexWin;
-			}
-		    // 杠牌情况
-			indexKong = PushdownWinGame.isKong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
-			canKong = indexKong > -1;
-			if (canKong) {
-			    kongMixedIndex = indexKong;
-			}
-		    // 碰牌情况
-			indexPong = PushdownWinGame.isPong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
-			canPong = indexPong > -1;
-			if (canPong) {
-			    pongMixedIndex = indexPong;
-			}
-			// 确定优先级最高的玩家混合索引值，混合值的构成为：玩家索引 × 10 + 动作编号
-			if (canWin) {
-			    finalMixedIndex = indexWin;
-			} else if (canKong) {
-			    finalMixedIndex = indexKong;
-			} else if (canPong) {
-			    finalMixedIndex = indexPong;
-			}
+//			var finalMixedIndex:int = -1, winMixedIndex:int = -1, kongMixedIndex:int = -1, pongMixedIndex:int = -1;
+//			var canWin:Boolean = false, canKong:Boolean = false, canPong:Boolean = false;
+//			var indexWin:int = -1, indexKong:int = -1, indexPong:int = -1;
+//			// 胡牌情况
+//			indexWin = PushdownWinGame.isWin(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
+//			canWin = indexWin > -1;
+//			if (canWin) {
+//			    winMixedIndex = indexWin;
+//			}
+//		    // 杠牌情况
+//			indexKong = PushdownWinGame.isKong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
+//			canKong = indexKong > -1;
+//			if (canKong) {
+//			    kongMixedIndex = indexKong;
+//			}
+//		    // 碰牌情况
+//			indexPong = PushdownWinGame.isPong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
+//			canPong = indexPong > -1;
+//			if (canPong) {
+//			    pongMixedIndex = indexPong;
+//			}
+//			// 确定优先级最高的玩家混合索引值，混合值的构成为：玩家索引 × 10 + 动作编号
+//			if (canWin) {
+//			    finalMixedIndex = indexWin;
+//			} else if (canKong) {
+//			    finalMixedIndex = indexKong;
+//			} else if (canPong) {
+//			    finalMixedIndex = indexPong;
+//			}
+            var nextContext:Object = findNextOperationContext(String(currentNumber - 1) + (notGiveUp ? "" : currentGiveupIndice));
+            var finalMixedIndex:int = nextContext.finalMixedIndex;
+            var canWin:Boolean = nextContext.canWin, canKong:Boolean = nextContext.canKong, canPong:Boolean = nextContext.canPong; 
 
 			// 准备胡杠碰操作
 			// 最终执行操作的玩家索引
@@ -1334,7 +1337,9 @@ package info.knightrcom.state {
     	            	    Alert.show("放弃当前优先权，将优先权返还给发牌玩家的下家");
                 		    socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, 
                 		        currentNumber + "~" + currentBoutMahjong + "~" + currentNextNumber + "~" + currentGiveupIndice);
-                            updateOtherTip(-1, currentNextNumber);
+                            var nextContext:Object = findNextOperationContext(String(localNumber - 1) + currentGiveupIndice);
+                            var playerIndex:int = nextContext.finalMixedIndex > -1 ? nextContext.finalMixedIndex % 10 : nextContext.finalMixedIndex;
+                            updateOtherTip(-1, playerIndex > -1 ? playerIndex + 1: currentNextNumber);
     	            	}
                     }
                     break;
@@ -1656,6 +1661,8 @@ package info.knightrcom.state {
             mahjongBox.discardMahjong(mahjong.value);
 
             // 发送出牌命令
+            var nextContext:Object = findNextOperationContext(String(localNumber - 1));
+            var playerIndex:int = nextContext.finalMixedIndex > -1 ? nextContext.finalMixedIndex % 10 : nextContext.finalMixedIndex;
             socketProxy.sendGameData(PushdownWinGameCommand.GAME_BRING_OUT, localNumber + "~" + mahjong.value + "~" + localNextNumber);
             
             // 执行回调函数
@@ -1664,7 +1671,7 @@ package info.knightrcom.state {
             }
             
             // 更新提示信息
-            updateOtherTip(-1, localNextNumber);
+            updateOtherTip(-1, playerIndex > -1 ? playerIndex + 1: localNextNumber);
         }
 
         /**
@@ -1714,6 +1721,54 @@ package info.knightrcom.state {
                 otherTimer.reset();
                 otherTimer.start();
             }
+        }
+
+        /**
+         * 
+         * 找出下一个可以优先操作牌的玩家
+         * 
+         * @param excludedIndice
+         * @return 
+         * 
+         */
+        private function findNextOperationContext(excludedIndice:String):Object {
+            // 从非出牌玩家中，找出唯一一个可以进行胡牌、杠牌或碰牌操作的玩家
+            // 玩家的优先权取决于操作权（如胡牌优先权最高，其次是杠牌，再次是碰牌）
+            var finalMixedIndex:int = -1, winMixedIndex:int = -1, kongMixedIndex:int = -1, pongMixedIndex:int = -1;
+            var canWin:Boolean = false, canKong:Boolean = false, canPong:Boolean = false;
+            var indexWin:int = -1, indexKong:int = -1, indexPong:int = -1;
+            // 胡牌情况
+            indexWin = PushdownWinGame.isWin(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, excludedIndice);
+            canWin = indexWin > -1;
+            if (canWin) {
+                winMixedIndex = indexWin;
+            }
+            // 杠牌情况
+            indexKong = PushdownWinGame.isKong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, excludedIndice);
+            canKong = indexKong > -1;
+            if (canKong) {
+                kongMixedIndex = indexKong;
+            }
+            // 碰牌情况
+            indexPong = PushdownWinGame.isPong(currentBoutMahjong, mahjongBox.mahjongsOfPlayers, excludedIndice);
+            canPong = indexPong > -1;
+            if (canPong) {
+                pongMixedIndex = indexPong;
+            }
+            // 确定优先级最高的玩家混合索引值，混合值的构成为：玩家索引 × 10 + 动作编号
+            if (canWin) {
+                finalMixedIndex = indexWin;
+            } else if (canKong) {
+                finalMixedIndex = indexKong;
+            } else if (canPong) {
+                finalMixedIndex = indexPong;
+            }
+            return {
+                finalMixedIndex: finalMixedIndex,
+                         canWin: canWin,
+                        canKong: canKong,
+                        canPong: canPong
+            };
         }
 
         /**

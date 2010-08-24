@@ -28,7 +28,7 @@
 			 horizontalGap="0"
 			 horizontalAlign="center"
 			 bottom="0"
-			 verticalAlign="middle" horizontalCenter="-40" width="600">
+			 verticalAlign="middle" horizontalCenter="0" width="600">
 	</mx:HBox>
 	<!-- 左侧区域 -->
 	<mx:VBox id="candidatedLeft"
@@ -73,22 +73,40 @@
     </mx:Style>
 	<!-- TODO 暂时保留 -->
 	<!-- 操作提示区域 -->
-	<mx:HBox bottom="185" height="55" horizontalAlign="center" horizontalCenter="0" width="500" verticalAlign="middle">
-		<mx:HBox id="toolTip1" horizontalGap="0" visible="false">
+	<mx:HBox id="toolTipBar" bottom="185" height="55" horizontalAlign="center" horizontalCenter="0" width="700" verticalAlign="middle">
+		<mx:HBox id="toolTipChow1" horizontalGap="0" visible="false">
 			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 		</mx:HBox>
-		<mx:HBox id="toolTip2" horizontalGap="0" visible="false">
+		<mx:HBox id="toolTipChow2" horizontalGap="0" visible="false">
 			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
 		</mx:HBox>
-		<mx:HBox id="toolTip3" horizontalGap="0" visible="false">
-			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
-			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
-			<component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
-		</mx:HBox>
+        <mx:HBox id="toolTipChow3" horizontalGap="0" visible="false">
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+        </mx:HBox>
+        <mx:HBox id="toolTipKong1" horizontalGap="0" visible="false">
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+        </mx:HBox>
+        <mx:HBox id="toolTipKong2" horizontalGap="0" visible="false">
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+        </mx:HBox>
+        <mx:HBox id="toolTipKong3" horizontalGap="0" visible="false">
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+            <component:MahjongButton source="{info.knightrcom.assets.MahjongResource.MAHJONG_down_dealed_DEFAULT}" allowSelect="false"/>
+        </mx:HBox>
 	</mx:HBox>
 	<!-- 操作区域 -->
 	<mx:HBox horizontalAlign="center"
@@ -125,7 +143,7 @@
 			 horizontalGap="0"
 			 horizontalAlign="center"
 			 bottom="80"
-			 verticalAlign="middle" horizontalCenter="0" width="520">
+			 verticalAlign="middle" horizontalCenter="0" width="600">
 	</mx:HBox>
 	<mx:HBox id="daisUp"
 			 height="75"
@@ -149,7 +167,7 @@
 			 horizontalGap="-55"
 			 horizontalAlign="center"
 			 bottom="0"
-			 verticalAlign="middle" horizontalCenter="300">
+			 verticalAlign="middle" horizontalCenter="320">
 	</mx:HBox>
 	<mx:HBox id="randUp"
 			 height="80"
@@ -168,7 +186,7 @@
 			 verticalAlign="middle"
 			 verticalGap="-78" verticalCenter="-220">
 	</mx:VBox>
-	<mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/>
+	<!-- <mx:ProgressBar x="10" y="10" id="timerTip" visible="false"/> -->
     <mx:HBox id="tipDown"
              verticalScrollPolicy="off"
              horizontalScrollPolicy="off"
@@ -180,4 +198,16 @@
     </mx:HBox>
     <mx:HBox width="120" height="100" horizontalCenter="0" top="150" id="tipUp" horizontalAlign="center" verticalAlign="middle">
     </mx:HBox>
+    <mx:Label id="leftNumber"
+    		 height="42"
+    		 width="60"
+    		 bottom="0"
+    		 text="84" fontSize="24" textAlign="center" fontWeight="bold" color="#B4FF00" horizontalCenter="-320">
+    </mx:Label>
+    <mx:Label id="leftNumberText"
+    		 height="42"
+    		 width="60"
+    		 bottom="28"
+    		 text="剩牌" fontSize="24" fontWeight="normal" textAlign="center" color="#0B223C" horizontalCenter="-320">
+    </mx:Label>
 </mx:Module>
