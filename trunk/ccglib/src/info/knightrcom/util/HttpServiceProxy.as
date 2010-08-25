@@ -10,7 +10,9 @@ package info.knightrcom.util
 	
 	public class HttpServiceProxy
 	{
-		public function HttpServiceProxy()
+        private static var isProcessing:Boolean = false;
+
+        public function HttpServiceProxy()
 		{
 		}
 
@@ -35,6 +37,10 @@ package info.knightrcom.util
         		httpResultHandler:Function = null, 
         		httpFaultHandler:Function = null, 
         		method:String = "POST"):void {
+            if (isProcessing) {
+                Alert.show("请求处理中，请稍候……");
+                return;
+            }
 			if (service == null) {
     			service = new HTTPService();
 			}
@@ -47,8 +53,8 @@ package info.knightrcom.util
     		if (httpFaultHandler != null && !service.hasEventListener(FaultEvent.FAULT)) {
     			ListenerBinder.bind(service, FaultEvent.FAULT, httpFaultHandler);
     		}
-    		ListenerBinder.bind(service, ResultEvent.RESULT, function ():void {CursorManager.removeBusyCursor()});
-    		ListenerBinder.bind(service, FaultEvent.FAULT, function ():void {CursorManager.removeBusyCursor()});
+    		ListenerBinder.bind(service, ResultEvent.RESULT, function ():void {CursorManager.removeBusyCursor(); isProcessing = false;});
+    		ListenerBinder.bind(service, FaultEvent.FAULT, function ():void {CursorManager.removeBusyCursor(); isProcessing = false;});
         	// 配置内部参数
         	if (params == null) {
             	params = new Object();
@@ -63,6 +69,7 @@ package info.knightrcom.util
             CursorManager.removeAllCursors();
             CursorManager.setBusyCursor();
         	service.send(params);
+            isProcessing = true;
         	trace(params);
         }
 	}
