@@ -3,7 +3,7 @@ package info.knightrcom.state.pushdownwingame {
 
     /**
      *
-     * 红五开局游戏设置
+     * 推到胡游戏设置
      *
      */
     public class PushdownWinGameSetting {
@@ -11,63 +11,31 @@ package info.knightrcom.state.pushdownwingame {
         public function PushdownWinGameSetting() {
         }
 
-        public static const NO_RUSH:int = 0;
+        /** 点炮 */
+        public static const NARROW_VICTORY:int = 0;
 
-        public static const RUSH:int = 1;
+        /** 自摸 */
+        public static const CLEAR_VICTORY:int = 1;
 
-        public static const DEADLY_RUSH:int = 2;
+        /** 流局 */
+        public static const NOBODY_VICTORY:int = 2;
 
-        public static const EXTINCT_RUSH:int = 3;
-
-        public static function getDisplayName(PushdownWinGameSetting:int):String {
+        public static function getDisplayName(gameResult:int):String {
             var displayName:String = null;
-            switch (PushdownWinGameSetting) {
-                case NO_RUSH:
-                    displayName = "不独";
+            switch (gameResult) {
+                case NARROW_VICTORY:
+                    displayName = "点炮";
                     break;
-                case RUSH:
-                    displayName = "独牌";
+                case CLEAR_VICTORY:
+                    displayName = "自摸";
                     break;
-                case DEADLY_RUSH:
-                    displayName = "天独";
-                    break;
-                case EXTINCT_RUSH:
-                    displayName = "天外天";
+                case NOBODY_VICTORY:
+                    displayName = "流局";
                     break;
                 default:
                     throw Error("游戏设置参数错误！");
             }
             return displayName;
-        }
-
-        /**
-         * 无人选择设置
-         *
-         * @return
-         *
-         */
-        public static function getNoRushStyle():Array {
-            return ["不独", "独牌", "天独", "天外天"];
-        }
-
-        /**
-         * 有人选择独牌
-         *
-         * @return
-         *
-         */
-        public static function getRushStyle():Array {
-            return ["不独", null, "天独", "天外天"];
-        }
-
-        /**
-         * 有人选择天独
-         *
-         * @return
-         *
-         */
-        public static function getDeadlyRushStyle():Array {
-            return ["不独", null, null, "天外天"];
         }
 
     }

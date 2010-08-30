@@ -59,16 +59,33 @@ package info.knightrcom.state.pushdownwingame
 		{
 			this.mjOnTable = mahjongsOnTable;
 		}
-
-		/**
-		 *
-		 * @return
-		 *
-		 */
-		public function get mahjongsOfPlayers():Array
-		{
-			return this.mjOfPlayers;
-		}
+        
+        /**
+         *
+         * @return
+         *
+         */
+        public function get mahjongsOfPlayers():Array
+        {
+            return this.mjOfPlayers;
+        }
+        
+        /**
+         *
+         * @return
+         *
+         */
+        public function get mahjongsStringOfPlayers():String
+        {
+            var mahjongArr:Array = [];
+            for each (var eachMahjongs:String in [this.mjOfPlayers[0].toString(), this.mjOfDais[0].toString(),
+                                                  this.mjOfPlayers[1].toString(), this.mjOfDais[1].toString(),
+                                                  this.mjOfPlayers[2].toString(), this.mjOfDais[2].toString(),
+                                                  this.mjOfPlayers[3].toString(), this.mjOfDais[3].toString()]) {
+                mahjongArr[mahjongArr.length] = PushdownWinGame.sortMahjongs(eachMahjongs);
+            }
+            return mahjongArr.join(";");
+        }
 
 		/**
 		 *
