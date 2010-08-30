@@ -80,7 +80,16 @@
             					dataRow["character"] = "农民";
             				}
             			}
-	            	}
+	            	} else if ("PushdownWinGame" == this._gameType) {
+                        this.title += " - " + misc.TITLE;
+                        for each (dataRow in scoreboardDataArray) {
+                            if (dataRow.currentNumber == 1) {
+                                dataRow["character"] = "庄";
+                            } else {
+                                dataRow["character"] = "闲";
+                            }
+                        }
+                    }
 	            }
 	            // 调整显示顺序
 				scoreboardDataArray.sort(function (a:Object, b:Object):int {

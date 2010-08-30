@@ -16,6 +16,7 @@ package info.knightrcom.state {
     import info.knightrcom.event.PushdownWinGameEvent;
     import info.knightrcom.puppet.GamePinocchioEvent;
     import info.knightrcom.state.pushdownwingame.PushdownWinGame;
+    import info.knightrcom.state.pushdownwingame.PushdownWinGameSetting;
     import info.knightrcom.state.pushdownwingame.PushdownWinMahjongBox;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.TimeTicker;
@@ -915,7 +916,7 @@ package info.knightrcom.state {
          */
         private function gameOverHandler(event:PushdownWinGameEvent):void {
             // 格式：发牌玩家~牌序(~接牌玩家)?~得分结果
-            // 得分结果样例(编号，得分，系统积分)：3,30,0;2,30,0;4,30,0;1,30,0
+            // 得分结果样例(编号，得分，系统积分，玩家积分【仅显示当前玩家积分，其他玩家为空】)：3,30,0;2,30,0;4,30,0;1,30,0
             var results:Array = event.incomingData.split("~");
             var scoreboardInfo:Array = String(results[results.length - 1]).split(/;/);
             // 显示记分牌
@@ -931,7 +932,20 @@ package info.knightrcom.state {
 	            	currentNextNumber = results[2];
 	            }
             }
-            var misc:Object = {GAME_TYPE : "PushdownWinGame", TITLE : "XXXXXX"}; 
+            var gameResult:int = -1;
+            switch (results.length) {
+                case 3:
+                    gameResult = PushdownWinGameSetting.CLEAR_VICTORY;
+                    break;
+                case 4:
+                    gameResult = PushdownWinGameSetting.NARROW_VICTORY;
+                    break;
+                default:
+                    gameResult = PushdownWinGameSetting.NOBODY_VICTORY;
+                    break;
+            }
+            var misc:Object = {GAME_TYPE : "PushdownWinGame",
+                TITLE : PushdownWinGameSetting.getDisplayName(gameResult)};
             this._myPuppet.dispatchEvent(
                 new GamePinocchioEvent(
                     GamePinocchioEvent.GAME_END, 
@@ -1080,11 +1094,13 @@ package info.knightrcom.state {
                     if (isNarrowWin) {
                         // 自摸
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, 
-                            localNumber + "~" + MahjongButton(currentGame.randDown.getChildAt(0)).value);
+                            localNumber + "~" + MahjongButton(currentGame.randDown.getChildAt(0)).value +
+                            "~" + mahjongBox.mahjongsStringOfPlayers);
                     } else {
                         // 非自摸
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, 
-                            localNumber + "~" + currentBoutMahjong + "~" + currentNumber);
+                            localNumber + "~" + currentBoutMahjong + "~" + currentNumber +
+                            "~" + mahjongBox.mahjongsStringOfPlayers);
                     }
                     currentGame.btnBarMahjongs.visible = false;
                     break;

@@ -42,10 +42,11 @@ package info.knightrcom.state.pushdownwingame
 
 		/**
 		 * 
+         * @tryEye 是否尝试眼牌（对子）路径，因为胡牌的基本牌型中不可以多于两套眼牌
 		 * @return 
 		 * 
 		 */
-		public function walkAllRoutes():void {
+		public function walkAllRoutes(tryEye:Boolean = true):void {
 			// 三张牌以内的情况下，完成胡牌路径
 			if (currentTrack.split(",").length < 2) {
 				return;
@@ -85,13 +86,13 @@ package info.knightrcom.state.pushdownwingame
 			if (/^(\w+),\1,\1.*$/.test(currentTrack)) {
 				optrResult = createPong(currentTrack);
 				this.currentTrackResult = optrResult[1];
-                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes();
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes(tryEye);
 			}
-			// 对子
-			if (/^(\w+),\1.*$/.test(currentTrack)) {
+			// 对子、眼牌
+			if (/^(\w+),\1.*$/.test(currentTrack) && tryEye) {
 				optrResult = createEye(currentTrack);
 				this.currentTrackResult = optrResult[1];
-                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes();
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes(false);
 			}
 			// 顺子
 			if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
@@ -100,7 +101,7 @@ package info.knightrcom.state.pushdownwingame
 			optrResult = createChow(currentTrack);
 			if (optrResult != null) {
 				this.currentTrackResult = optrResult[1];
-                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes();
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes(tryEye);
 			}
 		}
 
@@ -168,6 +169,8 @@ package info.knightrcom.state.pushdownwingame
 		 * 添加胡牌路径中的叶子节点<br>
 		 * 注意：该方法只会被叶子节点调用
 		 * 
+         * @param leafCube
+         * 
 		 */
 		private function addWinRoute(leafCube:PushdownWinningCube):void {
 			// 构造完整的牌型
