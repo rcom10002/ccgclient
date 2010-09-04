@@ -15,9 +15,11 @@ package info.knightrcom.state {
     import info.knightrcom.event.GameEvent;
     import info.knightrcom.event.PushdownWinGameEvent;
     import info.knightrcom.puppet.GamePinocchioEvent;
+    import info.knightrcom.service.LocalPlayerProfileService;
     import info.knightrcom.state.pushdownwingame.PushdownWinGame;
     import info.knightrcom.state.pushdownwingame.PushdownWinGameSetting;
     import info.knightrcom.state.pushdownwingame.PushdownWinMahjongBox;
+    import info.knightrcom.util.HttpServiceProxy;
     import info.knightrcom.util.ListenerBinder;
     import info.knightrcom.util.TimeTicker;
     
@@ -31,6 +33,7 @@ package info.knightrcom.state {
     import mx.events.FlexEvent;
     import mx.events.ItemClickEvent;
     import mx.managers.CursorManager;
+    import mx.rpc.events.ResultEvent;
     import mx.states.State;
     import mx.styles.StyleManager;
 
@@ -146,6 +149,11 @@ package info.knightrcom.state {
          * 当前游戏模块
          */
 		private static var currentGame:CCGamePushdownWin = null;
+        
+        /**
+         * 玩家当前的游戏积分
+         */
+        private static var myScore:Number = 0;
 
         /**
          *
@@ -395,7 +403,23 @@ package info.knightrcom.state {
             }
             // 操作按钮初始化
             resetBtnBar();
-
+            
+            // 显示当前玩家积分
+            HttpServiceProxy.send(
+                LocalPlayerProfileService.READ_PLAYER_PROFILE, 
+                {PROFILE_ID : BaseStateManager.currentProfileId}, 
+                null, 
+                function (e:ResultEvent):void {
+                    var e4x:XML = new XML(e.result);
+                    myScore = Number(e4x.entity.currentScore.text());
+                    currentGame.infoBoardText.text = "我的当前积分：" + myScore; // 少于500分时设置警戒色
+                    if (myScore < 500) {
+                        currentGame.infoBoardText.setStyle("color", "red");
+                    } else {
+                        currentGame.infoBoardText.setStyle("color", "white");
+                    }
+                }
+            );
             this._myPuppet.dealMahjong = dealMahjong; // 将打出麻将操作赋值给puppet对象
             this._myPuppet.dispatchEvent(new GamePinocchioEvent(
                 GamePinocchioEvent.GAME_START, 
@@ -1071,7 +1095,9 @@ package info.knightrcom.state {
          */
         private function gameWaitHandler(event:GameEvent):void {
             gameClient.txtSysMessage.text += event.incomingData + "\n";
-            gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
+            gameClient.progressBarMatching.indeterminate = false;
+            gameClient.progressBarMatching.setProgress(parseInt(event.incomingData.replace(/\D/g, "")), 100);
+            gameClient.progressBarMatching.visible = true;
         }
 
         /**
@@ -1833,6 +1859,7 @@ package info.knightrcom.state {
                 currentGame.dealed.removeAllChildren();
                 currentGame.greatWall.hideAllMahjongs();
                 currentGame.leftNumber.text = String(84);
+                currentGame.infoBoardText.text = "";
             }
         }
     }
