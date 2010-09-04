@@ -211,7 +211,6 @@ package info.knightrcom.state {
                 // 注册非可视组件监听事件
                 ListenerBinder.bind(timer, TimerEvent.TIMER, function(event:TimerEvent):void {
                     // 倒计时开始
-                    currentGame.timerTip.label = "计时开始";
                     if (currentGame.candidatedTipDownExt.numChildren > 0) {
                         (currentGame.candidatedTipDownExt.getChildAt(0) as GameWaiting).tipText = String(MAX_CARDS_SELECT_TIME - timer.currentCount);
                     } else {
@@ -225,7 +224,6 @@ package info.knightrcom.state {
                         var brainpowerTips:Array = Red5Game.getBrainPowerTip(
                                 currentGame.candidatedDown.getChildren().join(",").split(","), currentBoutCards.split(","));
                         if (brainpowerTips === null) {
-                            currentGame.timerTip.label = "智能放弃【" + timer.currentCount + "】";
                             if (timer.currentCount == 3) {
                                 // 可以选择不要按钮时，则进行不要操作
                                 itemClick(new ItemClickEvent(ItemClickEvent.ITEM_CLICK, false, false, null, Red5Game.OPTR_GIVEUP));
@@ -235,8 +233,6 @@ package info.knightrcom.state {
                         }
                     }
                     // 常规计时
-                    currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME - timer.currentCount, MAX_CARDS_SELECT_TIME);
-                    currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME - timer.currentCount);
                     if (currentGame.btnBarPokers.visible && timer.currentCount == MAX_CARDS_SELECT_TIME) {
                         // 当前玩家出牌时
                         if (Button(currentGame.btnBarPokers.getChildAt(Red5Game.OPTR_GIVEUP)).enabled) {
@@ -294,7 +290,6 @@ package info.knightrcom.state {
                 for each (var eachContainer:Container in cardsCandidatedTipArray) {
                     currentGame.setChildIndex(eachContainer, currentGame.numChildren - 1);
                 }
-                currentGame.setChildIndex(currentGame.timerTip, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoard, currentGame.numChildren - 1);
                 currentGame.setChildIndex(currentGame.infoBoardText, currentGame.numChildren - 1);
                 
@@ -333,10 +328,6 @@ package info.knightrcom.state {
             currentGame.btnBarPokersTipA.visible = false;
             currentGame.btnBarPokersTipB.visible = false;
             currentGame.btnBarPokersTipC.visible = false;
-            currentGame.timerTip.label = "剩余时间：";
-		    currentGame.timerTip.minimum = 0;
-            currentGame.timerTip.maximum = MAX_CARDS_SELECT_TIME;
-            currentGame.timerTip.mode = ProgressBarMode.MANUAL;
         }
 
         /**
@@ -393,7 +384,7 @@ package info.knightrcom.state {
             		function (e:ResultEvent):void {
 		            	var e4x:XML = new XML(e.result);
 		            	myScore = Number(e4x.entity.currentScore.text());
-                        currentGame.infoBoardText.text = "我的当前积分：" + myScore;						// 少于500分时设置警戒色
+                        currentGame.infoBoardText.text = "我的当前积分：" + myScore; // 少于500分时设置警戒色
 						if (myScore < 500) {
 							currentGame.infoBoardText.setStyle("color", "red");
 						} else {
@@ -961,7 +952,6 @@ package info.knightrcom.state {
          */
         private function gameWaitHandler(event:GameEvent):void {
             gameClient.txtSysMessage.text += event.incomingData + "\n";
-            // gameClient.txtSysMessage.selectionEndIndex = gameClient.txtSysMessage.length - 1;
             gameClient.progressBarMatching.indeterminate = false;
             gameClient.progressBarMatching.setProgress(parseInt(event.incomingData.replace(/\D/g, "")), 100);
             gameClient.progressBarMatching.visible = true;
@@ -1250,9 +1240,6 @@ package info.knightrcom.state {
             // 清除当前玩家出牌区域
             currentGame.dealedDown.removeAllChildren();
 			// 显示进度条，倒计时开始开始
-            currentGame.timerTip.setProgress(MAX_CARDS_SELECT_TIME, MAX_CARDS_SELECT_TIME);
-			currentGame.timerTip.label = "剩余#秒".replace(/#/g, MAX_CARDS_SELECT_TIME);
-			currentGame.timerTip.visible = true;
             if (timer.running) {
                 timer.stop();
                 timer.reset();
@@ -1275,7 +1262,6 @@ package info.knightrcom.state {
 		 */
 		private function hide(event:FlexEvent):void {
 			// 进度条隐藏，并重置计时器
-			currentGame.timerTip.visible = false;
             timer.stop();
 			timer.reset();
             CursorManager.setBusyCursor();
