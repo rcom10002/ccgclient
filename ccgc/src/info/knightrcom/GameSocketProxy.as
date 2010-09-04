@@ -227,11 +227,15 @@ package info.knightrcom {
          */
         private function sendSocket(data:String):void {
             try {
+                if (!socket.connected) {
+                    Alert.show("已经与服务器断开连接，请重新进入系统！", "警告");
+                    return;
+                }
                 socket.send(encodeForBase64String(data));
                 Logger.debug("DATA SENT " + data);
             } catch (e:Error) {
 				HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
-                Alert.show("数据发送失败！与服务器通信受阻，建议重新进入系统！", "错误");
+                Alert.show("数据发送失败！与服务器通信受阻，请重新进入系统！", "错误");
             }
         }
 
