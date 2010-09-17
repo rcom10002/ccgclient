@@ -1,13 +1,13 @@
 package info.knightrcom.util
 {
 	import info.knightrcom.service.LocalAbstractService;
-	
+
 	import mx.controls.Alert;
 	import mx.managers.CursorManager;
 	import mx.rpc.events.FaultEvent;
 	import mx.rpc.events.ResultEvent;
 	import mx.rpc.http.HTTPService;
-	
+
 	public class HttpServiceProxy
 	{
         private static var isProcessing:Boolean = false;
@@ -36,8 +36,10 @@ package info.knightrcom.util
         		service:HTTPService = null,
         		httpResultHandler:Function = null, 
         		httpFaultHandler:Function = null, 
-        		method:String = "POST"):void {
-            if (isProcessing) {
+        		method:String = "POST",
+                ignoreConcurrent:Boolean = false
+        ):void {
+            if (isProcessing && !ignoreConcurrent) {
                 Alert.show("请求处理中，请稍候……");
                 return;
             }
@@ -53,8 +55,8 @@ package info.knightrcom.util
     		if (httpFaultHandler != null && !service.hasEventListener(FaultEvent.FAULT)) {
     			ListenerBinder.bind(service, FaultEvent.FAULT, httpFaultHandler);
     		}
-    		ListenerBinder.bind(service, ResultEvent.RESULT, function ():void {CursorManager.removeBusyCursor(); isProcessing = false;});
-    		ListenerBinder.bind(service, FaultEvent.FAULT, function ():void {CursorManager.removeBusyCursor(); isProcessing = false;});
+    		ListenerBinder.bind(service, ResultEvent.RESULT, function ():void {CursorManager.removeBusyCursor(); changeProccessingFlag(false, ignoreConcurrent);});
+    		ListenerBinder.bind(service, FaultEvent.FAULT, function ():void {CursorManager.removeBusyCursor(); changeProccessingFlag(false, ignoreConcurrent);});
         	// 配置内部参数
         	if (params == null) {
             	params = new Object();
@@ -69,8 +71,21 @@ package info.knightrcom.util
             CursorManager.removeAllCursors();
             CursorManager.setBusyCursor();
         	service.send(params);
-            isProcessing = true;
+            changeProccessingFlag(true, ignoreConcurrent);
         	trace(params);
+        }
+
+        /**
+         * 
+         * @param processing
+         * @param ignoreConcurrent
+         * 
+         */
+        private static function changeProccessingFlag(processing:Boolean, ignoreConcurrent:Boolean):void {
+            if (ignoreConcurrent) {
+                return;
+            }
+            isProcessing = processing;
         }
 	}
 }
