@@ -18,8 +18,8 @@
 			private function creationCompleteHandler():void
 			{
 				initializeEachState();
-				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler);
-				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_CHART, null, null, freshChartResultHandler, freshFaultHandler);
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler, "POST", true);
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_CHART, null, null, freshChartResultHandler, freshFaultHandler, "POST", true);
 
 				ListenerBinder.bind(btnUserTree, MouseEvent.CLICK, btnUserTreeClickHander);
 				ListenerBinder.bind(btnUserChart, MouseEvent.CLICK, btnUserChartClickHander);
@@ -27,12 +27,12 @@
 
 			private function btnUserTreeClickHander(event:MouseEvent):void {
 				this.currentState = "TREE";
-				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler);
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, null, null, freshTreeResultHandler, freshFaultHandler, "POST", true);
 			}
 
 			private function btnUserChartClickHander(event:MouseEvent):void {
 				this.currentState = "CHART";
-				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_CHART, null, null, freshChartResultHandler, freshFaultHandler);
+				HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_CHART, null, null, freshChartResultHandler, freshFaultHandler, "POST", true);
 			}
 
 			private function freshTreeResultHandler(event:ResultEvent):void {

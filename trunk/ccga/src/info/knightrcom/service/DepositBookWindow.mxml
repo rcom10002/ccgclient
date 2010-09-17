@@ -127,11 +127,27 @@
 			}
 			
 			private function getMyRecord():void {
-				HttpServiceProxy.send(LocalDepositBookService.GET_MY_RECHARGE_RECORD, {CURRENT_USER_ID : Application.application.currentUserId}, infoServiceMine);
+				HttpServiceProxy.send(
+                    LocalDepositBookService.GET_MY_RECHARGE_RECORD, 
+                    {CURRENT_USER_ID : Application.application.currentUserId}, 
+                    infoServiceMine,
+                    null,
+                    null, 
+                    "POST", 
+                    true
+                );
 			}
 			
 			private function getPlayerRecord():void {
-				HttpServiceProxy.send(LocalDepositBookService.GET_PLAYER_RECHARGE_RECORD, {CURRENT_USER_ID : comboUserIds.selectedLabel.toString()}, infoService);
+				HttpServiceProxy.send(
+                    LocalDepositBookService.GET_PLAYER_RECHARGE_RECORD, 
+                    {CURRENT_USER_ID : comboUserIds.selectedLabel.toString()}, 
+                    infoService,
+                    null,
+                    null, 
+                    "POST", 
+                    true
+                );
 			}
 			
             private function tabChangeClickHandler(event:Event):void {
@@ -145,7 +161,15 @@
             private function btnUserRelationsShipClickHandler(event:MouseEvent):void
 			{
 			    try {
-			    	HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, {USER_ID :Application.application.currentUserId}, null, freshTreeResultHandler, freshFaultHandler);
+			    	HttpServiceProxy.send(
+                        LocalPlayerProfileService.SHOW_RLS_PATH_TREE, 
+                        {USER_ID :Application.application.currentUserId}, 
+                        null, 
+                        freshTreeResultHandler, 
+                        freshFaultHandler,
+                        "POST",
+                        true
+                    );
     				userRelationsShipWindow.visible=true;
     				PopUpManager.removePopUp(userRelationsShipWindow);
     				PopUpManager.addPopUp(userRelationsShipWindow, adminApp, true);
@@ -158,14 +182,20 @@
 			private function comboUserInfoChangeHandler(event:ListEvent):void
 			{
 				// 玩家信息
-				HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE_BY_USER_ID, {USER_ID: comboUserIds.selectedLabel.toString()}, null, 
+				HttpServiceProxy.send(
+                    LocalPlayerProfileService.READ_PLAYER_PROFILE_BY_USER_ID, 
+                    {USER_ID: comboUserIds.selectedLabel.toString()}, 
+                    null, 
 					function(eventResult:ResultEvent):void {
 						var e4xResult:XML=new XML(eventResult.result);
     					txtPlayerOrgScore.text=e4xResult.entity.currentScore.text();
 					}, 
 					function(eventFault:FaultEvent):void {
 						Alert.show("数据通信失败！", "错误");
-					});
+					},
+                    "POST",
+                    true
+                );
 				// 我的信息
 				HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE_BY_USER_ID, {USER_ID: Application.application.currentUserId}, null, 
 					function(eventResult:ResultEvent):void {
@@ -174,7 +204,10 @@
 					}, 
 					function(eventFault:FaultEvent):void {
 						Alert.show("数据通信失败！", "错误");
-					});
+					},
+                    "POST",
+                    true
+                );
 				getPlayerRecord();
 				getMyRecord();
 			}		
@@ -199,7 +232,15 @@
 		        		userRelationsShipWindow.visible = false;
 		        	});
 		        	// 读取用户关系
-					HttpServiceProxy.send(LocalPlayerProfileService.SHOW_RLS_PATH_TREE, {USER_ID: Application.application.currentUserId}, null, freshTreeResultHandler, freshFaultHandler);
+					HttpServiceProxy.send(
+                        LocalPlayerProfileService.SHOW_RLS_PATH_TREE, 
+                        {USER_ID: Application.application.currentUserId}, 
+                        null, 
+                        freshTreeResultHandler, 
+                        freshFaultHandler,
+                        "POST",
+                        true
+                    );
 					// 读取初始参数
 					defaultSearch();
 					isInitialized = true;
