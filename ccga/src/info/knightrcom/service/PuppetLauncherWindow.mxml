@@ -174,12 +174,17 @@
                 HttpServiceProxy.send(
                         LocalPuppetConsoleService.LIST_PUPPET_INFO, 
                         {GAME_TYPE : "Red5"}, 
-                        null, function (e:ResultEvent):void {
+                        null,
+                        function (e:ResultEvent):void {
                             datagrid.dataProvider = new XML(e.result).tag.map;
-                            // TODO lblTip.text = "运行中Puppet数：" + "" + "个";
                             Application.application.log("");
-                        }, function (e:FaultEvent):void { Application.application.log("通信错误，无法从Web服务器取得数据！");
-                });
+                        },
+                        function (e:FaultEvent):void {
+                            Application.application.log("通信错误，无法从Web服务器取得数据！");
+                        },
+                        "POST",
+                        true
+                );
             }
         ]]>
     </mx:Script>

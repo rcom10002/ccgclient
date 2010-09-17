@@ -35,12 +35,18 @@
 			{
 				HttpServiceProxy.send(
 						LocalPlayerProfileService.RETRIEVE_PLAYER_PROFILE, 
-						{CURRENT_PAGE : CURRENT_PAGE,
-						 ROLE : role.selectedIndex == 0 ? null : role.value,
-						 USER_ID : userId.text.length == 0 ? null : userId.text,
-						 CURRENT_USER_ID : Application.application.currentRole == "GroupUser" ? Application.application.currentUserId : null 
+						{
+                            CURRENT_PAGE : CURRENT_PAGE,
+						    ROLE : role.selectedIndex == 0 ? null : role.value,
+						    USER_ID : userId.text.length == 0 ? null : userId.text,
+						    CURRENT_USER_ID : Application.application.currentRole == "GroupUser" ? Application.application.currentUserId : null 
 						}, 
-						infoService);
+						infoService,
+                        null,
+                        null,
+                        "POST",
+                        true
+                );
 			}
 
 			protected function clearEditor():void
@@ -249,14 +255,18 @@
                     };
                     if (Application.application.currentRole != "GroupUser") {
                         // 取得除Administration之外的关系路径取出
-    				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, rlsPathLoad);
+    				    HttpServiceProxy.send(LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, null, null, rlsPathLoad, null, "POST", true);
                     } else if (Application.application.currentRole == "GroupUser") {
                         // 将与组用户相关的关系路径取出
     				    HttpServiceProxy.send(
     				            LocalPlayerProfileService.RETRIEVE_PLAYER_RLS_PATH, 
     				            {CURRENT_RLS_PATH : Application.application.currentRlsPath}, 
     				            null, 
-    				            rlsPathLoad);
+    				            rlsPathLoad,
+                                null,
+                                "POST",
+                                true
+                        );
                     }
                 }
 
@@ -334,7 +344,10 @@
     			            roles.push({data : itemData, label : itemLabel});
     			        }
     			        playerRole.dataProvider = roles;
-		            }
+		            },
+                    null,
+                    "POST",
+                    true
 			    );
 
 			    // 数据绑定
