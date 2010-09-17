@@ -73,27 +73,34 @@
             	}
             	// 游戏玩家
             	// 1~user4~2~user3~3~user2~4~user1~
-            	HttpServiceProxy.send(LocalSystemInfoService.LOAD_GAME_RECORD,
-            			{GAME_ID : gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, function (event:ResultEvent):void {
-            				var e4xResult:XML = new XML(event.result);
-            				var gameType:String = e4xResult.entity.gameType.text();
-            				gamePlayers = e4xResult.entity.players.text();
-            				gameRecord = e4xResult.entity.record.text();
-            				lblGameSetting.text = Red5GameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
-							// 确定游戏名称
-							if (gameType == "Red5Game") {
-								var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
-								gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
-								var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
-								gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
-								var part3:String = removeBothSides(gameRecord, ";");
-								btnExecute.enabled = false;
-								playRed5Game(part1, part2, part3);
-							} else {
-								throw Error("未知游戏类型！无法播放游戏历史录像！");
-							}
-            				settingWindow.visible = false;
-            			});
+            	HttpServiceProxy.send(
+                    LocalSystemInfoService.LOAD_GAME_RECORD,
+        			{GAME_ID : gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, 
+                    null,
+                    function (event:ResultEvent):void {
+                        var e4xResult:XML = new XML(event.result);
+                        var gameType:String = e4xResult.entity.gameType.text();
+                        gamePlayers = e4xResult.entity.players.text();
+                        gameRecord = e4xResult.entity.record.text();
+                        lblGameSetting.text = Red5GameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
+                        // 确定游戏名称
+                        if (gameType == "Red5Game") {
+                            var part1:String = removeBothSides(gameRecord.replace(/(.*=\d+).*/, "$1"), ";");
+                            gameRecord = removeBothSides(gameRecord.replace(part1, ""), ";");
+                            var part2:String = removeBothSides(gameRecord.replace(/((\d~\d~\d;){1,4}).*/, "$1"), ";");
+                            gameRecord = removeBothSides(gameRecord.replace(part2, ""), ";");
+                            var part3:String = removeBothSides(gameRecord, ";");
+                            btnExecute.enabled = false;
+                            playRed5Game(part1, part2, part3);
+                        } else {
+                            throw Error("未知游戏类型！无法播放游戏历史录像！");
+                        }
+                        settingWindow.visible = false;
+                    },
+                    null,
+                    "POST",
+                    true
+                );
 			}
 
             private function btnExecuteClickHandler(event:MouseEvent):void {
@@ -105,7 +112,7 @@
 				}
 				HttpServiceProxy.send(
 					LocalSystemInfoService.GAME_ID_VALIDATE, 
-					   {GAME_ID: this.gameId.text}, 
+				   {GAME_ID: this.gameId.text}, 
 					null, 
 					function(event:ResultEvent):void
 					{
@@ -113,22 +120,23 @@
 						if (data.result == "SUCCESS")
 						{
 							// 判断当前用户是否看过录像
-			            	HttpServiceProxy.send(LocalSystemInfoService.PLAY_GAME_VEDIO,
-			            			{GAME_ID: gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, 
-			            			function (event:ResultEvent):void {
-			            				if (btnExecute.label != "播放" || new XML(event.result).result == "SUCCESS")
-										{
-											playerVedio();
-										}
-										else
-										{
-											readPlayerGameInfo();
-			
-										}
-			            			},
-			            			function (e:FaultEvent):void {
-										Alert.show("通信失败！", "错误");
-									});
+			            	HttpServiceProxy.send(
+                                LocalSystemInfoService.PLAY_GAME_VEDIO,
+		            			{GAME_ID: gameId.text, CURRENT_PROFILE_ID: BaseStateManager.currentProfileId}, null, 
+		            			function (event:ResultEvent):void {
+		            				if (btnExecute.label != "播放" || new XML(event.result).result == "SUCCESS") {
+										playerVedio();
+									}
+									else {
+										readPlayerGameInfo();
+									}
+		            			},
+		            			function (e:FaultEvent):void {
+									Alert.show("通信失败！", "错误");
+								},
+                                "POST",
+                                true
+                            );
 						}
 						else if (data.result == "WARNING")
 						{
@@ -140,46 +148,54 @@
 						{
 							Alert.show("播放失败！", "错误");
 						}
-					});
+					}
+                );
             }
             
             private function readPlayerGameInfo():void {
             	// 读取游戏底分
             	HttpServiceProxy.send(LocalSystemInfoService.READ_GAME_INFO,
-            			{GAME_ID: gameId.text}, null, 
-            			function (event:ResultEvent):void {
-            				var score:Number = new XML(event.result).entity.score;
-            				// 读取用户当前积分
-            				HttpServiceProxy.send(LocalPlayerProfileService.READ_PLAYER_PROFILE,
-		            			{PROFILE_ID: BaseStateManager.currentProfileId}, null, 
-		            			function (event:ResultEvent):void {
-		            				var user:Object = new XML(event.result).entity;
-									if (user.currentScore - 2 * score < 0) {
-										Alert.show("分数不足不可以使用回放录像功能！");
-										return;
-									}
-									Alert.yesLabel = "确认";
-									Alert.noLabel = "取消";
-								    Alert.show( "录像回放需要扣除积分" + 2 * score + "分，\n确定要观看吗？",
-											"消息", 
-											Alert.YES | Alert.NO,
-											Application.application as Sprite,
-											function handleAlert(eventClose:CloseEvent):void {
-											    if(eventClose.detail == Alert.YES)
-											    {
-											      	playerVedio();
-											    }
-											},
-											null,
-											Alert.YES);
-								},
-								function (e:FaultEvent):void {
-									Alert.show("通信失败！", "错误");
-								});
-            			},
-						function (e:FaultEvent):void {
-							Alert.show("通信失败！", "错误");
-						});
+        			{GAME_ID: gameId.text}, null, 
+        			function (event:ResultEvent):void {
+        				var score:Number = new XML(event.result).entity.score;
+        				// 读取用户当前积分
+        				HttpServiceProxy.send(
+                            LocalPlayerProfileService.READ_PLAYER_PROFILE,
+	            			{PROFILE_ID: BaseStateManager.currentProfileId}, null, 
+	            			function (event:ResultEvent):void {
+	            				var user:Object = new XML(event.result).entity;
+								if (user.currentScore - 2 * score < 0) {
+									Alert.show("分数不足不可以使用回放录像功能！");
+									return;
+								}
+								Alert.yesLabel = "确认";
+								Alert.noLabel = "取消";
+							    Alert.show( "录像回放需要扣除积分" + 2 * score + "分，\n确定要观看吗？",
+										"消息", 
+										Alert.YES | Alert.NO,
+										Application.application as Sprite,
+										function handleAlert(eventClose:CloseEvent):void {
+										    if(eventClose.detail == Alert.YES)
+										    {
+										      	playerVedio();
+										    }
+										},
+										null,
+										Alert.YES);
+							},
+							function (e:FaultEvent):void {
+								Alert.show("通信失败！", "错误");
+							},
+                            "POST",
+                            true
+                        );
+        			},
+					function (e:FaultEvent):void {
+						Alert.show("通信失败！", "错误");
+					},
+                    "POST",
+                    true
+                );
             }
 
 			private function btnTerminateClickHandler(event:MouseEvent):void {

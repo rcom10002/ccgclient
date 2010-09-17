@@ -234,7 +234,15 @@ package info.knightrcom {
                 socket.send(encodeForBase64String(data));
                 Logger.debug("DATA SENT " + data);
             } catch (e:Error) {
-				HttpServiceProxy.send(LocalErrorReportService.UPLOAD_ERROR_INFORMATION, {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()});
+				HttpServiceProxy.send(
+                    LocalErrorReportService.UPLOAD_ERROR_INFORMATION, 
+                    {NAME : e.name, MESSAGE : e.message, STACK_TRACE : e.getStackTrace()}, 
+                    null, 
+                    null, 
+                    null, 
+                    "POST", 
+                    true
+                );
                 Alert.show("数据发送失败！与服务器通信受阻，请重新进入系统！", "错误");
             }
         }
