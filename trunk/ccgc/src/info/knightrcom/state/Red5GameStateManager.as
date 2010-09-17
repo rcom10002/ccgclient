@@ -390,7 +390,10 @@ package info.knightrcom.state {
 						} else {
 							currentGame.infoBoardText.setStyle("color", "white");
 						}
-            		}
+            		},
+                    null,
+                    "POST",
+                    true
             );
             this._myPuppet.dispatchEvent(new GamePinocchioEvent(
                 GamePinocchioEvent.GAME_START, 

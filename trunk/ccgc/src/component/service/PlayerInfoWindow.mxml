@@ -48,7 +48,10 @@
 					infoService, null,
 					function (e:FaultEvent):void {
 						Alert.show("通信失败！", "错误");
-					});
+					},
+                    "POST",
+                    true
+                );
 			}
 
 			private function btnChangePasswdHandler(event:MouseEvent):void {
@@ -108,7 +111,10 @@
 					},
 					function (e:FaultEvent):void {
 						Alert.show("通信失败！", "错误");
-					});
+					},
+                    "POST",
+                    true
+                );
 			}
 		]]>
 	</mx:Script>

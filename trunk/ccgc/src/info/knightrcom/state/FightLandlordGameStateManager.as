@@ -454,7 +454,10 @@ package info.knightrcom.state
 						} else {
 							currentGame.infoBoardText.setStyle("color", "white");
 						}
-            		}
+            		},
+                    null,
+                    "POST",
+                    true
             );
             // 设置倍数指示板
             setGameBombLabel();

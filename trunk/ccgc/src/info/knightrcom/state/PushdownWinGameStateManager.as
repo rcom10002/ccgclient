@@ -418,7 +418,10 @@ package info.knightrcom.state {
                     } else {
                         currentGame.infoBoardText.setStyle("color", "white");
                     }
-                }
+                },
+                null,
+                "POST",
+                true
             );
             this._myPuppet.dealMahjong = dealMahjong; // 将打出麻将操作赋值给puppet对象
             this._myPuppet.dispatchEvent(new GamePinocchioEvent(

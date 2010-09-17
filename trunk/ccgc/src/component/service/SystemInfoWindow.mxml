@@ -101,7 +101,7 @@
 						totalPlayerCount : eachItem.split("~")[6]});
 					}
 					lobbyStatusDatagrid.dataProvider = items;
-				});
+				}, null, "POST", true);
 			}
 		]]>
 	</mx:Script>
