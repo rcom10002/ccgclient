@@ -202,7 +202,7 @@
 				if (settingTimer != null) {
 					settingTimer.reset();
 				}
-				if (settingTimer != null) {
+				if (playingTimer != null) {
 					playingTimer.reset();
 				}
 				lblGameSetting.text = "";

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbstractInfoWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="component.service.*" title="推到胡游戏录像" minHeight="600" minWidth="800">
+	<!-- 游戏录像播放区域 -->
+	<!-- 待出牌区域 -->
+	<mx:HBox id="candidatedUp"
+			 height="80"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="0"
+			 horizontalCenter="0" width="460">
+	</mx:HBox>
+	<mx:VBox id="candidatedRight"
+			 width="80"
+			 right="0"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="-7" verticalCenter="10" height="360">
+	</mx:VBox>
+	<mx:HBox id="candidatedDown"
+			 height="80"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 bottom="0"
+			 verticalAlign="top" horizontalCenter="0" width="460">
+	</mx:HBox>
+	<mx:VBox id="candidatedLeft"
+			 width="80"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="-7" verticalCenter="-10" height="360">
+	</mx:VBox>
+	<!-- 亮牌区域 -->
+	<mx:VBox id="daisLeft"
+			 top="100"
+			 bottom="100"
+			 left="88"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="-7" width="53">
+	</mx:VBox>
+	<mx:VBox id="daisRight"
+			 width="53"
+			 top="100"
+			 bottom="100"
+			 right="88"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="-7">
+	</mx:VBox>
+	<mx:HBox id="daisDown"
+			 height="53"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 left="175"
+			 right="175"
+			 bottom="88"
+			 verticalAlign="top">
+	</mx:HBox>
+	<mx:HBox id="daisUp"
+			 height="53"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="88"
+			 left="175"
+			 right="175">
+	</mx:HBox>
+	<!-- 摸牌区域 -->
+	<mx:VBox id="randLeft"
+			 height="60"
+			 width="80"
+			 left="0"
+			 horizontalAlign="right"
+			 verticalAlign="middle"
+			 verticalGap="0" verticalCenter="200">
+	</mx:VBox>
+	<mx:HBox id="randDown"
+			 height="80"
+			 width="60"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 bottom="0"
+			 verticalAlign="top" horizontalCenter="260">
+	</mx:HBox>
+	<mx:HBox id="randUp"
+			 height="80"
+			 width="60"
+			 horizontalGap="0"
+			 horizontalAlign="center"
+			 verticalAlign="bottom"
+			 top="0"
+			 horizontalCenter="-260">
+	</mx:HBox>
+	<mx:VBox id="randRight"
+			 height="60"
+			 width="80"
+			 right="1"
+			 horizontalAlign="left"
+			 verticalAlign="middle"
+			 verticalGap="0" verticalCenter="-200">
+	</mx:VBox>
+	<!-- 牌桌区域 -->
+	<mx:Canvas left="150" right="150" top="150" bottom="150">
+		<mx:Tile id="dealed"
+				 top="0"
+				 left="0"
+				 right="0"
+				 bottom="0"
+				 horizontalGap="0"
+				 verticalGap="-8"
+				 verticalAlign="middle">
+		</mx:Tile>
+	</mx:Canvas>
+	<!-- 游戏录像设置区域 -->
+	<mx:TitleWindow id="settingWindow" layout="absolute" verticalCenter="0" horizontalCenter="0">
+	    <mx:title>游戏录像设置</mx:title>
+	    <mx:showCloseButton>true</mx:showCloseButton>
+	    <mx:visible>false</mx:visible>
+		<mx:Form x="10" y="10">
+			<mx:FormItem label="游戏ID" required="true">
+				<mx:TextInput id="gameId" text="61c1f628-1450-4e34-bbb3-9a71c4258504"/>
+			</mx:FormItem>
+			<mx:FormItem label="播放速度">
+				<mx:HSlider id="gameSpeed" minimum="1" maximum="5" snapInterval="1" value="3" showDataTip="false" />
+			</mx:FormItem>
+		</mx:Form>
+	</mx:TitleWindow>
+	<!-- 游戏录像操作区域 -->
+	<mx:Button id="btnSetting" x="10" y="10" label="设置"/>
+	<mx:Button x="10" y="40" label="播放" id="btnExecute"/>
+	<mx:Button label="停止" y="70" x="10" id="btnTerminate"/>
+	<mx:Label id="lblGameSetting" right="10" top="12"/>
+</AbstractInfoWindow>
