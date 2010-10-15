@@ -1124,12 +1124,26 @@ package info.knightrcom.state {
                         // 自摸
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, 
                             localNumber + "~" + MahjongButton(currentGame.randDown.getChildAt(0)).value +
-                            "~" + mahjongBox.mahjongsStringOfPlayers);
+                            "#" + 
+                            PushdownWinGame.allWinRoutes(
+                                MahjongButton(currentGame.randDown.getChildAt(0)).value,
+                                currentGame.candidatedDown.getChildren().toString(),
+                                currentGame.daisDown.getChildren().toString(),
+                                mahjongBox.mahjongsOfDaisHistory[localNumber - 1] as Array
+                            )
+                        );
                     } else {
                         // 非自摸
                         socketProxy.sendGameData(PushdownWinGameCommand.GAME_WIN_AND_END, 
                             localNumber + "~" + currentBoutMahjong + "~" + currentNumber +
-                            "~" + mahjongBox.mahjongsStringOfPlayers);
+                            "#" + 
+                            PushdownWinGame.allWinRoutes(
+                                currentBoutMahjong,
+                                currentGame.candidatedDown.getChildren().toString(),
+                                currentGame.daisDown.getChildren().toString(),
+                                mahjongBox.mahjongsOfDaisHistory[localNumber - 1] as Array
+                            )
+                        );
                     }
                     currentGame.btnBarMahjongs.visible = false;
                     break;

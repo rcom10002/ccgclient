@@ -22,31 +22,83 @@ package info.knightrcom.state.pushdownwingame
 			this.parentCube = parentCube;
 		}
 
-		/** 父节点 */
-		public var parentCube:PushdownWinningCube;
-
-		/** 根节点 */
-		private var rootCube:PushdownWinningCube;
-
 		/** 当前要处理的麻将牌序 */
 		private var currentTrack:String;
 
 		/** 当前要处理的麻将牌序 */
-		public var parentTrackResult:String;
+        private var parentTrackResult:String;
+        
+        /** 根节点 */
+        private var rootCube:PushdownWinningCube;
+        
+        /** 父节点 */
+        private var parentCube:PushdownWinningCube;
 
 		/** 当前处理结果 */
-		public var currentTrackResult:String;
+        private var currentTrackResult:String;
 
 		/** 可以胡牌的路径结果 */
 		private var winRoutes:Array = [];
 
-		/**
+        public function walkAllRoutes():void {
+            if (try7Couple(currentTrack) || try13Single(currentTrack)) {
+                return;
+            } else {
+                walkBasicRoutes();
+            }
+        }
+
+        /**
+         * 七对子
+         * 
+         * @param mahjongs
+         * @return 
+         * 
+         */
+        private function try7Couple(mahjongs:String):Boolean {
+            if (mahjongs.split(",").length == 14 && /^((,\w+)\2){7}$/.test("," + mahjongs)) {
+                var couples:String = "";
+                for each (var eachCouple:String in ("," + mahjongs).match(/(,\w+)\1/g)) {
+                    couples += eachCouple.substr(1) + "~";
+                }
+                this.winRoutes.push(couples.substr(0, couples.length - 1));
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * 十三幺
+         * 
+         * @param mahjongs
+         * @return 
+         * 
+         */
+        private function try13Single(mahjongs:String):Boolean {
+            var singles:String = "EAST,SOUTH,WEST,NORTH,RED,GREEN,WHITE,W1,W9,B1,B9,T1,T9";
+            if (mahjongs.split(",").length == 14 && singles == mahjongs.replace(/(\w+),\1/g, "$1")) {
+                var results:String = "";
+                mahjongs = mahjongs.match(/(\w+),\1/)[0].toString().replace(/,.+/, "");
+                for each (var eachSingle:String in singles.split(",")) {
+                    if (eachSingle == mahjongs) {
+                        results += eachSingle + "," + eachSingle + "~";
+                    } else {
+                        results += eachSingle + "~";
+                    }
+                }
+                this.winRoutes.push(results.substr(0, results.length - 1));
+                return true;
+            }
+            return false;
+        }
+
+        /**
 		 * 
          * @tryEye 是否尝试眼牌（对子）路径，因为胡牌的基本牌型中不可以多于两套眼牌
 		 * @return 
 		 * 
 		 */
-		public function walkAllRoutes(tryEye:Boolean = true):void {
+		private function walkBasicRoutes(tryEye:Boolean = true):void {
 			// 三张牌以内的情况下，完成胡牌路径
 			if (currentTrack.split(",").length < 2) {
 				return;
@@ -86,13 +138,13 @@ package info.knightrcom.state.pushdownwingame
 			if (/^(\w+),\1,\1.*$/.test(currentTrack)) {
 				optrResult = createPong(currentTrack);
 				this.currentTrackResult = optrResult[1];
-                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes(tryEye);
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkBasicRoutes(tryEye);
 			}
 			// 对子、眼牌
 			if (/^(\w+),\1.*$/.test(currentTrack) && tryEye) {
 				optrResult = createEye(currentTrack);
 				this.currentTrackResult = optrResult[1];
-                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes(false);
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkBasicRoutes(false);
 			}
 			// 顺子
 			if (/^(EAST|SOUTH|WEST|NORTH|RED|GREEN|WHITE).*$/.test(currentTrack)) {
@@ -101,7 +153,7 @@ package info.knightrcom.state.pushdownwingame
 			optrResult = createChow(currentTrack);
 			if (optrResult != null) {
 				this.currentTrackResult = optrResult[1];
-                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkAllRoutes(tryEye);
+                new PushdownWinningCube(optrResult[0], optrResult[1], tempRootCube, this).walkBasicRoutes(tryEye);
 			}
 		}
 
@@ -113,10 +165,10 @@ package info.knightrcom.state.pushdownwingame
 		 * @return
 		 *
 		 */
-		private function createPong(currentTrack:String):Array
+		private function createPong(mahjongs:String):Array
 		{
-			var result:String = currentTrack.replace(/^((\w+),\2,\2).*$/, "$1");
-			return [tidy(currentTrack.replace(new RegExp("^" + result), "")), result];
+			var result:String = mahjongs.replace(/^((\w+),\2,\2).*$/, "$1");
+			return [tidy(mahjongs.replace(new RegExp("^" + result), "")), result];
 		}
 
 		/**
@@ -127,16 +179,16 @@ package info.knightrcom.state.pushdownwingame
 		 * @return
 		 *
 		 */
-		private function createChow(currentTrack:String):Array
+		private function createChow(mahjongs:String):Array
 		{
 			var result:String = null; // 吃牌序列
-			var mahjongPattern:String = currentTrack.replace(/^([WBT]\d).*/, "$1");
+			var mahjongPattern:String = mahjongs.replace(/^([WBT]\d).*/, "$1");
 			var color:String = mahjongPattern.charAt(0);
 			var value:int = int(mahjongPattern.charAt(1));
 			var mahjong0:String = color + (value + 0);
 			var mahjong1:String = color + (value + 1);
 			var mahjong2:String = color + (value + 2);
-			var mahjongArray:Array = currentTrack.split(","); // 当前麻将序列
+			var mahjongArray:Array = mahjongs.split(","); // 当前麻将序列
 			var mahjongIndex1:int = mahjongArray.indexOf(mahjong1);
 			var mahjongIndex2:int = mahjongArray.indexOf(mahjong2);
 			if (mahjongIndex1 > 0 && mahjongIndex2 > 0) {
@@ -158,10 +210,10 @@ package info.knightrcom.state.pushdownwingame
 		 * @return
 		 *
 		 */
-		private function createEye(currentTrack:String):Array
+		private function createEye(mahjongs:String):Array
 		{
-			var result:String = currentTrack.replace(/^((\w+),\2).*$/, "$1");
-			return [tidy(currentTrack.replace(new RegExp("^" + result), "")), result];
+			var result:String = mahjongs.replace(/^((\w+),\2).*$/, "$1");
+			return [tidy(mahjongs.replace(new RegExp("^" + result), "")), result];
 		}
 
 		/**

@@ -14,9 +14,14 @@ package info.knightrcom.state.pushdownwingame
 		private var mjOfPlayers:Array = new Array(4);
 
 		/**
-		 * 当前玩家们手中的麻将
+		 * 当前玩家们亮出的麻将
 		 */
 		private var mjOfDais:Array = [[], [], [], []];
+
+        /**
+         * 当前玩家们亮出的麻将历史记录，以便胡牌时计算积分使用
+         */
+        private var mjOfDaisHistory:Array = [[], [], [], []];
 
 		/**
 		 * 尚未使用过的麻将
@@ -97,7 +102,16 @@ package info.knightrcom.state.pushdownwingame
 			return this.mjOfDais;
 		}
 
-		/**
+        /**
+         * 
+         * @return 
+         * 
+         */
+        public function get mahjongsOfDaisHistory():Array {
+            return this.mjOfDaisHistory as Array;
+        }
+
+        /**
 		 *
 		 * @return
 		 *
@@ -151,6 +165,8 @@ package info.knightrcom.state.pushdownwingame
     			// 为玩家添加被操作牌
 				(mjOfDais[index] as Array).push(eachMahjong);
 			}
+            // 保留本次移动麻将个数的历史信息，以便拆分使用
+            (mjOfDaisHistory[index] as Array).push(mahjongValues.split(",").length);
 			return mjOfDais[index] as Array;
 		}
 

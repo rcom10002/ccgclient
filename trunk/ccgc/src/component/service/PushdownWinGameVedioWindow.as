@@ -129,7 +129,7 @@ package component.service
                     var gameType:String = e4xResult.entity.gameType.text();
                     gamePlayers = e4xResult.entity.players.text();
                     gameRecord = e4xResult.entity.record.text();
-                    gameRecord = gameRecord.replace(/([^;]*;){8}$/, "") // 删除最终所有玩家的亮牌信息
+                    gameRecord = gameRecord.replace(/#.*$/, "") // 删除最终所有玩家的亮牌信息
                     lblGameSetting.text = PushdownWinGameSetting.getDisplayName(e4xResult.entity.gameSetting.text());
                     // 确定游戏名称
                     if (gameType == "PushdownWinGame") {
@@ -202,7 +202,7 @@ package component.service
             var playerIndex:int = -1;
             playingTimer = new Timer(DEFAULT_DELAY / gameSpeed.value);
             ListenerBinder.bind(playingTimer, TimerEvent.TIMER, function (event:TimerEvent):void {
-                if (itrIndex == initMahjongs.length) {
+                if (itrIndex == initMahjongs.length - 1) {
                     playingTimer.stop();
                     Alert.show("录像回放完毕！");
                     btnExecute.label = "播放";

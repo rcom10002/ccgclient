@@ -121,28 +121,11 @@ package info.knightrcom.state.pushdownwingame {
 		 */
 		public static function isWin(dealedMahjong:String, mahjongOfPlayers:Array, excludedIndex:String):int
 		{
-			// TODO 特殊牌型处理
+			// TODO 全不靠暂时不考虑
 			var winResultsLengthes:Array = null;
 			var index:int = -1;
 			var mahjongs:Array = null;
-			// FIXME 暂时关闭以下三项胡牌规则
-//			// 七对
-//            for (index = 0; index < mahjongOfPlayers.length; index++) {
-//            	if (index == excludedIndex) {
-//            		continue;
-//            	}
-//				mahjongs = (mahjongOfPlayers[index] as Array).slice(0);
-//				mahjongs.push(dealedMahjong);
-//				if (/^((,\\w+)\\2){7}$/.test("," + PushdownWinGame.sortMahjongs(mahjongs.join(",")).join(","))) {
-//            	}
-//				winCube.walkAllRoutes();
-//				winResults[index] = winCube.winningRoutes;
-//				winResultsLength[index] = winCube.winningRoutes.length;
-//            }
-//			// 十三幺
-//			
-//			// 全不靠
-//			
+
 			// 常规牌型处理
 			winResultsLengthes = new Array();
             for (index = 0; index < mahjongOfPlayers.length; index++) {
@@ -154,6 +137,7 @@ package info.knightrcom.state.pushdownwingame {
 				winCube.walkAllRoutes();
 				winResultsLengthes[index] = winCube.winningRoutes.length;
             }
+
             // 确定可以胡牌的玩家
             index = lookupWinner(winResultsLengthes, excludedIndex);
 			return index > -1 ? index : -1; // 正确结果需加0
@@ -293,5 +277,33 @@ package info.knightrcom.state.pushdownwingame {
             canKong ||= (currentMahjongs.match(/(\w+),\1,\1,\1/g).length > 0);
 			return canKong;
 		}
+        
+        /**
+         * 
+         * @param targetMahjong 胡牌麻将，可能是别人打出或自己摸出
+         * @param currentMahjongs 玩家手中麻将
+         * @param daisMahjongs 玩家桌面麻将
+         * @param lengthMeta 玩家桌面麻将长度信息
+         * @return 
+         * 
+         */
+        public static function allWinRoutes(targetMahjong:String, currentMahjongs:String, daisMahjongs:String, lengthMeta:Array):String {
+            //
+            var myFinalRoutes:Array = [];
+            // 计算胡牌路径
+            var winCube:PushdownWinningCube = new PushdownWinningCube(sortMahjongs(currentMahjongs + "," + targetMahjong).join(","));
+            winCube.walkAllRoutes();
+            // 分析玩家桌面牌型
+            var daisMahjongsSeq:Array = daisMahjongs.split(",");
+            var daisMahjongsResult:Array = [];
+            for each (var eachLength:int in lengthMeta) {
+                daisMahjongsResult.push((daisMahjongsSeq.splice(0, eachLength) as Array).join(","));
+            }
+            // 
+            for each (var winRoute:* in winCube.winningRoutes) {
+                myFinalRoutes.push((daisMahjongsResult.join("~") + "~" + winRoute).replace(/~{2,}/g, "~").replace(/^~|~$/g, ""));
+            }
+            return myFinalRoutes.join(";");
+        }
     }
 }
