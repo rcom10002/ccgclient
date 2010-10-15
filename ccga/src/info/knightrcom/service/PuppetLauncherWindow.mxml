@@ -61,12 +61,21 @@
                                 ExternalInterface.call("window.open", finalTargetURL);
                             }
                         }, 
-                        function (e:FaultEvent):void {Alert.show("通信错误！", "错误");});
+                        function (e:FaultEvent):void {
+                            Alert.show("通信错误！", "错误");
+                        },
+                        "POST",
+                        true
+                );
             }
             
             private function checkServerStatus():void {
                 // 检查服务器是否关闭
-                HttpServiceProxy.send(LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, {}, null, function(event:ResultEvent):void 
+                HttpServiceProxy.send(
+                    LocalGameConfigureService.IS_SERVER_CLOSE_STATUS, 
+                    {}, 
+                    null, 
+                    function(event:ResultEvent):void 
                     {
                         if (new XML(event.result).result == "SUCCESS")
                         {
@@ -93,7 +102,10 @@
                                            function():void
                                            {
                                                 Alert.show("游戏服务器启动失败！");
-                                           });
+                                           },
+                                           "POST",
+                                           true
+                                       );
                                     }
                                 },
                                 null,
@@ -103,10 +115,14 @@
                         {
                             startPuppet();
                         }
-                    }, function(event:FaultEvent):void
+                    }, 
+                    function(event:FaultEvent):void
                     {
                         Alert.show("服务中断！", "でく・ロボット");
-                    });
+                    },
+                    "POST",
+                    true
+                );
             }
 
             protected function btnLocalStartPuppetClickHandler(event:MouseEvent):void {
